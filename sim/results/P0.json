@@ -1,0 +1,351 @@
+{
+ "toolchain": {
+  "fasthenry": "/home/sequoia/opt/FastHenry2/bin/fasthenry",
+  "fastcap": "/home/sequoia/opt/FastCap2/bin/fastcap",
+  "ngspice": "/usr/lib/x86_64-linux-gnu/libngspice.so.0",
+  "openems_image": "servodrive-openems:latest",
+  "numpy": "2.3.5",
+  "scipy": "1.18.1",
+  "matplotlib": "3.10.7+dfsg1",
+  "magpylib": "5.2.3",
+  "shapely": "2.1.2",
+  "meshio": "5.3.5",
+  "skfem": "12.0.2",
+  "pyamg": "5.3.0",
+  "h5py": "3.16.0",
+  "gmsh": "4.15.2",
+  "pcbnew": "ok"
+ },
+ "geometry": {
+  "zones": 138,
+  "pads": 526,
+  "through_pads": 135,
+  "tracks": 1351,
+  "vias": 283,
+  "parts": 134,
+  "nets": 85,
+  "stackup_total_mm": 1.580001,
+  "file": "/home/sequoia/pcb/servodrive/sim/work/geometry.json"
+ },
+ "figures": [
+  "extract_board.png",
+  "extract_cellA.png"
+ ],
+ "known_answer_tests": {
+  "fasthenry_wire": {
+   "L_nH": 14.532469684709579,
+   "L_square_bar_closed_form_nH": 14.458986102199965,
+   "L_round_wire_closed_form_nH": 14.528106538695527,
+   "R_mOhm": 0.439048,
+   "R_dc_closed_form_mOhm": 0.4390481188741941,
+   "err_L": 0.005082208530405395,
+   "err_R": 2.70754363850213e-07,
+   "convergence": [
+    {
+     "nfil": 5,
+     "L_nH": 14.53326545942504,
+     "R_mOhm": 0.439048
+    },
+    {
+     "nfil": 7,
+     "L_nH": 14.532772079101457,
+     "R_mOhm": 0.439048
+    },
+    {
+     "nfil": 9,
+     "L_nH": 14.532565177675437,
+     "R_mOhm": 0.439048
+    },
+    {
+     "nfil": 11,
+     "L_nH": 14.532469684709579,
+     "R_mOhm": 0.439048
+    }
+   ],
+   "spec_expected_nH": 17.4,
+   "note": "SPEC.md sec.5.4 quotes 17.4 nH for this case, but its own formula 2e-7*l*(ln(2l/r)-0.75) with l = 20 mm, r = 0.5 mm gives 14.53 nH; 17.4 nH corresponds to d = 0.49 mm.  FastHenry agrees with the formula.",
+   "pass": true,
+   "status": "PASS",
+   "tolerance": 0.03,
+   "description": "straight wire, l = 20 mm, d = 1 mm -- partial self inductance and R_dc",
+   "seconds": 0.0
+  },
+  "fasthenry_strip_over_plane": {
+   "L_nH": 0.4870602807946964,
+   "L_parallel_plate_nH": 0.38704421492226254,
+   "ratio_to_plate_formula": 1.2584099232500399,
+   "convergence": [
+    {
+     "seg1": 20,
+     "L_nH": 0.5846174862617355
+    },
+    {
+     "seg1": 30,
+     "L_nH": 0.545371468844705
+    },
+    {
+     "seg1": 40,
+     "L_nH": 0.49493367582945247
+    },
+    {
+     "seg1": 60,
+     "L_nH": 0.4870602807946964
+    }
+   ],
+   "expected_band_nH": [
+    0.45,
+    0.6
+   ],
+   "pass": true,
+   "note": "The closed form ignores fringing, the finite plane and the vertical return at the far end; the solved value is above it, as SPEC.md sec.5.4 predicts.",
+   "status": "PASS",
+   "tolerance": 0.35,
+   "description": "15.4 x 5 mm strip, 70 um, 0.1 mm over a wide plane -- geometry.commutation_loop()'s PCB term",
+   "seconds": 0.0
+  },
+  "fasthenry_two_wire_loop": {
+   "L_loop_nH": 45.55364612164847,
+   "L_closed_form_nH": 45.451227051971614,
+   "L_self_fh_nH": 52.26170866308567,
+   "L_self_closed_nH": 52.24184437984092,
+   "M_fh_nH": 29.474381376017373,
+   "M_closed_nH": 29.516230853855113,
+   "err": 0.0022533840408695653,
+   "pass": true,
+   "status": "PASS",
+   "tolerance": 0.03,
+   "description": "two parallel wires, loop inductance vs Grover's partial-inductance forms",
+   "seconds": 0.0
+  },
+  "fastcap_plates": {
+   "C_pF": 40.57,
+   "C_parallel_plate_pF": 39.8438451576,
+   "fringing_excess": 0.018225019184964185,
+   "convergence": [
+    {
+     "n": 12,
+     "C_pF": 40.339999999999996
+    },
+    {
+     "n": 18,
+     "C_pF": 40.45
+    },
+    {
+     "n": 24,
+     "C_pF": 40.49
+    },
+    {
+     "n": 32,
+     "C_pF": 40.57
+    }
+   ],
+   "pass": true,
+   "status": "PASS",
+   "tolerance": 0.1,
+   "description": "10 x 10 mm plates at 0.1 mm in eps_r 4.5 -- 39.8 pF plus fringing",
+   "seconds": 0.14
+  },
+  "ngspice_rlc": {
+   "f_ring_MHz": 110.76713651617375,
+   "f_analytic_MHz": 110.76715253941188,
+   "peak_V": 1.568787301406192,
+   "peak_analytic_V": 1.5687884552404499,
+   "err_f": 1.446569472088143e-07,
+   "err_peak": 7.354938481744734e-07,
+   "pass": true,
+   "libngspice": "/usr/lib/x86_64-linux-gnu/libngspice.so.0",
+   "status": "PASS",
+   "tolerance": 0.001,
+   "description": "L 2 nH, C 1 nF, R 0.5 Ohm step -- ring and decay",
+   "seconds": 0.04
+  },
+  "magpylib_wire": {
+   "B_mT": 0.22638231454259422,
+   "B_analytic_mT": 0.2264,
+   "err": 7.811597794074475e-05,
+   "pass": true,
+   "magpylib": "5.2.3",
+   "status": "PASS",
+   "tolerance": 0.02,
+   "description": "B of a straight wire at 25 mm, 28.3 A",
+   "seconds": 0.0
+  },
+  "magpylib_dipole": {
+   "points": [
+    {
+     "r_mm": 50.0,
+     "B_mT": 0.19280506458944346,
+     "B_dipole_mT": 0.19199999999999995,
+     "err": 0.004193044736684954
+    },
+    {
+     "r_mm": 100.0,
+     "B_mT": 0.02402507700491549,
+     "B_dipole_mT": 0.023999999999999994,
+     "err": 0.0010448752048123366
+    },
+    {
+     "r_mm": 200.0,
+     "B_mT": 0.003000783023354143,
+     "B_dipole_mT": 0.002999999999999999,
+     "err": 0.00026100778471468126
+    }
+   ],
+   "moment_Am2": 0.11999999999999998,
+   "pass": true,
+   "status": "PASS",
+   "tolerance": 0.05,
+   "description": "Dia 8 x 2.5 mm diametric magnet -- far field against the point dipole",
+   "seconds": 0.0
+  },
+  "conduction_strip": {
+   "R_mOhm": 4.966750440556566,
+   "R_analytic_mOhm": 5.022906403940887,
+   "err_at_0p05mm": -0.011179974076415532,
+   "convergence": [
+    {
+     "cell_mm": 0.2,
+     "n": 1110,
+     "R_mOhm": 4.851394922432081,
+     "err": -0.03414586450869182
+    },
+    {
+     "cell_mm": 0.1,
+     "n": 4221,
+     "R_mOhm": 4.911287511461676,
+     "err": -0.022221973396047357
+    },
+    {
+     "cell_mm": 0.05,
+     "n": 16441,
+     "R_mOhm": 4.966750440556566,
+     "err": -0.011179974076415532
+    },
+    {
+     "cell_mm": 0.025,
+     "n": 64881,
+     "R_mOhm": 4.994741160410468,
+     "err": -0.005607359816284894
+    }
+   ],
+   "pass": true,
+   "note": "the residual is the terminal columns sitting one cell inside each end; it halves with the cell size, which is the convergence evidence SPEC.md sec.5.4 asks for",
+   "status": "PASS",
+   "tolerance": 0.02,
+   "description": "rectangular strip -- rho*L/(W*t)",
+   "seconds": 1.38
+  },
+  "conduction_annulus_radial": {
+   "R_mOhm": 0.12115805033773912,
+   "R_analytic_mOhm": 0.12250932472003039,
+   "err": -0.011029971680762472,
+   "convergence": [
+    {
+     "cell_mm": 0.1,
+     "n": 30434,
+     "R_mOhm": 0.11980096478256298,
+     "err": -0.022107377896799178
+    },
+    {
+     "cell_mm": 0.05,
+     "n": 121155,
+     "R_mOhm": 0.12115805033773912,
+     "err": -0.011029971680762472
+    }
+   ],
+   "pass": true,
+   "status": "PASS",
+   "tolerance": 0.02,
+   "description": "annular sector, radial flow -- R = rho*ln(r2/r1)/(t*theta)",
+   "seconds": 1.57
+  },
+  "conduction_annulus_tangential": {
+   "R_mOhm": 1.4514246222302796,
+   "R_analytic_mOhm": 1.4540638096289062,
+   "err": -0.0018150423531276404,
+   "convergence": [
+    {
+     "cell_mm": 0.1,
+     "n": 21243,
+     "R_mOhm": 1.4489473851062802,
+     "err": -0.0035187070118552167
+    },
+    {
+     "cell_mm": 0.05,
+     "n": 84347,
+     "R_mOhm": 1.4514246222302796,
+     "err": -0.0018150423531276404
+    }
+   ],
+   "pass": true,
+   "status": "PASS",
+   "tolerance": 0.02,
+   "description": "annular sector, tangential flow -- R = rho*theta/(t*ln(r2/r1))",
+   "seconds": 1.02
+  },
+  "conduction_via_barrel": {
+   "R_total_mOhm": 0.9471089164242509,
+   "R_barrel_analytic_mOhm": 0.09911612116288081,
+   "barrel_current_A": 0.9999802355024496,
+   "n_barrels": 1,
+   "pass": true,
+   "note": "all the current must go through the single barrel; the test is that it does, and that its conductance is sigma_plated*A/d with A the annulus of the plating",
+   "status": "PASS",
+   "tolerance": 0.03,
+   "description": "one 0.4 mm plated barrel between two planes -- rho_plated*d/A",
+   "seconds": 0.26
+  },
+  "openems_microstrip": {
+   "Z0_ohm": 46.9722827407346,
+   "Z0_closed_form_ohm": 48.39191882281348,
+   "eps_eff": 3.4114378277661475,
+   "spread_ohm": 0.04780837681988501,
+   "err": 0.029336222175377343,
+   "pass": true,
+   "convergence": [
+    {
+     "res_mm": 0.05,
+     "Z0_ohm": 44.263699977417176
+    },
+    {
+     "res_mm": 0.03,
+     "Z0_ohm": 45.366488550235474
+    },
+    {
+     "res_mm": 0.02,
+     "Z0_ohm": 46.9722827407346
+    }
+   ],
+   "note": "the FDTD answer approaches the closed form from below as the mesh is refined; the coarser run is here to show that it is doing so",
+   "status": "PASS",
+   "tolerance": 0.05,
+   "description": "0.2 mm microstrip on 0.1 mm eps_r 4.5 -- Hammerstad/Wheeler closed form",
+   "seconds": 896.07
+  },
+  "openems_strip_over_plane": {
+   "L_nH": 0.5056206618537556,
+   "L_nH_spread": 0.004911591277448895,
+   "L_fasthenry_nH": 0.4870602807946964,
+   "err_vs_fasthenry": 0.03810694854603175,
+   "pass": true,
+   "note": "SPEC.md sec.5.4 wants L2 within 10 percent of L1 on this case; it is the only direct comparison of the two solvers on a geometry with a closed form nearby.",
+   "status": "PASS",
+   "tolerance": 0.1,
+   "description": "the FastHenry strip-over-plane, cross-checked full wave",
+   "seconds": 4.45
+  }
+ },
+ "gate": {
+  "all_pass": true,
+  "n_pass": 13,
+  "n_total": 13,
+  "failed": []
+ },
+ "_phase": {
+  "seconds": 906.3
+ },
+ "_meta": {
+  "written": "2026-09-11T23:54:31",
+  "board_mtime": "2026-09-09T12:24:35"
+ }
+}

@@ -1,0 +1,35 @@
+{
+ "part": "\"100 V fast\" SOD-323 bootstrap diode",
+ "maker": "NOT CHOSEN -- the schematic carries no part number",
+ "note": "SPEC.md sec.7 flags this.  Representative: a 100 V 1 A fast recovery part in SOD-323 (RS1M/ES1J class).  Values are the class's, not a chosen part's.",
+ "V_R": {
+  "unit": "V",
+  "source": "board requirement",
+  "read": "2026-09-11",
+  "status": "assumed",
+  "value": 100.0
+ },
+ "V_f": {
+  "unit": "V",
+  "source": "class",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "typ": 0.9,
+  "max": 1.2
+ },
+ "t_rr": {
+  "unit": "s",
+  "source": "class",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "typ": 3.5e-08,
+  "max": 7.5e-08
+ },
+ "C_j": {
+  "unit": "F",
+  "source": "class",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "typ": 1.5e-11
+ }
+}

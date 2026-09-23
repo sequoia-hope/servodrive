@@ -1,0 +1,90 @@
+{
+ "part": "RP2350 SAR ADC",
+ "maker": "Raspberry Pi",
+ "resolution": {
+  "unit": "bit",
+  "source": "Raspberry Pi RP2350 datasheet, local copy ~/pcb/RP2350/rp2350-datasheet.pdf, section 12.4 and Table 1437",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 12
+ },
+ "ENOB": {
+  "unit": "bit",
+  "source": "Raspberry Pi RP2350 datasheet, local copy ~/pcb/RP2350/rp2350-datasheet.pdf, section 12.4 and Table 1437",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "min": 9.0,
+  "typ": 9.5
+ },
+ "clk_adc": {
+  "unit": "Hz",
+  "source": "Raspberry Pi RP2350 datasheet, local copy ~/pcb/RP2350/rp2350-datasheet.pdf, section 12.4 and Table 1437",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 48000000.0,
+  "note": "must be 48 MHz"
+ },
+ "conversion_cycles": {
+  "unit": "clk_adc",
+  "source": "Raspberry Pi RP2350 datasheet, local copy ~/pcb/RP2350/rp2350-datasheet.pdf, section 12.4 and Table 1437",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 96
+ },
+ "conversion_time": {
+  "unit": "s",
+  "source": "Raspberry Pi RP2350 datasheet, local copy ~/pcb/RP2350/rp2350-datasheet.pdf, section 12.4 and Table 1437",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 2e-06,
+  "note": "96 / 48 MHz -> 500 kS/s"
+ },
+ "V_ref": {
+  "unit": "V",
+  "source": "board: ADC_AVDD from +3V3A",
+  "read": "2026-09-11",
+  "status": "derived",
+  "value": 3.3
+ },
+ "R_in": {
+  "unit": "Ohm",
+  "source": "Raspberry Pi RP2350 datasheet, local copy ~/pcb/RP2350/rp2350-datasheet.pdf, section 12.4 and Table 1437",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "min": 100000.0
+ },
+ "INL": {
+  "unit": "LSB",
+  "source": "Raspberry Pi RP2350 datasheet, local copy ~/pcb/RP2350/rp2350-datasheet.pdf, section 12.4 and Table 1437 -- section 12.4.5 reads \"Details to follow\"; Raspberry Pi does not publish INL or DNL for the RP2350",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "min": -2.0,
+  "max": 2.0,
+  "note": "bracketed at +-2 LSB, the RP2040's behaviour after the RP2040-E11 fix; NOT a datasheet number."
+ },
+ "DNL": {
+  "unit": "LSB",
+  "source": "Raspberry Pi RP2350 datasheet, local copy ~/pcb/RP2350/rp2350-datasheet.pdf, section 12.4 and Table 1437 -- not published",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "min": -1.0,
+  "max": 1.0
+ },
+ "t_aperture": {
+  "unit": "s",
+  "source": "Raspberry Pi RP2350 datasheet, local copy ~/pcb/RP2350/rp2350-datasheet.pdf, section 12.4 and Table 1437 -- the split of the 96-cycle conversion into track and convert phases is not published",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "min": 2.0833333333333335e-08,
+  "max": 1.6666666666666668e-07,
+  "note": "1..8 clk_adc cycles = 20.8..167 ns.  The sampling model sweeps this bracket rather than picking one."
+ },
+ "round_robin": {
+  "unit": "-",
+  "source": "Raspberry Pi RP2350 datasheet, local copy ~/pcb/RP2350/rp2350-datasheet.pdf, section 12.4 and Table 1437",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": true,
+  "note": "CS.RROBIN interleaves channels; each enabled channel is refreshed every N x 2 us"
+ }
+}

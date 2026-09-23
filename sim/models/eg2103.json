@@ -1,0 +1,116 @@
+{
+ "part": "EG2103",
+ "maker": "EG Micro",
+ "package": {
+  "unit": "",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": "SOP-8"
+ },
+ "V_offset": {
+  "unit": "V",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 600
+ },
+ "I_source": {
+  "unit": "A",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 0.3
+ },
+ "I_sink": {
+  "unit": "A",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 0.6
+ },
+ "t_on": {
+  "unit": "s",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 7.8e-07,
+  "note": "input to output, turn-on"
+ },
+ "t_off": {
+  "unit": "s",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 2.2e-07,
+  "note": "turn-off; the 560 ns asymmetry is the effective internal dead time"
+ },
+ "t_dead": {
+  "unit": "s",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "typ": 5.6e-07,
+  "min": 4.6e-07,
+  "max": 6.6e-07,
+  "note": "560 ns typ is from the maker's table; the 460..660 bracket is tools/geometry.py's, whose datasheet source could not be re-read on 2026-09-11."
+ },
+ "UVLO_VCC_on": {
+  "unit": "V",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 8.7
+ },
+ "UVLO_VCC_off": {
+  "unit": "V",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 8.0
+ },
+ "UVLO_VB_on": {
+  "unit": "V",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 8.6
+ },
+ "UVLO_VB_off": {
+  "unit": "V",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 8.0
+ },
+ "R_HIN_pulldown": {
+  "unit": "Ohm",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 200000.0
+ },
+ "R_LIN_pullup": {
+  "unit": "Ohm",
+  "source": "EG Micro EG2103 product page egmicro.com/products/detail/?name=EG2103, read 2026-09-11 (the LCSC datasheet PDF would not download)",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 200000.0
+ },
+ "V_IH": {
+  "unit": "V",
+  "source": "tools/geometry.py DRV_VIH",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "typ": 2.5,
+  "note": "not on the maker's page; carried from the board model"
+ },
+ "V_IL": {
+  "unit": "V",
+  "source": "tools/geometry.py DRV_VIL",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "typ": 1.0
+ },
+ "disagreement": "tools/geometry.py uses UVLO_ON 9.7 V and VB(on) 9.6 V, about 1 V above the maker's 8.7 / 8.6.  The board's numbers are the conservative ones, so geometry.bootstrap()'s margin is pessimistic rather than optimistic."
+}

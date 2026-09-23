@@ -1,0 +1,30 @@
+{
+ "part": "SMDJ64A",
+ "maker": "Littelfuse",
+ "role": "board B bus TVS",
+ "V_RWM": {
+  "unit": "V",
+  "source": "Littelfuse SMDJ series",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "value": 64.0
+ },
+ "V_BR": {
+  "unit": "V",
+  "source": "same",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "min": 71.1,
+  "max": 78.6
+ },
+ "C_j": {
+  "unit": "F",
+  "source": "not read",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "min": 1e-09,
+  "typ": 2e-09,
+  "max": 4e-09,
+  "note": "SMDJ (DO-214AB) junction capacitance is of order nF and is part of the DC-link impedance."
+ }
+}

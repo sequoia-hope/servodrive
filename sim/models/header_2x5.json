@@ -1,0 +1,77 @@
+{
+ "part": "2 x 5 2.54 mm pin header pair",
+ "maker": "not chosen in the BOM",
+ "pins_vbus": {
+  "unit": "-",
+  "source": "SPEC.md sec.3.4 / spec sec.8",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 10
+ },
+ "pins_gnd": {
+  "unit": "-",
+  "source": "SPEC.md sec.3.4",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 10
+ },
+ "pin_square": {
+  "unit": "m",
+  "source": "SPEC.md sec.3.4, standard 2.54 mm header",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 0.00064
+ },
+ "mated_length": {
+  "unit": "m",
+  "source": "SPEC.md sec.3.4 assumption",
+  "read": "2026-09-11",
+  "status": "assumed",
+  "value": 0.006
+ },
+ "pitch": {
+  "unit": "m",
+  "source": "standard",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 0.00254
+ },
+ "current_per_pin": {
+  "unit": "A",
+  "source": "tools/geometry.py interconnect() default",
+  "read": "2026-09-11",
+  "status": "assumed",
+  "value": 3.0
+ },
+ "standoffs": {
+  "n": {
+   "unit": "-",
+   "source": "the six M2.5 perimeter bosses",
+   "read": "2026-09-11",
+   "status": "datasheet",
+   "value": 6
+  },
+  "length": {
+   "unit": "m",
+   "source": "tools/geometry.py GAP_AB",
+   "read": "2026-09-11",
+   "status": "datasheet",
+   "value": 0.011
+  },
+  "material": {
+   "unit": "",
+   "source": "SPEC.md sec.3.4",
+   "read": "2026-09-11",
+   "status": "datasheet",
+   "value": "brass"
+  },
+  "contact_R": {
+   "unit": "Ohm",
+   "source": "SPEC.md sec.3.4 bracket",
+   "read": "2026-09-11",
+   "status": "bracketed",
+   "min": 0.001,
+   "max": 0.01
+  }
+ }
+}

@@ -1,0 +1,13 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "f1da0208-1308-5564-8f7b-97fc20e4b3b3")
+	(paper "A4")
+	(title_block (title "servodrive — board B, power / IO — 03_usb_pd") (date "2026-09-07") (rev "A")
+		(company "Sequoia Hope Alexander"))
+	(lib_symbols)
+	(text "USB-C, FUSB302BMPX, USBLC6-2P6 (pin 5 to +3V3, F-39)" (exclude_from_sim no) (at 25 30 0)
+		(effects (font (size 1.27 1.27)) (justify left top)) (uuid "60d55722-b860-5d34-a7d3-78db9ec2dd87"))
+	(embedded_fonts no)
+)

@@ -1,0 +1,1450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>servodrive — specification</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <p class="crumb"><a href="index.html">&larr; servodrive</a></p>
+  <div class="title"><h1>Specification</h1><span class="state draft"><span class="dot"></span>Draft 0.6</span></div>
+  <p class="lede">A round, motor-mounted servodrive: a &#216;65&nbsp;mm two-board stack with the
+  magnetic rotary encoder on the shaft axis. 60&nbsp;V bus on 80&nbsp;V silicon, three phases,
+  RP2350A. Derived from <code>rp2350-motor-controller</code>, which supplies the encoder
+  circuit, the power-stage part choices, and — more usefully — a review register of
+  everything that went wrong there.</p>
+  <p class="meta">2026-09-07, revised 2026-09-22 &middot; every number below is computed by <code>tools/geometry.py</code> and the floorplan by <code>tools/placement.py</code> &middot; LCSC stock figures checked 2026-09-07 and perishable</p>
+</header>
+
+<main>
+
+<!-- ===================================================== 1 ============= -->
+<section id="s1">
+<h2>1 &middot; What it is</h2>
+
+<p>Two identical-diameter round boards stacked on the back of a motor.</p>
+
+<div class="cols">
+  <div class="card">
+    <h3>Board A — motor board</h3>
+    <p class="sub">Bolts to the motor through the encoder's four-hole pattern.</p>
+    <ul>
+      <li>MT6701 magnetic rotary encoder on the shaft axis, on the motor-facing side</li>
+      <li>Three half-bridges — 6&nbsp;&#215;&nbsp;80&nbsp;V MOSFET, 3&nbsp;&#215;&nbsp;EG2103 gate driver</li>
+      <li>Two inline phase-current shunts and their amplifiers</li>
+      <li>RP2350A, crystal, QSPI flash, 3.3&nbsp;V LDO</li>
+      <li>High-frequency DC-link ceramics, at the bridge</li>
+      <li>Three phase pads at the perimeter, on the <em>motor-facing</em> side — the leads
+          come off the motor on that side, and the outward perimeter is spoken for</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Board B — power / IO board</h3>
+    <p class="sub">Mounts on six perimeter standoffs above board A.</p>
+    <ul>
+      <li>Bus input on an XT30, 12&ndash;60&nbsp;V &mdash; or USB-PD instead of it, never both (&sect;7); TVS, bulk capacitance</li>
+      <li>VMOT &rarr; 12&nbsp;V gate rail and VMOT &rarr; 5&nbsp;V logic rail</li>
+      <li>USB-C with full PD — a 20&nbsp;V contract feeds VMOT and runs the motor</li>
+      <li>Full-duplex RS-485, two ports, chained through</li>
+      <li>Status LED, debug header, BOOTSEL</li>
+    </ul>
+  </div>
+</div>
+
+<p>The split is drawn where it costs least. Everything with a fast <var>di</var>/<var>dt</var>
+loop — gate loops and commutation loops both — stays on board A. What crosses the
+interconnect is a DC bus, three regulated rails and a handful of slow signals.</p>
+
+<div class="note good">
+  <strong>What the split costs — measured, not assumed.</strong> Draft 0.2 asserted that with
+  &asymp;13&nbsp;&micro;F of ceramic on board A the interconnect would see average bus current
+  rather than ripple, and asked for a loop-inductance estimate before layout. Both halves have
+  now been done, in <code>geometry.commutation_loop()</code> and
+  <code>geometry.interconnect()</code>, and they do not agree with each other.
+  <ul>
+    <li><strong>The loop is fine.</strong> With the In1 ground plane 0.1&nbsp;mm below F.Cu the
+    PCB contributes <strong>0.39&nbsp;nH</strong>; two PowerPAK packages and the 1210 ESL bring
+    it to <strong>2.0&nbsp;nH</strong>. At 0.87&nbsp;A/ns that is <strong>1.7&nbsp;V</strong> of
+    overshoot — a 61.7&nbsp;V peak on 80&nbsp;V silicon. The ceramics do their job and the TVS
+    never conducts in normal operation.</li>
+    <li><strong>The interconnect is not.</strong> At 20&nbsp;A RMS per phase the DC link carries
+    21.2&nbsp;A of bus current plus 12.4&nbsp;A RMS of ripple, and at 20&nbsp;kHz the ceramics on
+    board A are a 0.61&nbsp;&#8486; path against the bulk's 0.2&nbsp;&#8486;, so three quarters of
+    that ripple crosses the header anyway: <strong>23.2&nbsp;A RMS</strong>. A 2&#215;8 at
+    3&nbsp;A/pin is 24&nbsp;A. Eight hundred milliamps is not a continuous rating, so the power
+    link is two 2&#215;5 and 30&nbsp;A — see &sect;8.</li>
+  </ul>
+  The ceramic budget itself stands: it is the megahertz content that matters locally, and
+  above about 600&nbsp;kHz the ceramics own it.
+</div>
+</section>
+
+<!-- ===================================================== 2 ============= -->
+<section id="s2">
+<h2>2 &middot; Mechanical</h2>
+
+<figure>
+  <img src="img/board_a_plan.svg" alt="Plan view of board A: 65 mm circle, four M3 motor mount holes at 25 mm and 19 mm spacings around a central MT6701, six M2.5 perimeter holes on a 59 mm bolt circle, three phase cells at 120 degrees interleaved with three utility wedges.">
+  <figcaption>Board A, drawn from the placement itself rather than from an intention:
+  <code>tools/geometry.py</code> reads the same coordinates <code>gen_boards.py</code> writes
+  into the KiCad file. Solid courtyards are on the outward face, dashed ones on the
+  motor-facing face. The three phase cells sit at 60&deg;/180&deg;/300&deg; so all three
+  commutation loops are the same shape; the three wedges between them carry the interconnect
+  and the CPU; the gold arcs at the perimeter are bare copper for the heatsink ring, and are
+  the reason every part stops at R&nbsp;29.2. Nothing but the encoder and the motor screws
+  lives inside &#216;32.</figcaption>
+</figure>
+
+<table>
+<caption>Geometry — single source of truth is <code>tools/geometry.py</code></caption>
+<thead><tr><th>Item</th><th>Value</th><th>Where it comes from</th></tr></thead>
+<tbody>
+<tr><td>Board diameter, both boards</td><td>&#216;65.0 mm</td><td>Set 2026-09-07</td></tr>
+<tr><td>Motor mount</td><td>4 &#215; &#216;3.2 (M3) at (&plusmn;12.5,&nbsp;0) and (0,&nbsp;&plusmn;9.5)</td>
+    <td>Inherited verbatim from <code>hardware/encoder</code> H1–H4</td></tr>
+<tr><td>Encoder centre</td><td>(0,&nbsp;0) — coincides with the shaft axis</td><td>MT6701 sensing centre</td></tr>
+<tr><td>Central keepout</td><td>R &lt; 16 mm, both faces</td><td>Screw heads + magnet clearance</td></tr>
+<tr><td>Sections</td><td>Three phase cells of <strong>60&deg;</strong> at 30/90/150&deg;,
+    adjacent, then three 60&deg; wedges at 210/270/330&deg;</td>
+    <td>Grouped rather than alternating, and narrowed &mdash; see below</td></tr>
+<tr><td>Board-B mounting</td><td>6 &#215; M2.5 on a &#216;59 bolt circle, on the six
+    <strong>section boundaries</strong>: 0, 60, 120, 180, 240, 300&deg;</td>
+    <td>Every section gets one at each edge &mdash; and at 60/60 that is an even
+    circle again</td></tr>
+<tr><td>Phase pads</td><td>3 arcs, R&nbsp;28.1&#8211;31.3 over 14&deg;, 23&nbsp;mm&sup2; each, at 30&deg;/90&deg;/150&deg;, <strong>on B.Cu</strong></td><td>14 AWG motor leads. An arc, because a straight pad this wide at this radius puts its corners off the board</td></tr>
+<tr><td>Heatsink land</td><td>3 arcs, R&nbsp;29.2&#8211;31.5 over 48&deg;, plus six &#216;4.8 mm bosses = 250&nbsp;mm&sup2; of bare copper</td><td>&sect;4 &mdash; the joint a heatsink would clamp, 0.33 K/W; kept although no fins are planned</td></tr>
+<tr><td>Parts placed, board A</td><td>124 by the floorplan &mdash; 69 outward, 55 motor-facing, 10 DNP &mdash; and 12 generated (lands, lead pads, bosses)</td><td><code>tools/placement.py</code></td></tr>
+<tr><td>Netlist, board A</td><td>136 components, 87 nets, 425 connections</td><td><code>tools/schematic.py</code>, checked against the placement both ways</td></tr>
+<tr><td>Usable annulus</td><td>R 16 &rarr; 31.5 = 2313 mm&sup2; per side</td><td>Computed</td></tr>
+<tr><td>Board A stackup</td><td>6 layer, 2 oz outer / 1 oz inner, 1.6 mm, <strong>0.1 mm F.Cu&#8594;In1 prepreg</strong></td><td>Same as the sister board, except the prepreg, which is what &sect;1's 0.39 nH rests on</td></tr>
+<tr><td>Board B stackup</td><td>4 layer, 2 oz outer, 1.6 mm</td><td>No dense routing; 4 is enough</td></tr>
+<tr><td>Standoff, motor face &rarr; board A</td><td>10.75 mm</td>
+    <td><em>Derived</em>: 5.0 shaft + 2.5 magnet + 1.5 air gap + 1.75 MT6701 body</td></tr>
+<tr><td>Standoff, board A &rarr; board B</td><td>11.0 mm</td><td>Board A parts + mated interconnect height</td></tr>
+<tr><td>Total above the motor rear face</td><td>36.0 mm</td><td>Connectors and bulk cans included</td></tr>
+</tbody>
+</table>
+
+<div class="note good">
+  <strong>The three phase cells are adjacent, and the three wedges with them.</strong>
+  Draft 0.3 alternated them &mdash; phase, wedge, phase, wedge &mdash; which put the RP2350A
+  with a half-bridge 25&deg; away on each side. Grouping costs nothing inside a cell (the
+  width is unchanged at 70&deg;) and buys three things:
+  <ul>
+    <li>The CPU moves to the <strong>middle</strong> of the wedge group, as far from every
+    switching node as a round board allows.</li>
+    <li>The three motor leads leave <strong>together</strong>, so one bundle leaves the
+    enclosure through one hole instead of three.</li>
+    <li>The DC bus feeds one contiguous 210&deg; block from the power link at its edge,
+    rather than reaching around the board past the CPU.</li>
+  </ul>
+  <p>The six M2.5 sit on the six section boundaries, so every section has a bolt at each edge
+  and every phase cell's heatsink land runs the full width between its own two. At 70/50 that
+  cost the even spacing; at <strong>60/60</strong> it does not, and the bolt circle is regular
+  again.</p>
+</div>
+
+<div class="note good">
+  <strong>And the cells came in from 70&deg; to 60&deg;, using the channel interior to the
+  screws.</strong> A phase cell is short of <em>angle</em>, not of area, and angle costs radius:
+  a millimetre of arc at R&nbsp;20 is 2.9&deg;, the same millimetre at R&nbsp;29.5 is 1.9&deg;.
+  The cell was 70&deg; because small parts sat at small radius &mdash; a 1&nbsp;&micro;F 0805
+  beside the gate driver was taking 30&deg; on its own, while both MOSFETs together needed 18.
+  <p>The six boss pads sit on R&nbsp;26.9&#8211;32.2, and <strong>between them that band is
+  empty</strong>: the heatsink land owns it on the outward face, and on the motor-facing face
+  nothing but the lead pads wants it. So everything without a reason to be somewhere in
+  particular now lives there at R&nbsp;29.3 &mdash; the bootstrap diode (only its capacitor has
+  to be at VB and VS), the DC-link 100&nbsp;n, both input pulls, and each phase's clamp diode,
+  which ends up beside its own lead pad. The DC-link bulk ceramic moved to its own row at
+  R&nbsp;26.8, as far out as the land allows.</p>
+  <p><strong>That held for the utility wedges and not for the phase cells.</strong> Routing found
+  that a part in a phase cell's channel can be connected only if its nets are GND or the phase
+  output &mdash; the phase-output pour owns B.Cu beneath it, the heatsink land owns F.Cu above
+  it, and the bosses cut the outer ring into six arcs. Five of the six went back into the cell
+  and the cells were widened to 68&deg; to take them. The clamp diode stayed, because its nets
+  are exactly the two that work. &sect;10b has the measurement.</p>
+  <table class="num">
+  <thead><tr><th></th><th>70&deg; cells</th><th>all in the channel</th><th>now</th></tr></thead>
+  <tbody>
+  <tr><td>Phase cell</td><td>70&deg;</td><td>60&deg;</td><td><strong>68&deg;</strong></td></tr>
+  <tr><td>Utility wedge</td><td>50&deg;</td><td>60&deg;</td><td><strong>52&deg;</strong></td></tr>
+  <tr><td>Phase group</td><td>210&deg;</td><td>180&deg;</td><td>204&deg;</td></tr>
+  <tr><td>Bolt spacing</td><td>70/70/70/50/50/50&deg;</td><td>60&deg;, even</td><td><strong>68/68/68/52/52/52&deg;</strong></td></tr>
+  <tr><td>In the channel, per cell</td><td>&mdash;</td><td>6 parts</td><td><strong>1</strong>, the clamp diode</td></tr>
+  <tr><td>Heatsink land</td><td>286 mm&sup2;</td><td>250 mm&sup2;</td><td><strong>279 mm&sup2;</strong></td></tr>
+  </tbody>
+  </table>
+  <p>Three consolidations paid for it: the per-driver 1&nbsp;&micro;F VCC bulk became one
+  4.7&nbsp;&micro;F at the power link (three of them on one 0.1&nbsp;A rail was two too many),
+  the lead pad narrowed from &plusmn;8.5&deg; to &plusmn;7&deg; &mdash; 23&nbsp;mm&sup2;, still
+  ample for a 14 AWG lead &mdash; and the row packer learned to dodge parts in <em>other</em>
+  rows, because two rows that overlap radially and sit at different angles can collide and a
+  packer that only looks at its own row walks straight into them.</p>
+</div>
+
+<p><strong>Area is not the constraint.</strong> The sister board fits a four-bridge stage, a
+twelve-pin switched encoder port, isolated CAN and USB-PD into roughly 4400&nbsp;mm&sup2; of
+courtyard across two sides. This design has four usable sides of 2313&nbsp;mm&sup2; and far
+less to put on them. That buys the right to keep thermally generous packages instead of
+chasing the shrinks in the sister project's F-47 — take the small parts where they are also
+better parts, not merely smaller ones.</p>
+
+<figure>
+  <img src="img/stack.svg" alt="Side view of the stack: motor rear face, encoder air gap and standoff, board A, interconnect gap, board B, connectors.">
+  <figcaption>Stack elevation. The standoff under board A is not a free choice — it is
+  whatever the shaft, the magnet holder, the MT6701's working air gap and the SO-8 body add up
+  to, and it lands at 10.75 mm on the placeholder numbers. Change the shaft height in
+  <code>tools/geometry.py</code> once the motor is known and every dimension here follows.</figcaption>
+</figure>
+</section>
+
+<!-- ===================================================== 3 ============= -->
+<section id="s3">
+<h2>3 &middot; Power stage</h2>
+
+<table>
+<caption>Electrical design point</caption>
+<tbody>
+<tr><th>Bus voltage</th><td>60 V nominal, <strong>12 V minimum</strong> (decided 2026-09-22), 80 V silicon throughout, TVS breakdown 71–79 V</td></tr>
+<tr><th>Phase current</th><td><strong>20 A RMS per phase</strong> &mdash; the figure everything is sized to, and since 2026-09-22 a burst figure rather than a continuous rating (&sect;4) &mdash; 28.3 A peak, &plusmn;32 A of sense. Draft 0.2 used &ldquo;20 A&rdquo; for the RMS figure in &sect;4 and for an instantaneous one in &sect;5; they differ by &radic;2 and the sense chain lost. One number now.</td></tr>
+<tr><th>Switching frequency</th><td>20 kHz nominal (the number every estimate below is quoted at)</td></tr>
+<tr><th>Topology</th><td>Three independent half-bridges, software dead time, inline phase-current sense</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Parts, and why each one differs from the sister board</caption>
+<thead><tr><th>Function</th><th>Part</th><th>Rationale</th></tr></thead>
+<tbody>
+<tr><td>MOSFET, 6&nbsp;&#215;</td><td>BSC030N08NS5, PowerPAK SO-8</td>
+    <td>Unchanged. 80 V, 2.6/3.4 m&#8486; at V<sub>GS</sub>&nbsp;=&nbsp;10 V, 100% avalanche tested,
+    27k in stock at LCSC. Driven properly this time — see the row below.</td></tr>
+<tr><td>Gate driver, 3&nbsp;&#215;</td><td class="chg">EG2103, SOP-8</td>
+    <td><strong>Changed.</strong> The sister board's EG3113 is unbuyable — 9 in stock, minimum
+    purchase 25 (their F-40, which blocks its ordering). The obvious like-for-like replacement,
+    EG2131, turns out to be <em>also</em> out of stock. EG2103 is the same EG Micro family and
+    the same logic convention, <strong>2,225 in stock, MOQ 5, $0.19 @100</strong>: 600 V,
+    V<sub>CC</sub> 10–20 V, interlock plus <strong>560 ns internal dead time</strong>, HIN
+    active-high with a 200 k pull-down, LIN active-low with a 200 k pull-up. It needs the 12 V
+    rail, and that is the point. What it gives up is drive strength — ±0.3/0.6 A against
+    EG3113's 2/2.5 A — costed in §4.</td></tr>
+<tr><td>Gate rail</td><td class="chg">12 V, its own buck on board B</td>
+    <td><strong>Changed.</strong> This is the single largest improvement available and it is
+    quantified in the sister project's F-41: driving a 10 V-rated FET from a 5.04 V rail costs
+    ~2 W per bridge of switching loss and ~15% on R<sub>DS(on)</sub>. See §4.</td></tr>
+<tr><td>Gate network</td><td class="chg">2.2 &#8486; + 10 k G–S, PNP booster DNP</td>
+    <td><strong>Changed, because the driver is now the limit rather than the resistor.</strong>
+    EG2103 saturates at 0.3 A, and reaching that from a 12 V rail needs R<sub>g</sub> ≈ 28 &#8486;
+    — so below about 28 &#8486; the resistor buys no speed at all and only adds turn-off delay
+    against the 0.6 A sink. 2.2 &#8486; is therefore for gate-loop damping, not for edge shaping.
+    Footprints kept for the sister board's PNP turn-off booster (their Q1 + D6/D7), which is the
+    proven way to buy the turn-off edge back if §4's switching term proves binding on the bench.</td></tr>
+<tr><td>Current sense, 2&nbsp;&#215;</td><td class="chg">INA241<strong>A3</strong>, TSOT-23-8, 50 V/V</td>
+    <td><strong>Changed.</strong> Higher gain lets the shunt shrink. Inline, not low side, so
+    torque is measurable at standstill and at any duty cycle. The package is TSOT-23-8 (the DDF
+    suffix), not the SOT-23-8 draft 0.2 wrote; that is what is placed on board A. A third
+    footprint sits on phase C, DNP &mdash; there is no fourth ADC channel for it.
+    <strong>And the grade is A3.</strong> INA240 numbers its gains A1&nbsp;=&nbsp;20,
+    A2&nbsp;=&nbsp;50; INA241 numbers them A1&nbsp;=&nbsp;10, A2&nbsp;=&nbsp;20,
+    A3&nbsp;=&nbsp;50. Draft 0.2 carried the INA240 mapping across and asked for a 20 V/V
+    part to do a 50 V/V job &mdash; table 4-1 of the INA241A datasheet.</td></tr>
+<tr><td>Shunts, 2&nbsp;&#215;</td><td class="chg">0.8 m&#8486; (2 &#215; 1.6 m&#8486; 2010)</td>
+    <td><strong>Changed again, and this one is a correction rather than an improvement.</strong>
+    Draft 0.2's 1.6 m&#8486; was chosen to reproduce the sister board's 80 mV/A so firmware
+    constants would carry across. It gives &plusmn;20.6 A of full scale, and the design point
+    peaks at 28.3 A: the chain would have clipped on every cycle above 14.6 A RMS. 1.0 m&#8486;
+    &#215; 50 V/V = 40 mV/A &rarr; <strong>&plusmn;36.2 A</strong> worst case, and costs
+    0.64 W instead of 1.28 W. Phase C gets
+    the same two footprints as 0 &#8486; links so all three phases match. See &sect;5.</td></tr>
+<tr><td>Phase TVS, 3&nbsp;&#215;</td><td>TPSMF4L64A, SOD-123FL</td>
+    <td>Same 64 V standoff / 400 W as SMAJ64A (their F-09 fix) in a much smaller package —
+    one of the F-47 swaps that is worth taking.</td></tr>
+<tr><td>DC-link ceramic</td><td>6 &#215; 2.2 &micro;F 100 V 1206 + 6 &#215; 100 n</td>
+    <td>New requirement created by putting the bulk on board B. Two of each per cell, flanking
+    the FET pair tangentially inside the commutation loop. &sect;1 now has the measurement that
+    justifies them: 0.39 nH of PCB loop, 1.7 V of overshoot.</td></tr>
+<tr><td>Input pulls, 6&nbsp;&#215;</td><td class="chg">4.7 k on every HIN and LIN</td>
+    <td><strong>New, and not optional.</strong> Two errata meet on this pin. EG2103's LIN is
+    active-low with an internal 200 k pull-up; RP2350's GPIOs leave reset as inputs with a
+    ~60 k pull-down, and erratum E9 can latch a Bank 0 input near 2.1&#8211;2.2 V. The divider of
+    those two lands LIN around 1.2 V &mdash; above V<sub>IL</sub> 1.0 and below V<sub>IH</sub> 2.5,
+    which is the one place a gate driver input must never sit. 4.7 k to GND on both HIN and LIN
+    makes the reset state a property of this board instead of two other people's errata, and
+    &le;9 k is also the documented E9 workaround. <em>To GND on both</em> is the brake-on-reset
+    decision of 2026-09-22 (the box below); until then LIN went to +3V3, for a coast. They sit on
+    the driver's logic side, one via each.</td></tr>
+<tr><td>RC snubber, 3&nbsp;&#215;</td><td class="chg">2.2 &#8486; + 470 pF C0G 100 V, 0603, <strong>DNP</strong></td>
+    <td><strong>New, footprints only.</strong> The simulation's answer to the one corner that
+    fails: if the EG2103's output stage is the strong one, the turn-on ring reaches 73.9 V of
+    V<sub>ds</sub>; this across the switch node takes it to 62.7 V for 0.034 W per cell (sim P2,
+    Q3). Fitted only if the driver measures strong. On the back under the high-side FET, the
+    resistor's pad on the switch-node pour and the capacitor's on a ground via, their middle node
+    a pour of its own. 0603 rather than the 0805 the simulation proposed, because an 0805 pair does
+    not fit between the sense tap and the shunt; the ratings do not need 0805.</td></tr>
+</tbody>
+</table>
+
+<div class="note warn">
+  <p><strong>Every changed row above is a sourcing risk until checked.</strong> The sister
+  project's F-40 is precisely the failure of not doing this: a design that cannot be ordered
+  because one part has nine in stock. Before any of these reach a schematic symbol, confirm
+  LCSC stock depth and minimum buy for <strong>INA241A2</strong> — F-47 verified the A1 in
+  SOT-23-8, not the 50 V/V grade, which is <code>INA241A2IDDFR</code> in <strong>TSOT-23-8</strong>;
+  <code>INA240A2PWR</code> (C129949) is in stock as a fallback but is TSSOP-8 and only
+  &plusmn;80 V common mode against INA241's &plusmn;110 V, so it is a different footprint and
+  less margin on a 60 V phase node —
+  <strong>2.0 m&#8486; 2010</strong> shunts at 1% or better, <strong>TPSMF4L64A</strong>,
+  <strong>LMR38010</strong>, and the ripple-rated bulk &sect;8 now needs. F-47 already notes
+  that ISO1044 "is absent from the JLC in-stock listing today" despite being the recommended
+  swap; assume nothing.</p>
+  <p>Checked 2026-09-07, and the results are why this box exists:
+  <strong>EG2103</strong> C480654 &mdash; 2,225, MOQ 5, $0.19, but only 0.3/0.6 A drive;
+  <strong>FD2103S</strong> C5187182 &mdash; <em>out of stock</em>, and it was the cheapest hit;
+  <strong>EG2131</strong> C193777 &mdash; <em>not available</em>;
+  <strong>UCC27282DR</strong> C2867844 &mdash; 1,227, $1.99;
+  <strong>NCP5183DR2G</strong> C904511 &mdash; 2,883, MOQ 1, $0.92, but 4.3 A and no interlock.
+  <strong>EG2103 chosen</strong>: the interlock and the 560 ns dead time are worth more here than
+  the edge rate. Three of the five first-choice parts were unbuyable or overpriced. The 40 V-class question does not arise here,
+  but no confirmed high-stock 80 V alternative to BSC030N08NS5 was sought &mdash; it has 27k in
+  stock and stays.</p>
+</div>
+
+<div class="note good">
+  <strong>Fail-safe by construction &mdash; the die coasts, and the board now brakes.</strong>
+  Draft 0.2 left this open because the sources disagreed. EG2103's own datasheet (V1.0,
+  2018&#8209;11&#8209;11) settles it, and the interesting part is that it contradicts itself.
+  <ul>
+    <li>Its <strong>truth table</strong> is unambiguous: HIN&nbsp;=&nbsp;LIN&nbsp;=&nbsp;0 turns
+    the low side on, HIN&nbsp;=&nbsp;LIN&nbsp;=&nbsp;1 turns the high side on, and any
+    disagreement turns both off. LIN is active-low, as &sect;6 assumed.</li>
+    <li>Its <strong>block diagram</strong> draws 200 k from an internal +5 V into LIN, and 200 k
+    from HIN to ground.</li>
+    <li>Its <strong>parameter table</strong> agrees: I<sub>in(L)</sub> is specified as
+    &minus;10&nbsp;&micro;A at V<sub>in</sub>&nbsp;=&nbsp;0&nbsp;V. Current flowing <em>out</em>
+    of an input held low is a pull-up, and it is a guaranteed number rather than a drawing.
+    Quiescent current is also specified with the inputs floating, which is not how you
+    characterise a part whose floating state turns a MOSFET on.</li>
+    <li>Its <strong>prose</strong>, in &sect;2, says LIN has a 200 k pull-<em>down</em> &mdash; and
+    then finishes the same sentence by claiming floating inputs turn both MOSFETs off, which is
+    only true if it is a pull-up. It is a copy-paste of the HIN clause. EG Micro's website has
+    the corrected wording; LCSC's summary repeats the typo.</li>
+  </ul>
+  <strong>Verdict: LIN is pulled up, floating inputs coast, and pulling <code>RUN</code> low is a
+  real hardware stop.</strong> Three independent statements in the manufacturer's own document
+  against one self-refuting sentence.
+  <p>That is the die. The <em>board</em> still needs the six 4.7 k pulls in the parts table,
+  for a different reason: RP2350's reset-state pull-down fights EG2103's 200 k pull-up and
+  parks LIN in the undefined band. The datasheet answer and the erratum answer are not the same
+  answer.</p>
+  <p><strong>Decided 2026-09-22: a reset brakes.</strong> Both pulls go to GND, and
+  HIN&nbsp;=&nbsp;LIN&nbsp;=&nbsp;0 is the truth table's low-side-on state, so while the CPU is
+  in reset &mdash; <code>RUN</code> low, a watchdog, a brown-out, the first milliseconds of boot
+  &mdash; every low side conducts and the motor is shorted through its own windings. 4.7 k
+  against the 200 k internal pull-up holds LIN at 0.11 V. Two things follow that are easy to miss.
+  The brake lasts only as long as the 12 V gate rail: <code>GATE_EN</code> comes from a GPIO,
+  which is an input with a pull-down in reset, so <strong>board B has to hold the gate rail on by
+  default</strong> &mdash; a pull-up on the buck's EN that the CPU can pull down &mdash; or a
+  reset becomes a brief brake and then a coast. And a brake is not a stop on a joint that is
+  still being driven: it turns the load's energy into winding current, which is also why it
+  does not pump the bus the way a regenerating decel does (question 8).</p>
+</div>
+
+<div class="note">
+  <strong>Two more numbers the datasheet gave up, both of which shape the firmware.</strong>
+  Turn-on delay is <strong>780 ns</strong> and turn-off delay <strong>220 ns</strong>, on both
+  channels. The 560 ns dead time is not a separate circuit bolted on &mdash; it <em>is</em> that
+  asymmetry, which is why it holds at 560 ns worst case as well as typical. The consequence is a
+  minimum pulse width: an input pulse shorter than about 560 ns produces no output at all, so at
+  20 kHz the bottom and top 1.1% of the duty range are unreachable. And V<sub>IH</sub> is
+  2.5&nbsp;V minimum, which a 3.3&nbsp;V GPIO clears by 0.8&nbsp;V &mdash; enough, but not enough
+  to spend on a series resistor. Nothing goes in the HIN/LIN path.
+</div>
+
+<div class="note good">
+  <strong>What the interlock and the 560 ns dead time buy.</strong> EG2103 cannot turn both
+  FETs on, whatever the inputs do — the internal lockout forbids it and the dead-time circuit
+  separates the edges. That removes a whole class of firmware bug from a board whose CPU is
+  also running the control loop, and it means the software dead time the sister project's
+  firmware inserts can go to roughly zero, giving back the duty-cycle range it currently spends.
+  At 20 kHz, 560 ns is 1.1% of the period.
+</div>
+
+<div class="note warn">
+  <strong>What it costs: edge rate, and therefore about 2 W.</strong> ±0.3/0.6 A against
+  EG3113's 2/2.5 A. §4 puts the switching term at roughly 1.05 W per bridge instead of 0.3 W —
+  still better than the sister board's as-built 2.0 W, because the 12 V rail roughly halves its
+  95 ns edges to about 50 ns, but not as good as a strong driver would give. If the bench says
+  that term is binding, the escape is the PNP turn-off booster in the parts table, not a
+  different resistor.
+</div>
+
+</section>
+
+<!-- ===================================================== 4 ============= -->
+<section id="s4">
+<h2>4 &middot; Thermal &mdash; what 20 A costs</h2>
+
+<div class="note good">
+  <strong>Decided 2026-09-22: no fins, and 20 A is not a continuous rating.</strong> The drive
+  will normally run well below its peak current, and what it can do in bursts will be found on
+  the prototype rather than designed for here. Everything below stays as the arithmetic for
+  that: it is what 20 A RMS <em>continuous</em> would cost, so it is also the scale for how
+  long a burst can last. The board half of the thermal path stays as drawn &mdash; the ring land,
+  the plated bosses, the via arrays &mdash; because it costs nothing and keeps the option of a
+  heatsink open.
+</div>
+
+<p>Board A is a sealed sandwich: its inner face looks at the motor, its outer face looks at
+board B. Neither sees moving air. Everything else in this spec is comfortable; this is not, and
+committing to 20 A RMS continuous is a decision about the <em>enclosure</em> as much as about
+the board.</p>
+
+<table class="num">
+<caption>Board A dissipation, computed by <code>geometry.losses()</code> from datasheet maxima
+&mdash; R<sub>DS(on)</sub> 3.0 m&#8486; max &#215; 1.58 hot, Q<sub>gd</sub> 19.5 nC max,
+Q<sub>rr</sub> 188 nC max, driver 0.3/0.6 A. The sister board's column is its own figure, kept
+for comparison.</caption>
+<thead><tr><th>Term</th><th>Sister board<br><span class="sub">5 V gate rail, 4 m&#8486; &#215; 3</span></th>
+<th>This spec<br><span class="sub">12 V gate rail, 1.0 m&#8486; &#215; 2</span></th></tr></thead>
+<tbody>
+<tr><th colspan="3" class="grp">At 20 A RMS per phase &mdash; the design point</th></tr>
+<tr><td>Conduction, 3 bridges</td><td>6.6 W</td><td>5.69 W</td></tr>
+<tr><td>Switching, 3 bridges</td><td>6.0 W</td><td>3.84 W</td></tr>
+<tr><td>Shunts</td><td>4.8 W <span class="sub">(3 phases)</span></td><td>0.64 W <span class="sub">(2 phases)</span></td></tr>
+<tr><td>Gate charge + driver quiescent</td><td rowspan="2">0.7 W</td><td>0.14 W</td></tr>
+<tr><td>RP2350A, LDO drop, MT6701, amplifiers</td><td>0.26 W</td></tr>
+<tr class="tot"><td>Total</td><td>18.1 W</td><td>10.56 W</td></tr>
+<tr><th colspan="3" class="grp">At 10 A RMS per phase</th></tr>
+<tr class="tot"><td>Total</td><td>6.6 W</td><td>4.12 W</td></tr>
+</tbody>
+</table>
+
+<p>The switching row is where the driver choice lands. EG2103 sources 0.3 A and sinks 0.6 A, so
+against a 19.5 nC Q<sub>gd</sub> the edges are <strong>65 ns on and 32 ns off</strong> and no
+gate resistor below about 28&nbsp;&#8486; changes that. Add the complementary body diode's
+188 nC of reverse recovery at 60 V and the three bridges come to 3.84 W. A 4 A driver would save
+roughly 2 W across the board; that 2 W is the price of the hardware interlock and the 560 ns
+dead time, and it is a deliberate purchase.</p>
+
+<h3>The path out, in four resistances</h3>
+
+<table class="num">
+<caption>Junction to ambient at the design point, from <code>geometry.thermal()</code>.
+The first two terms are per-FET at 1.59 W each; the last two carry all 10.56 W.</caption>
+<thead><tr><th>Step</th><th>K/W</th><th>&Delta;T</th><th>What sets it</th></tr></thead>
+<tbody>
+<tr><td>Junction &rarr; drain pad</td><td>0.9</td><td>1.4 K</td><td>R<sub>thJC</sub> max, PG-TDSON-8</td></tr>
+<tr><td>Drain pad &rarr; inner copper</td><td>7.6</td><td>12.1 K</td>
+    <td><strong>16 vias of 0.4 mm in the drain pad</strong>, 0.95 mm pitch &mdash; the low side; the high side has 20. The FR4 alone would be 354 K/W</td></tr>
+<tr><td>Phase cells &rarr; perimeter bosses</td><td>1.0</td><td>10.7 K</td><td>Spreading in six layers of copper</td></tr>
+<tr><td>Bare copper &rarr; heatsink</td><td>0.4</td><td>4.3 K</td><td>286 mm&sup2; of mask-free land through a 0.25 mm gap pad</td></tr>
+<tr class="tot"><td>Heatsink &rarr; ambient</td><td><strong>&le; 6.8</strong></td><td>&le; 72 K</td>
+    <td>Everything left over, for T<sub>j</sub> &le; 125 &deg;C at 25 &deg;C ambient</td></tr>
+</tbody>
+</table>
+
+<div class="note warn">
+  <strong>A bare stack does not do this, and it is not close.</strong> At 15 K/W the board would
+  sit at 199&nbsp;&deg;C and the junctions at <strong>212&nbsp;&deg;C</strong>. 20 A RMS
+  continuous is not a rating this stack can have on its own; it is a rating the enclosure grants
+  it. The requirement is <strong>&le; 6.8 K/W from the heatsink to ambient</strong>, which at
+  15&nbsp;W/m&sup2;K of natural convection plus radiation means <strong>&ge; 98 cm&sup2; of
+  external surface</strong>. A plain &#216;65 &#215; 35 mm aluminium barrel is 71 cm&sup2; and
+  falls short; the same barrel with sixteen 6 mm longitudinal fins is about 138 cm&sup2; and
+  lands near 4.8 K/W &mdash; board 90&nbsp;&deg;C, junctions <strong>104&nbsp;&deg;C</strong>.
+  That is the design.
+</div>
+
+<p><strong>So &sect;4 of draft 0.2 asked which of four options to take, and the answer is
+option 2, taken seriously.</strong> The machined aluminium ring is not an optional upgrade that
+buys headroom &mdash; it is a structural member of the thermal design, and the board is now laid
+out around it:</p>
+
+<ul>
+  <li>Every part on the outward face stops at <strong>R&nbsp;29.2</strong>, leaving an
+  uninterrupted annulus for the ring to clamp.</li>
+  <li>Each phase cell offers a <strong>58&deg; arc of mask-free copper</strong> at
+  R&nbsp;29.2&ndash;31.5, between that cell's two perimeter bolts. With the six &#216;4.8 mm
+  bosses that is 286 mm&sup2; of metal-to-metal joint.</li>
+  <li>The six M2.5 holes are <strong>plated, with pads on every layer and mask open both
+  sides</strong>. They are the standoff, the heat path and the chassis ground bond at once.</li>
+  <li>The motor leads land on the <strong>motor-facing</strong> face, so the ring needs no
+  notches and the outward perimeter is entirely thermal.</li>
+</ul>
+
+<p>Options 3 and 4 from draft 0.2 stay declined for the reasons given there: the motor housing
+is the hotter body in the case this drive exists for, and a finned lid on board B is on the
+wrong side of an 11 mm air gap. The ring is the only path that leaves board A's copper through
+metal.</p>
+
+<div class="note">
+  <strong>What is still an estimate.</strong> The 15 K/W bare-stack figure, the 15 W/m&sup2;K
+  convection coefficient and the 1.0 K/W of in-board spreading are all derived, not measured.
+  The via array, the land area and the loss budget are arithmetic on datasheet numbers and
+  placed geometry, and those I would defend. Treat the heatsink requirement as the right order
+  of magnitude and measure it before believing the last 20%.
+</div>
+</section>
+
+<!-- ===================================================== 5 ============= -->
+<section id="s5">
+<h2>5 &middot; Sensing</h2>
+
+<p>The RP2350A has four ADC inputs, on GPIO26–29. That is the whole analog budget, and it is
+spent as follows.</p>
+
+<table>
+<caption>ADC allocation</caption>
+<thead><tr><th>Channel</th><th>Signal</th><th>Chain</th></tr></thead>
+<tbody>
+<tr><td>ADC0 / GPIO26</td><td>Phase A current</td><td>0.8 m&#8486; inline &rarr; INA241A3 &#215;50, 1.65 V referenced &rarr; &plusmn;36.2 A</td></tr>
+<tr><td>ADC1 / GPIO27</td><td>Phase B current</td><td>as above</td></tr>
+<tr><td>ADC2 / GPIO28</td><td>Bus voltage</td><td>50 k / 5.1 k 0.1% divider on board A, where VBUS already is</td></tr>
+<tr><td>ADC3 / GPIO29</td><td>FET temperature</td><td>10 k NTC in the phase-cell copper pour</td></tr>
+<tr><td>ADC4 (internal)</td><td>Die temperature</td><td>free, and a usable ambient proxy</td></tr>
+</tbody>
+</table>
+
+<p>Phase C current is reconstructed as <code>Ic = -(Ia + Ib)</code>. What that costs is worth
+stating plainly: no per-phase fault detection, no redundancy, and any offset error in A and B
+lands doubled on C. For FOC on a wye-connected motor it is standard and sufficient.</p>
+
+<p>A second NTC footprint sits by the motor mount pattern, DNP, with a 0&nbsp;&#8486; jumper
+selecting which thermistor reaches ADC3 — so motor-housing temperature is a build option
+rather than a respin.</p>
+
+<div class="note warn">
+  <strong>The shunt changed, and the reason is a bug draft 0.2 shipped.</strong> That draft set
+  1.6 m&#8486; so that 1.6 m&#8486; &#215; 50 V/V would give exactly the sister board's 80 mV/A and
+  its firmware constants would carry across unchanged. The full scale that buys is
+  <strong>&plusmn;20.6 A instantaneous</strong>. The thermal budget in &sect;4 was written at
+  <strong>20 A RMS</strong>, whose peak is 28.3 A. The chain would have clipped on every cycle
+  above 14.6 A RMS, and a current loop cannot be closed on a clipped measurement.
+  <p><strong>It took two goes.</strong> The first correction was 1.0 m&#8486; for
+  &plusmn;32 A, sized against the amplifier's <em>typical</em> output swing. The datasheet's
+  worst case is V<sub>S</sub>&nbsp;&minus;&nbsp;0.2&nbsp;V rather than 0.07&nbsp;V, and that
+  turns &plusmn;32 A into &plusmn;29 A &mdash; 2.5% over a 28.3 A peak, which is not margin.</p>
+  <p><strong>Now: 0.8 m&#8486; (2 &#215; 1.6 m&#8486; 2010) &#215; 50 V/V = 40 mV/A &rarr;
+  &plusmn;36.2 A</strong> worst case, 28% clear of the peak, at 0.64 W instead of 1.28 W. And
+  the consolation: desoldering one of each pair leaves 1.6 m&#8486; &rarr;
+  <strong>80 mV/A</strong>, which is exactly the sister board's scaling &mdash; so its firmware
+  constants come back after all, in the precision mode, at &plusmn;18.1 A. Keep the table in
+  the README and the firmware define pointed at each other; F-14 is what happens
+  otherwise.</p>
+</div>
+
+<div class="note">
+  <strong>Where the sense chain physically is.</strong> Both shunts of a pair sit on the
+  motor-facing face at R&nbsp;25.5, one either side of the cell axis, and the amplifier sits
+  under the gate driver at R&nbsp;19.4. That radius is not free: each FET drain pad carries
+  sixteen through-board thermal vias which reach R&nbsp;27.6 on the back, the low-side cluster
+  <em>is</em> the switch node's crossing to that face, and the high-side cluster is VBUS and must
+  not be touched. The shunts are placed tangentially clear of both, and of the perimeter boss
+  pads. <code>tools/placement.py</code> checks all of it, including the cross-layer case a
+  same-side courtyard check cannot see.
+</div>
+</section>
+
+<!-- ===================================================== 6 ============= -->
+<section id="s6">
+<h2>6 &middot; Control — RP2350A</h2>
+
+<p>Thirty GPIO, of which this design uses twenty-one. QSPI flash, USB, SWD and the crystal all
+sit on dedicated pins and cost nothing from that budget.</p>
+
+<table class="pins">
+<caption>Proposed pin map</caption>
+<thead><tr><th>GPIO</th><th>Net</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>0, 1</td><td>RS485_DI, RS485_RO</td><td>UART0 TX/RX, via the interconnect to board B</td></tr>
+<tr><td>2</td><td>RS485_DE</td><td>Transmit driver enable; firmware- or PIO-timed</td></tr>
+<tr><td>3</td><td>RS485_TERM_EN</td><td>Optional switched termination — see §7</td></tr>
+<tr><td>4, 5, 6</td><td>ENC_SCK, ENC_CS, ENC_DO</td><td>SPI0 to the MT6701 in SSI mode. No MOSI: the sensor only talks.</td></tr>
+<tr><td>7</td><td>ENC_OUT</td><td>MT6701 OUT pin — ABZ or PWM alternate, spare otherwise</td></tr>
+<tr><td>8, 9</td><td>HIN_A, LIN_A</td><td>PWM slice 4, channels A and B</td></tr>
+<tr><td>10, 11</td><td>HIN_B, LIN_B</td><td>PWM slice 5</td></tr>
+<tr><td>12, 13</td><td>HIN_C, LIN_C</td><td>PWM slice 6</td></tr>
+<tr><td>14</td><td>GATE_EN</td><td>The 12 V rail on board B. Defaults <em>on</em> through a reset, so that a reset brakes (&sect;3); firmware pulls it low to kill the gate drive</td></tr>
+<tr><td>15</td><td>FAULT_n</td><td>Overcurrent comparator, in — populate/DNP option</td></tr>
+<tr><td>16, 17, 18</td><td>LED_R, LED_G, LED_B</td><td>Plain RGB LED on board B</td></tr>
+<tr><td>19</td><td>PD_INT_n</td><td>FUSB302 interrupt</td></tr>
+<tr><td>20, 21</td><td>PD_SDA, PD_SCL</td><td>I2C0 to the FUSB302 on board B. This was SDA on 19 and SCL on 20,
+    which are I2C1's SCL and I2C0's SDA &mdash; not a hardware I²C pair. Fixed 2026-09-22 by
+    rotating the three names on the routed copper; J9 pins 9, 10, 12 are now INT, SDA, SCL.
+    20&ndash;23 are also SPI0 RX, CSn, SCK, TX</td></tr>
+<tr><td>22</td><td>USB_VBUS_DET</td><td>Was spare. Board B sends it, and nothing on board A was listening</td></tr>
+<tr><td>23–25</td><td>spare</td><td>Three free, on test points TP1–TP3</td></tr>
+<tr><td>26–29</td><td>ADC0–3</td><td>§5</td></tr>
+</tbody>
+</table>
+
+<p>Two details in that table are doing real work.</p>
+
+<p><strong>Each half-bridge sits on one PWM slice, and both its inputs carry the same
+waveform.</strong> GPIO 8/9, 10/11 and 12/13 are the A and B channels of slices 4, 5 and 6.
+Because EG2103's LIN is active-<em>low</em>, the driver does the inversion internally: its truth
+table has HIN&nbsp;=&nbsp;LIN&nbsp;=&nbsp;0 turning the low side on and
+HIN&nbsp;=&nbsp;LIN&nbsp;=&nbsp;1 turning the high side on. So <code>PWM_CH_CSR.B_INV</code>
+stays <strong>clear</strong> and both channels run the same duty. Dead time comes from the
+driver's own 560 ns, not from offsetting the compare values &mdash; and &sect;3 now has the
+datasheet's truth table confirming that reading. Two consequences for the loop: the driver adds
+780 ns of turn-on delay against 220 ns of turn-off, which <em>is</em> the dead time rather than
+a circuit alongside it; and an input pulse shorter than about 560 ns produces no output, so at
+20 kHz the bottom and top 1.1% of the duty range are unreachable.</p>
+
+<div class="note">
+  <strong>Then why two GPIO per phase, if both carry the same signal?</strong> Because tying HIN
+  and LIN together would make a phase permanently driven — always high or always low, never
+  high-Z. Keeping them separate costs three GPIO, which this design has spare, and buys the
+  ability to put a single phase into high impedance: needed to disable one leg without braking,
+  for trapezoidal commutation with a floating phase for back-EMF sensing, and for any bring-up
+  step that wants one leg out of the way. The driver's interlock means the extra freedom cannot
+  be used to short the bridge.
+  <p>Get the polarity backwards and nothing dramatic happens, which is the nice consequence of an
+  active-low LIN: <code>B_INV</code> set would drive HIN and LIN oppositely, which the truth
+  table resolves as both-off or a fight the interlock wins — not a shoot-through. Still bring up
+  on a current-limited supply with no motor attached.</p>
+</div>
+
+<p><strong>The status LED is three GPIO, not a WS2812.</strong> The sister project's F-16 is a
+WS2812B needing V<sub>IH</sub>&nbsp;=&nbsp;3.5 V from a 3.3 V GPIO, fixed by dropping the LED
+supply through a Schottky. With spare GPIO and no 5 V rail on board A, a plain RGB LED is
+smaller, cheaper and has no failure mode.</p>
+</section>
+
+<!-- ===================================================== 7 ============= -->
+<section id="s7">
+<h2>7 &middot; Board B — power and I/O</h2>
+
+<h3>Power tree</h3>
+<pre class="tree">
+SOURCES ──────────────────────────────────────────────────────────────────
+
+  XT30, 12–60 V ──────────────────────────────────────────→ VMOT
+                  straight through, so regen can reach the pack
+
+  USB-C VBUS ─┬─ FUSB302BMPX ── I²C ── CPU      PD sink, ≤ 20 V / 5 A
+              │
+              ├─ LTC4359 + E100N4P0HL1 ────────────────────→ VMOT
+              │     ideal diode; blocks VMOT from the USB host.
+              │     PD powers the drive instead of a pack, not with one
+              │
+              └─ Schottky ──────────────────────────────→ 5 V Vlogic
+                    pre-contract path: logic only, no gate rail
+
+
+RAILS ────────────────────────────────────────────────────────────────────
+
+  VMOT ─┬─ SMDJ64A TVS  +  3 × 100 µF / 100 V bulk
+        │
+        ├─ the three half-bridges, board A
+        │
+        ├─ LMR38010 ──→ 12 V  Vgate   0.1 A    EG2103 × 3, board A
+        │     EN pulled up: on unless GATE_EN pulls it down
+        │
+        └─ LMR38010 ──→  5 V  Vlogic  0.5 A ──→ SPX3819 ──→ 3.3 V
+                                                  RP2350A + MT6701, board A
+</pre>
+
+<p>Two independent bucks off VMOT rather than a cascade. Same part twice, and a fault in the
+gate rail does not take the CPU down with it. Both are <code>LMR38010</code> (4.2–80 V, 1 A
+synchronous), F-47's recommended replacement for the sister board's XL7005A. The 12 V rail is
+enabled by <code>GATE_EN</code> from the CPU &mdash; <em>on</em> by default, with a pull-up
+the CPU can override, because a reset is meant to brake and a brake needs the gate rail
+(&sect;3). Both regulate happily from a 20 V VMOT as well as a 60 V one, which is what makes
+the next section work.</p>
+
+<p><strong>VMOT runs down to 12 V</strong> (decided 2026-09-22), and that is the one place the
+gate rail does not regulate: the LMR38010's maximum duty cycle is 97%, so at a 12 V bus the
+12 V rail sits in dropout near 11.5 V. That is still above EG2103's 9.7 V V<sub>CC</sub>
+turn-on, the bootstrap reaches about 10.6 V against the 9.6 V V<sub>B</sub> turn-on, and the
+FETs see about 11 V of gate against the 10 V their R<sub>DS(on)</sub> is specified at. Below
+12 V none of that holds, which is why 12 V is the floor rather than a nominal.</p>
+
+<div class="note good">
+  <strong>Three power states, and the drive is safe in the one you bench-test in.</strong>
+  USB-PD is a real power source here, not a bench convenience — VBUS feeds VMOT through the
+  ideal diode, so a 20 V contract runs the motor. What the gate rail's 12 V buck cannot do is
+  boost, and that gives the behaviour for free:
+  <table>
+  <thead><tr><th>Source</th><th>VMOT</th><th>12 V gate rail</th><th>What the drive can do</th></tr></thead>
+  <tbody>
+  <tr><td>USB, no contract yet</td><td>5 V</td><td>down</td>
+      <td>Logic, encoder, RS-485 up. Motor <strong>cannot</strong> energise. Configuration and bring-up.</td></tr>
+  <tr><td>USB-PD, 20 V contract</td><td>20 V</td><td>up</td>
+      <td>Full control at reduced voltage, capped by PD at 100 W (20 V × 5 A, e-marked cable).</td></tr>
+  <tr><td>USB-PD, 12 or 15 V contract</td><td>12&ndash;15 V</td><td>up (dropout at 12)</td>
+      <td>As above, at lower power. Useful now that VMOT's floor is 12 V.</td></tr>
+  <tr><td>XT30 battery</td><td>12&ndash;60 V</td><td>up</td><td>Full performance at 60 V.</td></tr>
+  </tbody>
+  </table>
+  <p>The pre-contract state is not an accident to preserve — it is the direct consequence of a
+  buck that cannot make 12 V from 5 V, and it means bench work on a board with no battery
+  attached is physically incapable of spinning the motor until firmware asks for the voltage.</p>
+</div>
+
+<div class="note good">
+  <strong>PD replaces a pack; the two are not used together (decided 2026-09-22).</strong>
+  With VMOT down to 12 V a 20 V contract could be the higher source and back-drive a pack on
+  the XT30, and draft 0.6 briefly designed a switch and a detector against that. Taking
+  simultaneous use off the table takes the problem with it, so the PD path stays what it was: one
+  LTC4359 and one FET, an ideal diode that keeps VMOT out of the USB host. What still works:
+  a USB cable for configuration while a pack runs the drive, because the pack is at least 12 V,
+  PD without a contract is 5 V, and the diode never conducts. What the board does not protect
+  against is firmware asking for a contract above the pack's voltage with a pack connected, so
+  firmware should ask for more than 5 V only when the bus reads what USB alone would give it
+  &mdash; a guard against accidents, not a mode. The XT30 needs no ideal diode of its own and
+  stays a straight pass-through, so regen still reaches a pack (question 8); reverse polarity is
+  left to the keyed connector, as on the sister board.
+</div>
+
+<h3>Full-duplex RS-485, two ports</h3>
+
+<p>Four-wire RS-485, so the master can transmit whenever it likes and only the drives need to
+arbitrate. Two connectors wired pin-for-pin in parallel: the cable runs in one and out the
+other, and the bus is a bus, not a repeater chain. No firmware is in the path of a
+pass-through, so an unpowered or crashed drive does not break the run below it.</p>
+
+<table>
+<caption>Port pinout — both ports identical, straight-through cable</caption>
+<thead><tr><th>Pin</th><th>Net</th><th>Direction, from the drive's point of view</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>GND</td><td>—</td></tr>
+<tr><td>2, 3</td><td>DOWN+, DOWN&minus;</td><td>master transmits, every drive receives</td></tr>
+<tr><td>4, 5</td><td>UP+, UP&minus;</td><td>one drive transmits at a time, master receives</td></tr>
+<tr><td>6</td><td>GND</td><td>—</td></tr>
+</tbody>
+</table>
+
+<p>Naming the pairs by direction rather than by A/B is deliberate: a straight cable then wires
+itself correctly, and there is no crossover to get wrong at 3 a.m.</p>
+
+<p>Two <code>SIT3088ETK</code> (DFN-8, already sourced by the sister project) rather than one
+full-duplex part: one strapped permanently as a receiver on the DOWN pair, one as a driver with
+<code>DE</code> on the UP pair. Cheaper than a MAX3491, in a package that is already in the
+library, and it puts the failure modes somewhere already understood.</p>
+
+<div class="note warn">
+  <strong>Two inherited traps to design out, not rediscover.</strong>
+  <ul>
+    <li><strong>Termination is per-node, not per-board (their F-19).</strong> 120&nbsp;&#8486; across
+    each pair behind a solder jumper, <em>open by default</em>. Only the two ends of the chain
+    bridge them. A board that terminates unconditionally breaks every mid-bus installation.</li>
+    <li><strong>Fail-safe bias must be computed against the termination, not guessed (their
+    F-01).</strong> Their 10 k/10 k idle bias delivered &plusmn;32 mV differential into a
+    100&nbsp;&#8486; termination against a &minus;200…&minus;100 mV receiver threshold. Size the
+    bias for &gt;200 mV differential with the termination present, or use the SIT3088's own
+    fail-safe and prove it on the datasheet.</li>
+  </ul>
+</div>
+
+<h3>USB-C</h3>
+
+<p>Full USB-PD sink, as on the sister board: <code>FUSB302BMPX</code> negotiating over I²C from
+the CPU, up to a 20 V / 5 A contract. The sister project's two highest-severity power findings
+are both PD front-end bugs, and both have adopted fixes that come across as fixes rather than as
+problems to rediscover:</p>
+<ul>
+<li><strong>F-27 — the backfeed blocker.</strong> Their LM74700 is a 65 V part with its cathode
+sitting on a 60 V VMOT: five volts of margin against a rail that regen actively pumps upward,
+and a failure mode that connects the motor bus to a laptop. Adopted fix, taken here verbatim:
+<code>LTC4359CMS8</code> (4–80 V operating, 100 V abs-max pins) driving an
+<code>E100N4P0HL1</code> (100 V, 4 m&#8486;, PDFN5×6), which also keeps the 5 A path under
+0.1 W where a Schottky would burn 2.75 W.</li>
+<li><strong>F-39 — the ESD part.</strong> USBLC6-2P6 references its steering diodes to pin 5,
+which has an internal ~6 V zener; on VBUS that survives 5 V and dies the first time a 20 V
+contract is agreed. Pin 5 goes to <strong>+3V3</strong>, and VBUS gets its own clamp at the
+connector, sized against FUSB302's ~28 V VBUS absolute maximum.</li>
+</ul>
+<p>The 20 V capability is the reason to be careful here rather than a reason to drop PD: it is
+also what makes the drive useful on a desk with nothing but a laptop charger.</p>
+</section>
+
+<!-- ===================================================== 8 ============= -->
+<section id="s8">
+<h2>8 &middot; Interconnect</h2>
+
+<p>Two connectors, so the 60 V bus never runs beside USB or SWD. The signal count is set
+mostly by keeping PD on board B: the FUSB302 sits next to the USB-C connector where the CC lines
+are short, but the CPU that negotiates with it is on board A, so its I²C and interrupt cross the
+interconnect.</p>
+
+<table>
+<thead><tr><th>Connector</th><th>Carries</th><th>Rating</th></tr></thead>
+<tbody>
+<tr><td>Power link — <strong>2 &#215; (2&#215;5) @ 2.54 mm</strong>, stacked radially</td>
+    <td>10 &#215; VBUS, 10 &#215; GND, ganged</td>
+    <td>30 A at 3 A/pin, against <strong>23.2 A RMS</strong> &mdash; see below</td></tr>
+<tr><td>Signal link — 2&#215;14 @ 1.27 mm</td>
+    <td>+12 V, +5 V, USB D+/D&minus;, USB_VBUS_DET, PD_SDA, PD_SCL, PD_INT_n,
+    RS485 DI/RO/DE, RS485_TERM_EN, SWCLK, SWDIO, RUN, BOOTSEL, LED &#215; 3, GATE_EN
+    — <strong>20 signals, 8 interleaved grounds</strong>. Draft 0.3 said 18 and 10; nobody
+    had counted. USB sits at position 3 with a ground either side.</td>
+    <td>signal</td></tr>
+</tbody>
+</table>
+
+<div class="note warn">
+  <strong>Why it is two 2&#215;5 and not one 2&#215;8.</strong> Draft 0.2 sized this link against
+  "a 20 A design point" and got 24 A of capacity, which looked comfortable. It is not the phase
+  current that crosses the link. At 20 A RMS per phase into a 60 V bus the drive delivers about
+  1.27 kW, so the bus carries <strong>21.2 A</strong> of DC; on top of that a three-phase bridge
+  puts <strong>12.4 A RMS</strong> of ripple on its DC link, and at 20 kHz the 13 &micro;F of
+  ceramic on board A is a 0.61&nbsp;&#8486; path against the bulk's ESR-dominated 0.2&nbsp;&#8486;,
+  so three quarters of that ripple goes across the header to reach the bulk. Root-sum-square:
+  <strong>23.2 A RMS</strong> against 24 A of rating. Eight hundred milliamps of margin is not a
+  continuous rating.
+  <p>Two 2&#215;5 headers stacked radially fit the same 50&deg; wedge, mate together, and give
+  30 A. <code>geometry.interconnect()</code> is the calculation, so changing the design point
+  moves it.</p>
+</div>
+
+<p>The six perimeter screws do the alignment and carry the mechanical load; the connectors only
+have to mate. Their mated height and the standoff length are the same dimension and must be
+ordered as one decision. Note that the screws are now plated and grounded on both boards for
+&sect;4's sake, which puts six brass standoffs in parallel with the header's ten ground pins &mdash;
+free return path, and a reason the link is less stressed than the arithmetic above assumes.</p>
+
+<p>An alternative worth pricing before committing: <strong>make two of the six perimeter
+standoffs the power path</strong> — brass, into generous plated pads on both boards — and drop
+the header entirely. It is mechanically cleaner and electrically excellent if the joint
+is sound, and the whole question is whether a screwed joint's contact resistance is
+trustworthy over thermal cycling. Not the kind of thing to adopt without a bench test &mdash;
+and it now collides with &sect;4, which wants all six of those screws carrying heat and ground,
+not two of them carrying 60 V.</p>
+
+<div class="note warn">
+  <strong>The bulk on board B is no longer a catalogue item.</strong> About 9 A RMS of 20 kHz
+  ripple arrives there. Three 100 &micro;F / 100 V aluminium electrolytics &mdash; draft 0.2's
+  budget &mdash; are rated for a few hundred milliamps each and would fail early and
+  unspectacularly. The bank has to be chosen for ripple current, not capacitance: roughly four
+  100 &micro;F / 100 V polymer-hybrid cans at 2&ndash;3 A each, or an equivalent low-ESR bank.
+  Capacitance itself is easy &mdash; 100 &micro;F holds bus ripple near 3 V at the design point.
+  This is a board B change and it is on the sourcing list.
+</div>
+</section>
+
+<!-- ===================================================== 9 ============= -->
+<section id="s9">
+<h2>9 &middot; What this inherits, and what it fixes</h2>
+
+<p>The sister project's findings register is the most valuable thing it hands over. These are
+the rows that apply to a board that has not been built yet.</p>
+
+<table>
+<thead><tr><th>Their ID</th><th>What it says</th><th>What this board does</th></tr></thead>
+<tbody>
+<tr><td>F-40</td><td>EG3113 unbuyable — 9 in stock, min purchase 25; blocks ordering</td>
+    <td class="fix">Designed out — on the third attempt. EG2131 was the obvious swap and is
+    also out of stock; EG2103 (C480654, 2,225, $0.19) keeps the family, the logic convention,
+    the interlock and the dead time.</td></tr>
+<tr><td>F-41</td><td>10 V-rated FETs driven at 5.04 V: ~2 W/bridge switching, ~15% on R<sub>DS(on)</sub></td>
+    <td class="fix">Designed out. 12 V gate rail, which EG2103 requires anyway
+    (V<sub>CC</sub> 10–20 V). Halves the sister board's 95 ns edges to ~50 ns; the rest of the
+    gap needs a stronger driver, not a higher rail.</td></tr>
+<tr><td>F-16</td><td>WS2812B V<sub>IH</sub> 3.5 V vs 3.3 V GPIO</td>
+    <td class="fix">Designed out. Plain RGB LED on three GPIO.</td></tr>
+<tr><td>F-27, F-39</td><td>USB-PD front end: 65 V blocker on an 80 V bus; USBLC6 pin 5 on a 20 V rail</td>
+    <td class="keep">Inherited as fixes, not as bugs. PD stays — 20 V feeds VMOT. LTC4359 +
+    E100N4P0HL1 per their adopted F-27 disposition; USBLC6 pin 5 to +3V3 per F-39.</td></tr>
+<tr><td>F-17</td><td>E-stop is a bare GPIO; a wedged CPU cannot be stopped</td>
+    <td class="fix">Structural. EG2103 floats to both-FETs-off, so <code>RUN</code> low is a real
+    stop. <strong>But their disposition says it brakes, and per the EG3113 datasheet it coasts</strong>
+    — see below.</td></tr>
+<tr><td>F-14</td><td>Shunt value drifted out of sync between schematic, board, firmware and README</td>
+    <td class="keep">Process, not silicon. One table, in the README, referenced from the firmware define.</td></tr>
+<tr><td>F-19</td><td>No on-board bus termination; isolation only worked if the harness cooperated</td>
+    <td class="fix">Applied to RS-485: jumpered 120 &#8486;, open by default.</td></tr>
+<tr><td>F-01, F-02, F-03</td><td>Encoder-port bias, termination and floating-mux failures</td>
+    <td class="keep">Mostly moot — no encoder port. The bias/termination arithmetic carries to RS-485.</td></tr>
+<tr><td>F-06</td><td>MT6701 SSI response shifted by transceiver round-trip delay; ~2–4 MHz ceiling</td>
+    <td class="fix">Moot. The sensor is on the same board as the CPU; no line drivers, no round trip.</td></tr>
+<tr><td>F-47</td><td>Space-budget study: same-function package swaps and architectural shrinks</td>
+    <td class="keep">Cherry-picked. TPSMF4L64A, INA241, LMR38010, 2010 shunts — taken. LMG1205 — declined, it locks the gate rail at 5 V, which is the thing F-41 says to stop doing.</td></tr>
+<tr><td>F-40, again</td><td>The lesson generalises: three of five first-choice parts here were
+    unbuyable or overpriced when actually checked</td>
+    <td class="fix">Every non-inherited part carries its LCSC number and a dated stock figure in
+    §3. Re-check before ordering; these numbers rot.</td></tr>
+<tr><td>F-48</td><td>JLCPCB process: free POFV on 6-layer, 0.10 mm rules, via spacing trade-offs</td>
+    <td class="keep">Decide before the first placement run, not after.</td></tr>
+</tbody>
+</table>
+
+<p>Three things are worth handing back. The first is a correction to draft 0.2 of <em>this</em>
+document rather than to their register.</p>
+
+<div class="note warn">
+  <strong>F-17 is right, and the reason is not in their register.</strong> Draft 0.2 read the
+  EG3113 datasheet, found that <span lang="zh">HIN 内建了一个 200K 下拉电阻，LIN 内建了上拉 5V
+  高电位，在输入悬空时使上、下功率 MOS 管处于关闭状态</span> — floating inputs put <em>both</em>
+  MOSFETs off — and concluded that their disposition ("open E-stop loop pulls RUN low → reset →
+  gate-driver pulls brake the motor") described a coast. That was reading their part instead of
+  their board, and it was wrong.
+  <p>Their board carries <code>R1</code>, <code>R2</code>, <code>R21</code> and <code>R22</code>:
+  four 10 k pull-downs, on both inputs of two EG3113s, straight to GND
+  (<code>A_PWM_H</code>/<code>A_PWM_L</code> on U1, <code>B_PWM_H</code>/<code>B_PWM_L</code> on
+  U6, pins 2 and 3 in both cases). EG3113's LIN is active-low with an internal 200 k pull-up.
+  10 k beats 200 k twenty to one, so LIN is held <em>low</em>, which is <em>active</em>, which
+  turns the low-side FET <strong>on</strong>. <strong>Their E-stop brakes, exactly as F-17
+  says</strong> — because of four resistors, not because of the driver.</p>
+  <p>What is worth handing back is what their register does not say: this is not only the E-stop
+  behaviour, it is the <strong>power-up behaviour</strong>. Their bridge shorts the motor through
+  its low-side FETs from the moment the gate rail is alive until firmware takes the pins, with no
+  current limit and nothing sequencing it. On a spinning motor that is a braking current set by
+  winding resistance alone. If that is wanted it should be written down as a choice; if it is
+  not, it is four resistors.</p>
+  <p>This board went the other way at first &mdash; 4.7 k <em>up</em> on LIN, so reset coasted
+  &mdash; and since 2026-09-22 it brakes like theirs, but as a written-down choice: both pulls to
+  GND, and the gate rail held on through a reset so the brake is real (&sect;3). On power-up the
+  gate rail comes up with the CPU still in reset, so this board too shorts the windings through
+  the low sides until firmware takes the pins. On a motor at rest that is nothing, and it
+  charges the bootstrap capacitors on the way.</p>
+</div>
+
+<p><strong>RP2350 erratum E9 reaches the gate driver</strong>, and that is the second. A Bank 0
+GPIO can latch around 2.1&ndash;2.2 V, and at reset the pin is an input with a pull-down; against
+EG Micro's internal 200 k pull-up on LIN the divider lands near 1.2 V, between V<sub>IL</sub> and
+V<sub>IH</sub>. Their four pull-downs happen to defeat both at once. Anyone copying the circuit
+without them — as draft 0.2 of this spec proposed to — puts a gate driver input in the undefined
+band. The answer is an external pull in whichever direction you want, sized &le; 9 k, and stated
+in the schematic.</p>
+
+<p><strong>F-40</strong> needs a replacement driver regardless. EG2103 is the cheap
+like-for-like, but for their four-bridge board <strong>NCP5183DR2G</strong> is probably the
+better answer: 600 V, 4.3 A both ways against EG3113's 2/2.5 A, matched 120 ns propagation
+delays where EG3113's are asymmetric — their own F-41 notes its working margin comes mostly from
+that asymmetry — plus 50 V/ns dV/dt immunity, AEC-Q100, $0.92, MOQ 1, 2,883 in stock. It gives
+up the interlock and the internal dead time, which their GaN evaluation already argues they do
+not lean on. This board took EG2103 instead precisely because it is not thermally tighter than
+they are and can afford to keep the interlock.</p>
+
+<p><strong>F-41</strong>'s remedy, a 12 V rail, is the last — harder there than here, because
+thirteen TS5A3159 analog switches sit on their 5 V rail at 5.5 V max. Worth noting it only buys
+about half the gap on its own: with EG3113's 2/2.5 A the resistor still sets the edge, so the
+rail and the resistor sweep in F-41 are complementary, not alternatives.</p>
+</section>
+
+<!-- ===================================================== 10 ============ -->
+<section id="s10">
+<h2>10 &middot; Layout and capture &mdash; board A</h2>
+
+<p>Board A is placed, captured <em>and</em> routed: <strong>136 parts, 87 nets,
+425 pin connections</strong>, 78 on the outward face and 58 on the motor-facing
+face, ten DNP. <strong>Every connection is made</strong>; DRC finds nothing, ERC finds nothing,
+and KiCad's own exported netlist matches the one this repo intended &mdash; net by net,
+connection by connection. &sect;10b is the routing.</p>
+
+<p>The schematic is <strong>generated from a netlist in Python</strong>, not drawn: a component
+is a reference, a symbol, a value, a footprint and a pin-to-net map, and
+<code>tools/schematic.py</code> emits four hierarchical sheets from that. The sheets are drawn
+with <strong>labels rather than wires</strong> &mdash; every pin gets a 2.54 mm stub and its
+net's name. That is an honest description of what it is: routing wires between 115 parts
+automatically produces something worse to read than a table. What it buys is that the
+designators, the footprints and the DNP flags are one source of truth, checked in both
+directions on every build. <code>gen_boards.py</code> will not write a board if a part is on it
+and not in the netlist, or in the netlist and not on it, or if their footprints disagree, or if
+any symbol pin has no net.</p>
+
+<div class="note warn">
+  <strong>Capture is where a design finds out what it forgot.</strong> Seven things, in the
+  order the schematic asked for them:
+  <ul>
+    <li><strong>The RP2350A was missing everything it cannot run without.</strong> No inductor
+    on <code>VREG_LX</code> for the core buck, no cap on DVDD, no filter on
+    <code>ADC_AVDD</code>, no pull-up or cap on <code>RUN</code>, no series resistor on
+    <code>XOUT</code>. Eight parts &mdash; and the decoupling moved to the back, directly under
+    the power pins, where the loop is the board thickness rather than a trip around the QFN.</li>
+    <li><strong>The bus divider was wrong by 2.3&times;.</strong> 50 k / 5.1 k puts
+    <strong>5.5 V</strong> on a 3.3 V ADC pin at a 60 V bus. It is 112 k / 4.7 k now &mdash;
+    2.42 V at 60 V, 3.18 V at the TVS clamp &mdash; and the high leg is <em>two</em> resistors,
+    because a 0603 is rated 50 V working and the bus is 60.</li>
+    <li><strong><code>FAULT_n</code> floated.</strong> The overcurrent comparator is
+    &sect;11's open question, and not fitting it left a CPU input with nothing on it. A 10 k
+    pull-up is the "not fitted" state.</li>
+    <li><strong><code>USB_VBUS_DET</code> arrived from board B and went nowhere.</strong> It is
+    on GPIO22 now.</li>
+    <li><strong>The signal link is 20 signals and 8 grounds</strong>, not 18 and 10.</li>
+    <li><strong>The phase TVS were in &sect;3's parts table and not on the board.</strong></li>
+    <li><strong>The MOSFET's symbol and its footprint disagreed.</strong> KiCad's own
+    <code>Transistor_FET:BSC030N08NS5</code> numbers its pads 1&#8211;3 source, 4 gate, 5 drain;
+    the sister project's <code>PowerPAK_SO-8_123</code> numbers them 1/2/3 = S/G/D. Using both
+    would have wired every FET wrong. Board A now takes KiCad's matched pair, which also has a
+    larger drain pad and so an easier via array.</li>
+  </ul>
+</div>
+
+<figure class="cols">
+  <img src="img/board_a_front.svg" alt="Board A front copper: three phase cells each with two PowerPAK MOSFETs, an SOIC-8 gate driver, DC-link ceramics and a gate network; a QFN-60 wedge; two 2x5 power headers; a 2x14 signal header; three arc-shaped heatsink lands at the perimeter.">
+  <img src="img/board_a_back.svg" alt="Board A back copper, mirrored: the MT6701 at the centre, three arc phase pads at the perimeter, six 2010 shunts, three current-sense amplifiers and the filter and pull resistors, with the FET thermal via arrays showing through.">
+  <figcaption>Board A, outward face and motor-facing face (mirrored). The dot grids on the back
+  are the FET drain thermal vias coming through &mdash; four by five under each high side, four
+  by four under each low side; the low-side cluster is how the switch node reaches its
+  shunt.</figcaption>
+</figure>
+
+<h3>The phase cell</h3>
+
+<p>All three are identical, at 60&deg;/180&deg;/300&deg;, so all three commutation loops are the
+same shape. Radially outward from the centre keepout:</p>
+
+<table>
+<thead><tr><th>Band</th><th>R, mm</th><th>What is in it</th></tr></thead>
+<tbody>
+<tr><td>Gate drive</td><td>17.2&ndash;22.6</td>
+    <td>EG2103 on the cell axis, turned so it costs the band 5.4 mm of radius instead of 7.4.
+    The SOIC-8 pinout then sorts itself: VCC and the logic inputs land on one side, LO/VS/HO/VB
+    on the other, so the supply parts get one side and the bootstrap the other.</td></tr>
+<tr><td>Half-bridge</td><td>23.1&ndash;28.6</td>
+    <td>Both FETs at the same rotation, 3.75 mm either side of the axis, so the high side's
+    source pads and the low side's drain pad end up adjacent: the switch node is a small island
+    between them and VBUS and GND come out at the two far ends, where the DC link sits. Both
+    are turned so the gate pad, at one end of the source row, sits at R&nbsp;24.4 facing the
+    driver row across an empty 1.5 mm, rather than at R&nbsp;27.9 walled in by the switch-node
+    pour and the heatsink land. Nothing else is in this row.</td></tr>
+<tr><td>DC-link bulk</td><td>24.5&ndash;29.1</td>
+    <td>Two 2.2 &micro;F 1206 flanking the pair, as far out as the heatsink land allows &mdash;
+    same job, fewer degrees. (A 1210 ran into the perimeter boss once the cell was rebuilt for
+    the fan-out.)</td></tr>
+<tr><td>Heatsink land</td><td>29.2&ndash;31.5</td>
+    <td>Nothing. That is the point &mdash; see &sect;4.</td></tr>
+</tbody>
+</table>
+
+<div class="note">
+  <strong>Revised 2026-09-22, from the simulation's hand-back.</strong> Four changes, one
+  re-route:
+  <ul>
+    <li><strong>The low side's barrels all reach B.Cu now.</strong> The switch-node pour on the
+    back stopped at R&nbsp;25.2, so only the inner row of the sixteen under each low-side drain
+    touched it; the other twelve sat in the clearance between it and the phase-output pour.
+    The pour now carries a tab over the whole array (<code>gen_boards.via_tab</code>).</li>
+    <li><strong>The high side has twenty barrels.</strong> A fifth row at 0.905 mm, the array
+    moved 0.15 mm off the source side of the pad, and the via pad trimmed to 0.78 mm so it fits.
+    Only the high side can take one: a fifth row under the low side comes 0.14 mm from the motor
+    lead pad, and a fifth column under either comes into the shunts' courtyards.</li>
+    <li><strong>Snubber footprints</strong>, DNP, under the high side (&sect;3's parts table).</li>
+    <li><strong>A &#216;6 magnet</strong> rather than &#216;8, as the MT6701 datasheet
+    recommends; &#216;8 over-drives the die at the short end of the gap. No board geometry
+    reads the magnet's diameter, so this moved nothing but the drawings.</li>
+  </ul>
+  Re-run on the routed board, the simulation's conduction solver (P3) has the busiest low-side
+  barrel at 2.82 A rms, from 5.16, and the busiest high-side one at 2.10, from 2.42; the
+  switch-node copper loses 0.61 W per cell, from 0.74. At a continuous 20 A RMS both are still
+  over the 2 A a 0.4 mm barrel is given &mdash; the current crowds into the barrels nearest the
+  shunts &mdash; and both are under it below about 14 A RMS. That fits &sect;4's decision to
+  treat 20 A as a burst.
+</div>
+
+<p>On the motor-facing face: the amplifier at the cell's centre with its SNSP tap and its
+filter cap clockwise of it within 0.4 mm of R&nbsp;18.4, arranged for two arcs rather than for a
+router; the gate bleeds directly beneath the gate resistors, one via through both pads; the two
+shunts side by side under the switch-node island between the FETs' via clusters, their SW pads
+over the switch-node pour and their PHASE pads in the phase-output pour, because nowhere else on
+the back is clear of the DC-link caps' vias coming through; the arc lead pad at
+R&nbsp;28.5&ndash;31.3; and <strong>the channel at R&nbsp;29.3</strong>, holding the clamp
+diode.</p>
+
+<div class="note">
+  <strong>Second pass, for the router.</strong> The first routed board made 69 of 170
+  connections and the diagnosis blamed the driver ring. Measured, nearly every open connection
+  ended at the RP2350: a 0.4 mm-pitch QFN needs four staggered rows of escape vias, 2.9 mm deep
+  on every side, and the chip had 0.3 mm to the parts beside it with its decoupling on the back
+  under the pins where the vias had to land. The CPU wedge is rebuilt around a clear band &mdash;
+  the chip at R&nbsp;21.15, the IOVDD 100 n on the back in two columns beside it, the crystal at
+  R&nbsp;29.9, the flash turned so both pad rows face somewhere a via can go, the signal header
+  in to R&nbsp;25.15 so all twenty signal pads can take an escape via. The regulator and its
+  decoupling are Raspberry Pi's, copied from the RP2350A minimal design (RP-006440) in the
+  chip's own frame to the 0.05 mm: the 3.3 &micro;H 2016 inductor, the VIN, DVDD and AVDD
+  4.7 &micro;F, 33 &#8486; into VREG_AVDD, 27 &#8486; in series with each USB line, five small
+  pours around the regulator pins and a ring of 1V1 copper under the chip joining the four DVDD
+  pins. Doing it found three netlist errors: <strong>the bootstrap diode was backwards</strong>
+  (<code>Device:D</code> numbers 1 = cathode, and the cathode was on +12V),
+  <strong>VREG_AVDD was tied straight to +3V3</strong> where the reference filters it, and
+  <strong>USB had no series resistors</strong>. The crystal's load caps stay at 27 p where the
+  reference uses 15 p; the value is the crystal's to decide, and it is a different crystal.
+</div>
+
+<h3>How it is kept legal</h3>
+
+<p><code>tools/placement.py</code> holds the floorplan and the rules it has to obey, and
+<code>gen_boards.py</code> refuses to write a board if any of them fail. Parts pack into rows at
+a radius; a row proposes a position and then walks it outward until the courtyards genuinely
+clear, because two rectangles 0.3 mm apart along an arc are also rotated relative to each other
+and can still have corners inside one another. On top of that it checks: nothing past
+R&nbsp;31.5 or inside R&nbsp;16, nothing outside its own 60&deg; sector, nothing touching a
+perimeter boss pad, nothing on either arc, and &mdash; the one a same-side courtyard check cannot
+see &mdash; <strong>no through-hole pad landing on a part on the other face</strong>. That last
+rule is what found the FET thermal vias sitting on the shunts.</p>
+
+<div class="note">
+  <strong>Seven things the KiCad file format decided, all found by DRC, ERC or the netlist diff.</strong>
+  <ol>
+    <li><strong>Every pad needs its own absolute angle.</strong> KiCad does not derive pad
+    orientation from the parent footprint. Leave it out and pad <em>positions</em> rotate while
+    pad <em>shapes</em> do not &mdash; on a round board that is every fine-pitch part's copper
+    turned the wrong way. It surfaced as a 1.27 mm-pitch SOIC-8 reporting 0.0000 mm between
+    adjacent pins at 90&deg; and nothing at all at 45&deg;, and it would have been fabricated.</li>
+    <li><strong>A custom pad needs the angle separately</strong>, or its primitive polygon is
+    evaluated unrotated &mdash; which put the heatsink lands off the board edge.</li>
+    <li><strong>Net classes want <code>microvia_*</code>, not <code>uvia_*</code>, and a
+    <code>priority</code> on every class.</strong> Get it wrong and KiCad discards the list and
+    silently uses its factory 0.2 mm netclass. The symptom is DRC quoting a clearance rule that
+    appears nowhere in the project file. This one predates the layout work.</li>
+    <li><strong>The stackup did not add up to 1.6 mm</strong>, also pre-existing. It does now,
+    and the F.Cu&rarr;In1 prepreg is pinned at 0.1 mm because &sect;1's loop inductance is quoted
+    against it.</li>
+    <li><strong>A schematic's <code>lib_symbols</code> names units by the <em>bare</em> symbol
+    name.</strong> The entry is <code>Device:R</code>, but its units are <code>R_0_1</code>, not
+    <code>Device:R_0_1</code>. Get it wrong and the sheet fails to load &mdash; and in a
+    hierarchy that failure is <strong>silent</strong>: the root still opens, ERC still reports
+    zero violations, and the netlist comes out empty. Nothing but exporting the netlist and
+    counting would have caught it.</li>
+    <li><strong>A sheet has two different uuids.</strong> The one inside the
+    <code>.kicad_sch</code> is the file's; the path a symbol instance quotes is <code>/</code>
+    plus the uuid of the <code>(sheet ...)</code> element in the <em>root</em>, with no root
+    uuid in front. And the root's own sheet entries take <code>(path "/")</code>.</li>
+    <li><strong>Two label stubs on one coordinate weld two nets together</strong>, quietly. The
+    first layout pass put +12V and VB_A on the same point. Cells are sized from each symbol's
+    own pin extent now, and the emitter refuses to place a label where a different net already
+    sits.</li>
+  </ol>
+  <p>One check is muted, <code>lib_footprint_mismatch</code>, and only that one: every footprint
+  is embedded verbatim from its library, but KiCad re-derives geometry through the placement
+  angle, so a part at 37.5&deg; mismatches an identical library copy. Verified in isolation
+  before muting.</p>
+</div>
+
+<p>Three footprints are generated rather than drawn, from the same constants as everything else:
+the PowerPAK SO-8 with its sixteen-via drain array, the M2.5 thermal boss, and the two arc pads.
+Change <code>FET_VIA_PITCH</code> or the land radii in <code>geometry.py</code> and the
+footprints follow.</p>
+</section>
+
+<!-- ===================================================== 10b =========== -->
+<section id="s10b">
+<h2>10b &middot; Routing &mdash; board A</h2>
+
+<p>Most of this board is not routed and was never going to be. Ground is two solid inner
+planes; VBUS is a sector of a third and <strong>+3V3 is the rest of that layer &mdash; the CPU
+wedge and the whole centre disc</strong>; each switch node and phase output is a pour on F.Cu
+and B.Cu, because 20 A does not go down a track and &sect;4's IPC-2152 figure is about 6 mm of
+2 oz copper. What is left is the signals, and those go to freerouting &mdash; less the ones it
+turned out to do badly, which are made first, as copper, and taken away from it.</p>
+
+<p><strong>Where it got to: 1361 track segments, 278 vias, and every one of the
+425 pin connections made.</strong> DRC finds nothing, ERC finds nothing, KiCad's own
+exported netlist matches the intended one net for net. 212 of the vias are the
+tools' &mdash; 112 stitched into pads, the rest the fan-out's &mdash; and freerouting made
+the other 66. No foreign copper under the heatsink land, every annular ring legal,
+no right-angle corners. That is the 2026-09-22 board; the one before it was 1351 segments and
+283 vias, and this one routed in freerouting's first round as that one did.</p>
+
+<table class="num">
+<thead><tr><th></th><th>60&deg;, in the channel</th><th>68&deg;, first pass</th><th>68&deg;, 2026-09-11</th><th>68&deg;, this board</th></tr></thead>
+<tbody>
+<tr><td>Connections beyond a via in the pad</td><td>170</td><td>170</td><td>146</td><td>143</td></tr>
+<tr><td>Left open</td><td>74</td><td>101</td><td>0</td><td><strong>0</strong></td></tr>
+<tr><td>DRC</td><td>clean</td><td>clean</td><td>clean</td><td>clean</td></tr>
+<tr><td>Right-angle corners</td><td>2</td><td>0</td><td>0</td><td><strong>0</strong></td></tr>
+</tbody>
+</table>
+
+<div class="note warn">
+  <strong>The last three connections were arithmetic, not routing.</strong> For a long time the
+  board stopped at two or three, and they moved around. Freerouting left six and the maze made
+  four of them; the maze run first instead, with only the fan-out in the way, made 49 of the 61
+  nets and left 12, of which freerouting then closed one; seeding the maze with the six by name
+  and running it first came back with nine. Three routers, three different sets of survivors, the
+  same order of magnitude &mdash; the shape of a capacity limit rather than of a search needing
+  more time.
+  <p>The capacity was the lanes out of the QFN's via field, and it was countable. The escape vias
+  sat in four rows 0.71 mm apart, and a 0.15 mm track passing <em>radially</em> between two rows
+  needs 0.23 mm to clear a via's pad, 0.15 mm of clearance and half its own width on each side:
+  <strong>0.91 mm between row centres, and there was 0.71</strong>. No radial lane existed
+  anywhere in the field, so all sixty escaped signals left through the tangential gaps within a
+  row &mdash; 1.14 mm between two vias, which holds two tracks &mdash; and the last connections
+  were the ones that ran out of them.</p>
+  <p>Two lines of the fan-out closed it. <strong>The outermost row moved out 0.20 mm</strong>,
+  making that one gap 0.91 and buying a radial lane the whole way round the chip for 0.2 mm of
+  depth. (A lane between <em>every</em> pair of rows wants 0.95 mm pitch, 3.5 mm of fan-out
+  against today's 2.8, and another 0.6 mm of clear band on every side &mdash; the wedge rebuild
+  again, one notch further. It was not needed.) And <strong>the pins the planned rows could not
+  place get a second try</strong> from the generic escape, which does not mind which row a via
+  lands in: one pin, LED_R, and a QFN pin without a via is a pin no router can ever leave, because
+  the pads are 0.4 mm apart and a track with its clearance needs 0.45. With both, freerouting
+  finished the board in its first round and the maze found nothing left to do.</p>
+</div>
+
+<h3>The maze</h3>
+
+<p>The last few connections are not hard because the board is full. They are hard because they
+are <em>last</em>: the lanes out of the QFN's via field go to whichever nets reach them first,
+and what is left over cannot be routed by anything unwilling to move what is already there.</p>
+
+<p><code>tools/finish.py</code> rasterises the board &mdash; one bitmap per routable layer
+(F.Cu, In3, B.Cu; In1 and In4 are ground and In2 the power planes) at 0.05 mm, every foreign
+shape drawn and then grown by the clearance it wants, 0.15 mm or 0.4 for the 60 V nets, by a
+distance transform. Then A* from one piece of the net to the other, eight-connected so every
+step is 45&deg;, with a via as a move between layers wherever a via fits; and the chain of cells
+that comes back is folded into as few segments as the free space allows. The grid proposes and
+the exact clearance test disposes: what it rejects is punched out and the route planned again.</p>
+
+<p>Two things the maze must know that KiCad's <em>clearance</em> rules do not cover, both found
+by DRC after the first run. <strong>The board edge</strong> &mdash; the clearance test is copper
+against copper and the outline is neither, so the simplifier cut a corner 0.4 mm outside the
+board. <strong>A bare drill</strong> &mdash; an M3 mounting hole is NPTH, it has no copper, and
+<code>min_hole_clearance</code> is the only rule that mentions it; seven tracks ran within
+0.16 mm of the four mounting holes before the grid was told about drills.</p>
+
+<div class="note warn">
+  <strong>The undo was the part that was wrong.</strong> When the maze cannot make a connection
+  it rips up the router's copper near it &mdash; whole nets, never the tools' locked copper
+  &mdash; makes the connection, and re-makes what it displaced, each of those allowed to rip up
+  in turn. The first version undid a failed attempt by deleting everything that had appeared
+  since and putting back what it had recorded taking off. That is correct until an attempt rips
+  up <em>inside</em> an attempt: the inner one restores its copper as new items, the outer one
+  deletes them as things that were not there before, and they are in nobody's record. The log
+  said four connections made; KiCad said forty-one unconnected. The undo copies the whole board
+  now, and the pass is guarded by KiCad's own count of what is unconnected before and after
+  &mdash; if the maze has not improved it, the pass is discarded.
+  <p><strong>Order matters more than either router.</strong> Given the whole board first, with
+  only the fan-out in the way, the maze makes 49 of 61 nets and leaves 12, and freerouting then
+  closes one of those. Given what freerouting leaves &mdash; six connections &mdash; it makes
+  four. Seeding it with those six by name and running it first came back with nine. It does not
+  matter which nets get the lanes out of the via field; it matters how many lanes there are.</p>
+</div>
+
+<h3>Why the fan-out is a tool and not a pass</h3>
+
+<p>A 0.4 mm-pitch QFN cannot take a via per pin in place: 0.2 mm pads, 0.2 mm between them, a
+0.46 mm via wanting 0.15 mm around it. Every via row in front of the chip takes lane width from
+the stubs that still have to pass it. With 0.15 mm stubs, a row of vias every fourth pin leaves
+0.84 mm between two of them and the three stubs passing through need 0.75 &mdash; 0.09 mm of
+margin, which is why the fan-out is four rows deep. The stubs are threaded rather than bent: a
+stub steps 0.06 mm aside for the length of a neighbour's via and comes back, because held aside
+for a whole row interval two neighbours passing vias on opposite sides met in the middle 0.03 mm
+too close. It is a small dynamic programme over (waypoint, lateral offset) and finds 51 of 52
+vias in five seconds.</p>
+
+<h3>What the Specctra round trip got to decide</h3>
+
+<p>All of it measured on the way back, not read about:</p>
+
+<ol>
+  <li><strong>Freerouting does not treat a Specctra <code>plane</code> as connecting anything
+  &mdash; nor as an obstacle.</strong> Ground is taken off the table before export: the planes
+  go, the net goes, In1/In4 are declared <code>power</code> layers. And every 20 A pour is a
+  keepout by the time the router sees it, because given as a plane it lays a foreign track
+  straight through and KiCad cuts the pour around it.</li>
+  <li><strong>A protected via is protected on its pad's layer, by the pad, and nowhere
+  else.</strong> The ground vias are removed from the DSN and each leaves a keepout on all four
+  signal layers.</li>
+  <li><strong>KiCad's SES import takes a via's diameter from the Specctra padstack and its
+  drill from the netclass.</strong> A 0.46/0.20 stitching via came back 0.46/<b>0.40</b>, a
+  0.03 mm annular ring; every drill is rebuilt from the diameter on the way in.</li>
+  <li><strong>Specctra has no hole-to-hole rule.</strong> <code>via_via</code> and
+  <code>via_pin</code> clearance stand in, and a class with a rule of its own does not inherit
+  them from the structure rule &mdash; measured as two Analog-class vias 0.48 mm hole to hole
+  &mdash; so every class rule carries both.</li>
+  <li><strong>The router routes to the boundary it is given</strong>; the outline is pre-inset
+  by 0.35 mm, exact because it is a circle about the shaft axis.</li>
+  <li><strong><code>PAD::GetLayer()</code> answers F.Cu for a pad on a flipped
+  footprint.</strong> Only the layer set knows.</li>
+  <li><strong>KiCad's DRC report names items by uuid</strong>, and a footprint embedded verbatim
+  carries the library's pad uuids, so six FETs shared them and the unconnected list named the
+  wrong gate for three runs. Every embedded item has a uuid of its own now.</li>
+</ol>
+
+<h3>What freerouting turned out to do</h3>
+
+<p>Measured, mostly from its log and some from its bytecode, after four runs in a row stopped at
+the same thirty connections:</p>
+
+<ol>
+  <li><strong>A wire touches a pad only if it ends on the pad's centre, exactly.</strong>
+  Freerouting computes that centre itself from the placement rotation, rounded to 0.1 &micro;m;
+  KiCad writes wire ends to the micron. A stub starting on its pad's centre was a separate island
+  to the router, which then queued 119 connections between pads and their own stubs and could
+  insert none of them. <code>route.py</code> rewrites every wire end within 30 &micro;m of a pin
+  or via of its net onto the centre the router will compute.</li>
+  <li><strong>In 45-degree mode it cannot leave a pad that is not on the grid.</strong> Its
+  search tree wraps a tilted pad in its bounding octagon; for the FET gate pads that runs into
+  the halos beside them ("no accessible expansion doors", every gate, every pass), for the flash
+  and the amplifiers it overlaps the neighbours. Free-angle mode routes them and takes
+  twenty-five minutes a pass where 45-degree takes five seconds. So those pads get copper from
+  the tools.</li>
+  <li><strong>A protected wire is a bad target.</strong> A junction into a protected trace
+  cannot be inserted (791 times in one run), and a three-segment protected polyline joined twice
+  loops normalization for ever. So the router is not shown the stubs: a pin with its stub and via
+  leaves the net's pin list, the stub becomes a keepout, and the net's end is the via &mdash; a
+  circle, on the grid at any angle. Passes went from thirty-five seconds to five.</li>
+  <li><strong>Its last pass can undo its earlier ones</strong>: a failed attempt does not put
+  the neighbours it ripped up back, and the session comes back with nets that have their vias
+  and no wire. <code>route.py</code> runs rounds, each exporting the board as it stands.</li>
+  <li><strong>A locked track exports as <code>(type fix)</code></strong> and an unlocked one as
+  <code>(type route)</code> &mdash; the only handle on <em>my copper versus the router's</em>
+  across the round trip. A strict round protects both; the rounds after the first are
+  <em>loose</em>, protecting only the tools' copper so the router's own earlier wires are its to
+  move. It does not rescue the last few nets &mdash; told it may move them, freerouting reports
+  "board state has not changed since pass #1" and stops &mdash; but it makes the rounds safe to
+  repeat. KiCad's session import keeps a locked item and the session carries its own copy of some
+  protected vias, moved up to 25 &micro;m, so the copy goes and the original stays.</li>
+  <li>A class naming a net that no longer exists makes freerouting read nothing and write an
+  empty session, silently. <code>-inc</code> does nothing in 2.2.4 headless.</li>
+</ol>
+
+<div class="note warn">
+  <strong>Two design rules were wrong before any of this, and routing is what found them.</strong>
+  <ul>
+    <li><strong>0.20 mm clearance on the power and analog classes is unbuildable.</strong> A
+    0.65 mm-pitch VSSOP-8 has 0.15 mm between adjacent pins, so every INA241 was a clearance
+    violation no layout could fix. 0.15 mm is JLCPCB's floor for 2 oz outer copper, so nothing
+    is given up.</li>
+    <li><strong>The default via was illegal under the default rules.</strong> 0.5 mm on a
+    0.25 mm drill is a 0.125 mm annular ring against this project's own 0.13 mm minimum. The
+    drill is 0.20 mm now.</li>
+  </ul>
+</div>
+
+<h3>45 degrees, and no stair steps</h3>
+
+<p>The tracks that come back are measured, not assumed: every segment is bucketed by direction
+and every corner where a horizontal segment meets a vertical one is counted and then
+<strong>chamfered</strong> &mdash; both new endpoints lie on the old track and the diagonal lies
+inside the corner it replaces, so a chamfer only ever removes copper. What is on the board:
+<strong>360 segments at 45&deg;, 361 orthogonal, 640 at neither</strong>, the
+last being the tools' &mdash; pad exits along a rotated pad's axis, the gate and sense arcs, and
+a fan-out radial to a chip at 270&deg; on a board where nothing is on the grid. <strong>No
+right-angle corners</strong>, and 8 tees, which are junctions rather than stair steps.</p>
+
+<p>Four repairs run after the round trip, all deterministic. <strong>Degenerate segments</strong>:
+Specctra leaves sub-micron stubs that turn a 45&deg; bend into a right angle with nothing to cut.
+<strong>Hole-to-hole</strong>: a few drills come back 20&ndash;40 &micro;m too close; a narrower
+drill moves no geometry, and where that is not enough the via is nudged. <strong>Unused
+vias</strong>: an escape the router did not use is copper on one layer, and KiCad is the judge
+of that &mdash; the via goes, then its stub. <strong>Pour islands</strong>: routing cuts the
+ground pours into pieces, and any piece without a via of its own gets one.</p>
+
+<p>One more check runs on the way out, and it is not a DRC rule: <strong>no foreign copper on
+F.Cu where the heatsink ring clamps</strong>, R&nbsp;29.2&ndash;31.5. That contact is the 20 A
+rating of &sect;4, the ring is aluminium, and anything but ground under it is a short waiting
+for the screws.</p>
+</section>
+
+<!-- ===================================================== 11 ============ -->
+<section id="s11">
+<h2>11 &middot; Open questions</h2>
+
+<ol class="q">
+<li><strong>Which motor?</strong> Everything mechanical is provisional until this is answered:
+the encoder air gap, the standoff length, whether the 25 &#215; 19 mm pattern actually bolts to
+something, and whether the rear face is stationary. Needed: the motor, its rear bolt pattern,
+and how the magnet is carried on the shaft.</li>
+
+<li class="done"><strong>Thermal path &mdash; decided: option 2 on the board, and no rating
+beyond what the prototype shows.</strong> The board is laid out for a machined aluminium ring
+between the boards, clamping the bare copper and bolted through all six perimeter holes. Its
+outside was question 13, and 2026-09-22 answered it: no fins. The drive runs well below its peak
+current in normal use, and 20 A RMS is a burst to be measured on the prototype, not a continuous
+rating (&sect;4).</li>
+
+<li class="done"><strong>EG2103's LIN pull direction &mdash; settled from the datasheet: it is a
+pull-up, and a floating input coasts.</strong> Truth table, block diagram and the sign of
+I<sub>in(L)</sub> all agree; only one sentence of the PDF's own prose disagrees, and it
+contradicts itself in the same breath. See &sect;3. The pull resistors got fitted anyway, for the
+unrelated reason that RP2350's reset-state pull-down parks LIN in the undefined band &mdash; and
+since question 8 was answered they pull LIN <em>down</em>, so the board brakes.</li>
+
+<li class="done"><strong>The channel can only hold ground and phase-output parts &mdash;
+decided: the cells were widened to 68&deg; and five parts per cell came back in.</strong>
+Inside a phase cell the channel row on B.Cu is boxed in three ways: the phase-output pour owns
+B.Cu from R&nbsp;25.9 to 28.9 across &plusmn;11.5 mm, so a channel part's inner pad at
+R&nbsp;28.5 sits <em>inside</em> it and cannot trace inward; the heatsink land owns F.Cu from
+R&nbsp;29.2 out, and that is bare copper under an aluminium ring, so a foreign-net via there is
+a short rather than a DRC error; and the six boss pads cut the outer B.Cu ring into six
+disconnected arcs. What is left is a via corridor about 0.7 mm wide, twice per cell. Neither
+pour can give the room back &mdash; the phase band is already 95 A/mm&sup2; at 3.0 mm wide and
+cannot grow inward past R&nbsp;25.6 without meeting the switch-node band.
+<p>So <code>C{n}03</code>/<code>C{n}04</code> went into the DC-link row ahead of the bulk,
+where a high-frequency capacitor belongs; <code>D{n}01</code> went beside the bootstrap
+capacitor it charges; <code>R{n}11</code>/<code>R{n}12</code> went onto the driver's logic side
+with the VCC 100&nbsp;n. <code>D{n}02</code> stayed, because its nets are exactly GND and the
+phase output.</p>
+<p>67&deg; is the floor &mdash; below it the DC-link row runs into the perimeter boss and the
+wedges lose their corners &mdash; and 68&deg; is set, for a degree of margin. The cost is the
+even bolt circle, which is what the 60&deg; arrangement was pleasing for; bolts are now at
+0/68/136/204/256/308&deg;. Against that, the heatsink land is measured from the cell edge, so it
+grows from 250 to <strong>279 mm&sup2;</strong>.</p></li>
+
+<li class="done"><strong>Bus input connector &mdash; decided 2026-09-22: XT30</strong>, as on the
+sister board. Whether power also chains was not part of the answer, so board B gets one XT30 and
+no power out; an in/out pair beside the RS-485 ports is still possible, at the cost of board-B
+perimeter and a real fault-current question.</li>
+
+<li class="done"><strong>Does VMOT ever run below 20 V? &mdash; decided 2026-09-22: yes, down to
+12 V.</strong> Two consequences, both in &sect;7. The gate rail runs in dropout at the bottom
+of the range, near 11.5 V, which EG2103 and the FETs accept and nothing lower would. And a 20 V
+PD contract could now back-drive a lower-voltage pack &mdash; answered the same day by not using
+the two together: PD replaces a pack. The XT30 stays a straight pass-through.</li>
+
+<li><strong>E-stop.</strong> Keep the sister board's expandable loop pulling <code>RUN</code>,
+now that it actually works? It costs a two-pin connector and it is the only thing that stops a
+wedged CPU. My inclination is yes.</li>
+
+<li><strong>Brake and regen.</strong> <em>What a reset does is decided (2026-09-22): it
+brakes.</em> LIN and HIN are both pulled to GND, the low sides conduct whenever the CPU is not
+driving, as on the sister board (&sect;9), and board B holds the gate rail on through a reset so
+that the brake lasts (&sect;3, &sect;7). <em>Regen is still open.</em> A decelerating load pumps
+VMOT into the bulk and then into the TVS &mdash; the simulation has the bus at the TVS in
+0.26 ms at the design-point braking torque, with about 2 J for a part that survives a few
+&mdash; and there is no brake resistor and no active clamp. A brake resistor, an active clamp,
+much more bulk, or a documented deceleration limit. A pack on the XT30 absorbs some of it,
+which is why the XT30 has no ideal diode; on USB-PD nothing does, because the PD path's diode
+blocks it.</li>
+
+<li><strong>Hardware overcurrent.</strong> A comparator on the INA241 outputs pulling
+<code>RUN</code> is about four parts and closes the loop faster than firmware can. Populate,
+DNP, or leave out? Capture forced half an answer: <code>FAULT_n</code> now has a 10 k pull-up,
+so the not-fitted state is defined rather than floating. The comparator itself is still a
+question.</li>
+
+<li><strong>Interconnect: header or standoff?</strong> &sect;8. Wants a bench test, not an
+opinion &mdash; and it now competes with &sect;4, which wants all six perimeter screws carrying
+heat and ground rather than two of them carrying 60 V.</li>
+
+<li class="done"><strong>Firmware &mdash; decided 2026-09-22: SimpleFOC</strong>, as on the
+sister board, whose firmware, tuning scripts and dashboard all transfer. Its shunt scaling
+transfers only in the precision mode &mdash; 80 mV/A at 1.6 m&#8486;; at the design point it is
+40. Three changes from the simulation are waiting for it: pace the ADC from the PWM slice's wrap
+(one conversion per phase at the counter's zero), set <code>dead_zone</code> to zero and leave
+the dead time to EG2103, and never command a duty the driver's 560 ns minimum pulse cannot
+reach.</li>
+
+<li><strong>Board B is not captured.</strong> Board A is done; board B is still an outline and
+five empty sheets. Two things are waiting there and both came out of board A's arithmetic: its
+bulk needs sizing for <strong>~9 A RMS of ripple</strong> rather than for capacitance
+(&sect;8), and the RS-485 fail-safe bias has to be computed against the termination rather
+than guessed (&sect;7, their F-01).</li>
+
+<li class="done"><strong>How big are the fins? &mdash; decided 2026-09-22: there are none.</strong>
+&sect;4 had made the enclosure the 20 A rating; the answer is to stop asking for that rating.
+The drive runs well below its peak current in normal use, and what it can do in bursts will be
+measured on the prototype. Whether connectors may overhang &#216;65 is still open, with the
+enclosure.</li>
+</ol>
+</section>
+
+</main>
+
+<footer>
+  <p>servodrive &middot; specification draft 0.6 &middot; 2026-09-22</p>
+  <p>Source material: <code>~/pcb/rp2350-motor-controller</code> — <code>hardware/encoder</code>
+  for the sensor circuit and mount pattern, <code>review/findings.html</code>,
+  <code>review/power.html</code> and <code>review/gan.html</code> for everything quoted above.</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+{
+ "question": "P8 (optional)",
+ "losses_geometry_py_W": {
+  "conduction": 5.688000000000001,
+  "switching": 3.8369102733223945,
+  "shunts": 0.64,
+  "gate": 0.13636800000000002,
+  "logic": 0.26,
+  "total": 10.561278273322394,
+  "t_on": 6.5e-08,
+  "t_off": 3.25e-08
+ },
+ "via_array": {
+  "Q1": {
+   "ref": "Q1",
+   "n_barrels": 16,
+   "barrel_area_mm2": 0.03337942194439153,
+   "R_barrels_K_per_W": 9.062496397753621,
+   "R_fr4_K_per_W": 409.2623969894054,
+   "R_total_K_per_W": 8.866168514193301,
+   "estimate_geometry_py_K_per_W": 7.614424315049985,
+   "R_one_barrel_K_per_W": 124.50317945937861,
+   "ratio_to_estimate": 1.1643911801275943
+  },
+  "Q2": {
+   "ref": "Q2",
+   "n_barrels": 16,
+   "barrel_area_mm2": 0.03337942194439153,
+   "R_barrels_K_per_W": 9.062496397753621,
+   "R_fr4_K_per_W": 329.2901900761561,
+   "R_total_K_per_W": 8.819764939596187,
+   "estimate_geometry_py_K_per_W": 7.614424315049985,
+   "R_one_barrel_K_per_W": 124.50317945937861,
+   "ratio_to_estimate": 1.1582970129683783
+  }
+ },
+ "spreading": {
+  "R_electrical_Ohm": 7.642058838613662e-05,
+  "R_thermal_K_per_W": 11.290846875509038,
+  "n_nodes": 85484,
+  "n_source_nodes": 194,
+  "n_sink_nodes": 17633,
+  "estimate_K_per_W": 1.0,
+  "note": "F.Cu GND only, from the low-side source pads to the heatsink land at R > 29.2 mm.  The other five layers conduct in parallel and are not in this number, so it is an upper bound on that one path; the design's own estimate for spreading is 1.0 K/W for the whole stack."
+ },
+ "sink_needed": {
+  "r_sink_K_per_W": 6.788732129785354,
+  "area_cm2": 98.20194020348617
+ },
+ "note": "The board's own thermal model is in tools/geometry.py: via_thermal(), thermal() and sink_needed().  Only the via array and the lateral spreading are re-solved here; the ring and the convection coefficient are enclosure questions.",
+ "seconds": 1.9,
+ "joule_from_P3_W": {
+  "phase_pour": 0.024026461284389,
+  "switch_node": 0.7406749601527068,
+  "gnd_return": 0.30035904492247556,
+  "note": "solved at the 28.3 A peak; at 20 A rms the same paths dissipate half of it"
+ },
+ "_phase": {
+  "seconds": 1.9
+ },
+ "_meta": {
+  "written": "2026-09-12T00:35:10",
+  "board_mtime": "2026-09-09T12:24:35"
+ }
+}

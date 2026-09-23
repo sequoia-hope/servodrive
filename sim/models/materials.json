@@ -1,0 +1,105 @@
+{
+ "copper": {
+  "sigma": {
+   "unit": "S/m",
+   "source": "SPEC.md sec.7, annealed copper at 20 C",
+   "read": "2026-09-11",
+   "status": "datasheet",
+   "value": 58000000.0
+  },
+  "sigma_plated_barrel": {
+   "unit": "S/m",
+   "source": "SPEC.md sec.7, plated barrel",
+   "read": "2026-09-11",
+   "status": "datasheet",
+   "value": 47000000.0
+  },
+  "alpha": {
+   "unit": "1/K",
+   "source": "SPEC.md sec.7",
+   "read": "2026-09-11",
+   "status": "datasheet",
+   "value": 0.00393
+  },
+  "k_thermal": {
+   "unit": "W/m.K",
+   "source": "tools/geometry.py CU_K",
+   "read": "2026-09-11",
+   "status": "datasheet",
+   "value": 385.0
+  },
+  "rho_20C": {
+   "unit": "Ohm.m",
+   "source": "derived",
+   "read": "2026-09-11",
+   "status": "derived",
+   "value": 1.724137931034483e-08
+  }
+ },
+ "fr4": {
+  "epsilon_r": {
+   "unit": "-",
+   "source": "the board file's stackup block",
+   "read": "2026-09-11",
+   "status": "datasheet",
+   "value": 4.5
+  },
+  "loss_tangent": {
+   "unit": "-",
+   "source": "the board file's stackup block",
+   "read": "2026-09-11",
+   "status": "datasheet",
+   "value": 0.02
+  },
+  "k_thermal": {
+   "unit": "W/m.K",
+   "source": "typical FR4; not in the board file",
+   "read": "2026-09-11",
+   "status": "bracketed",
+   "value": 0.3
+  }
+ },
+ "solder_mask": {
+  "epsilon_r": {
+   "unit": "-",
+   "source": "SPEC.md sec.7",
+   "read": "2026-09-11",
+   "status": "bracketed",
+   "value": 3.5
+  },
+  "thickness": {
+   "unit": "m",
+   "source": "the board file's stackup block",
+   "read": "2026-09-11",
+   "status": "datasheet",
+   "value": 1e-05
+  }
+ },
+ "magnet_N35": {
+  "B_r": {
+   "unit": "T",
+   "source": "NdFeB N35 grade",
+   "read": "2026-09-11",
+   "status": "bracketed",
+   "min": 1.17,
+   "max": 1.22
+  },
+  "TC": {
+   "unit": "%/K",
+   "source": "MT6701 datasheet TCmag1",
+   "read": "2026-09-11",
+   "status": "datasheet",
+   "value": -0.12
+  }
+ },
+ "magnet_N42": {
+  "B_r": {
+   "unit": "T",
+   "source": "NdFeB N42 grade",
+   "read": "2026-09-11",
+   "status": "bracketed",
+   "min": 1.28,
+   "max": 1.32
+  }
+ }
+}

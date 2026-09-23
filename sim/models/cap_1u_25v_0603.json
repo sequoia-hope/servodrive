@@ -1,0 +1,43 @@
+{
+ "part": "1 uF 25 V X7R 0603 (bootstrap)",
+ "maker": "not chosen in the BOM",
+ "C_nominal": {
+  "unit": "F",
+  "source": "board value",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 1e-06
+ },
+ "V_rated": {
+  "unit": "V",
+  "source": "board value",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 25.0
+ },
+ "retention_at_12V": {
+  "unit": "-",
+  "source": "bracketed",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "min": 0.45,
+  "typ": 0.6,
+  "max": 0.75
+ },
+ "ESR": {
+  "unit": "Ohm",
+  "source": "class",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "min": 0.01,
+  "typ": 0.03,
+  "max": 0.08
+ },
+ "ESL": {
+  "unit": "H",
+  "source": "class",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "value": 6e-10
+ }
+}

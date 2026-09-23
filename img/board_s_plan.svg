@@ -1,0 +1,590 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-37 -41 150 79" width="1500" height="790" role="img">
+<title>Board S placement sketch: outward face and motor-facing face</title>
+<style>
+  :root { --bg:#ffffff; --panel:#f4f2ec; --ink:#1e2126; --muted:#6b7280; --line:#c9c4b8;
+          --accent:#6b4fa0; --newfill:#e3d9f5; --warn:#a05a00; --copper:#c08a3e; --bus:#b3372f; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1e2128; --panel:#262a33; --ink:#e8e6e1; --muted:#9aa3af; --line:#3d434f;
+            --accent:#b89ce8; --newfill:#3a3152; --warn:#e0a44c; --copper:#b8823c; --bus:#e06a5f; } }
+  .board { fill: var(--panel); stroke: var(--ink); stroke-width: .3; }
+  .wedge { fill: var(--accent); fill-opacity: .06; stroke: var(--accent); stroke-width: .12;
+           stroke-dasharray: .8 .6; }
+  .land  { fill: var(--copper); fill-opacity: .55; stroke: none; }
+  .buspad{ fill: var(--bus); fill-opacity: .7; stroke: none; }
+  .keep  { fill: none; stroke: var(--warn); stroke-width: .12; stroke-dasharray: .6 .5; }
+  .magnet{ fill: var(--warn); fill-opacity: .08; stroke: var(--warn); stroke-width: .15; }
+  .pl2   { font-size: 0.9px; fill: var(--warn); }
+  .boss  { fill: var(--bg); stroke: var(--ink); stroke-width: .18; }
+  .old   { fill: var(--muted); fill-opacity: .22; stroke: var(--muted); stroke-width: .12; }
+  .new   { fill: var(--newfill); stroke: var(--accent); stroke-width: .18; }
+  .ghost { fill: none; stroke: none; }
+  .hole  { fill: var(--bg); stroke: var(--ink); stroke-width: .1; }
+  text   { font-family: ui-sans-serif, system-ui, sans-serif; fill: var(--ink); }
+  .h     { font-size: 2.1px; font-weight: 600; }
+  .sub   { font-size: 1.35px; fill: var(--muted); }
+  .lb    { font-size: 1.25px; font-weight: 600; }
+  .ls    { font-size: 0.62px; }
+  .pl    { font-size: 1.0px; font-weight: 600; fill: #fff; }
+</style>
+<g transform="translate(0 0)">
+<text class="h" x="0" y="-38.2" text-anchor="middle">outward face</text>
+<text class="sub" x="0" y="-35.9" text-anchor="middle">the face away from the motor; bus pads, cans, USB-C, expansion header</text>
+<circle class="board" cx="0" cy="0" r="32.5"/>
+<path class="wedge" d="M -29.69 13.22 L -29.17 14.33 L -28.61 15.42 L -28.00 16.49 L -27.36 17.54 L -26.68 18.56 L -25.96 19.56 L -25.20 20.53 L -24.40 21.46 L -23.57 22.37 L -22.71 23.25 L -21.82 24.09 L -20.89 24.90 L -19.93 25.67 L -18.95 26.40 L -17.94 27.10 L -16.90 27.76 L -15.84 28.38 L -14.75 28.96 L -13.65 29.49 L -12.52 29.99 L -11.38 30.44 L -10.22 30.85 L -9.05 31.21 L -7.86 31.53 L -4.11 16.50 L -4.73 16.33 L -5.35 16.14 L -5.95 15.92 L -6.55 15.69 L -7.14 15.43 L -7.72 15.15 L -8.28 14.84 L -8.84 14.52 L -9.38 14.18 L -9.91 13.81 L -10.43 13.43 L -10.93 13.02 L -11.41 12.60 L -11.88 12.16 L -12.33 11.70 L -12.76 11.23 L -13.18 10.74 L -13.58 10.23 L -13.95 9.71 L -14.31 9.18 L -14.65 8.63 L -14.96 8.07 L -15.26 7.50 L -15.53 6.91 Z"/>
+<path class="wedge" d="M 20.01 25.61 L 20.96 24.84 L 21.89 24.03 L 22.78 23.18 L 23.64 22.30 L 24.47 21.39 L 25.26 20.45 L 26.01 19.48 L 26.73 18.49 L 27.41 17.46 L 28.05 16.41 L 28.65 15.34 L 29.21 14.25 L 29.73 13.13 L 30.20 12.00 L 30.64 10.85 L 31.02 9.68 L 31.37 8.50 L 31.67 7.31 L 31.92 6.11 L 32.13 4.90 L 32.29 3.68 L 32.41 2.46 L 32.48 1.23 L 32.50 0.00 L 17.00 0.00 L 16.99 0.64 L 16.95 1.28 L 16.89 1.92 L 16.81 2.56 L 16.70 3.20 L 16.56 3.82 L 16.41 4.45 L 16.23 5.06 L 16.02 5.67 L 15.80 6.28 L 15.55 6.87 L 15.28 7.45 L 14.99 8.02 L 14.67 8.59 L 14.34 9.13 L 13.98 9.67 L 13.61 10.19 L 13.21 10.70 L 12.80 11.19 L 12.37 11.67 L 11.92 12.13 L 11.45 12.57 L 10.97 12.99 L 10.47 13.40 Z"/>
+<path class="land" d="M 31.33 -3.29 L 31.17 -4.57 L 30.96 -5.83 L 30.69 -7.09 L 30.38 -8.33 L 30.01 -9.56 L 29.60 -10.77 L 29.14 -11.97 L 28.63 -13.15 L 28.07 -14.30 L 27.46 -15.43 L 26.81 -16.54 L 26.11 -17.61 L 25.38 -18.66 L 24.60 -19.68 L 23.77 -20.67 L 22.91 -21.62 L 22.01 -22.53 L 21.08 -23.41 L 20.11 -24.25 L 19.10 -25.05 L 18.07 -25.80 L 17.00 -26.52 L 15.91 -27.19 L 14.79 -27.81 L 13.71 -25.78 L 14.75 -25.20 L 15.76 -24.58 L 16.75 -23.92 L 17.71 -23.22 L 18.64 -22.48 L 19.54 -21.70 L 20.41 -20.89 L 21.24 -20.04 L 22.04 -19.16 L 22.80 -18.24 L 23.52 -17.30 L 24.21 -16.33 L 24.85 -15.33 L 25.46 -14.30 L 26.02 -13.26 L 26.54 -12.19 L 27.01 -11.10 L 27.44 -9.99 L 27.82 -8.86 L 28.16 -7.72 L 28.45 -6.57 L 28.70 -5.40 L 28.89 -4.23 L 29.04 -3.05 Z"/>
+<path class="land" d="M 8.68 -30.28 L 7.44 -30.61 L 6.19 -30.89 L 4.93 -31.11 L 3.66 -31.29 L 2.38 -31.41 L 1.10 -31.48 L -0.18 -31.50 L -1.47 -31.47 L -2.75 -31.38 L -4.02 -31.24 L -5.29 -31.05 L -6.55 -30.81 L -7.80 -30.52 L -9.03 -30.18 L -10.26 -29.78 L -11.46 -29.34 L -12.64 -28.85 L -13.81 -28.31 L -14.95 -27.73 L -16.07 -27.09 L -17.16 -26.42 L -18.22 -25.70 L -19.25 -24.93 L -20.25 -24.13 L -18.77 -22.37 L -17.84 -23.11 L -16.89 -23.82 L -15.90 -24.49 L -14.89 -25.12 L -13.86 -25.70 L -12.80 -26.24 L -11.72 -26.74 L -10.62 -27.20 L -9.51 -27.61 L -8.37 -27.97 L -7.23 -28.29 L -6.07 -28.56 L -4.90 -28.79 L -3.73 -28.96 L -2.54 -29.09 L -1.36 -29.17 L -0.17 -29.20 L 1.02 -29.18 L 2.21 -29.12 L 3.39 -29.00 L 4.57 -28.84 L 5.74 -28.63 L 6.90 -28.37 L 8.05 -28.07 Z"/>
+<path class="land" d="M -24.82 -19.39 L -25.59 -18.37 L -26.32 -17.31 L -27.00 -16.22 L -27.64 -15.11 L -28.23 -13.97 L -28.78 -12.81 L -29.27 -11.63 L -29.72 -10.43 L -30.12 -9.21 L -30.47 -7.98 L -30.77 -6.73 L -31.02 -5.47 L -31.22 -4.20 L -31.36 -2.93 L -31.46 -1.65 L -31.50 -0.37 L -31.49 0.92 L -31.42 2.20 L -31.31 3.47 L -31.14 4.75 L -30.92 6.01 L -30.65 7.26 L -30.33 8.51 L -29.96 9.73 L -27.77 9.02 L -28.12 7.89 L -28.41 6.73 L -28.66 5.57 L -28.87 4.40 L -29.02 3.22 L -29.13 2.04 L -29.19 0.85 L -29.20 -0.34 L -29.16 -1.53 L -29.07 -2.71 L -28.94 -3.90 L -28.76 -5.07 L -28.53 -6.24 L -28.25 -7.39 L -27.92 -8.54 L -27.55 -9.67 L -27.14 -10.78 L -26.68 -11.88 L -26.17 -12.95 L -25.62 -14.01 L -25.03 -15.04 L -24.40 -16.05 L -23.72 -17.03 L -23.01 -17.98 Z"/>
+<path class="buspad" d="M -23.63 20.68 L -23.51 20.81 L -23.40 20.94 L -23.28 21.07 L -23.16 21.20 L -23.05 21.33 L -22.93 21.45 L -22.81 21.58 L -22.69 21.71 L -22.57 21.83 L -22.45 21.96 L -22.33 22.08 L -22.20 22.20 L -22.08 22.33 L -21.96 22.45 L -21.83 22.57 L -21.71 22.69 L -21.58 22.81 L -21.45 22.93 L -21.33 23.05 L -21.20 23.16 L -21.07 23.28 L -20.94 23.40 L -20.81 23.51 L -20.68 23.63 L -18.90 21.59 L -19.02 21.49 L -19.14 21.38 L -19.26 21.28 L -19.38 21.17 L -19.49 21.06 L -19.61 20.96 L -19.73 20.85 L -19.84 20.74 L -19.95 20.63 L -20.07 20.52 L -20.18 20.41 L -20.29 20.29 L -20.41 20.18 L -20.52 20.07 L -20.63 19.95 L -20.74 19.84 L -20.85 19.73 L -20.96 19.61 L -21.06 19.49 L -21.17 19.38 L -21.28 19.26 L -21.38 19.14 L -21.49 19.02 L -21.59 18.90 Z"/>
+<text class="pl" x="-21.25" y="21.65" text-anchor="middle">VMOT</text>
+<path class="buspad" d="M -19.68 24.47 L -19.54 24.58 L -19.40 24.69 L -19.27 24.79 L -19.13 24.90 L -18.99 25.01 L -18.85 25.11 L -18.71 25.21 L -18.57 25.32 L -18.43 25.42 L -18.29 25.52 L -18.15 25.62 L -18.01 25.72 L -17.87 25.82 L -17.72 25.92 L -17.58 26.02 L -17.44 26.11 L -17.29 26.21 L -17.15 26.30 L -17.00 26.40 L -16.86 26.49 L -16.71 26.59 L -16.56 26.68 L -16.41 26.77 L -16.27 26.86 L -14.87 24.55 L -15.00 24.47 L -15.14 24.38 L -15.27 24.30 L -15.41 24.21 L -15.54 24.13 L -15.67 24.04 L -15.81 23.96 L -15.94 23.87 L -16.07 23.78 L -16.20 23.69 L -16.33 23.60 L -16.46 23.51 L -16.59 23.42 L -16.72 23.33 L -16.85 23.23 L -16.98 23.14 L -17.10 23.05 L -17.23 22.95 L -17.36 22.86 L -17.48 22.76 L -17.61 22.66 L -17.74 22.56 L -17.86 22.47 L -17.98 22.37 Z"/>
+<text class="pl" x="-17.24" y="25.02" text-anchor="middle">GND</text>
+<circle class="keep" cx="0" cy="0" r="17.0"/>
+<circle class="boss" cx="29.50" cy="-0.00" r="2.65"/>
+<circle class="boss" cx="11.05" cy="-27.35" r="2.65"/>
+<circle class="boss" cx="-21.22" cy="-20.49" r="2.65"/>
+<circle class="boss" cx="-26.95" cy="12.00" r="2.65"/>
+<circle class="boss" cx="-7.14" cy="28.62" r="2.65"/>
+<circle class="boss" cx="18.16" cy="23.25" r="2.65"/>
+<circle class="keep" cx="12.5" cy="0" r="3.75"/>
+<circle class="boss" cx="12.5" cy="0" r="1.6"/>
+<circle class="keep" cx="-12.5" cy="0" r="3.75"/>
+<circle class="boss" cx="-12.5" cy="0" r="1.6"/>
+<circle class="keep" cx="0" cy="-9.5" r="3.75"/>
+<circle class="boss" cx="0" cy="-9.5" r="1.6"/>
+<circle class="keep" cx="0" cy="9.5" r="3.75"/>
+<circle class="boss" cx="0" cy="9.5" r="1.6"/>
+<polygon class="old" points="20.32,-11.89 22.95,-5.24 28.22,-7.32 25.58,-13.98"><title>Q1  BSC030N08NS5 -- phase A high side</title></polygon>
+<circle class="hole" cx="25.87" cy="-10.48" r="0.39"/>
+<circle class="hole" cx="25.03" cy="-10.15" r="0.39"/>
+<circle class="hole" cx="24.18" cy="-9.82" r="0.39"/>
+<circle class="hole" cx="23.34" cy="-9.48" r="0.39"/>
+<circle class="hole" cx="22.50" cy="-9.15" r="0.39"/>
+<circle class="hole" cx="26.22" cy="-9.60" r="0.39"/>
+<circle class="hole" cx="25.38" cy="-9.27" r="0.39"/>
+<circle class="hole" cx="24.53" cy="-8.93" r="0.39"/>
+<circle class="hole" cx="23.69" cy="-8.60" r="0.39"/>
+<circle class="hole" cx="22.85" cy="-8.27" r="0.39"/>
+<circle class="hole" cx="26.57" cy="-8.72" r="0.39"/>
+<circle class="hole" cx="25.73" cy="-8.38" r="0.39"/>
+<circle class="hole" cx="24.88" cy="-8.05" r="0.39"/>
+<circle class="hole" cx="24.04" cy="-7.72" r="0.39"/>
+<circle class="hole" cx="23.20" cy="-7.38" r="0.39"/>
+<circle class="hole" cx="26.92" cy="-7.83" r="0.39"/>
+<circle class="hole" cx="26.08" cy="-7.50" r="0.39"/>
+<circle class="hole" cx="25.23" cy="-7.17" r="0.39"/>
+<circle class="hole" cx="24.39" cy="-6.83" r="0.39"/>
+<circle class="hole" cx="23.55" cy="-6.50" r="0.39"/>
+<polygon class="old" points="13.45,-19.32 18.64,-14.38 22.54,-18.48 17.36,-23.42"><title>Q2  BSC030N08NS5 -- phase A low side</title></polygon>
+<circle class="hole" cx="18.71" cy="-20.19" r="0.39"/>
+<circle class="hole" cx="18.05" cy="-19.50" r="0.39"/>
+<circle class="hole" cx="17.40" cy="-18.82" r="0.39"/>
+<circle class="hole" cx="16.74" cy="-18.13" r="0.39"/>
+<circle class="hole" cx="19.40" cy="-19.54" r="0.39"/>
+<circle class="hole" cx="18.74" cy="-18.85" r="0.39"/>
+<circle class="hole" cx="18.09" cy="-18.16" r="0.39"/>
+<circle class="hole" cx="17.43" cy="-17.47" r="0.39"/>
+<circle class="hole" cx="20.09" cy="-18.88" r="0.39"/>
+<circle class="hole" cx="19.43" cy="-18.19" r="0.39"/>
+<circle class="hole" cx="18.77" cy="-17.51" r="0.39"/>
+<circle class="hole" cx="18.12" cy="-16.82" r="0.39"/>
+<circle class="hole" cx="20.77" cy="-18.23" r="0.39"/>
+<circle class="hole" cx="20.12" cy="-17.54" r="0.39"/>
+<circle class="hole" cx="19.46" cy="-16.85" r="0.39"/>
+<circle class="hole" cx="18.81" cy="-16.16" r="0.39"/>
+<polygon class="old" points="23.07,-3.45 25.99,-3.98 25.73,-5.42 22.81,-4.89"><title>C103  100n/100V -- DC link, high frequency, at the high-side drain</title></polygon>
+<polygon class="old" points="13.08,-19.32 14.66,-21.82 13.42,-22.60 11.84,-20.10"><title>C104  100n/100V -- DC link, high frequency, at the low-side source</title></polygon>
+<polygon class="old" points="22.51,-0.92 27.09,-1.34 26.88,-3.63 22.30,-3.21"><title>C101  2.2u/100V -- DC link bulk, behind the 100 n</title></polygon>
+<polygon class="old" points="11.33,-19.47 13.43,-23.56 11.39,-24.62 9.28,-20.53"><title>C102  2.2u/100V -- DC link bulk, behind the 100 n</title></polygon>
+<polygon class="old" points="20.81,-9.57 16.67,-15.71 12.19,-12.69 16.33,-6.55"><title>U1  EG2103 -- 600 V half bridge, interlock + 560 ns dead time</title></polygon>
+<polygon class="old" points="14.27,-14.56 12.89,-15.80 12.26,-15.10 13.65,-13.86"><title>R101  2R2 -- gate, high side - damping, not edge shaping</title></polygon>
+<polygon class="old" points="12.61,-16.02 11.10,-17.11 10.55,-16.34 12.06,-15.26"><title>R102  2R2 -- gate, low side</title></polygon>
+<polygon class="old" points="9.83,-15.60 11.30,-18.16 10.04,-18.89 8.56,-16.33"><title>C105  1u/25V -- bootstrap cap; SW pad over the pour</title></polygon>
+<polygon class="old" points="19.48,-6.03 18.85,-7.78 17.97,-7.46 18.60,-5.71"><title>R111  4k7 -- HIN pull-down to GND; also clears RP2350-E9</title></polygon>
+<polygon class="old" points="20.02,-3.88 19.58,-5.69 18.67,-5.47 19.10,-3.66"><title>R112  4k7 -- LIN pull-down to GND; brake at reset</title></polygon>
+<polygon class="old" points="18.34,-1.82 21.28,-2.23 21.07,-3.68 18.14,-3.27"><title>C106  100n -- VCC decoupling, at the driver</title></polygon>
+<polygon class="old" points="-3.42,-23.29 3.74,-23.24 3.78,-28.90 -3.38,-28.95"><title>Q3  BSC030N08NS5 -- phase B high side</title></polygon>
+<circle class="hole" cx="-0.03" cy="-27.91" r="0.39"/>
+<circle class="hole" cx="-0.04" cy="-27.01" r="0.39"/>
+<circle class="hole" cx="-0.04" cy="-26.10" r="0.39"/>
+<circle class="hole" cx="-0.05" cy="-25.20" r="0.39"/>
+<circle class="hole" cx="-0.05" cy="-24.29" r="0.39"/>
+<circle class="hole" cx="0.92" cy="-27.90" r="0.39"/>
+<circle class="hole" cx="0.91" cy="-27.00" r="0.39"/>
+<circle class="hole" cx="0.91" cy="-26.09" r="0.39"/>
+<circle class="hole" cx="0.90" cy="-25.19" r="0.39"/>
+<circle class="hole" cx="0.90" cy="-24.28" r="0.39"/>
+<circle class="hole" cx="1.87" cy="-27.90" r="0.39"/>
+<circle class="hole" cx="1.86" cy="-26.99" r="0.39"/>
+<circle class="hole" cx="1.86" cy="-26.09" r="0.39"/>
+<circle class="hole" cx="1.85" cy="-25.18" r="0.39"/>
+<circle class="hole" cx="1.85" cy="-24.28" r="0.39"/>
+<circle class="hole" cx="2.82" cy="-27.89" r="0.39"/>
+<circle class="hole" cx="2.81" cy="-26.99" r="0.39"/>
+<circle class="hole" cx="2.81" cy="-26.08" r="0.39"/>
+<circle class="hole" cx="2.80" cy="-25.18" r="0.39"/>
+<circle class="hole" cx="2.80" cy="-24.27" r="0.39"/>
+<polygon class="old" points="-12.87,-19.71 -6.35,-22.67 -8.69,-27.82 -15.21,-24.87"><title>Q4  BSC030N08NS5 -- phase B low side</title></polygon>
+<circle class="hole" cx="-11.71" cy="-24.91" r="0.39"/>
+<circle class="hole" cx="-11.32" cy="-24.05" r="0.39"/>
+<circle class="hole" cx="-10.93" cy="-23.18" r="0.39"/>
+<circle class="hole" cx="-10.54" cy="-22.32" r="0.39"/>
+<circle class="hole" cx="-10.85" cy="-25.30" r="0.39"/>
+<circle class="hole" cx="-10.46" cy="-24.44" r="0.39"/>
+<circle class="hole" cx="-10.06" cy="-23.57" r="0.39"/>
+<circle class="hole" cx="-9.67" cy="-22.71" r="0.39"/>
+<circle class="hole" cx="-9.98" cy="-25.70" r="0.39"/>
+<circle class="hole" cx="-9.59" cy="-24.83" r="0.39"/>
+<circle class="hole" cx="-9.20" cy="-23.97" r="0.39"/>
+<circle class="hole" cx="-8.81" cy="-23.10" r="0.39"/>
+<circle class="hole" cx="-9.12" cy="-26.09" r="0.39"/>
+<circle class="hole" cx="-8.73" cy="-25.22" r="0.39"/>
+<circle class="hole" cx="-8.33" cy="-24.36" r="0.39"/>
+<circle class="hole" cx="-7.94" cy="-23.49" r="0.39"/>
+<polygon class="old" points="5.45,-22.69 6.05,-25.59 4.62,-25.88 4.02,-22.98"><title>C203  100n/100V -- DC link, high frequency, at the high-side drain</title></polygon>
+<polygon class="old" points="-13.02,-19.36 -14.74,-21.77 -15.93,-20.91 -14.20,-18.51"><title>C204  100n/100V -- DC link, high frequency, at the low-side source</title></polygon>
+<polygon class="old" points="7.58,-21.22 8.91,-25.62 6.70,-26.28 5.38,-21.88"><title>C201  2.2u/100V -- DC link bulk, behind the 100 n</title></polygon>
+<polygon class="old" points="-13.81,-17.80 -16.81,-21.28 -18.56,-19.78 -15.56,-16.30"><title>C202  2.2u/100V -- DC link bulk, behind the 100 n</title></polygon>
+<polygon class="old" points="-1.08,-22.88 -8.32,-21.34 -7.20,-16.05 0.04,-17.59"><title>U2  EG2103 -- 600 V half bridge, interlock + 560 ns dead time</title></polygon>
+<polygon class="old" points="-8.16,-18.69 -9.83,-17.87 -9.41,-17.02 -7.74,-17.85"><title>R201  2R2 -- gate, high side - damping, not edge shaping</title></polygon>
+<polygon class="old" points="-10.13,-17.69 -11.70,-16.70 -11.20,-15.90 -9.63,-16.90"><title>R202  2R2 -- gate, low side</title></polygon>
+<polygon class="old" points="-10.78,-14.95 -12.60,-17.28 -13.75,-16.38 -11.93,-14.05"><title>C205  1u/25V -- bootstrap cap; SW pad over the pour</title></polygon>
+<polygon class="old" points="1.71,-20.32 -0.15,-20.39 -0.19,-19.45 1.67,-19.38"><title>R211  4k7 -- HIN pull-down to GND; also clears RP2350-E9</title></polygon>
+<polygon class="old" points="3.90,-20.01 2.06,-20.29 1.92,-19.36 3.76,-19.08"><title>R212  4k7 -- LIN pull-down to GND; brake at reset</title></polygon>
+<polygon class="old" points="5.18,-17.69 5.90,-20.56 4.48,-20.92 3.77,-18.05"><title>C206  100n -- VCC decoupling, at the driver</title></polygon>
+<polygon class="old" points="-22.88,-5.56 -20.15,-12.18 -25.38,-14.34 -28.11,-7.72"><title>Q5  BSC030N08NS5 -- phase C high side</title></polygon>
+<circle class="hole" cx="-25.89" cy="-10.43" r="0.39"/>
+<circle class="hole" cx="-25.05" cy="-10.08" r="0.39"/>
+<circle class="hole" cx="-24.22" cy="-9.74" r="0.39"/>
+<circle class="hole" cx="-23.38" cy="-9.39" r="0.39"/>
+<circle class="hole" cx="-22.54" cy="-9.05" r="0.39"/>
+<circle class="hole" cx="-25.53" cy="-11.31" r="0.39"/>
+<circle class="hole" cx="-24.69" cy="-10.96" r="0.39"/>
+<circle class="hole" cx="-23.85" cy="-10.62" r="0.39"/>
+<circle class="hole" cx="-23.02" cy="-10.27" r="0.39"/>
+<circle class="hole" cx="-22.18" cy="-9.93" r="0.39"/>
+<circle class="hole" cx="-25.17" cy="-12.19" r="0.39"/>
+<circle class="hole" cx="-24.33" cy="-11.84" r="0.39"/>
+<circle class="hole" cx="-23.49" cy="-11.50" r="0.39"/>
+<circle class="hole" cx="-22.66" cy="-11.15" r="0.39"/>
+<circle class="hole" cx="-21.82" cy="-10.81" r="0.39"/>
+<circle class="hole" cx="-24.80" cy="-13.06" r="0.39"/>
+<circle class="hole" cx="-23.97" cy="-12.72" r="0.39"/>
+<circle class="hole" cx="-23.13" cy="-12.37" r="0.39"/>
+<circle class="hole" cx="-22.29" cy="-12.03" r="0.39"/>
+<circle class="hole" cx="-21.46" cy="-11.68" r="0.39"/>
+<polygon class="old" points="-23.10,4.55 -23.40,-2.60 -29.05,-2.36 -28.75,4.79"><title>Q6  BSC030N08NS5 -- phase C low side</title></polygon>
+<circle class="hole" cx="-27.49" cy="1.53" r="0.39"/>
+<circle class="hole" cx="-26.54" cy="1.49" r="0.39"/>
+<circle class="hole" cx="-25.59" cy="1.45" r="0.39"/>
+<circle class="hole" cx="-24.64" cy="1.41" r="0.39"/>
+<circle class="hole" cx="-27.52" cy="0.58" r="0.39"/>
+<circle class="hole" cx="-26.58" cy="0.54" r="0.39"/>
+<circle class="hole" cx="-25.63" cy="0.50" r="0.39"/>
+<circle class="hole" cx="-24.68" cy="0.46" r="0.39"/>
+<circle class="hole" cx="-27.56" cy="-0.37" r="0.39"/>
+<circle class="hole" cx="-26.62" cy="-0.41" r="0.39"/>
+<circle class="hole" cx="-25.67" cy="-0.45" r="0.39"/>
+<circle class="hole" cx="-24.72" cy="-0.49" r="0.39"/>
+<circle class="hole" cx="-27.60" cy="-1.32" r="0.39"/>
+<circle class="hole" cx="-26.66" cy="-1.36" r="0.39"/>
+<circle class="hole" cx="-25.71" cy="-1.40" r="0.39"/>
+<circle class="hole" cx="-24.76" cy="-1.44" r="0.39"/>
+<polygon class="old" points="-19.00,-13.55 -21.46,-15.19 -22.27,-13.98 -19.81,-12.33"><title>C303  100n/100V -- DC link, high frequency, at the high-side drain</title></polygon>
+<polygon class="old" points="-22.83,4.82 -25.70,5.52 -25.36,6.94 -22.48,6.23"><title>C304  100n/100V -- DC link, high frequency, at the low-side source</title></polygon>
+<polygon class="old" points="-16.83,-14.98 -20.42,-17.86 -21.86,-16.06 -18.27,-13.18"><title>C301  2.2u/100V -- DC link bulk, behind the 100 n</title></polygon>
+<polygon class="old" points="-21.68,6.14 -26.03,7.62 -25.29,9.80 -20.94,8.32"><title>C302  2.2u/100V -- DC link bulk, behind the 100 n</title></polygon>
+<polygon class="old" points="-21.61,-7.57 -22.90,-0.28 -17.58,0.66 -16.30,-6.63"><title>U3  EG2103 -- 600 V half bridge, interlock + 560 ns dead time</title></polygon>
+<polygon class="old" points="-20.38,0.56 -20.25,2.42 -19.31,2.35 -19.45,0.49"><title>R301  2R2 -- gate, high side - damping, not edge shaping</title></polygon>
+<polygon class="old" points="-20.20,2.77 -19.87,4.60 -18.94,4.43 -19.28,2.60"><title>R302  2R2 -- gate, low side</title></polygon>
+<polygon class="old" points="-17.90,4.39 -20.75,5.21 -20.34,6.61 -17.50,5.80"><title>C305  1u/25V -- bootstrap cap; SW pad over the pour</title></polygon>
+<polygon class="old" points="-18.20,-9.20 -18.96,-7.50 -18.10,-7.11 -17.34,-8.81"><title>R311  4k7 -- HIN pull-down to GND; also clears RP2350-E9</title></polygon>
+<polygon class="old" points="-17.10,-11.11 -18.04,-9.51 -17.23,-9.03 -16.29,-10.64"><title>R312  4k7 -- LIN pull-down to GND; brake at reset</title></polygon>
+<polygon class="old" points="-14.46,-11.43 -16.85,-13.17 -17.71,-11.99 -15.32,-10.25"><title>C306  100n -- VCC decoupling, at the driver</title></polygon>
+<polygon class="old" points="-0.49,17.51 1.22,25.57 9.28,23.86 7.57,15.80"><title>U7  RP2350A -- QFN-60, 1EP; three PWM slices, four ADC</title></polygon>
+<circle class="hole" cx="5.46" cy="19.06" r="0.30"/>
+<circle class="hole" cx="4.11" cy="19.34" r="0.30"/>
+<circle class="hole" cx="2.77" cy="19.63" r="0.30"/>
+<circle class="hole" cx="5.74" cy="20.40" r="0.30"/>
+<circle class="hole" cx="4.40" cy="20.69" r="0.30"/>
+<circle class="hole" cx="3.05" cy="20.97" r="0.30"/>
+<circle class="hole" cx="6.03" cy="21.75" r="0.30"/>
+<circle class="hole" cx="4.68" cy="22.03" r="0.30"/>
+<circle class="hole" cx="3.34" cy="22.32" r="0.30"/>
+<polygon class="old" points="10.57,20.14 11.09,22.59 13.14,22.15 12.62,19.71"><title>L701  3u3 -- core buck: VREG_LX -&gt; DVDD. 3.3 uH 2016, &gt;= 0.6 A, as the reference</title></polygon>
+<polygon class="old" points="8.67,20.89 9.05,22.67 9.95,22.48 9.57,20.70"><title>C714  4u7 -- VREG_VIN, at pin 49</title></polygon>
+<polygon class="old" points="9.60,20.70 9.98,22.48 10.88,22.28 10.50,20.50"><title>C715  4u7 -- DVDD, at the inductor</title></polygon>
+<polygon class="old" points="11.00,23.11 9.22,23.49 9.42,24.39 11.20,24.01"><title>C718  4u7 -- VREG_AVDD</title></polygon>
+<polygon class="old" points="12.83,22.71 11.01,23.10 11.21,24.01 13.03,23.63"><title>R706  33R -- +3V3 -&gt; VREG_AVDD</title></polygon>
+<polygon class="old" points="13.00,17.25 11.18,17.64 11.38,18.56 13.20,18.17"><title>R707  27R -- USB_DP series</title></polygon>
+<polygon class="old" points="13.21,18.23 11.39,18.62 11.59,19.54 13.40,19.15"><title>R708  27R -- USB_DM series</title></polygon>
+<polygon class="old" points="-3.45,22.70 -5.23,23.08 -5.03,23.98 -3.25,23.60"><title>C719  4u7 -- DVDD, at pin 23</title></polygon>
+<polygon class="old" points="-3.20,23.88 -4.98,24.25 -4.78,25.15 -3.00,24.78"><title>C707  100n -- DVDD, at pin 23</title></polygon>
+<polygon class="old" points="-2.93,25.04 -4.75,25.42 -4.55,26.34 -2.73,25.96"><title>R702  1k -- crystal series, on XOUT</title></polygon>
+<polygon class="old" points="2.99,31.31 6.45,30.78 6.00,27.81 2.54,28.34"><title>Y1  12MHz -- 12 MHz 2520, CL to suit C709/C710</title></polygon>
+<polygon class="old" points="0.67,30.37 2.48,30.27 2.44,29.35 0.62,29.45"><title>C709  27p -- crystal load</title></polygon>
+<polygon class="old" points="-1.49,30.34 0.33,30.37 0.35,29.45 -1.47,29.42"><title>C710  27p -- crystal load</title></polygon>
+<polygon class="old" points="14.10,24.46 10.26,26.30 11.34,28.55 15.18,26.71"><title>U8  W25Q128 -- QSPI flash</title></polygon>
+<circle class="new" cx="-9.32" cy="11.11" r="5.25"><title>C1001  100u/100V polymer -- bulk, C2887236, Dia 10 x 12, in the centre, + lead outward</title></circle>
+<circle class="hole" cx="-10.93" cy="13.02" r="1.00"/>
+<circle class="hole" cx="-7.71" cy="9.19" r="1.00"/>
+<circle class="new" cx="12.36" cy="9.07" r="5.25"><title>C1002  100u/100V polymer -- bulk, C2887236, Dia 10 x 12, in the centre, + lead outward</title></circle>
+<circle class="hole" cx="14.27" cy="10.68" r="1.00"/>
+<circle class="hole" cx="10.44" cy="7.46" r="1.00"/>
+<polygon class="new" points="22.55,23.18 28.85,14.61 21.26,9.03 14.96,17.60"><title>J12  USB-C -- USB 2.0 data + 5 V logic, no PD; HRO TYPE-C-31-M-12</title></polygon>
+<circle class="hole" cx="18.55" cy="17.23" r="0.33"/>
+<circle class="hole" cx="21.98" cy="12.57" r="0.33"/>
+<circle class="hole" cx="17.28" cy="18.06" r="1.05"/>
+<circle class="hole" cx="20.65" cy="20.54" r="0.80"/>
+<circle class="hole" cx="22.40" cy="11.10" r="1.05"/>
+<circle class="hole" cx="25.76" cy="13.58" r="0.80"/>
+<polygon class="new" points="6.85,4.29 6.85,-4.29 -6.85,-4.29 -6.85,4.29"><title>J13  EXPANSION -- 2x10 1.27 SMD: 4 VMOT, 5 GND, +5V, +3V3, RUN, GPIO19-24, SWCLK, SWDIO; across the axis, the MT6701's vias moved clear</title></polygon>
+<polygon class="new" points="-13.00,16.28 -19.00,8.53 -24.30,12.63 -18.30,20.38"><title>D1001  SMDJ54A -- bus TVS, 3 kW, 54 V standoff, 60-66 V breakdown</title></polygon>
+<polygon class="new" points="23.95,0.60 17.02,4.60 19.72,9.28 26.65,5.28"><title>U12  LMR38010SDDAR -- +5 V rail, logic; EN tied to VIN</title></polygon>
+<polygon class="new" points="24.81,1.95 26.51,4.90 28.21,3.92 26.51,0.97"><title>C1006  100n/100V -- +5 V buck input, HF, at VIN/GND</title></polygon>
+<polygon class="new" points="21.70,1.75 23.31,0.82 22.84,0.01 21.23,0.94"><title>R1009  64k9 -- +5 V RT: 400 kHz</title></polygon>
+<polygon class="new" points="18.51,2.51 16.90,3.44 17.37,4.25 18.98,3.32"><title>R1007  24k9 -- +5 V feedback, bottom</title></polygon>
+<polygon class="new" points="18.41,7.07 17.48,5.46 16.67,5.93 17.60,7.54"><title>R1006  100k -- +5 V feedback, top</title></polygon>
+<polygon class="new" points="17.51,7.86 18.42,9.43 19.21,8.97 18.30,7.40"><title>C1008  100n -- +5 V bootstrap, BOOT to SW</title></polygon>
+<polygon class="new" points="24.82,11.58 28.80,9.28 26.55,5.38 22.57,7.68"><title>L1002  33u -- +5 V buck inductor, SWPA4030S330MT</title></polygon>
+<polygon class="new" points="27.82,7.45 30.77,5.75 29.79,4.06 26.84,5.76"><title>C604  22u/25V -- +5 V out</title></polygon>
+<polygon class="new" points="8.12,-5.78 12.22,-9.88 9.88,-12.22 5.78,-8.12"><title>D1103  RGB -- status LED, three GPIO</title></polygon>
+<polygon class="new" points="6.97,-10.57 6.97,-12.43 6.03,-12.43 6.03,-10.57"><title>R1107  1k -- LED series</title></polygon>
+<polygon class="new" points="8.17,-10.57 8.17,-12.43 7.23,-12.43 7.23,-10.57"><title>R1108  1k -- LED series</title></polygon>
+<polygon class="new" points="9.12,-11.57 9.12,-13.43 8.18,-13.43 8.18,-11.57"><title>R1109  1k -- LED series</title></polygon>
+<polygon class="new" points="-11.86,-9.53 -8.47,-6.14 -6.14,-8.47 -9.53,-11.86"><title>SW1  BOOTSEL -- BOOTSEL to GND, via R701</title></polygon>
+<polygon class="new" points="-5.00,-5.25 -3.00,-5.25 -3.00,-7.25 -5.00,-7.25"><title>TP4  ADC3 -- test point, ADC3, outward face</title></polygon>
+<polygon class="new" points="-5.95,-7.25 -3.95,-7.25 -3.95,-9.25 -5.95,-9.25"><title>TP5  SWCLK -- test point, SWCLK, outward face</title></polygon>
+<polygon class="new" points="2.35,-4.50 4.35,-4.50 4.35,-6.50 2.35,-6.50"><title>TP6  SWDIO -- test point, SWDIO, outward face</title></polygon>
+<polygon class="new" points="3.65,-6.50 5.65,-6.50 5.65,-8.50 3.65,-8.50"><title>TP7  RUN -- test point, RUN, outward face</title></polygon>
+<polygon class="new" points="16.19,-4.94 12.94,-8.19 11.31,-6.56 14.56,-3.31"><title>C1004  4u7/100V -- +12 V buck input, 4.7 uF ceramic; in the outward centre, 10 mm from C1003</title></polygon>
+<polygon class="new" points="10.81,-6.94 7.56,-3.69 9.19,-2.06 12.44,-5.31"><title>C1007  4u7/100V -- +5 V buck input, 4.7 uF ceramic; in the outward centre, 17 mm from C1006</title></polygon>
+<polygon class="new" points="7.10,9.05 7.10,4.45 3.90,4.45 3.90,9.05"><title>C1009  22u/25V -- +12 V out; in the outward centre, 11 mm from C603</title></polygon>
+<polygon class="new" points="20.98,0.25 17.58,0.25 17.58,2.21 20.98,2.21"><title>C1010  22u/25V -- +5 V out</title></polygon>
+<text class="lb" x="-9.32" y="11.66" text-anchor="middle">C1001</text>
+<text class="lb" x="12.36" y="9.62" text-anchor="middle">C1002</text>
+<text class="lb" x="21.91" y="16.66" text-anchor="middle">J12</text>
+<text class="lb" x="0.00" y="0.55" text-anchor="middle">J13</text>
+<text class="lb" x="-18.65" y="15.00" text-anchor="middle">D1001</text>
+<text class="lb" x="21.84" y="5.49" text-anchor="middle">U12</text>
+<text class="ls" x="26.51" y="3.24" text-anchor="middle">C1006</text>
+<text class="ls" x="22.27" y="1.18" text-anchor="middle">R1009</text>
+<text class="ls" x="17.94" y="3.68" text-anchor="middle">R1007</text>
+<text class="ls" x="17.54" y="6.80" text-anchor="middle">R1006</text>
+<text class="ls" x="18.36" y="8.72" text-anchor="middle">C1008</text>
+<text class="ls" x="25.68" y="8.78" text-anchor="middle">L1002</text>
+<text class="ls" x="28.80" y="6.06" text-anchor="middle">C604</text>
+<text class="lb" x="9.00" y="-8.45" text-anchor="middle">D1103</text>
+<text class="ls" x="6.50" y="-11.20" text-anchor="middle">R1107</text>
+<text class="ls" x="7.70" y="-11.20" text-anchor="middle">R1108</text>
+<text class="ls" x="8.65" y="-12.20" text-anchor="middle">R1109</text>
+<text class="ls" x="-9.00" y="-8.70" text-anchor="middle">SW1</text>
+<text class="ls" x="-4.00" y="-5.95" text-anchor="middle">TP4</text>
+<text class="ls" x="-4.95" y="-7.95" text-anchor="middle">TP5</text>
+<text class="ls" x="3.35" y="-5.20" text-anchor="middle">TP6</text>
+<text class="ls" x="4.65" y="-7.20" text-anchor="middle">TP7</text>
+<text class="ls" x="13.75" y="-5.45" text-anchor="middle">C1004</text>
+<text class="ls" x="10.00" y="-4.20" text-anchor="middle">C1007</text>
+<text class="ls" x="5.50" y="7.05" text-anchor="middle">C1009</text>
+<text class="ls" x="19.28" y="1.53" text-anchor="middle">C1010</text>
+</g>
+<g transform="translate(76 0)">
+<text class="h" x="0" y="-38.2" text-anchor="middle">motor-facing face, seen through the board</text>
+<text class="sub" x="0" y="-35.9" text-anchor="middle">same orientation as the left; RS-485 ports face out at the rim</text>
+<circle class="board" cx="0" cy="0" r="32.5"/>
+<path class="wedge" d="M -29.69 13.22 L -29.17 14.33 L -28.61 15.42 L -28.00 16.49 L -27.36 17.54 L -26.68 18.56 L -25.96 19.56 L -25.20 20.53 L -24.40 21.46 L -23.57 22.37 L -22.71 23.25 L -21.82 24.09 L -20.89 24.90 L -19.93 25.67 L -18.95 26.40 L -17.94 27.10 L -16.90 27.76 L -15.84 28.38 L -14.75 28.96 L -13.65 29.49 L -12.52 29.99 L -11.38 30.44 L -10.22 30.85 L -9.05 31.21 L -7.86 31.53 L -4.11 16.50 L -4.73 16.33 L -5.35 16.14 L -5.95 15.92 L -6.55 15.69 L -7.14 15.43 L -7.72 15.15 L -8.28 14.84 L -8.84 14.52 L -9.38 14.18 L -9.91 13.81 L -10.43 13.43 L -10.93 13.02 L -11.41 12.60 L -11.88 12.16 L -12.33 11.70 L -12.76 11.23 L -13.18 10.74 L -13.58 10.23 L -13.95 9.71 L -14.31 9.18 L -14.65 8.63 L -14.96 8.07 L -15.26 7.50 L -15.53 6.91 Z"/>
+<path class="wedge" d="M 20.01 25.61 L 20.96 24.84 L 21.89 24.03 L 22.78 23.18 L 23.64 22.30 L 24.47 21.39 L 25.26 20.45 L 26.01 19.48 L 26.73 18.49 L 27.41 17.46 L 28.05 16.41 L 28.65 15.34 L 29.21 14.25 L 29.73 13.13 L 30.20 12.00 L 30.64 10.85 L 31.02 9.68 L 31.37 8.50 L 31.67 7.31 L 31.92 6.11 L 32.13 4.90 L 32.29 3.68 L 32.41 2.46 L 32.48 1.23 L 32.50 0.00 L 17.00 0.00 L 16.99 0.64 L 16.95 1.28 L 16.89 1.92 L 16.81 2.56 L 16.70 3.20 L 16.56 3.82 L 16.41 4.45 L 16.23 5.06 L 16.02 5.67 L 15.80 6.28 L 15.55 6.87 L 15.28 7.45 L 14.99 8.02 L 14.67 8.59 L 14.34 9.13 L 13.98 9.67 L 13.61 10.19 L 13.21 10.70 L 12.80 11.19 L 12.37 11.67 L 11.92 12.13 L 11.45 12.57 L 10.97 12.99 L 10.47 13.40 Z"/>
+<path class="land" d="M 27.89 -14.21 L 27.74 -14.49 L 27.59 -14.77 L 27.44 -15.05 L 27.29 -15.33 L 27.13 -15.61 L 26.97 -15.89 L 26.81 -16.16 L 26.64 -16.43 L 26.47 -16.70 L 26.30 -16.97 L 26.13 -17.24 L 25.95 -17.50 L 25.77 -17.77 L 25.59 -18.03 L 25.40 -18.29 L 25.21 -18.54 L 25.02 -18.80 L 24.83 -19.05 L 24.64 -19.31 L 24.44 -19.56 L 24.24 -19.80 L 24.04 -20.05 L 23.83 -20.29 L 23.62 -20.53 L 21.51 -18.70 L 21.70 -18.48 L 21.89 -18.26 L 22.07 -18.03 L 22.25 -17.81 L 22.43 -17.58 L 22.61 -17.35 L 22.79 -17.12 L 22.96 -16.89 L 23.13 -16.65 L 23.30 -16.41 L 23.46 -16.18 L 23.63 -15.94 L 23.79 -15.70 L 23.95 -15.45 L 24.10 -15.21 L 24.26 -14.96 L 24.41 -14.71 L 24.56 -14.46 L 24.70 -14.21 L 24.85 -13.96 L 24.99 -13.71 L 25.12 -13.45 L 25.26 -13.20 L 25.39 -12.94 Z"/>
+<path class="land" d="M -2.73 -31.18 L -3.05 -31.15 L -3.36 -31.12 L -3.68 -31.08 L -4.00 -31.04 L -4.31 -31.00 L -4.63 -30.96 L -4.94 -30.91 L -5.26 -30.86 L -5.57 -30.80 L -5.88 -30.74 L -6.20 -30.68 L -6.51 -30.62 L -6.82 -30.55 L -7.13 -30.48 L -7.44 -30.40 L -7.75 -30.33 L -8.06 -30.25 L -8.36 -30.16 L -8.67 -30.07 L -8.98 -29.99 L -9.28 -29.89 L -9.59 -29.80 L -9.89 -29.70 L -10.19 -29.59 L -9.28 -26.95 L -9.00 -27.04 L -8.73 -27.13 L -8.45 -27.22 L -8.17 -27.30 L -7.90 -27.38 L -7.62 -27.46 L -7.34 -27.54 L -7.06 -27.61 L -6.77 -27.68 L -6.49 -27.75 L -6.21 -27.82 L -5.93 -27.88 L -5.64 -27.94 L -5.36 -27.99 L -5.07 -28.05 L -4.79 -28.10 L -4.50 -28.14 L -4.21 -28.19 L -3.93 -28.23 L -3.64 -28.27 L -3.35 -28.30 L -3.06 -28.34 L -2.77 -28.36 L -2.48 -28.39 Z"/>
+<path class="land" d="M -29.93 -9.15 L -30.02 -8.85 L -30.11 -8.54 L -30.20 -8.23 L -30.28 -7.93 L -30.36 -7.62 L -30.44 -7.31 L -30.51 -7.00 L -30.58 -6.69 L -30.64 -6.37 L -30.71 -6.06 L -30.77 -5.75 L -30.82 -5.44 L -30.88 -5.12 L -30.93 -4.81 L -30.98 -4.49 L -31.02 -4.18 L -31.06 -3.86 L -31.10 -3.54 L -31.13 -3.23 L -31.16 -2.91 L -31.19 -2.59 L -31.22 -2.27 L -31.24 -1.96 L -31.26 -1.64 L -28.46 -1.49 L -28.44 -1.78 L -28.42 -2.07 L -28.40 -2.36 L -28.38 -2.65 L -28.35 -2.94 L -28.32 -3.23 L -28.28 -3.51 L -28.25 -3.80 L -28.21 -4.09 L -28.16 -4.38 L -28.12 -4.66 L -28.07 -4.95 L -28.02 -5.23 L -27.96 -5.52 L -27.90 -5.80 L -27.84 -6.09 L -27.78 -6.37 L -27.71 -6.65 L -27.64 -6.93 L -27.57 -7.22 L -27.50 -7.50 L -27.42 -7.78 L -27.34 -8.05 L -27.25 -8.33 Z"/>
+<circle class="keep" cx="0" cy="0" r="17.0"/>
+<circle class="boss" cx="29.50" cy="-0.00" r="2.65"/>
+<circle class="boss" cx="11.05" cy="-27.35" r="2.65"/>
+<circle class="boss" cx="-21.22" cy="-20.49" r="2.65"/>
+<circle class="boss" cx="-26.95" cy="12.00" r="2.65"/>
+<circle class="boss" cx="-7.14" cy="28.62" r="2.65"/>
+<circle class="boss" cx="18.16" cy="23.25" r="2.65"/>
+<circle class="keep" cx="12.5" cy="0" r="3.75"/>
+<circle class="boss" cx="12.5" cy="0" r="1.6"/>
+<circle class="keep" cx="-12.5" cy="0" r="3.75"/>
+<circle class="boss" cx="-12.5" cy="0" r="1.6"/>
+<circle class="keep" cx="0" cy="-9.5" r="3.75"/>
+<circle class="boss" cx="0" cy="-9.5" r="1.6"/>
+<circle class="keep" cx="0" cy="9.5" r="3.75"/>
+<circle class="boss" cx="0" cy="9.5" r="1.6"/>
+<circle class="magnet" cx="0" cy="0" r="6.0"/>
+<text class="pl2" x="0" y="-6.50" text-anchor="middle">magnet keepout</text>
+<circle class="hole" cx="25.87" cy="-10.48" r="0.39"/>
+<circle class="hole" cx="25.03" cy="-10.15" r="0.39"/>
+<circle class="hole" cx="24.18" cy="-9.82" r="0.39"/>
+<circle class="hole" cx="23.34" cy="-9.48" r="0.39"/>
+<circle class="hole" cx="22.50" cy="-9.15" r="0.39"/>
+<circle class="hole" cx="26.22" cy="-9.60" r="0.39"/>
+<circle class="hole" cx="25.38" cy="-9.27" r="0.39"/>
+<circle class="hole" cx="24.53" cy="-8.93" r="0.39"/>
+<circle class="hole" cx="23.69" cy="-8.60" r="0.39"/>
+<circle class="hole" cx="22.85" cy="-8.27" r="0.39"/>
+<circle class="hole" cx="26.57" cy="-8.72" r="0.39"/>
+<circle class="hole" cx="25.73" cy="-8.38" r="0.39"/>
+<circle class="hole" cx="24.88" cy="-8.05" r="0.39"/>
+<circle class="hole" cx="24.04" cy="-7.72" r="0.39"/>
+<circle class="hole" cx="23.20" cy="-7.38" r="0.39"/>
+<circle class="hole" cx="26.92" cy="-7.83" r="0.39"/>
+<circle class="hole" cx="26.08" cy="-7.50" r="0.39"/>
+<circle class="hole" cx="25.23" cy="-7.17" r="0.39"/>
+<circle class="hole" cx="24.39" cy="-6.83" r="0.39"/>
+<circle class="hole" cx="23.55" cy="-6.50" r="0.39"/>
+<circle class="hole" cx="18.71" cy="-20.19" r="0.39"/>
+<circle class="hole" cx="18.05" cy="-19.50" r="0.39"/>
+<circle class="hole" cx="17.40" cy="-18.82" r="0.39"/>
+<circle class="hole" cx="16.74" cy="-18.13" r="0.39"/>
+<circle class="hole" cx="19.40" cy="-19.54" r="0.39"/>
+<circle class="hole" cx="18.74" cy="-18.85" r="0.39"/>
+<circle class="hole" cx="18.09" cy="-18.16" r="0.39"/>
+<circle class="hole" cx="17.43" cy="-17.47" r="0.39"/>
+<circle class="hole" cx="20.09" cy="-18.88" r="0.39"/>
+<circle class="hole" cx="19.43" cy="-18.19" r="0.39"/>
+<circle class="hole" cx="18.77" cy="-17.51" r="0.39"/>
+<circle class="hole" cx="18.12" cy="-16.82" r="0.39"/>
+<circle class="hole" cx="20.77" cy="-18.23" r="0.39"/>
+<circle class="hole" cx="20.12" cy="-17.54" r="0.39"/>
+<circle class="hole" cx="19.46" cy="-16.85" r="0.39"/>
+<circle class="hole" cx="18.81" cy="-16.16" r="0.39"/>
+<polygon class="old" points="20.26,-8.45 25.53,-12.00 23.76,-14.62 18.49,-11.07"><title>R106  1m6 -- inline shunt, parallel pair - desolder one for the 18 A mode</title></polygon>
+<polygon class="old" points="18.48,-11.34 23.75,-14.90 21.98,-17.52 16.71,-13.96"><title>R105  1m6 -- inline shunt, parallel pair - desolder one for the 18 A mode</title></polygon>
+<polygon class="old" points="15.90,-21.19 14.06,-18.87 15.20,-17.96 17.04,-20.28"><title>R108  10R -- sense tap, phase-output side</title></polygon>
+<polygon class="old" points="22.90,-20.93 19.71,-23.96 18.13,-22.30 21.32,-19.27"><title>D102  TPSMF4L64A -- phase A clamp to GND, beside the lead pad</title></polygon>
+<polygon class="old" points="13.12,-14.27 15.04,-16.53 13.92,-17.47 12.00,-15.22"><title>R109  10k -- G-S bleed, high side; gate pad under the resistor's, SW pad over the pour</title></polygon>
+<polygon class="old" points="13.21,-18.13 14.87,-20.58 13.66,-21.40 12.00,-18.95"><title>R110  10k -- G-S bleed, low side; gate pad under the gate track, via through both</title></polygon>
+<polygon class="old" points="8.51,-15.83 9.87,-18.73 8.15,-19.54 6.79,-16.64"><title>D101  100V fast -- bootstrap diode, beside the cap it charges</title></polygon>
+<polygon class="old" points="19.10,-5.91 16.24,-5.14 16.62,-3.73 19.48,-4.50"><title>R901  10k NTC -- FET temperature -&gt; ADC3; FET_TEMP pad inner, via in it</title></polygon>
+<polygon class="old" points="16.75,-13.35 13.35,-11.06 15.25,-8.24 18.65,-10.53"><title>U4  INA241A3 -- inline sense, 50 V/V - A3 is the 50 V/V grade</title></polygon>
+<polygon class="old" points="16.35,-7.13 19.01,-8.42 18.37,-9.73 15.71,-8.44"><title>C108  1n -- sense filter</title></polygon>
+<polygon class="old" points="16.93,-5.61 19.70,-6.65 19.18,-8.02 16.42,-6.97"><title>R107  10R -- sense tap, switch-node side; SW pad over the pour</title></polygon>
+<polygon class="old" points="22.65,-2.44 22.14,-5.36 20.70,-5.11 21.21,-2.19"><title>C109  470p/100V C0G -- snubber C, GND pad clockwise with a via; DNP unless the driver is strong</title></polygon>
+<polygon class="old" points="22.04,-5.76 21.10,-8.57 19.72,-8.11 20.65,-5.30"><title>R113  2R2 -- snubber R, SW pad on the pour; DNP unless the driver is strong</title></polygon>
+<circle class="hole" cx="-0.03" cy="-27.91" r="0.39"/>
+<circle class="hole" cx="-0.04" cy="-27.01" r="0.39"/>
+<circle class="hole" cx="-0.04" cy="-26.10" r="0.39"/>
+<circle class="hole" cx="-0.05" cy="-25.20" r="0.39"/>
+<circle class="hole" cx="-0.05" cy="-24.29" r="0.39"/>
+<circle class="hole" cx="0.92" cy="-27.90" r="0.39"/>
+<circle class="hole" cx="0.91" cy="-27.00" r="0.39"/>
+<circle class="hole" cx="0.91" cy="-26.09" r="0.39"/>
+<circle class="hole" cx="0.90" cy="-25.19" r="0.39"/>
+<circle class="hole" cx="0.90" cy="-24.28" r="0.39"/>
+<circle class="hole" cx="1.87" cy="-27.90" r="0.39"/>
+<circle class="hole" cx="1.86" cy="-26.99" r="0.39"/>
+<circle class="hole" cx="1.86" cy="-26.09" r="0.39"/>
+<circle class="hole" cx="1.85" cy="-25.18" r="0.39"/>
+<circle class="hole" cx="1.85" cy="-24.28" r="0.39"/>
+<circle class="hole" cx="2.82" cy="-27.89" r="0.39"/>
+<circle class="hole" cx="2.81" cy="-26.99" r="0.39"/>
+<circle class="hole" cx="2.81" cy="-26.08" r="0.39"/>
+<circle class="hole" cx="2.80" cy="-25.18" r="0.39"/>
+<circle class="hole" cx="2.80" cy="-24.27" r="0.39"/>
+<circle class="hole" cx="-11.71" cy="-24.91" r="0.39"/>
+<circle class="hole" cx="-11.32" cy="-24.05" r="0.39"/>
+<circle class="hole" cx="-10.93" cy="-23.18" r="0.39"/>
+<circle class="hole" cx="-10.54" cy="-22.32" r="0.39"/>
+<circle class="hole" cx="-10.85" cy="-25.30" r="0.39"/>
+<circle class="hole" cx="-10.46" cy="-24.44" r="0.39"/>
+<circle class="hole" cx="-10.06" cy="-23.57" r="0.39"/>
+<circle class="hole" cx="-9.67" cy="-22.71" r="0.39"/>
+<circle class="hole" cx="-9.98" cy="-25.70" r="0.39"/>
+<circle class="hole" cx="-9.59" cy="-24.83" r="0.39"/>
+<circle class="hole" cx="-9.20" cy="-23.97" r="0.39"/>
+<circle class="hole" cx="-8.81" cy="-23.10" r="0.39"/>
+<circle class="hole" cx="-9.12" cy="-26.09" r="0.39"/>
+<circle class="hole" cx="-8.73" cy="-25.22" r="0.39"/>
+<circle class="hole" cx="-8.33" cy="-24.36" r="0.39"/>
+<circle class="hole" cx="-7.94" cy="-23.49" r="0.39"/>
+<polygon class="old" points="-0.24,-21.95 -1.57,-28.17 -4.66,-27.51 -3.33,-21.29"><title>R206  1m6 -- inline shunt, parallel pair - desolder one for the 18 A mode</title></polygon>
+<polygon class="old" points="-3.59,-21.38 -4.92,-27.60 -8.01,-26.95 -6.68,-20.72"><title>R205  1m6 -- inline shunt, parallel pair - desolder one for the 18 A mode</title></polygon>
+<polygon class="old" points="-13.69,-22.68 -12.23,-20.10 -10.96,-20.82 -12.42,-23.40"><title>R208  10R -- sense tap, phase-output side</title></polygon>
+<polygon class="old" points="-10.83,-29.08 -14.84,-27.25 -13.88,-25.16 -9.88,-26.98"><title>D202  TPSMF4L64A -- phase B clamp to GND, beside the lead pad</title></polygon>
+<polygon class="old" points="-8.32,-17.51 -9.69,-20.13 -10.98,-19.46 -9.61,-16.83"><title>R209  10k -- G-S bleed, high side; gate pad under the resistor's, SW pad over the pour</title></polygon>
+<polygon class="old" points="-11.86,-19.04 -13.51,-21.50 -14.72,-20.69 -13.08,-18.23"><title>R210  10k -- G-S bleed, low side; gate pad under the gate track, via through both</title></polygon>
+<polygon class="old" points="-11.49,-13.82 -13.67,-16.17 -15.06,-14.88 -12.89,-12.53"><title>D201  100V fast -- bootstrap diode, beside the cap it charges</title></polygon>
+<polygon class="old" points="-6.10,-20.53 -5.25,-16.52 -1.92,-17.23 -2.78,-21.24"><title>U5  INA241A3 -- inline sense, 50 V/V - A3 is the 50 V/V grade</title></polygon>
+<polygon class="old" points="-0.48,-17.83 -0.68,-20.78 -2.14,-20.68 -1.94,-17.73"><title>C208  1n -- sense filter</title></polygon>
+<polygon class="old" points="1.14,-17.80 1.21,-20.76 -0.25,-20.79 -0.32,-17.83"><title>R207  10R -- sense tap, switch-node side; SW pad over the pour</title></polygon>
+<polygon class="old" points="6.22,-21.91 3.32,-22.53 3.02,-21.11 5.91,-20.49"><title>C209  470p/100V C0G -- snubber C, GND pad clockwise with a via; DNP unless the driver is strong</title></polygon>
+<polygon class="old" points="2.91,-22.59 -0.04,-22.78 -0.13,-21.32 2.82,-21.13"><title>R213  2R2 -- snubber R, SW pad on the pour; DNP unless the driver is strong</title></polygon>
+<circle class="hole" cx="-25.89" cy="-10.43" r="0.39"/>
+<circle class="hole" cx="-25.05" cy="-10.08" r="0.39"/>
+<circle class="hole" cx="-24.22" cy="-9.74" r="0.39"/>
+<circle class="hole" cx="-23.38" cy="-9.39" r="0.39"/>
+<circle class="hole" cx="-22.54" cy="-9.05" r="0.39"/>
+<circle class="hole" cx="-25.53" cy="-11.31" r="0.39"/>
+<circle class="hole" cx="-24.69" cy="-10.96" r="0.39"/>
+<circle class="hole" cx="-23.85" cy="-10.62" r="0.39"/>
+<circle class="hole" cx="-23.02" cy="-10.27" r="0.39"/>
+<circle class="hole" cx="-22.18" cy="-9.93" r="0.39"/>
+<circle class="hole" cx="-25.17" cy="-12.19" r="0.39"/>
+<circle class="hole" cx="-24.33" cy="-11.84" r="0.39"/>
+<circle class="hole" cx="-23.49" cy="-11.50" r="0.39"/>
+<circle class="hole" cx="-22.66" cy="-11.15" r="0.39"/>
+<circle class="hole" cx="-21.82" cy="-10.81" r="0.39"/>
+<circle class="hole" cx="-24.80" cy="-13.06" r="0.39"/>
+<circle class="hole" cx="-23.97" cy="-12.72" r="0.39"/>
+<circle class="hole" cx="-23.13" cy="-12.37" r="0.39"/>
+<circle class="hole" cx="-22.29" cy="-12.03" r="0.39"/>
+<circle class="hole" cx="-21.46" cy="-11.68" r="0.39"/>
+<circle class="hole" cx="-27.49" cy="1.53" r="0.39"/>
+<circle class="hole" cx="-26.54" cy="1.49" r="0.39"/>
+<circle class="hole" cx="-25.59" cy="1.45" r="0.39"/>
+<circle class="hole" cx="-24.64" cy="1.41" r="0.39"/>
+<circle class="hole" cx="-27.52" cy="0.58" r="0.39"/>
+<circle class="hole" cx="-26.58" cy="0.54" r="0.39"/>
+<circle class="hole" cx="-25.63" cy="0.50" r="0.39"/>
+<circle class="hole" cx="-24.68" cy="0.46" r="0.39"/>
+<circle class="hole" cx="-27.56" cy="-0.37" r="0.39"/>
+<circle class="hole" cx="-26.62" cy="-0.41" r="0.39"/>
+<circle class="hole" cx="-25.67" cy="-0.45" r="0.39"/>
+<circle class="hole" cx="-24.72" cy="-0.49" r="0.39"/>
+<circle class="hole" cx="-27.60" cy="-1.32" r="0.39"/>
+<circle class="hole" cx="-26.66" cy="-1.36" r="0.39"/>
+<circle class="hole" cx="-25.71" cy="-1.40" r="0.39"/>
+<circle class="hole" cx="-24.76" cy="-1.44" r="0.39"/>
+<polygon class="old" points="-20.44,-8.00 -26.70,-9.10 -27.25,-5.99 -20.99,-4.88"><title>R306  0R -- 0 R link, so phase C has the same series resistance</title></polygon>
+<polygon class="old" points="-21.17,-4.68 -27.43,-5.78 -27.98,-2.67 -21.72,-1.57"><title>R305  0R -- 0 R link, so phase C has the same series resistance</title></polygon>
+<polygon class="old" points="-26.16,4.19 -23.22,3.81 -23.41,2.36 -26.35,2.75"><title>R308  10R -- sense tap, phase-output side</title></polygon>
+<polygon class="old" points="-31.02,-0.85 -30.82,3.55 -28.53,3.45 -28.72,-0.95"><title>D302  TPSMF4L64A -- phase C clamp to GND, beside the lead pad</title></polygon>
+<polygon class="old" points="-19.35,1.16 -22.30,1.44 -22.15,2.90 -19.21,2.61"><title>R309  10k -- G-S bleed, high side; gate pad under the resistor's, SW pad over the pour</title></polygon>
+<polygon class="old" points="-22.10,3.87 -24.99,4.47 -24.69,5.90 -21.80,5.30"><title>R310  10k -- G-S bleed, low side; gate pad under the gate track, via through both</title></polygon>
+<polygon class="old" points="-17.12,5.48 -20.11,6.61 -19.44,8.39 -16.45,7.25"><title>D301  100V fast -- bootstrap diode, beside the cap it charges</title></polygon>
+<polygon class="old" points="-21.32,-2.03 -17.28,-1.32 -16.69,-4.67 -20.73,-5.38"><title>U6  INA241A3 -- inline sense, 50 V/V - A3 is the 50 V/V grade - DNP, phase C is reconstructed</title></polygon>
+<polygon class="old" points="-16.71,-6.23 -19.52,-7.15 -19.98,-5.76 -17.16,-4.84"><title>C308  1n -- sense filter</title></polygon>
+<polygon class="old" points="-16.07,-7.73 -18.79,-8.90 -19.37,-7.56 -16.65,-6.39"><title>R307  10R -- sense tap, switch-node side; SW pad over the pour</title></polygon>
+<polygon class="old" points="-17.99,-13.97 -19.65,-11.52 -18.44,-10.70 -16.78,-13.16"><title>C309  470p/100V C0G -- snubber C, GND pad clockwise with a via; DNP unless the driver is strong</title></polygon>
+<polygon class="old" points="-19.85,-11.17 -21.13,-8.50 -19.82,-7.86 -18.54,-10.53"><title>R313  2R2 -- snubber R, SW pad on the pour; DNP unless the driver is strong</title></polygon>
+<circle class="hole" cx="5.46" cy="19.06" r="0.30"/>
+<circle class="hole" cx="4.11" cy="19.34" r="0.30"/>
+<circle class="hole" cx="2.77" cy="19.63" r="0.30"/>
+<circle class="hole" cx="5.74" cy="20.40" r="0.30"/>
+<circle class="hole" cx="4.40" cy="20.69" r="0.30"/>
+<circle class="hole" cx="3.05" cy="20.97" r="0.30"/>
+<circle class="hole" cx="6.03" cy="21.75" r="0.30"/>
+<circle class="hole" cx="4.68" cy="22.03" r="0.30"/>
+<circle class="hole" cx="3.34" cy="22.32" r="0.30"/>
+<polygon class="old" points="10.96,24.95 9.14,25.33 9.33,26.25 11.15,25.87"><title>R703  10R -- ADC_AVDD filter, with C716</title></polygon>
+<polygon class="old" points="12.90,24.55 11.11,24.92 11.31,25.82 13.09,25.45"><title>C716  1u -- ADC_AVDD</title></polygon>
+<polygon class="old" points="-3.93,16.84 -4.30,18.63 -3.40,18.81 -3.03,17.03"><title>C701  100n -- IOVDD decoupling, into the In1/In2 planes</title></polygon>
+<polygon class="old" points="-3.54,19.07 -3.83,20.87 -2.93,21.01 -2.64,19.22"><title>C702  100n -- IOVDD decoupling, into the In1/In2 planes</title></polygon>
+<polygon class="old" points="-3.14,21.26 -3.37,23.07 -2.46,23.18 -2.23,21.38"><title>C703  100n -- IOVDD decoupling, into the In1/In2 planes</title></polygon>
+<polygon class="old" points="9.69,14.32 10.75,15.80 11.50,15.27 10.44,13.79"><title>C704  100n -- IOVDD decoupling, into the In1/In2 planes</title></polygon>
+<polygon class="old" points="10.22,16.48 11.22,18.01 11.99,17.50 10.99,15.98"><title>C705  100n -- IOVDD decoupling, into the In1/In2 planes</title></polygon>
+<polygon class="old" points="10.73,18.62 11.68,20.18 12.46,19.70 11.52,18.15"><title>C706  100n -- IOVDD decoupling, into the In1/In2 planes</title></polygon>
+<polygon class="old" points="12.92,27.64 12.18,25.98 11.34,26.36 12.08,28.02"><title>C711  100n -- flash decoupling</title></polygon>
+<polygon class="old" points="12.55,25.78 13.40,27.44 14.23,27.01 13.39,25.35"><title>R701  1k -- BOOTSEL series: QSPI_SS to the button on board B</title></polygon>
+<polygon class="old" points="2.70,3.70 2.70,-3.70 -2.70,-3.70 -2.70,3.70"><title>U10  MT6701 -- on the shaft axis, motor-facing side</title></polygon>
+<polygon class="old" points="0.91,-5.06 -0.91,-5.06 -0.91,-4.14 0.91,-4.14"><title>C901  100n -- MT6701 decoupling</title></polygon>
+<circle class="hole" cx="-10.93" cy="13.02" r="1.00"/>
+<circle class="hole" cx="-7.71" cy="9.19" r="1.00"/>
+<circle class="hole" cx="14.27" cy="10.68" r="1.00"/>
+<circle class="hole" cx="10.44" cy="7.46" r="1.00"/>
+<polygon class="new" points="-8.11,24.58 -16.67,19.80 -19.86,25.53 -11.31,30.31"><title>J14  RS485 IN (upstream) -- full-duplex RS-485, JST-SH 6, motor-facing rim, mouth outward</title></polygon>
+<polygon class="new" points="-16.73,19.77 -22.88,12.14 -27.99,16.26 -21.84,23.89"><title>J15  RS485 OUT (downstream) -- a link of its own, relayed by the CPU</title></polygon>
+<circle class="hole" cx="18.55" cy="17.23" r="0.33"/>
+<circle class="hole" cx="21.98" cy="12.57" r="0.33"/>
+<circle class="hole" cx="17.28" cy="18.06" r="1.05"/>
+<circle class="hole" cx="20.65" cy="20.54" r="0.80"/>
+<circle class="hole" cx="22.40" cy="11.10" r="1.05"/>
+<circle class="hole" cx="25.76" cy="13.58" r="0.80"/>
+<polygon class="new" points="-10.80,22.98 -7.20,24.35 -5.99,21.17 -9.60,19.80"><title>D1101  SM712 -- RS-485 ESD, IN, DOWN pair, at the port</title></polygon>
+<polygon class="new" points="-15.03,20.50 -11.75,22.54 -9.95,19.65 -13.23,17.62"><title>D1102  SM712 -- RS-485 ESD, IN, UP pair, at the port</title></polygon>
+<polygon class="new" points="-20.39,15.11 -17.86,18.03 -15.29,15.80 -17.82,12.89"><title>D1104  SM712 -- RS-485 ESD, OUT, DOWN pair, at the port</title></polygon>
+<polygon class="new" points="-22.88,11.17 -20.93,14.50 -17.99,12.78 -19.95,9.45"><title>D1105  SM712 -- RS-485 ESD, OUT, UP pair, at the port</title></polygon>
+<polygon class="new" points="20.85,4.31 24.85,11.24 29.53,8.54 25.53,1.61"><title>U11  LMR38010SDDAR -- +12 V rail, EN on a VMOT divider, GATE_OFF pulls it down</title></polygon>
+<polygon class="new" points="23.13,0.65 20.19,2.35 21.17,4.05 24.11,2.35"><title>C1003  100n/100V -- +12 V buck input, HF, at VIN/GND</title></polygon>
+<polygon class="new" points="21.67,0.06 20.06,0.99 20.53,1.81 22.14,0.88"><title>R1003  470k -- EN from VMOT: UVLO, on unless pulled down</title></polygon>
+<polygon class="new" points="19.71,0.97 18.10,1.90 18.57,2.71 20.18,1.78"><title>R1004  68k -- EN divider, bottom: 9.9 V start</title></polygon>
+<polygon class="new" points="27.62,3.09 26.69,1.48 25.88,1.95 26.81,3.56"><title>R1008  64k9 -- +12 V RT: 400 kHz</title></polygon>
+<polygon class="new" points="28.48,6.46 29.41,8.07 30.22,7.60 29.29,5.99"><title>R1002  9k09 -- +12 V feedback, bottom</title></polygon>
+<polygon class="new" points="27.97,11.49 29.58,10.56 29.11,9.74 27.50,10.67"><title>R1001  100k -- +12 V feedback, top</title></polygon>
+<polygon class="new" points="27.03,10.32 25.45,11.23 25.91,12.03 27.49,11.12"><title>C1005  100n -- +12 V bootstrap, BOOT to SW</title></polygon>
+<polygon class="new" points="23.28,8.60 20.98,4.62 17.08,6.87 19.38,10.85"><title>L1001  68u -- +12 V buck inductor, SWPA4030S680MT</title></polygon>
+<polygon class="new" points="15.02,8.05 17.32,12.03 19.32,10.88 17.02,6.90"><title>C603  22u/25V -- +12 V out</title></polygon>
+<polygon class="new" points="17.81,14.90 20.94,17.15 22.93,14.39 19.79,12.14"><title>Q1001  2N7002 -- GATE_OFF high pulls EN low: kills the gate rail</title></polygon>
+<polygon class="new" points="16.36,15.06 17.76,16.29 18.38,15.59 16.98,14.35"><title>R1005  4k7 -- GATE_OFF pull-down: the rail is ON through reset, so a reset brakes; 4k7 clears E9</title></polygon>
+<polygon class="new" points="-8.03,12.77 -5.77,15.03 -2.97,12.23 -5.23,9.97"><title>U14  SIT3088 -- port IN: receiver, DOWN pair -&gt; UART0 RX</title></polygon>
+<polygon class="new" points="-7.79,11.17 -9.08,12.46 -8.43,13.11 -7.14,11.82"><title>C1102  100n -- U14 decoupling, at VCC</title></polygon>
+<polygon class="new" points="-3.72,13.19 -5.81,15.28 -4.78,16.31 -2.69,14.22"><title>R1105  120R -- port IN DOWN pair termination, always on</title></polygon>
+<polygon class="new" points="-12.85,10.47 -9.65,10.47 -9.65,6.53 -12.85,6.53"><title>U15  SIT3088 -- port IN: driver, UP pair &lt;- UART0 TX, DE on</title></polygon>
+<polygon class="new" points="-13.99,7.75 -13.99,9.57 -13.06,9.57 -13.06,7.75"><title>C1103  100n -- U15 decoupling, at VCC</title></polygon>
+<polygon class="new" points="-8.73,7.28 -6.47,5.02 -9.27,2.22 -11.53,4.48"><title>U17  SIT3088 -- port OUT: driver, DOWN pair &lt;- PIO TX, DE on</title></polygon>
+<polygon class="new" points="-12.52,6.32 -10.70,6.32 -10.70,5.40 -12.52,5.40"><title>C1104  100n -- U17 decoupling, at VCC</title></polygon>
+<polygon class="new" points="-10.03,-2.98 -7.77,-0.72 -4.97,-3.52 -7.23,-5.78"><title>U18  SIT3088 -- port OUT: receiver, UP pair -&gt; PIO RX</title></polygon>
+<polygon class="new" points="-9.79,-5.08 -11.08,-3.79 -10.43,-3.14 -9.14,-4.43"><title>C1105  100n -- U18 decoupling, at VCC</title></polygon>
+<polygon class="new" points="-7.11,2.32 -7.11,-0.64 -8.57,-0.64 -8.57,2.32"><title>R1106  120R -- port OUT UP pair termination, always on</title></polygon>
+<polygon class="new" points="8.07,10.22 9.93,10.22 9.93,9.28 8.07,9.28"><title>R1103  10k -- VBUS_DET divider, top</title></polygon>
+<polygon class="new" points="10.37,11.24 11.69,9.92 11.03,9.26 9.71,10.58"><title>R1104  15k -- VBUS_DET divider, bottom -&gt; GPIO25</title></polygon>
+<polygon class="new" points="7.25,7.90 10.15,5.00 7.75,2.60 4.85,5.50"><title>U9  SPX3819-3.3 -- 5 V -&gt; 3V3</title></polygon>
+<polygon class="new" points="10.32,5.48 13.28,5.48 13.28,4.02 10.32,4.02"><title>C712  1u -- 3V3 out</title></polygon>
+<polygon class="new" points="13.83,8.48 13.83,5.52 12.37,5.52 12.37,8.48"><title>C713  1u -- 5 V in</title></polygon>
+<polygon class="new" points="14.87,7.43 14.87,5.57 13.93,5.57 13.93,7.43"><title>R705  10k -- FAULT_n pull-up</title></polygon>
+<polygon class="new" points="6.72,10.56 8.81,8.47 7.78,7.44 5.69,9.53"><title>R803  10k 0.1% -- thermistor divider -&gt; ADC3</title></polygon>
+<polygon class="new" points="9.53,13.23 9.53,10.27 8.07,10.27 8.07,13.23"><title>C802  100n -- ADC3 filter</title></polygon>
+<polygon class="new" points="11.02,11.99 12.34,10.67 11.68,10.01 10.36,11.33"><title>R704  10k -- RUN pull-up</title></polygon>
+<polygon class="new" points="13.49,5.46 15.31,5.46 15.31,4.54 13.49,4.54"><title>C717  100n -- RUN</title></polygon>
+<polygon class="new" points="22.80,20.40 25.32,17.17 22.64,15.07 20.12,18.31"><title>U13  USBLC6-2SC6 -- USB ESD, as close to the connector as the wedge allows</title></polygon>
+<polygon class="new" points="17.99,14.31 19.09,12.81 18.33,12.26 17.23,13.76"><title>R1101  5k1 -- CC1 pull-down: a sink, 5 V only</title></polygon>
+<polygon class="new" points="16.46,14.50 17.63,13.06 16.90,12.46 15.73,13.91"><title>R1102  5k1 -- CC2 pull-down</title></polygon>
+<polygon class="new" points="12.55,13.87 14.82,16.13 16.16,14.79 13.90,12.53"><title>D1002  B5819WS -- USB VBUS -&gt; +5V</title></polygon>
+<polygon class="new" points="17.91,6.24 18.70,3.14 16.86,2.67 16.07,5.77"><title>D1003  B5819WS -- 5 V buck -&gt; +5V, so USB cannot back-feed the rails</title></polygon>
+<polygon class="new" points="-5.72,16.65 -6.57,19.49 -5.17,19.90 -4.33,17.07"><title>R801  56k 0.1% -- bus divider, high leg</title></polygon>
+<polygon class="new" points="-7.36,16.07 -8.48,18.81 -7.13,19.37 -6.01,16.63"><title>R806  56k 0.1% -- bus divider, high leg, second half</title></polygon>
+<polygon class="new" points="-8.49,15.06 -9.84,17.70 -8.54,18.36 -7.19,15.72"><title>R802  4k7 0.1% -- bus divider, low leg</title></polygon>
+<polygon class="new" points="-11.91,18.41 -9.33,19.84 -8.62,18.57 -11.20,17.13"><title>C801  100n -- ADC2 filter</title></polygon>
+<polygon class="new" points="27.73,4.71 31.13,4.71 31.13,2.75 27.73,2.75"><title>C1011  22u/25V -- +5 V out</title></polygon>
+<text class="lb" x="-13.99" y="25.60" text-anchor="middle">J14</text>
+<text class="lb" x="-22.36" y="18.57" text-anchor="middle">J15</text>
+<text class="ls" x="-8.40" y="22.38" text-anchor="middle">D1101</text>
+<text class="ls" x="-12.49" y="20.38" text-anchor="middle">D1102</text>
+<text class="ls" x="-17.84" y="15.76" text-anchor="middle">D1104</text>
+<text class="ls" x="-20.44" y="12.27" text-anchor="middle">D1105</text>
+<text class="lb" x="25.19" y="6.97" text-anchor="middle">U11</text>
+<text class="ls" x="22.15" y="2.65" text-anchor="middle">C1003</text>
+<text class="ls" x="21.10" y="1.24" text-anchor="middle">R1003</text>
+<text class="ls" x="19.14" y="2.14" text-anchor="middle">R1004</text>
+<text class="ls" x="26.75" y="2.82" text-anchor="middle">R1008</text>
+<text class="ls" x="29.35" y="7.33" text-anchor="middle">R1002</text>
+<text class="ls" x="28.54" y="10.91" text-anchor="middle">R1001</text>
+<text class="ls" x="26.47" y="11.47" text-anchor="middle">C1005</text>
+<text class="ls" x="20.18" y="8.04" text-anchor="middle">L1001</text>
+<text class="ls" x="17.17" y="9.76" text-anchor="middle">C603</text>
+<text class="ls" x="20.37" y="14.95" text-anchor="middle">Q1001</text>
+<text class="ls" x="17.37" y="15.62" text-anchor="middle">R1005</text>
+<text class="ls" x="-5.50" y="12.80" text-anchor="middle">U14</text>
+<text class="ls" x="-8.11" y="12.44" text-anchor="middle">C1102</text>
+<text class="ls" x="-4.25" y="15.05" text-anchor="middle">R1105</text>
+<text class="ls" x="-11.25" y="8.80" text-anchor="middle">U15</text>
+<text class="ls" x="-13.53" y="8.96" text-anchor="middle">C1103</text>
+<text class="ls" x="-9.00" y="5.05" text-anchor="middle">U17</text>
+<text class="ls" x="-11.61" y="6.16" text-anchor="middle">C1104</text>
+<text class="ls" x="-7.50" y="-2.95" text-anchor="middle">U18</text>
+<text class="ls" x="-10.11" y="-3.81" text-anchor="middle">C1105</text>
+<text class="ls" x="-7.84" y="1.14" text-anchor="middle">R1106</text>
+<text class="ls" x="9.00" y="10.05" text-anchor="middle">R1103</text>
+<text class="ls" x="10.70" y="10.55" text-anchor="middle">R1104</text>
+<text class="ls" x="7.50" y="5.55" text-anchor="middle">U9</text>
+<text class="ls" x="11.80" y="5.05" text-anchor="middle">C712</text>
+<text class="ls" x="13.10" y="7.30" text-anchor="middle">C713</text>
+<text class="ls" x="14.40" y="6.80" text-anchor="middle">R705</text>
+<text class="ls" x="7.25" y="9.30" text-anchor="middle">R803</text>
+<text class="ls" x="8.80" y="12.05" text-anchor="middle">C802</text>
+<text class="ls" x="11.35" y="11.30" text-anchor="middle">R704</text>
+<text class="ls" x="14.40" y="5.30" text-anchor="middle">C717</text>
+<text class="ls" x="22.72" y="18.04" text-anchor="middle">U13</text>
+<text class="ls" x="18.16" y="13.58" text-anchor="middle">R1101</text>
+<text class="ls" x="16.68" y="13.78" text-anchor="middle">R1102</text>
+<text class="ls" x="14.36" y="14.63" text-anchor="middle">D1002</text>
+<text class="ls" x="17.39" y="4.76" text-anchor="middle">D1003</text>
+<text class="ls" x="-5.45" y="18.58" text-anchor="middle">R801</text>
+<text class="ls" x="-7.25" y="18.02" text-anchor="middle">R806</text>
+<text class="ls" x="-8.51" y="17.01" text-anchor="middle">R802</text>
+<text class="ls" x="-10.26" y="18.79" text-anchor="middle">C801</text>
+<text class="ls" x="29.43" y="4.03" text-anchor="middle">C1011</text>
+</g>
+</svg>

@@ -1,0 +1,13 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "b5b6176a-7824-5c88-804f-5a2a2f98b8da")
+	(paper "A4")
+	(title_block (title "servodrive — board B, power / IO — 02_rails") (date "2026-09-07") (rev "A")
+		(company "Sequoia Hope Alexander"))
+	(lib_symbols)
+	(text "2x LMR38010: 12 V Vgate, 5 V Vlogic" (exclude_from_sim no) (at 25 30 0)
+		(effects (font (size 1.27 1.27)) (justify left top)) (uuid "af0482fb-58f8-580b-988c-471aa7767dfd"))
+	(embedded_fonts no)
+)

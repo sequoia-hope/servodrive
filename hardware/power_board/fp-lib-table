@@ -1,0 +1,6 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "servodrive")(type "KiCad")(uri "${KIPRJMOD}/../parts/servodrive.pretty")(options "")(descr "Project footprints"))
+  (lib (name "parts_motor")(type "KiCad")(uri "/home/sequoia/pcb/rp2350-motor-controller/hardware/parts")(options "")(descr "Sister project footprints"))
+  (lib (name "RP2350_60QFN")(type "KiCad")(uri "/home/sequoia/pcb/rp2350-bike-light/RP2350_60QFN_minimal.pretty")(options "")(descr "RP2350A QFN-60"))
+)

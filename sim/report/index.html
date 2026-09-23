@@ -1,0 +1,501 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>servodrive &mdash; EM simulation</title><link rel="stylesheet" href="../../style.css"></head><body><header>
+<p class="crumb"><a href="../../index.html">servodrive</a> &rsaquo;
+ electromagnetic simulation</p>
+<div class="title"><h1>servodrive &mdash; electromagnetic simulation</h1>
+<span class="state active"><span class="dot"></span>run 2026-09-12</span></div>
+<p class="lede">Every closed-form estimate the board was designed on, replaced
+ with a solved number, and every one of the fourteen questions in
+ <code>sim/SPEC.md</code> answered against its own criterion. Built from the
+ board as routed &mdash; 138 filled zone polygons, 1351 tracks, 283 vias, 526
+ pads &mdash; not from a sketch of it.</p>
+<p class="meta">Reproduce with <code>python3 sim/run.py</code>. Solvers:
+ FastHenry2 3.0.1 (PEEC), FastCap 2.0, ngspice through
+ <code>libngspice.so.0</code>, openEMS (FDTD, in a container), magpylib, and a
+ finite-difference conduction solver on a 0.05&nbsp;mm raster. Every one was
+ checked against a closed form before it was believed.</p>
+</header><main><section id="Summary"><h2>Summary</h2><h3>What the simulation found</h3><div class="tablewrap"><table class=""><thead><tr><th></th><th>Question</th><th>The estimate</th><th>Solved</th><th></th><th>Feeds</th></tr></thead><tbody><tr><td><strong>Q1</strong></td><td>commutation loop L, R</td><td>0.39 nH PCB, 1.99 nH total</td><td>2.06 nH PCB, 3.35&ndash;3.19 nH total</td><td><span class="state" style="color:var(--muted);border-color:color-mix(in srgb,var(--muted) 35%,var(--line))"><span class="dot" style="background:var(--muted)"></span>INFO</span></td><td>snubber, cap placement</td></tr><tr><td><strong>Q2</strong></td><td>V<sub>ds</sub> overshoot and ringing</td><td>61.7 V peak</td><td>62.6 V at the driver impedance the datasheet implies, 73.9 V with a strong output stage</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td><td>snubber yes/no, the EG2103's output stage</td></tr><tr><td><strong>Q3</strong></td><td>RC snubber</td><td>none fitted</td><td>2.2 &#8486; + 0.47 nF, 0.034 W &mdash; needed only in the strong-driver corner</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td>two 0805 footprints per cell</td></tr><tr><td><strong>Q4</strong></td><td>gate loop, Miller turn-on</td><td>not estimated</td><td>3.6 V induced V<sub>gs</sub> at the die, limit 1.54 V, 43 &micro;J per edge at V<sub>GS(th),min</sub></td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td><td>the FET's Q<sub>gd</sub>/C<sub>iss</sub>, gate-drive rail</td></tr><tr><td><strong>Q5</strong></td><td>sense chain during an edge</td><td>not estimated</td><td>tap swings 159 mV against 22.6 mV of signal; the ADC sees 27 LSB</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td><td>filter, taps, synchronised sampling</td></tr><tr><td><strong>Q6</strong></td><td>sense accuracy at DC</td><td>0.8 m&#8486;, 50 ppm/K assumed</td><td>0.8301 m&#8486;, copper 3.6 %, TCR 0.019 %/K</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td>tap positions, Kelvin connection</td></tr><tr><td><strong>Q7</strong></td><td>current density and via sharing</td><td>16 vias per drain pad</td><td>5.16 A rms in the busiest via of the low-side array</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td><td>via count, pour widths, zone fill</td></tr><tr><td><strong>Q13</strong></td><td>DC link and interconnect</td><td>23.2 A rms link, 13 &micro;F of ceramic, 3 V ripple</td><td>20.9 A rms link, 5.6 &micro;F at 60 V, 0.86 V<sub>pp</sub></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td>board B bulk chemistry, header pins</td></tr><tr><td><strong>Q12</strong></td><td>common mode at the motor frame</td><td>not estimated</td><td>the frame follows the switch node to 71 V peak</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td><td>frame bond, Y capacitor</td></tr><tr><td><strong>Q10</strong></td><td>field at the encoder</td><td>not estimated</td><td>93.7 mT at 1 mm gap; 0.09&deg; from 28.3 A</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td><td>magnet size and grade, lead routing</td></tr><tr><td><strong>Q8</strong></td><td>ADC sampling</td><td>not estimated</td><td>0.638 A rms free-running vs 0.21 A synchronised</td><td><span class="state" style="color:var(--muted);border-color:color-mix(in srgb,var(--muted) 35%,var(--line))"><span class="dot" style="background:var(--muted)"></span>INFO</span></td><td>DMA-paced ADC trigger from the PWM wrap</td></tr><tr><td><strong>Q9</strong></td><td>dead time</td><td>1.8 V of distortion with the software dead zone</td><td>0.76 % of torque, THD barely moves</td><td><span class="state" style="color:var(--muted);border-color:color-mix(in srgb,var(--muted) 35%,var(--line))"><span class="dot" style="background:var(--muted)"></span>INFO</span></td><td><code>dead_zone</code> value</td></tr><tr><td><strong>Q14</strong></td><td>regeneration</td><td>none for this board</td><td>bus reaches the TVS in 0.26 ms; 1.9 J would land on it</td><td><span class="state" style="color:var(--muted);border-color:color-mix(in srgb,var(--muted) 35%,var(--line))"><span class="dot" style="background:var(--muted)"></span>INFO</span></td><td>brake resistor, bulk size, guard timing</td></tr><tr><td><strong>Q11</strong></td><td>near and far field, and the L1/L2 cross-check</td><td>not estimated</td><td>the loop cross-check agrees to 9&nbsp;% (2.91&nbsp;nH full wave against 2.68&nbsp;nH PEEC); the whole-board radiated model did not converge</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td>shielding, lead routing</td></tr></tbody></table></div><div class="note"><p><strong>Four things changed the design's own arithmetic.</strong> The commutation loop is several times the inductance the board was designed on, because VBUS reaches the high-side drain from In2 rather than from a plane 0.1&nbsp;mm away. Twelve of the sixteen vias under each low-side drain are islands on B.Cu and carry nothing. The device that is supposed to be off is pulled above its own minimum threshold on every turn-on, not by the layout but by its own Q<sub>gd</sub>/C<sub>iss</sub>. And the DC-link ceramics are worth about half their marked value at 60&nbsp;V.</p><p>One number the board cannot settle decides several of the others: how hard the EG2103&rsquo;s output stage actually drives. The only document obtainable for it gives the peak currents without their test condition, and the edge rate &mdash; hence the overshoot, the ringing and whether a snubber is needed &mdash; follows it.</p></div></section><section id="Q1"><h2>Q1</h2><h3>The commutation loop is five times the estimate</h3>
+<p>The board was designed on <code>geometry.commutation_loop()</code>, which
+ models the loop as a 15.4&nbsp;&times;&nbsp;5&nbsp;mm strip 0.1&nbsp;mm above
+ the In1 ground plane and gets 0.387&nbsp;nH for the PCB
+ part. The board does not do that. VBUS has exactly one zone, on In2, and no
+ tracks: the high-side drain reaches it only through a 4&nbsp;&times;&nbsp;4
+ field of 0.4&nbsp;mm barrels whose antipads perforate In1, and the DC-link
+ capacitors reach it through one via each. The loop's outward leg therefore
+ runs 0.55&nbsp;mm below F.Cu with a ground plane in between.</p>
+<p>Solved on the copper as routed, with both devices shorted at their own pads
+ so the number is the PCB's alone, the loop each capacitor sees is
+ 2.52&ndash;2.84&nbsp;nH,
+ and with all four in parallel &mdash; which is how they work, strongly
+ coupled &mdash; <strong>2.06&nbsp;nH</strong>,
+ 5.3&times; the estimate.</p>
+<div class="note"><p><strong>H1: CONFIRMED, and by more than the hypothesis expected: the PCB part is 2.06 nH, 5.3 times geometry.commutation_loop()&#x27;s 0.39 nH, because VBUS reaches the high-side drain from In2 (0.55 mm below F.Cu) through a 16-via field, not from a plane 0.1 mm away.</strong></p></div>
+<p>Adding the two packages (1&nbsp;nH, bracketed &mdash;
+ Infineon does not specify the SuperSO8's lead inductance) and the capacitors'
+ own ESL gives a total of 3.19&ndash;3.35&nbsp;nH
+ against the 1.99&nbsp;nH the design assumed. The
+ overshoot that line of the table quotes is still the design's own arithmetic
+ &mdash; L times the 0.87&nbsp;A/ns it assumes &mdash; and it is wrong for a
+ second reason: the transient in Q2 commutates at about five amps per
+ nanosecond, not one. The peak the circuit actually reaches is in Q2, not
+ here.</p>
+<h3>Cells B and C</h3><div class="tablewrap"><table class="num"><thead><tr><th>cell</th><th>segments</th><th>L<sub>eff</sub> (nH)</th></tr></thead><tbody><tr><td>A</td><td>5049</td><td>2.18</td></tr><tr><td>B</td><td>4080</td><td>2.23</td></tr><tr><td>C</td><td>4495</td><td>1.91</td></tr></tbody></table></div><p>the three cells differ by 15.2 %, so the neighbourhood does matter and cell A is not representative. Cell C is the one whose neighbour is the power-link wedge, where VBUS and GND enter the board, and it is the one that differs.</p>
+<figure><img src="img/p1_commutation_A.png" alt="Loop inductance and resistance per capacitor, 1 kHz to 300 MHz, with the four in parallel in black and the design&#x27;s estimate as the dashed line."><figcaption>Loop inductance and resistance per capacitor, 1 kHz to 300 MHz, with the four in parallel in black and the design's estimate as the dashed line.</figcaption></figure>
+<h3>Mesh convergence</h3><div class="tablewrap"><table class="num"><thead><tr><th>grid target (mm)</th><th>segments</th><th>L<sub>eff</sub> (nH)</th></tr></thead><tbody><tr><td>1.8</td><td>3708</td><td>2.35</td></tr><tr><td>1.4</td><td>5049</td><td>2.18</td></tr><tr><td>1.1</td><td>7870</td><td>2.02</td></tr><tr><td>0.9</td><td>10502</td><td>1.95</td></tr><tr><td>0.75</td><td>12805</td><td>1.98</td></tr></tbody></table></div>
+<p>The grid this was solved on is not fine enough to be the answer: a
+ filament grid that coarse cannot let the return current concentrate under a
+ leg running 0.4&nbsp;mm above it, and that concentration is most of what
+ sets this loop. Refined, it runs from 2.35&nbsp;nH at 1.8&nbsp;mm to 1.98&nbsp;nH at 0.75&nbsp;mm, the last refinement moving it 1.6&nbsp;% and in the other direction &mdash; so it has settled, and the converged figure is 1.98&nbsp;nH against the 2.06&nbsp;nH this report quotes elsewhere, 4&nbsp;% lower. Q11 drives the same single port in a full-wave solver and, with its own device strip de-embedded, gets 2.91&nbsp;nH against this model's 2.68&nbsp;nH for that port &mdash; 9&nbsp;% apart. Everything the number is used for &mdash; that the loop is
+ several times the 0.39&nbsp;nH the board was designed on &mdash; holds
+ across all of it.</p>
+<h3>Skin effect</h3><p>The sweep uses one filament through the 35&nbsp;&micro;m copper, which is exact below about 1&nbsp;MHz and does not push current to the surface above it. The same model with three filaments, at 20&nbsp;MHz, gives 1.8&times; the loop resistance and 0.983&times; the inductance: the resistance in the sweep is a lower bound above a megahertz, the inductance is not affected.</p>
+<figure><img src="img/p1_current_A.png" alt="Where the current actually goes at 10 MHz, layer by layer, with 1 A driven into the high-side 100 n capacitor."><figcaption>Where the current actually goes at 10 MHz, layer by layer, with 1 A driven into the high-side 100 n capacitor.</figcaption></figure>
+</section><section id="Q2-Q3"><h2>Q2 / Q3</h2><h3>Overshoot meets the criterion at the driver impedance the datasheet implies, and misses it at a strong output stage</h3>
+<p>Both edges were simulated, with the FET fitted to its own datasheet (see
+ the method section) and the loop parasitics from Q1. The design expected
+ 61.7&nbsp;V of peak
+ V<sub>ds</sub>. The answer is not one number, because it is not set by
+ anything on this board: it is set by how hard the EG2103's output stage
+ actually drives, and the only EG2103 document that could be obtained gives
+ I<sub>O+</sub>/I<sub>O&minus;</sub> without the condition they are measured
+ at.</p>
+<p>Read those ratings the usual way &mdash; as an output resistance at the
+ 12&nbsp;V drive, so 40&nbsp;&#8486; sourcing and 20&nbsp;&#8486; sinking
+ &mdash; and the worst V<sub>ds</sub> anywhere in the operating envelope is
+ <strong>62.6&nbsp;V</strong>, against a 68&nbsp;V criterion, a
+ 71.1&nbsp;V TVS and 80&nbsp;V of silicon. Give the same part a strong output
+ stage instead (4/2&nbsp;&#8486;) and it becomes
+ <strong>73.9&nbsp;V</strong>.</p>
+<h3>The bracket that decides it</h3>
+<div class="tablewrap"><table class="num"><thead><tr><th>R<sub>source</sub> (&#8486;)</th><th>R<sub>sink</sub> (&#8486;)</th><th>dV/dt (kV/&micro;s)</th><th>low side at turn-on (V)</th><th>high side at turn-off (V)</th><th>ring (MHz)</th><th>cycles to 5 %</th><th></th></tr></thead><tbody><tr><td>40</td><td>20</td><td>12</td><td>59.6</td><td>62.6</td><td>&mdash;</td><td>0</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>12</td><td>6</td><td>28</td><td>68.7</td><td>64</td><td>145</td><td>27</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>4</td><td>2</td><td>62</td><td>73.9</td><td>63.7</td><td>145</td><td>31</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr></tbody></table></div>
+<div class="note"><p>This is the single largest open question in the cell, and
+ it is a data-sheet question, not a board question. Everything downstream of
+ the edge rate &mdash; overshoot, ringing, radiated emission, the induced
+ V<sub>gs</sub> of Q4, the snubber of Q3 &mdash; moves with it. It is in the
+ hand-back list.</p></div>
+<h3>R<sub>g</sub> and junction temperature, at the datasheet reading</h3>
+<div class="tablewrap"><table class="num"><thead><tr><th>R<sub>g</sub> (&#8486;)</th><th>T<sub>j</sub> (&deg;C)</th><th>low side at turn-on (V)</th><th>high side at turn-off (V)</th><th>ring left at turn-off (V)</th><th>peak</th><th>decay</th></tr></thead><tbody><tr><td>2.2</td><td>25</td><td>59.6</td><td>62.6</td><td>2.6</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>2.2</td><td>125</td><td>59.6</td><td>62.6</td><td>2.59</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>4.7</td><td>25</td><td>59.6</td><td>62.5</td><td>2.47</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>4.7</td><td>125</td><td>59.6</td><td>62.5</td><td>2.47</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>10</td><td>25</td><td>59.6</td><td>62.2</td><td>2.22</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>10</td><td>125</td><td>59.6</td><td>62.2</td><td>2.23</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>22</td><td>25</td><td>59.6</td><td>61.9</td><td>1.91</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>22</td><td>125</td><td>59.6</td><td>61.9</td><td>1.93</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr></tbody></table></div>
+<p>Neither moves it. At this output impedance the gate resistor is a tenth of
+ the path that charges the gate, so changing it from 2.2 to 22&nbsp;&#8486;
+ changes the edge by a few per cent, and the turn-off overshoot only falls
+ from 62.6
+ to 61.9&nbsp;V.
+ The junction temperature does not appear at all: it changes R<sub>DS(on)</sub>
+ and the body diode, neither of which sets this edge.</p>
+<p>There is no ring to fit at the datasheet reading. The turn-off edge
+ leaves 2.6&nbsp;V
+ above the rail and comes back without completing three half-cycles about it,
+ and the turn-on approaches the rail from below with a decaying oscillation
+ that never crosses it; either way Q2's five-cycle decay criterion is met. With the strong output stage the turn-on does ring, at
+ 145&nbsp;MHz for
+ 31
+ cycles, which is the one criterion that corner fails on top of the peak. The
+ frequency is close to the 100&nbsp;MHz the design estimated from
+ 1/(2&pi;&radic;(L&middot;C<sub>oss</sub>)); the loop is bigger and the
+ capacitance smaller than assumed, and the two partly cancel.</p>
+<div class="note"><p>The device breaks down at its own V(BR)DSS rather than
+ letting V<sub>ds</sub> run away: the model includes that, because leaving it
+ out reports an overshoot the silicon would never allow. Nothing in the sweep
+ reaches it &mdash; the avalanche energy is zero in every run &mdash; so the
+ overshoot is a criterion question, not a survival one.</p></div>
+<h3>Sensitivity to the device's capacitance</h3><div class="tablewrap"><table class="num"><thead><tr><th>capacitances</th><th>low side at turn-on (V)</th><th>high side at turn-off (V)</th></tr></thead><tbody><tr><td>typ</td><td>59.6</td><td>62.6</td></tr><tr><td>max</td><td>59.6</td><td>62.2</td></tr></tbody></table></div>
+<p>Against the datasheet&#x27;s own switching test the fitted model is faster on 3 of its 4 times at the typical capacitances, by up to 42 % (t_d_off 25.1 vs 43 ns). At the maximum capacitances every one of them is slower than at the typical, and they straddle the datasheet&#x27;s figures rather than sitting on one side of them, so the two corners bracket the edge rate rather than pointing at one. Every edge-rate-sensitive answer is run at both.</p>
+<figure><img src="img/p2_edges.png" alt="Both edges at 60 V and 28.3 A. Top: the whole event. Middle: the first 300 ns. Bottom: each device&#x27;s own V_gs, at the die."><figcaption>Both edges at 60 V and 28.3 A. Top: the whole event. Middle: the first 300 ns. Bottom: each device's own V_gs, at the die.</figcaption></figure>
+<h3>Q3 &mdash; the snubber</h3><div class="tablewrap"><table class="num"><thead><tr><th>R (&#8486;)</th><th>C (nF)</th><th>worst V<sub>ds</sub> (V)</th><th>P<sub>R</sub> (W)</th></tr></thead><tbody><tr><td>2.2</td><td>0.47</td><td>62.7</td><td>0.034</td></tr><tr><td>2.2</td><td>1</td><td>62.7</td><td>0.072</td></tr><tr><td>2.2</td><td>2.2</td><td>62.7</td><td>0.158</td></tr><tr><td>2.2</td><td>4.7</td><td>62.4</td><td>0.338</td></tr><tr><td>4.7</td><td>0.47</td><td>62.7</td><td>0.034</td></tr><tr><td>4.7</td><td>1</td><td>62.7</td><td>0.072</td></tr><tr><td>4.7</td><td>2.2</td><td>62.5</td><td>0.158</td></tr><tr><td>4.7</td><td>4.7</td><td>62.3</td><td>0.338</td></tr><tr><td>10</td><td>0.47</td><td>62.6</td><td>0.034</td></tr><tr><td>10</td><td>1</td><td>62.6</td><td>0.072</td></tr><tr><td>10</td><td>2.2</td><td>62.5</td><td>0.158</td></tr><tr><td>10</td><td>4.7</td><td>62.4</td><td>0.338</td></tr><tr><td>22</td><td>0.47</td><td>62.6</td><td>0.034</td></tr><tr><td>22</td><td>1</td><td>62.6</td><td>0.072</td></tr><tr><td>22</td><td>2.2</td><td>62.5</td><td>0.158</td></tr><tr><td>22</td><td>4.7</td><td>62.5</td><td>0.338</td></tr></tbody></table></div><p>The smallest one that meets both criteria is <strong>2.2&nbsp;&#8486; with 0.47&nbsp;nF</strong>, which brings the worst V<sub>ds</sub> to 62.7&nbsp;V and costs 0.034&nbsp;W per cell at 20&nbsp;kHz. The loss is C&middot;V&sup2;&middot;f and does not depend on R; R only sets the damping. At the driver impedance the datasheet implies, nothing needs snubbing &mdash; this is the part to fit only if the output stage turns out to be the strong one.</p>
+</section><section id="Q4"><h2>Q4</h2><h3>The off device sits above its own minimum threshold on every edge, and it is charge, not layout, that puts it there</h3>
+<p>The question is whether the device that is off gets turned on by the other
+ one's edge. The criterion is an induced V<sub>gs</sub> below 0.7&nbsp;&times;
+ the minimum threshold, 1.54&nbsp;V, at 1.2&nbsp;kV/&micro;s and at
+ twice that.</p>
+<p>The switch node does not slew at 1.2&nbsp;kV/&micro;s. Depending on the
+ driver's output impedance &mdash; the open question of Q2 &mdash; it slews at
+ 6 to 52&nbsp;kV/&micro;s, because the fast part
+ of the turn-on is not the gate charging C<sub>gd</sub>; it is the low-side
+ body diode snapping off and its recovery current dumping into
+ C<sub>oss</sub>. Across every combination of R<sub>g</sub>, drive strength,
+ capacitance corner and driver impedance, the induced V<sub>gs</sub> at the
+ die stays between 2.44 and 3.62&nbsp;V &mdash;
+ above the 1.54&nbsp;V criterion and above the
+ 2.2&nbsp;V minimum threshold itself, and almost
+ independent of everything in the sweep.</p>
+<div class="note"><p>That flatness is the result, not an artefact. The induced
+ step is the charge divider Q<sub>gd</sub>/C<sub>iss</sub>: the drain's edge
+ pushes a fixed Q<sub>gd</sub> into the gate whatever the edge rate, and the
+ driver can only take it back through 1.6&nbsp;&#8486; of internal gate
+ resistance plus R<sub>g</sub> plus its own output impedance &mdash;
+ 24&nbsp;&#8486; at the datasheet reading, a
+ 102&nbsp;ns time constant against an edge of
+ a few nanoseconds. Nothing in the gate network is fast enough to matter, so
+ nothing in the gate network changes the answer.</p></div>
+<h3>The gate loops, solved</h3><div class="tablewrap"><table class="num"><thead><tr><th>side</th><th>L (nH)</th><th>R (m&#8486;)</th><th>ring with C<sub>iss</sub> (MHz)</th><th>Q</th></tr></thead><tbody><tr><td>high</td><td>13.92</td><td>21.5</td><td>18</td><td>0.41</td></tr><tr><td>low</td><td>9.98</td><td>33.9</td><td>21.3</td><td>0.35</td></tr></tbody></table></div><p>Both loops are heavily damped &mdash; the gate resistor, the driver's own output impedance and the device's 1.6&nbsp;&#8486; see to that &mdash; so the gate does not ring, and the loop inductance is not what sets the answer below. The answer is set by charge.</p>
+<div class="tablewrap"><table class="num"><thead><tr><th>R<sub>g</sub> (&#8486;)</th><th>drive &times;</th><th>capacitances</th><th>R<sub>source</sub> (&#8486;)</th><th>dV/dt (kV/&micro;s)</th><th>at the die (V)</th><th>at the pin (V)</th><th></th></tr></thead><tbody><tr><td>2.2</td><td>1</td><td>typ</td><td>40</td><td>11.3</td><td>3.04</td><td>4.09</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2.2</td><td>1</td><td>typ</td><td>4</td><td>37.6</td><td>2.67</td><td>8.76</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2.2</td><td>1</td><td>max</td><td>40</td><td>7.6</td><td>3.45</td><td>3.51</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2.2</td><td>1</td><td>max</td><td>4</td><td>30</td><td>3.3</td><td>8.43</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>4.7</td><td>1</td><td>typ</td><td>40</td><td>11.4</td><td>3.05</td><td>4.01</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>4.7</td><td>1</td><td>typ</td><td>4</td><td>38.6</td><td>2.89</td><td>8.21</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>4.7</td><td>1</td><td>max</td><td>40</td><td>7</td><td>3.45</td><td>3.37</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>4.7</td><td>1</td><td>max</td><td>4</td><td>25.6</td><td>3.52</td><td>8.11</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>10</td><td>1</td><td>typ</td><td>40</td><td>10.4</td><td>3.06</td><td>3.7</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>10</td><td>1</td><td>typ</td><td>4</td><td>27.6</td><td>3.11</td><td>7.99</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>10</td><td>1</td><td>max</td><td>40</td><td>6.2</td><td>3.46</td><td>3.24</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>10</td><td>1</td><td>max</td><td>4</td><td>19.6</td><td>3.62</td><td>7.16</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2.2</td><td>2</td><td>typ</td><td>40</td><td>12.4</td><td>3.03</td><td>4.24</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2.2</td><td>2</td><td>typ</td><td>4</td><td>52.5</td><td>2.44</td><td>9.09</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2.2</td><td>2</td><td>max</td><td>40</td><td>7.7</td><td>3.44</td><td>3.55</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2.2</td><td>2</td><td>max</td><td>4</td><td>36.2</td><td>3.14</td><td>8.66</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>4.7</td><td>2</td><td>typ</td><td>40</td><td>12.3</td><td>3.04</td><td>4.16</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>4.7</td><td>2</td><td>typ</td><td>4</td><td>36.3</td><td>2.66</td><td>8.5</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>4.7</td><td>2</td><td>max</td><td>40</td><td>7.5</td><td>3.45</td><td>3.5</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>4.7</td><td>2</td><td>max</td><td>4</td><td>28.9</td><td>3.31</td><td>8.42</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>10</td><td>2</td><td>typ</td><td>40</td><td>11.6</td><td>3.05</td><td>3.99</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>10</td><td>2</td><td>typ</td><td>4</td><td>34.4</td><td>2.91</td><td>8.24</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>10</td><td>2</td><td>max</td><td>40</td><td>7</td><td>3.45</td><td>3.34</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>10</td><td>2</td><td>max</td><td>4</td><td>24.7</td><td>3.53</td><td>8.11</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr></tbody></table></div>
+<p>Two voltages are reported because they are different things. The channel
+ responds to the polysilicon gate against the source; a probe on the board
+ sees the package pin, which the Miller current's own I&middot;R drop across
+ that 1.6&nbsp;&#8486; lifts a further
+ 6.7&nbsp;V at the fastest edge. The die number is
+ the one the criterion is about.</p>
+<h3>Whether it actually conducts</h3><div class="tablewrap"><table class="num"><thead><tr><th>device</th><th>V<sub>to</sub> (V)</th><th>induced V<sub>gs</sub> (V)</th><th>high-side peak (A)</th><th>cross-conduction (nC)</th><th>extra loss per edge (&micro;J)</th></tr></thead><tbody><tr><td>V_GS(th) min</td><td>2.2</td><td>3.01</td><td>73.8</td><td>715</td><td>42.9</td></tr><tr><td>V_GS(th) typ</td><td>3.69</td><td>3.62</td><td>56</td><td>-23</td><td>-1.4</td></tr><tr><td>cannot conduct</td><td>53.69</td><td>3.63</td><td>56.4</td><td>0</td><td>0</td></tr></tbody></table></div><p>The criterion is a voltage, but what matters is whether
+ charge goes through the channel of the device that is supposed to be off. So
+ the same edge was run twice more: once with the low-side device at the bottom
+ of the datasheet's V<sub>GS(th)</sub> distribution, and once with a device
+ whose threshold is out of reach but whose capacitances and charges are
+ identical. The difference between the two is cross-conduction and nothing
+ else &mdash; no displacement current, no recovery charge.</p><p>At the typical threshold there is none:
+ -23&nbsp;nC, which is the numerical floor
+ of the difference. At the datasheet's minimum threshold there is
+ 715&nbsp;nC &mdash;
+ 43&nbsp;&micro;J of extra loss on that
+ edge, and the high-side peak current rises from
+ 56 to 74&nbsp;A.
+ At 20&nbsp;kHz that is
+ 0.86&nbsp;W in one
+ half-bridge if every turn-on does it, on top of the switching loss that is
+ there anyway.</p>
+<h3>The usual fix does not work on this part</h3><div class="tablewrap"><table class="num"><thead><tr><th>C<sub>gs</sub> added (nF)</th><th>induced at the die (V)</th><th>induced at the pin (V)</th><th>low side at turn-on (V)</th></tr></thead><tbody><tr><td>0</td><td>3.62</td><td>7.16</td><td>65.4</td></tr><tr><td>2.2</td><td>2.87</td><td>5.74</td><td>64.2</td></tr><tr><td>4.7</td><td>2.8</td><td>3.99</td><td>62.3</td></tr><tr><td>10</td><td>2.69</td><td>1.94</td><td>60.3</td></tr><tr><td>22</td><td>2.52</td><td>1.18</td><td>59.7</td></tr></tbody></table></div><p>A capacitor across the gate and source pins is the
+ standard answer, and it does almost nothing here: 22&nbsp;nF
+ moves the die from 3.62 to
+ 2.52&nbsp;V. The reason is the
+ device's own 1.6&nbsp;&#8486; of internal gate resistance: it sits between
+ the pins and the polysilicon, so an external capacitor reaches the die
+ through a 35&nbsp;ns time constant while
+ the edge it is supposed to absorb lasts a few nanoseconds. It is very
+ effective at the <em>pin</em> &mdash; which is where a scope probe is, and
+ why this fix is often believed to have worked.</p>
+<div class="note"><p>What is left: the levers that do work are a negative
+ off-state bias, which this bootstrap driver cannot provide without a split
+ rail, or a device with a smaller Q<sub>gd</sub>/C<sub>iss</sub>. Failing
+ either, the exposure is bounded and quantified above &mdash; it costs loss
+ and peak current on a bottom-of-distribution part, not the part itself.</p>
+</div>
+</section><section id="Q5"><h2>Q5</h2><h3>The tap swings 7 times the signal, and the amplifier's hold is what saves it</h3>
+<p>Full scale across the shunt pair at 28.3&nbsp;A is 22.6&nbsp;mV.
+ During an edge the voltage between the two tap points reaches
+ <strong>159&nbsp;mV</strong> &mdash; 7 times the
+ signal &mdash; which is hypothesis H3, and the solved partial inductances say
+ where it comes from: the tap loop itself, not only the shunt element.</p>
+<p>Solved on the copper: the current path from the low-side drain to the lead pad is 3.23&nbsp;nH, and the <em>transfer</em> inductance between it and the two tap points is 0.0243&nbsp;nH with 53&nbsp;&micro;&#8486; beside it. At the design's own 0.87&nbsp;A/ns that is 21.1&nbsp;mV &mdash; already the size of the signal &mdash; and the turn-off in Q2 commutates about five times faster than that. The shunt part's own ESL, bracketed at 0.2&ndash;0.5&nbsp;nH because no part has been chosen, adds 8&ndash;19 times the signal on top.</p><h3>H4 &mdash; the taps are not symmetric</h3><p>The two taps differ by -0.064 pF to the switch node; a 60 V common-mode step therefore injects 3.9 pC of differential charge into the tap network, which the 1 nF across it turns into 3.869 mV -- against 22.6 mV of full-scale signal. The two taps' capacitance to the switch node is 0.009 and 0.074&nbsp;pF: SNSN has about 8&nbsp;times SNSP's, which is H4 in one number. The tiling is 158 panels, so this is the size of the effect rather than three figures of it.</p>
+<p>What saves the measurement is the amplifier. The INA241A3 detects a large
+ common-mode slew and <em>holds its output for a microsecond</em>
+ (SBOSA30D&nbsp;&sect;7.3.1.1). Inside that window the output is not wrong, it
+ is stale &mdash; and since the phase current cannot change appreciably in a
+ microsecond, stale is almost as good as right. The peak error the ADC could
+ see is 27
+ LSB.</p>
+<div class="note"><p>The spec's criterion &mdash; settle to
+ &plusmn;1&nbsp;LSB within 500&nbsp;ns &mdash; cannot be met by this part by
+ construction, because its own hold is twice that long, and its
+ &ldquo;corrupted-sample fraction&rdquo; does not describe what happens
+ either. Two numbers do:
+ <strong>12&ndash;14&nbsp;%</strong> of free-running samples land inside a hold
+ window and are up to a microsecond stale, and the output is never more than
+ <strong>27&nbsp;LSB</strong> from the truth,
+ which is 0.54&nbsp;A of phase current, 1.9&nbsp;%
+ of full scale. Sampling at the PWM
+ counter's zero lands in no hold window at all, because every edge is half a
+ period away.</p></div>
+<div class="tablewrap"><table class="num"><thead><tr><th>shunt ESL</th><th>L (nH)</th><th>I<sub>phase</sub> (A)</th><th>tap swing (mV)</th><th>peak error at turn-on (LSB)</th><th>at turn-off (LSB)</th><th>back within 1 LSB (ns)</th></tr></thead><tbody><tr><td>min</td><td>0.2</td><td>-28.3</td><td>23.4</td><td>0.62</td><td>0.63</td><td>0</td></tr><tr><td>min</td><td>0.2</td><td>0</td><td>1.1</td><td>10.38</td><td>0.04</td><td>818</td></tr><tr><td>min</td><td>0.2</td><td>28.3</td><td>152.8</td><td>25.03</td><td>11.45</td><td>876</td></tr><tr><td>typ</td><td>0.35</td><td>-28.3</td><td>23.3</td><td>0.65</td><td>0.65</td><td>0</td></tr><tr><td>typ</td><td>0.35</td><td>0</td><td>1.2</td><td>10.63</td><td>0.04</td><td>817</td></tr><tr><td>typ</td><td>0.35</td><td>28.3</td><td>155.4</td><td>26.4</td><td>11.72</td><td>897</td></tr><tr><td>max</td><td>0.5</td><td>-28.3</td><td>23.5</td><td>0.67</td><td>0.68</td><td>0</td></tr><tr><td>max</td><td>0.5</td><td>0</td><td>1.2</td><td>10.95</td><td>0.05</td><td>819</td></tr><tr><td>max</td><td>0.5</td><td>28.3</td><td>158.6</td><td>26.96</td><td>12.2</td><td>897</td></tr></tbody></table></div>
+</section><section id="Q6"><h2>Q6</h2><h3>The sense chain is accurate; the copper costs 3.6 per cent</h3>
+<p>The taps are voltage probes, so this is a four-terminal measurement: the
+ phase current is driven through each pour between the places it really enters
+ and leaves, and the tap pads are read without drawing current. What the
+ amplifier sees is the shunt plus whatever potential difference the copper
+ puts between the two probe points.</p>
+<div class="tablewrap"><table class="num"><thead><tr><th>cell</th><th>tap to tap (m&#8486;)</th><th>copper's share (&micro;&#8486;)</th><th>copper (%)</th><th>TCR (%/K)</th><th></th></tr></thead><tbody><tr><td>A</td><td>0.8301</td><td>30.1</td><td>3.62</td><td>0.0188</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>B</td><td>0.8301</td><td>30.1</td><td>3.63</td><td>0.0188</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>C</td><td>0.0303</td><td>30.3</td><td>100</td><td>0.3854</td><td>n/a</td></tr></tbody></table></div>
+<p>Cells A and B meet both criteria. The copper's contribution is almost all
+ on the PHASE side: R108's tap sits at the lead-pad end of the pour, so the
+ measurement includes the whole run from the shunt to the lead.</p>
+<div class="note"><p>Cell C is the row that looks wrong and is not: cell C carries 0 Ohm links instead of shunts (SPEC.md sec.1.5), so all of its tap-to-tap resistance is copper.  It is not a current sense at all -- I_c is inferred as -(I_a + I_b) -- so the copper-share and TCR criteria do not apply to it; the number is here only to show what a tap on bare copper would read.</p></div>
+<p>The two 1.6&nbsp;m&#8486; shunts share 51.7&nbsp;/&nbsp;48.3&nbsp;%, an imbalance of 6.7&nbsp;% against the 10&nbsp;% criterion.</p>
+</section><section id="Q7"><h2>Q7</h2><h3>Twelve of sixteen vias under each low-side drain are islands</h3>
+<div class="note"><p><strong>Twelve of the sixteen vias under each low-side
+ drain go nowhere.</strong> The barrels are there, and their pads are on every
+ layer, but on B.Cu the switch-node pour has been pushed back by the phase
+ pour and only four of the sixteen pads are joined to it. The other twelve are
+ isolated annuli in the clearance between the two pours. All three cells are
+ the same.</p></div>
+<div class="tablewrap"><table class="num"><thead><tr><th>array</th><th>net</th><th>barrels</th><th>joined on F.Cu</th><th>on In2</th><th>on B.Cu</th></tr></thead><tbody><tr><td>Q1</td><td>VBUS</td><td>16</td><td>16</td><td>16</td><td>0</td></tr><tr><td>Q2</td><td>SW_A</td><td>16</td><td>16</td><td>0</td><td>4</td></tr><tr><td>Q3</td><td>VBUS</td><td>16</td><td>16</td><td>16</td><td>0</td></tr><tr><td>Q4</td><td>SW_B</td><td>16</td><td>16</td><td>0</td><td>4</td></tr><tr><td>Q5</td><td>VBUS</td><td>16</td><td>16</td><td>16</td><td>0</td></tr><tr><td>Q6</td><td>SW_C</td><td>16</td><td>16</td><td>0</td><td>4</td></tr></tbody></table></div>
+<p>The consequence is that the phase current crossing from the F.Cu switch-node
+ island to the B.Cu pour &mdash; which it must do, because the shunts are on
+ B.Cu &mdash; goes through four vias and the two discrete ones nearby. The
+ busiest carries 7.3&nbsp;A at the 28.3&nbsp;A peak,
+ 5.16&nbsp;A&nbsp;rms, against the
+ 2&nbsp;A&nbsp;rms a 0.4&nbsp;mm barrel with 25&nbsp;&micro;m of plating is
+ worth.</p>
+<h3>The high-side arrays, which are connected</h3>
+<div class="tablewrap"><table class="num"><thead><tr><th>array</th><th>busiest via (A)</th><th>quietest (A)</th><th>per via (A rms)</th><th></th></tr></thead><tbody><tr><td>Q1</td><td>3.42</td><td>0.97</td><td>2.42</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>Q3</td><td>3.36</td><td>0.95</td><td>2.37</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>Q5</td><td>3.31</td><td>0.97</td><td>2.34</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr></tbody></table></div>
+<p>Those sixteen do all reach In2, but they still share badly &mdash; the
+ current crowds into the vias nearest where it comes from, and the spread is
+ 139&nbsp;%
+ of the mean.</p>
+<figure><img src="img/p3_J_sw_A_FCu.png" alt="Switch-node current density on F.Cu at 28.3 A."><figcaption>Switch-node current density on F.Cu at 28.3 A.</figcaption></figure>
+<figure><img src="img/p3_J_phase_A.png" alt="The phase pour on B.Cu at 28.3 A."><figcaption>The phase pour on B.Cu at 28.3 A.</figcaption></figure>
+<figure><img src="img/p3_J_vbus_In2.png" alt="VBUS on In2, from the header pins to one high-side drain."><figcaption>VBUS on In2, from the header pins to one high-side drain.</figcaption></figure>
+<h3>Grid convergence</h3>
+<div class="tablewrap"><table class="num"><thead><tr><th>cell (mm)</th><th>lead to shunt (&micro;&#8486;)</th><th>99.9th percentile (A/mm)</th><th>99th percentile (A/mm)</th></tr></thead><tbody><tr><td>0.12</td><td>31.92</td><td>5.29</td><td>4.55</td></tr><tr><td>0.08</td><td>30.97</td><td>5.23</td><td>4.53</td></tr><tr><td>0.05</td><td>30.03</td><td>5.19</td><td>4.5</td></tr></tbody></table></div>
+<p>The resistance converges; the peak current density does not, and cannot
+ &mdash; it is a single cell at a re-entrant corner and grows without limit as
+ the grid is refined. The percentiles are the numbers to compare with a width
+ rule.</p>
+</section><section id="Q13"><h2>Q13</h2><h3>The link is fine; board B's bulk chemistry is not free</h3>
+<div class="note"><p><strong>H2: CONFIRMED as a direction, bracketed in size: at 60 V the six 2.2 uF and six 100 nF are worth 5.5-9.7 uF against the 13.2 uF nominal that geometry.interconnect() assumes. No manufacturer DC-bias curve could be retrieved for an unchosen part, so this is a swept bracket, not a measurement.</strong></p></div>
+<p>The DC-link current waveform was synthesised from the switching functions of
+ three centre-aligned sine-PWM legs at m&nbsp;=&nbsp;0.8 and 20&nbsp;A&nbsp;rms,
+ which gives 12.37&nbsp;A&nbsp;rms of ripple
+ &mdash; the same number <code>geometry.interconnect()</code> gets from its
+ closed form, which is a useful agreement between two independent derivations.
+ What differs is the split, because the impedances differ.</p>
+<div class="tablewrap"><table class="num"><thead><tr><th>ceramics at bias / board B bulk</th><th>C (&micro;F)</th><th>V<sub>bus</sub> p-p (V)</th><th>rms (V)</th><th>link (A rms)</th><th>ripple</th><th>link</th></tr></thead><tbody><tr><td>min/polymer_4x100uF</td><td>5.55</td><td>0.86</td><td>0.158</td><td>20.9</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>min/electrolytic_3x100uF</td><td>5.55</td><td>6.33</td><td>2.209</td><td>20.2</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>typ/polymer_4x100uF</td><td>6.96</td><td>0.86</td><td>0.157</td><td>20.9</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>typ/electrolytic_3x100uF</td><td>6.96</td><td>6.29</td><td>2.138</td><td>20</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>max/polymer_4x100uF</td><td>9.72</td><td>0.86</td><td>0.156</td><td>20.8</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>max/electrolytic_3x100uF</td><td>9.72</td><td>6.2</td><td>1.999</td><td>19.7</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr></tbody></table></div>
+<p>The bulk chemistry decides it. With four 100&nbsp;&micro;F polymer hybrids
+ the bus ripple is under two volts; with the three 100&nbsp;&micro;F
+ electrolytics the spec originally listed, at 0.2&nbsp;&#8486; of ESR, it is
+ over six. The link carries about 20&nbsp;A&nbsp;rms either way, inside the
+ 30&nbsp;A ten pins are worth.</p>
+<p>The link itself &mdash; twenty mated pins and six brass standoffs across an 11&nbsp;mm gap &mdash; is 0.81&nbsp;nH and 0.18&nbsp;m&#8486; at 1&nbsp;MHz; the standoffs take 12&nbsp;% of it off the header.</p>
+<figure><img src="img/p4_dclink_z.png" alt="The impedance one cell&#x27;s half-bridge sees looking into its own DC link."><figcaption>The impedance one cell's half-bridge sees looking into its own DC link.</figcaption></figure>
+</section><section id="Q10"><h2>Q10</h2><h3>The magnet is too strong at the short gap; the leads, not the copper, move the angle</h3>
+<p>The MT6701 wants 20&ndash;100&nbsp;mT at its own surface, over an air gap
+ the datasheet allows to be 0.5&ndash;2.0&nbsp;mm. The board carries a
+ &#216;8&nbsp;&times;&nbsp;2.5&nbsp;mm diametric magnet where the datasheet
+ recommends &#216;6.</p>
+<div class="tablewrap"><table class="num"><thead><tr><th>grade</th><th>gap (mm)</th><th>off axis (mm)</th><th>B in plane (mT)</th><th></th></tr></thead><tbody><tr><td>N35</td><td>0.5</td><td>0</td><td>110.8</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>N35</td><td>1</td><td>0</td><td>93.7</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>N35</td><td>1.5</td><td>0</td><td>78.4</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>N35</td><td>2</td><td>0</td><td>65.3</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>N42</td><td>0.5</td><td>0</td><td>120.5</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>N42</td><td>1</td><td>0</td><td>101.9</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>N42</td><td>1.5</td><td>0</td><td>85.3</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>N42</td><td>2</td><td>0</td><td>71</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr></tbody></table></div>
+<p>At the nominal 1.5&nbsp;mm gap the board's stack-up specifies, and at
+ 1.0&nbsp;mm, an N35 &#216;8 magnet is inside the window. At the short end of
+ the tolerance it is not, and an N42 is over the limit at 1&nbsp;mm as well.
+ The datasheet's own &#216;6 gives
+ 88&nbsp;mT
+ at 1&nbsp;mm, comfortably inside.</p>
+<p>The phase currents put
+ 0.14&nbsp;&micro;T
+ at the sensor from the board copper and
+ 136&nbsp;&micro;T from the
+ leads &mdash; a factor of
+ 949.
+ The board copper contributes little because the three phase pours are symmetric about the shaft axis and their in-plane fields cancel; the leads, which leave the board at three points and do not, are what is left.</p>
+<p>The angle error that leaves is
+ <strong>0.09&deg;</strong> peak,
+ 4.1&nbsp;LSB of the 14-bit word, against the
+ 0.05&deg; criterion. It is a gain-like error &mdash; it moves with the
+ current &mdash; and what it costs is not torque, which loses
+ 0.0001&nbsp;% to the cosine and is nothing,
+ but 0.045&nbsp;A of misplaced d-axis current:
+ real current, heating the windings and producing no torque.</p>
+<figure><img src="img/p5_encoder.png" alt="Magnet field over the gap tolerance, and the angle error the phase current causes."><figcaption>Magnet field over the gap tolerance, and the angle error the phase current causes.</figcaption></figure>
+</section><section id="Q8"><h2>Q8</h2><h3>Synchronised sampling is worth three times the noise</h3>
+<p>The firmware's ADC runs free, round-robin over four channels at
+ 500&nbsp;kS/s, so each current channel is refreshed every 8&nbsp;&micro;s and
+ <code>loopFOC()</code> reads whatever the last conversion was. The question is
+ what that costs against sampling once per PWM period at the counter's zero,
+ where the ripple crosses its own average.</p>
+<p>Measured against the average i<sub>q</sub> over each PWM period &mdash; which
+ is what the loop is trying to regulate &mdash; free-running sampling gives
+ <strong>0.638&nbsp;A&nbsp;rms</strong> of
+ error and 1.82&nbsp;A of bias.
+ PWM-synchronised sampling gives
+ <strong>0.21&nbsp;A&nbsp;rms</strong> and
+ 0.84&nbsp;A: the noise falls by
+ 3&times; and the bias by half.</p>
+<p>The residual bias is not the sampling &mdash; it is the low-pass filter's
+ group delay on a rotating frame, and it belongs to the control design rather
+ than to the ADC.</p>
+<h3>Where the error lives</h3><div class="tablewrap"><table class="num"><thead><tr><th>sampling</th><th>0-200Hz</th><th>200-1000Hz</th><th>1000-5000Hz</th><th>5000-10000Hz</th></tr></thead><tbody><tr><td>free-running</td><td>0.048</td><td>0.063</td><td>0.598</td><td>0.204</td></tr><tr><td>synchronised</td><td>0.047</td><td>0.048</td><td>0.199</td><td>0.014</td></tr></tbody></table></div><p>the current loop&#x27;s own bandwidth is about 1 kHz, so error below that is what it will try to follow and error above it is what the low-pass takes out Most of the free-running error sits between one and five kilohertz &mdash; at and just above the loop's own bandwidth, which is the worst place for it to be, because the loop is fast enough to chase some of it and not fast enough to reject it. Synchronised sampling takes that band down by 3&times;.</p>
+<figure><img src="img/p6_sampling.png" alt="What the current loop is given, at eight different sampling phases."><figcaption>What the current loop is given, at eight different sampling phases.</figcaption></figure>
+</section><section id="Q9"><h2>Q9</h2><h3>The software dead zone buys nothing the hardware has not already taken</h3>
+<p>The EG2103 turns on 780&nbsp;ns after its input and off 220&nbsp;ns after
+ it; the 560&nbsp;ns difference <em>is</em> the interlock, and it is in the
+ hardware whether the firmware asks for it or not. On top of that SimpleFOC's
+ <code>dead_zone = 0.02</code> takes another microsecond off each edge in
+ software.</p>
+<div class="tablewrap"><table class="num"><thead><tr><th>dead_zone</th><th>t<sub>dead,sw</sub> (&micro;s)</th><th>rpm</th><th>i<sub>q</sub> (A)</th><th>THD (%)</th><th>torque (N&middot;m)</th><th>ripple (% rms)</th></tr></thead><tbody><tr><td>0</td><td>0</td><td>500</td><td>7.1</td><td>11.49</td><td>1.142</td><td>14.37</td></tr><tr><td>0</td><td>0</td><td>500</td><td>28.3</td><td>3.41</td><td>4.777</td><td>3.8</td></tr><tr><td>0</td><td>0</td><td>2000</td><td>7.1</td><td>27.43</td><td>1.053</td><td>28.7</td></tr><tr><td>0</td><td>0</td><td>2000</td><td>28.3</td><td>8.03</td><td>4.706</td><td>6.36</td></tr><tr><td>0.005</td><td>0.25</td><td>500</td><td>7.1</td><td>11.49</td><td>1.143</td><td>14.37</td></tr><tr><td>0.005</td><td>0.25</td><td>500</td><td>28.3</td><td>3.41</td><td>4.778</td><td>3.8</td></tr><tr><td>0.005</td><td>0.25</td><td>2000</td><td>7.1</td><td>27.54</td><td>1.04</td><td>28.99</td></tr><tr><td>0.005</td><td>0.25</td><td>2000</td><td>28.3</td><td>8.02</td><td>4.692</td><td>6.36</td></tr><tr><td>0.01</td><td>0.5</td><td>500</td><td>7.1</td><td>11.52</td><td>1.143</td><td>14.38</td></tr><tr><td>0.01</td><td>0.5</td><td>500</td><td>28.3</td><td>3.41</td><td>4.778</td><td>3.8</td></tr><tr><td>0.01</td><td>0.5</td><td>2000</td><td>7.1</td><td>27.84</td><td>1.029</td><td>29.37</td></tr><tr><td>0.01</td><td>0.5</td><td>2000</td><td>28.3</td><td>8.04</td><td>4.681</td><td>6.39</td></tr><tr><td>0.02</td><td>1</td><td>500</td><td>7.1</td><td>11.59</td><td>1.143</td><td>14.44</td></tr><tr><td>0.02</td><td>1</td><td>500</td><td>28.3</td><td>3.44</td><td>4.778</td><td>3.82</td></tr><tr><td>0.02</td><td>1</td><td>2000</td><td>7.1</td><td>28.73</td><td>1.01</td><td>30.4</td></tr><tr><td>0.02</td><td>1</td><td>2000</td><td>28.3</td><td>8.11</td><td>4.659</td><td>6.52</td></tr></tbody></table></div>
+<p>The software term costs
+ 0.76&nbsp;% of torque and
+ leaves the distortion essentially unchanged: the hardware's 560&nbsp;ns
+ already dominates. Distortion is worst at low current, where the dead time is
+ a large fraction of the conduction interval &mdash; which is the usual shape
+ and the reason dead-time compensation exists.</p>
+<p>The minimum pulse the driver will pass makes duties below
+ 2.4&nbsp;% unreachable, and by
+ symmetry the same at the top of the range.</p>
+<figure><img src="img/p6_deadtime.png" alt="Current distortion and torque ripple against the software dead zone."><figcaption>Current distortion and torque ripple against the software dead zone.</figcaption></figure>
+</section><section id="Q14"><h2>Q14</h2><h3>The bus guard is the only brake</h3>
+<p>There is no brake chopper: the sibling's fourth leg and 15&nbsp;&#8486;
+ resistor are not on this board, so a decel has nowhere to put its energy
+ except board B's bulk and the two TVSs.</p>
+<div class="tablewrap"><table class="num"><thead><tr><th>bulk (&micro;F)</th><th>J (kg&middot;m&sup2;)</th><th>mechanical energy (J)</th><th>the bulk can take (J)</th><th>bus reaches the TVS in (ms)</th><th>left for the TVS (J)</th></tr></thead><tbody><tr><td>100</td><td>0.0001</td><td>2.19</td><td>0.073</td><td>0.065</td><td>2.1</td></tr><tr><td>100</td><td>0.001</td><td>21.93</td><td>0.073</td><td>0.065</td><td>21.9</td></tr><tr><td>100</td><td>0.01</td><td>219.32</td><td>0.073</td><td>0.065</td><td>219.3</td></tr><tr><td>300</td><td>0.0001</td><td>2.19</td><td>0.218</td><td>0.196</td><td>2</td></tr><tr><td>300</td><td>0.001</td><td>21.93</td><td>0.218</td><td>0.196</td><td>21.7</td></tr><tr><td>300</td><td>0.01</td><td>219.32</td><td>0.218</td><td>0.196</td><td>219.1</td></tr><tr><td>400</td><td>0.0001</td><td>2.19</td><td>0.291</td><td>0.262</td><td>1.9</td></tr><tr><td>400</td><td>0.001</td><td>21.93</td><td>0.291</td><td>0.262</td><td>21.6</td></tr><tr><td>400</td><td>0.01</td><td>219.32</td><td>0.291</td><td>0.262</td><td>219</td></tr><tr><td>1000</td><td>0.0001</td><td>2.19</td><td>0.728</td><td>0.654</td><td>1.5</td></tr><tr><td>1000</td><td>0.001</td><td>21.93</td><td>0.728</td><td>0.654</td><td>21.2</td></tr><tr><td>1000</td><td>0.01</td><td>219.32</td><td>0.728</td><td>0.654</td><td>218.6</td></tr></tbody></table></div>
+<p>The bulk is worth a fraction of a joule between 60&nbsp;V and the TVS's
+ breakdown. A decel at the design-point braking torque drives the bus into the
+ TVS in a fraction of a millisecond, and what is left over is tens to hundreds
+ of joules &mdash; orders of magnitude past what an SMDJ64A survives.</p>
+<div class="note"><p>The firmware's guard folds the current limit to zero
+ across 63&ndash;66&nbsp;V and runs at the loop rate, so it reacts in about one
+ 50&nbsp;&micro;s period. That is inside the time the bus takes to reach the
+ TVS, but by a factor of a few, not a factor of a hundred. The guard is the
+ only thing between a decel and a dead TVS, and it is a software guard.</p>
+</div>
+</section><section id="Q11"><h2>Q11</h2><h3>Full wave: the loop cross-check and the far field</h3>
+<p>The commutation loop of Q1, on the same copper, in a solver that shares
+ nothing with the first one: FastHenry is PEEC, quasi-static, no dielectric
+ and no displacement current; openEMS is FDTD, the whole of Maxwell on a
+ staircased grid. Driving the same port &mdash; the high-side
+ C103 capacitor, the other three left open
+ &mdash; openEMS gives 2.91&nbsp;nH
+ against FastHenry's 2.68&nbsp;nH, 9&nbsp;% apart.
+ <span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span> against the spec's 25&nbsp;% gate.
+ The FDTD figure is the FDTD value with the device strip de-embedded; its raw value at the
+ finest mesh is 3.04&nbsp;nH, and FastHenry's is
+ the converged end of its own grid sweep rather than the 1.2&nbsp;mm
+ production grid, which reads
+ 2.72&nbsp;nH.</p>
+<div class="note"><p><strong>What the first run of this phase got wrong.</strong>
+ It reported 3.82&nbsp;nH and read the difference as a disagreement between
+ the solvers. Four things were wrong with it, none of them the solver's.</p>
+<p><strong>It was not solving this loop.</strong> The two conducting FETs were
+ stood in for by cylinders of 0.25&nbsp;mm radius about an axis lying in
+ F.Cu. F.Cu to In1 is 0.1525&nbsp;mm, so each rod stood a quarter of a
+ millimetre proud of its own layer and cut through about 1&nbsp;mm&sup2; of
+ the In1 ground plane &mdash; and metal is metal in FDTD, so the high-side
+ one shorted VBUS to GND at the drain and the current never reached In2 or
+ the via field at all. Nothing in the run reported it: the energy decayed,
+ the port impedance was clean, the answer was simply a different loop.</p>
+<p><strong>It was compared with the wrong number.</strong>
+ L<sub>eff</sub> is the loop with all four capacitors conducting in parallel;
+ the model drives one, whose own diagonal is
+ 2.68&nbsp;nH, not
+ 2.06&nbsp;nH.</p>
+<p><strong>It was stopped early.</strong> 60&nbsp;k timesteps is 1.4 times its
+ own excitation length, and the residual energy was still at
+ &minus;2&nbsp;dB, so the port waveform it transformed was truncated.
+ openEMS printed a warning saying so.</p>
+<p><strong>Its warning was misread.</strong> The 127 &ldquo;dropped
+ primitives&rdquo; recorded as lost copper were via pads lying wholly inside
+ barrel cylinders that already provide that copper at a higher
+ priority.</p></div>
+<h3>What it takes to mesh this</h3>
+<p>There are no nets in an FDTD model, only metal: two conductors that come
+ within one cell of each other are one conductor. The tightest net-to-net
+ clearance in this window &mdash; barrel walls included, and it is the
+ antipads the VBUS barrels pass through in the In1 ground plane &mdash; is
+ 0.40&nbsp;mm, so a mesh that does not stay well inside that joins VBUS to
+ GND and the loop comes back far too small. A uniform mesh does exactly that: it reads 0.62&nbsp;nH at 0.55&nbsp;mm cells and does not reach 3.29&nbsp;nH until 0.2&nbsp;mm, by which point it costs more cells than the snapped mesh that gets there at 0.35&nbsp;mm. The mesh used here is snapped to the copper
+ instead: every polygon vertex and every barrel wall pins a line, so a
+ clearance is resolved by construction rather than by where the grid happens
+ to fall, and the fill between them stays coarse.</p><h4>A uniform mesh, for comparison</h4><div class="tablewrap"><table class="num"><thead><tr><th>cell / feature (mm)</th><th>cells</th><th>Mcells</th><th>L (nH)</th><th>C (pF)</th><th>f<sub>0</sub> (MHz)</th><th>fit residual</th><th>energy left (dB)</th></tr></thead><tbody><tr><td>0.55</td><td>62x74x71</td><td>0.33</td><td>0.618</td><td>5</td><td>2860</td><td>0.000139</td><td>-42.83</td></tr><tr><td>0.35</td><td>83x100x71</td><td>0.59</td><td>1.759</td><td>33.3</td><td>657</td><td>0.015</td><td>-44.47</td></tr><tr><td>0.2</td><td>131x156x71</td><td>1.45</td><td>3.286</td><td>54.8</td><td>375</td><td>0.006</td><td>-42.74</td></tr></tbody></table></div><h4>Snapped to the copper</h4><div class="tablewrap"><table class="num"><thead><tr><th>cell / feature (mm)</th><th>cells</th><th>Mcells</th><th>L (nH)</th><th>C (pF)</th><th>f<sub>0</sub> (MHz)</th><th>fit residual</th><th>energy left (dB)</th></tr></thead><tbody><tr><td>0.2</td><td>119x145x71</td><td>1.23</td><td>3.177</td><td>55.3</td><td>380</td><td>0.01</td><td>-43.90</td></tr><tr><td>0.14</td><td>149x188x71</td><td>1.99</td><td>3.091</td><td>54.6</td><td>387</td><td>0.023</td><td>-40.72</td></tr><tr><td>0.1</td><td>190x243x71</td><td>3.28</td><td>3.041</td><td>52.3</td><td>399</td><td>0.015</td><td>-43.75</td></tr></tbody></table></div><p>Each L here is the intercept of that fit, not a mean over the band: the band mean is 15&nbsp;% higher because it includes the climb towards f<sub>0</sub>. The residual is what says one L and one C describe the port at all.</p><h3>And what it takes FastHenry</h3><div class="tablewrap"><table class="num"><thead><tr><th>grid target (mm)</th><th>segments</th><th>L, this port (nH)</th><th>L<sub>eff</sub>, all four (nH)</th></tr></thead><tbody><tr><td>1.8</td><td>3708</td><td>3.117</td><td>2.349</td></tr><tr><td>1.4</td><td>5049</td><td>2.965</td><td>2.178</td></tr><tr><td>1.1</td><td>7870</td><td>2.706</td><td>2.019</td></tr><tr><td>0.9</td><td>10502</td><td>2.647</td><td>1.946</td></tr><tr><td>0.75</td><td>12805</td><td>2.681</td><td>1.976</td></tr></tbody></table></div><p>The two solvers approach this loop from opposite sides, and the mechanism is different at each end.  A uniform FDTD mesh reads low until its cells are inside the board&#x27;s 0.40 mm clearances -- there are no nets in FDTD, only metal, so a cell that spans a clearance joins VBUS to GND -- and it climbs from 0.62 nH at 0.55 mm to 3.29 nH at 0.20 mm as that stops happening.  Snapping the mesh to the copper reaches the same place without the uniform cost: 3.04 nH, moving 1.6 % on the last refinement.  FastHenry falls down its own series, 3.12 nH at 1.8 mm to 2.68 nH at 0.75 mm, because a filament grid that coarse cannot let the return current concentrate under a leg running 0.4 mm above it, which is most of what sets this loop, and it has settled there: the last refinement moved it 1.3 % and in the other direction.  The figure quoted for FastHenry here is the converged end of that sweep, 0.75 mm at 1 MHz, not the production run&#x27;s 1.2 mm grid; the production model&#x27;s own frequency sweep falls about 3 % between 1 MHz and 100 MHz, which is the band the FDTD extraction sits in, so the comparison is fair to within a few per cent either way.  Neither solver had been run to its own convergence before this.</p><h3>What the device costs the model</h3><p>The PEEC model shorts a conducting FET at its own pads and pays nothing for it. A full-wave model cannot: the short has to be a real piece of copper, and a strip 0.35&nbsp;mm wide sitting 0.15&nbsp;mm above a ground plane carries a partial inductance of its own. Halving its width doubles that term and leaves the loop alone, so L(w)&nbsp;=&nbsp;L&#8320;&nbsp;+&nbsp;k/w and the pair extrapolates to the ideal short: 3.177&nbsp;nH at full width and 3.444&nbsp;nH at half give <strong>2.91&nbsp;nH</strong> for the loop alone, the strip itself accounting for 0.27&nbsp;nH. That is the number the two solvers can honestly be compared on.</p><figure><img src="img/p7_crosscheck.png" alt="Both solvers against their own cell size; the FDTD port impedance with the L and C fitted out of it, against FastHenry&#x27;s quasi-static L; and what the answer does when less of the time record is transformed."><figcaption>Both solvers against their own cell size; the FDTD port impedance with the L and C fitted out of it, against FastHenry's quasi-static L; and what the answer does when less of the time record is transformed.</figcaption></figure><figure><img src="img/p7_cellA_3d.png" alt="The copper both solvers are given: six layers, exploded, with every plated barrel in the window."><figcaption>The copper both solvers are given: six layers, exploded, with every plated barrel in the window.</figcaption></figure><figure><img src="img/p7_mesh_A.png" alt="The In1 ground plane under the high-side drain, with the two meshes drawn on it. Every cell that touches both VBUS and GND joins them, because an FDTD model has no nets, only metal."><figcaption>The In1 ground plane under the high-side drain, with the two meshes drawn on it. Every cell that touches both VBUS and GND joins them, because an FDTD model has no nets, only metal.</figcaption></figure><div class="note"><p><strong>The whole-board near- and far-field model did not converge, and no radiated number is quoted.</strong> The mesh cannot represent this board.  Its clearances are 0.40 mm and its tracks 0.15 mm; a 65 mm six-layer board allows 1.2 mm cells here, and at that size copper the board keeps apart is joined -- there are no nets in FDTD, only metal.  Q1&#x27;s cell-A model showed what that costs: the same loop came out 0.62 nH at 0.55 mm cells and 3.04 nH once the clearances were resolved, a factor of five.  Snapping the mesh to the copper rescued the cell, which is 21 x 26 mm; pinning a line to every feature on the whole board is a 10^8-cell problem.  No radiated level is quoted.  (The directivity also comes out negative at 3 of the 5 probe frequencies, all of them below 30 MHz, where a board this size radiates almost nothing and the near-to-far-field transform is differencing numbers at its own floor -- that one is not the mesh&#x27;s fault.  278 primitives were reported unused; those are mostly via pads their own barrels already provide and are not evidence of anything.)</p></div></section><section id="Q12"><h2>Q12</h2><h3>The motor frame swings with the switch node</h3>
+<p>The four &#216;3.2&nbsp;mm motor mounts are <strong>NPTH</strong> &mdash; no
+ copper, not a ground bond &mdash; so nothing on this board ties the motor's
+ frame to board GND. The frame is left as a capacitive divider between the
+ winding-to-frame capacitance and its own stray capacitance to the board, and
+ it follows the switch node. Since everything here is driven by the edge, the
+ sweep is run at both ends of the driver-impedance bracket of Q2.</p>
+<div class="tablewrap"><table class="num"><thead><tr><th>C<sub>wf</sub> (pF)</th><th>R<sub>source</sub> (&#8486;)</th><th>dV/dt (kV/&micro;s)</th><th>frame bond</th><th>frame peak (V)</th><th>I<sub>cm</sub> peak (A)</th><th>rms (A)</th><th>three phases (A rms)</th><th></th></tr></thead><tbody><tr><td>100</td><td>40</td><td>12</td><td>open</td><td>46</td><td>0.31</td><td>0.006</td><td>0.011</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>100</td><td>4</td><td>39</td><td>open</td><td>55.3</td><td>1.37</td><td>0.023</td><td>0.04</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>100</td><td>40</td><td>12</td><td>strap 20 nH</td><td>25.2</td><td>1.59</td><td>0.087</td><td>0.15</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>100</td><td>4</td><td>59</td><td>strap 20 nH</td><td>59.6</td><td>3.01</td><td>0.145</td><td>0.252</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>100</td><td>40</td><td>12</td><td>strap 2 nH</td><td>2.5</td><td>1.5</td><td>0.033</td><td>0.058</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>100</td><td>4</td><td>57</td><td>strap 2 nH</td><td>29.1</td><td>6.62</td><td>0.115</td><td>0.199</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>100</td><td>40</td><td>11</td><td>ycap 4.7 nF</td><td>2.1</td><td>1.35</td><td>0.028</td><td>0.048</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>100</td><td>4</td><td>34</td><td>ycap 4.7 nF</td><td>6.5</td><td>5.34</td><td>0.084</td><td>0.145</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>500</td><td>40</td><td>12</td><td>open</td><td>56.4</td><td>0.38</td><td>0.008</td><td>0.014</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>500</td><td>4</td><td>65</td><td>open</td><td>67.9</td><td>1.66</td><td>0.029</td><td>0.05</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>500</td><td>40</td><td>11</td><td>strap 20 nH</td><td>25.6</td><td>5.17</td><td>0.556</td><td>0.964</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>500</td><td>4</td><td>35</td><td>strap 20 nH</td><td>50.7</td><td>6.76</td><td>0.57</td><td>0.988</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>500</td><td>40</td><td>10</td><td>strap 2 nH</td><td>6.8</td><td>7.07</td><td>0.224</td><td>0.388</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>500</td><td>4</td><td>34</td><td>strap 2 nH</td><td>24.4</td><td>13.44</td><td>0.365</td><td>0.633</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>500</td><td>40</td><td>10</td><td>ycap 4.7 nF</td><td>8.9</td><td>5.42</td><td>0.116</td><td>0.201</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>500</td><td>4</td><td>68</td><td>ycap 4.7 nF</td><td>18.5</td><td>13.34</td><td>0.209</td><td>0.361</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2000</td><td>40</td><td>12</td><td>open</td><td>58.9</td><td>0.4</td><td>0.008</td><td>0.014</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2000</td><td>4</td><td>55</td><td>open</td><td>71</td><td>1.75</td><td>0.03</td><td>0.052</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2000</td><td>40</td><td>11</td><td>strap 20 nH</td><td>33.2</td><td>10.83</td><td>1.923</td><td>3.331</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2000</td><td>4</td><td>52</td><td>strap 20 nH</td><td>65.3</td><td>14.22</td><td>2.615</td><td>4.529</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2000</td><td>40</td><td>8</td><td>strap 2 nH</td><td>8.9</td><td>17.07</td><td>0.902</td><td>1.562</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td>2000</td><td>4</td><td>45</td><td>strap 2 nH</td><td>20.1</td><td>25.77</td><td>0.945</td><td>1.637</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2000</td><td>40</td><td>8</td><td>ycap 4.7 nF</td><td>20.8</td><td>10.99</td><td>0.283</td><td>0.49</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr><tr><td>2000</td><td>4</td><td>40</td><td>ycap 4.7 nF</td><td>32.3</td><td>20.54</td><td>0.398</td><td>0.689</td><td><span class="state" style="color:#c0392b;border-color:color-mix(in srgb,#c0392b 35%,var(--line))"><span class="dot" style="background:#c0392b"></span>FAIL</span></td></tr></tbody></table></div>
+<p>Three things fall out of it. <strong>Left floating, the frame reaches
+ 71&nbsp;V peak</strong> against the 10&nbsp;V
+ criterion, though it carries almost no current, because there is nowhere for
+ it to go. <strong>Bonding it with a long wire makes the voltage worse than a
+ short one</strong> &mdash; 65&nbsp;V
+ against 29&nbsp;V &mdash; because
+ 20&nbsp;nH resonates with C<sub>wf</sub> and the frame overshoots. And
+ <strong>nothing in the sweep is safe across all of it</strong>. Counting only
+ the bonds that hold at every winding-to-frame capacitance &mdash; passing at
+ one value of a quantity nobody has measured is not a fix &mdash; at the
+ driver impedance the datasheet implies
+ a strap 2&nbsp;nH keeps
+ the frame under 10&nbsp;V, and at the strong-driver corner only
+ 1 of
+ 12 rows passes at
+ all.</p>
+<div class="note"><p>The price of bonding is current. The worst row here is
+ 4.53&nbsp;A rms across three phases, at
+ 2000&nbsp;pF of winding-to-frame capacitance
+ through strap 20 nH &mdash; which is a conducted-emissions
+ problem rather than a safety one, but it is not small. C<sub>wf</sub> is the
+ quantity nobody has measured: the whole table moves with it, and it is a
+ property of the motor, not of this board.</p></div>
+</section><section id="P8"><h2>P8</h2><h3>Thermal, the optional phase</h3>
+<p>The design's thermal model is <code>geometry.via_thermal()</code>,
+ <code>geometry.thermal()</code> and <code>geometry.sink_needed()</code>. Only
+ the two numbers it leans on are re-solved here.</p>
+<div class="tablewrap"><table class="num"><thead><tr><th>array</th><th>barrels</th><th>barrels (K/W)</th><th>FR4 (K/W)</th><th>together</th><th>the estimate</th><th>ratio</th></tr></thead><tbody><tr><td>Q1</td><td>16</td><td>9.06</td><td>409</td><td>8.87</td><td>7.61</td><td>1.16</td></tr><tr><td>Q2</td><td>16</td><td>9.06</td><td>329</td><td>8.82</td><td>7.61</td><td>1.16</td></tr></tbody></table></div>
+<p>The via array comes out
+ 1.16&times;
+ the estimate &mdash; close enough that the design's number stands.</p>
+<p>The lateral spreading on F.Cu alone, from the low-side source pads to the heatsink land at R&nbsp;&gt;&nbsp;29.2&nbsp;mm, is 11.3&nbsp;K/W. That is one layer of six and an upper bound on that path; the design's whole-stack estimate is 1.0&nbsp;K/W and the other five layers conduct in parallel.</p>
+<p>The conduction phase's own Joule numbers, at the 28.3&nbsp;A peak:
+ 0.741&nbsp;W in the switch node,
+ 0.3&nbsp;W in the ground return,
+ 0.024&nbsp;W in the phase pour &mdash; against
+ <code>geometry.losses()</code>'s 10.56&nbsp;W total, of
+ which 5.69&nbsp;W is device conduction.</p>
+</section><section id="Method"><h2>Method</h2><h3>What was solved with what, and what was checked first</h3>
+<p>There is no passwordless <code>sudo</code> on this machine, so nothing was
+ installed with <code>apt</code>. FastHenry2 and FastCap2 were built from the
+ FastFieldSolvers sources (both needed patching for a modern compiler: K&amp;R
+ declarations, <code>-fcommon</code>, and FastCap's own <code>sbrk</code>
+ allocator, whose implicitly-declared pointers are truncated on 64-bit and
+ segfault the solver). ngspice is driven through the
+ <code>libngspice.so.0</code> that KiCad installs, because there is no CLI.
+ openEMS is built and run inside a container with only <code>sim/</code>
+ mounted.</p>
+<h3>Known-answer tests</h3>
+<div class="tablewrap"><table class="num"><thead><tr><th>test</th><th>what it checks</th><th>error</th><th></th></tr></thead><tbody><tr><td><code>fasthenry_wire</code></td><td>straight wire, l = 20 mm, d = 1 mm -- partial self inductance and R_dc</td><td>+0.51 %</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>fasthenry_strip_over_plane</code></td><td>15.4 x 5 mm strip, 70 um, 0.1 mm over a wide plane -- geometry.commutation_loop()&#x27;s PCB term</td><td>&mdash;</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>fasthenry_two_wire_loop</code></td><td>two parallel wires, loop inductance vs Grover&#x27;s partial-inductance forms</td><td>+0.23 %</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>fastcap_plates</code></td><td>10 x 10 mm plates at 0.1 mm in eps_r 4.5 -- 39.8 pF plus fringing</td><td>+1.82 %</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>ngspice_rlc</code></td><td>L 2 nH, C 1 nF, R 0.5 Ohm step -- ring and decay</td><td>+0.00 %</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>magpylib_wire</code></td><td>B of a straight wire at 25 mm, 28.3 A</td><td>+0.01 %</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>magpylib_dipole</code></td><td>Dia 8 x 2.5 mm diametric magnet -- far field against the point dipole</td><td>&mdash;</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>conduction_strip</code></td><td>rectangular strip -- rho*L/(W*t)</td><td>-1.12 %</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>conduction_annulus_radial</code></td><td>annular sector, radial flow -- R = rho*ln(r2/r1)/(t*theta)</td><td>-1.10 %</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>conduction_annulus_tangential</code></td><td>annular sector, tangential flow -- R = rho*theta/(t*ln(r2/r1))</td><td>-0.18 %</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>conduction_via_barrel</code></td><td>one 0.4 mm plated barrel between two planes -- rho_plated*d/A</td><td>&mdash;</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>openems_microstrip</code></td><td>0.2 mm microstrip on 0.1 mm eps_r 4.5 -- Hammerstad/Wheeler closed form</td><td>+2.93 %</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr><tr><td><code>openems_strip_over_plane</code></td><td>the FastHenry strip-over-plane, cross-checked full wave</td><td>&mdash;</td><td><span class="state" style="color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,var(--line))"><span class="dot" style="background:var(--up)"></span>PASS</span></td></tr></tbody></table></div>
+<p>Two of these are worth naming. The strip-over-plane case &mdash; exactly
+ <code>geometry.commutation_loop()</code>'s PCB term &mdash; comes out at
+ 0.487&nbsp;nH
+ in FastHenry and
+ 0.506&nbsp;nH in
+ openEMS, against the closed form's 0.387&nbsp;nH: the two solvers agree with
+ each other to a few per cent and both sit above the formula, which ignores
+ fringing and the return path. And the straight-wire test disagrees with the
+ spec's own expected value: SPEC.md&nbsp;&sect;5.4 quotes 17.4&nbsp;nH, but its
+ own formula with l&nbsp;=&nbsp;20&nbsp;mm and r&nbsp;=&nbsp;0.5&nbsp;mm gives
+ 14.53&nbsp;nH,
+ which is what FastHenry returns.</p>
+<h3>The MOSFET model</h3>
+<p>ngspice's VDMOS has one shape parameter for C<sub>gd</sub> and cannot be
+ 32&nbsp;pF at 40&nbsp;V, integrate to 13&nbsp;nC of Miller charge, and leave
+ Q<sub>g</sub> at 61&nbsp;nC all at once. C<sub>gd</sub> and C<sub>ds</sub> are
+ therefore charge-defined behavioural capacitors outside the primitive, solved
+ from the datasheet's own specified points.</p>
+<div class="tablewrap"><table class="num"><thead><tr><th>parameter</th><th>datasheet</th><th>model</th><th>error</th></tr></thead><tbody><tr><td>C_iss_40V_pF</td><td>4300</td><td>4300</td><td>+0.0 %</td></tr><tr><td>C_oss_40V_pF</td><td>700</td><td>700</td><td>+0.0 %</td></tr><tr><td>C_rss_40V_pF</td><td>32</td><td>32</td><td>+0.0 %</td></tr><tr><td>Q_gd_nC</td><td>13</td><td>13</td><td>-0.0 %</td></tr><tr><td>Q_oss_nC</td><td>73</td><td>73</td><td>-0.0 %</td></tr><tr><td>R_ds_on_mOhm</td><td>2.6</td><td>2.6</td><td>-0.0 %</td></tr><tr><td>Q_g_nC</td><td>61</td><td>64.7023</td><td>+6.1 %</td></tr><tr><td>V_plateau_V</td><td>4.6</td><td>4.6066</td><td>+0.1 %</td></tr></tbody></table></div>
+<h3>Switching times, as a check on the whole model</h3><div class="tablewrap"><table class="num"><thead><tr><th></th><th>datasheet (ns)</th><th>model (ns)</th></tr></thead><tbody><tr><td>t_d_on_ns</td><td>20</td><td>13.7</td></tr><tr><td>t_r_ns</td><td>12</td><td>13.9</td></tr><tr><td>t_d_off_ns</td><td>43</td><td>25.1</td></tr><tr><td>t_f_ns</td><td>13</td><td>11.2</td></tr></tbody></table></div>
+<figure><img src="img/p2_fet_caps.png" alt="The fitted capacitances against the datasheet&#x27;s three specified points."><figcaption>The fitted capacitances against the datasheet's three specified points.</figcaption></figure>
+<h3>The toolchain as it ran</h3>
+<pre class="tree">{
+ &quot;fasthenry&quot;: &quot;/home/sequoia/opt/FastHenry2/bin/fasthenry&quot;,
+ &quot;fastcap&quot;: &quot;/home/sequoia/opt/FastCap2/bin/fastcap&quot;,
+ &quot;ngspice&quot;: &quot;/usr/lib/x86_64-linux-gnu/libngspice.so.0&quot;,
+ &quot;openems_image&quot;: &quot;servodrive-openems:latest&quot;,
+ &quot;numpy&quot;: &quot;2.3.5&quot;,
+ &quot;scipy&quot;: &quot;1.18.1&quot;,
+ &quot;matplotlib&quot;: &quot;3.10.7+dfsg1&quot;,
+ &quot;magpylib&quot;: &quot;5.2.3&quot;,
+ &quot;shapely&quot;: &quot;2.1.2&quot;,
+ &quot;meshio&quot;: &quot;5.3.5&quot;,
+ &quot;skfem&quot;: &quot;12.0.2&quot;,
+ &quot;pyamg&quot;: &quot;5.3.0&quot;,
+ &quot;h5py&quot;: &quot;3.16.0&quot;,
+ &quot;gmsh&quot;: &quot;4.15.2&quot;,
+ &quot;pcbnew&quot;: &quot;ok&quot;
+}</pre>
+<h3>Extraction</h3>
+<p>The board is read with <code>pcbnew</code> into
+ <code>sim/work/geometry.json</code> &mdash; zone fills, pad polygons at their
+ own absolute angles, tracks, barrels with their layer spans &mdash; and every
+ solver builds from that. Nothing here edits <code>hardware/</code>.</p>
+<figure><img src="img/extract_cellA.png" alt="The extracted copper of cell A, layer by layer, coloured by net. This is what the solvers see."><figcaption>The extracted copper of cell A, layer by layer, coloured by net. This is what the solvers see.</figcaption></figure>
+</section><section id="Scope"><h2>Scope</h2><h3>What this does not answer</h3>
+<ul>
+<li><strong>The RP2350 core buck</strong> (VREG_LX, 3.3&nbsp;&micro;H) and its
+ spurs on +3V3A &mdash; out of scope by SPEC.md&nbsp;&sect;4.</li>
+<li><strong>USB and RS-485 signal integrity</strong> &mdash; out of scope.</li>
+<li><strong>A motor FEA</strong> &mdash; there is no motor.</li>
+<li><strong>Board B's own layout</strong> &mdash; none exists; it is modelled
+ lumped.</li>
+<li><strong>Thermal</strong> beyond the two numbers P8 re-solves &mdash; the via array's resistance and the lateral spread on F.Cu. There is no transient model and no heatsink.</li>
+</ul>
+<p>And four kinds of number in here are <em>bracketed</em> rather than
+ measured, because the part has not been chosen or the maker does not publish
+ the figure: <strong>the EG2103's output impedance</strong>, the FET package's
+ lead inductance, the DC-bias curve of the DC-link ceramics, and the TVSs'
+ junction capacitance and forward resistance. Each is swept, and every result
+ that depends on one says so. The first is the one that matters: it sets the
+ edge rate, and the edge rate sets Q2, Q3, Q4's dV/dt and Q12.</p>
+</section></main><footer><p>servodrive electromagnetic simulation. CERN-OHL-P, like the board. Results in <code>sim/results/*.json</code>; the register in <code>sim/FINDINGS.md</code>; the hand-back list in <code>sim/HANDBACK.md</code>.</p><p>Board read 2026-09-09T12:24:35.</p></footer></body></html>

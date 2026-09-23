@@ -1,0 +1,46 @@
+{
+ "part": "100 nF 100 V X7R 0603",
+ "maker": "not chosen in the BOM",
+ "note": "The BOM has not chosen a part (SPEC.md sec.7).  Representative: the Murata GRM31CR72A225 class for the 1206 and GRM188R72A104 for the 0603.  No manufacturer DC-bias curve could be retrieved on 2026-09-11, so the retention at bias is a swept bracket, not a datasheet curve -- this is hypothesis H2 and the report says so.",
+ "C_nominal": {
+  "unit": "F",
+  "source": "board value",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 1e-07
+ },
+ "V_rated": {
+  "unit": "V",
+  "source": "board value",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 100.0
+ },
+ "retention_at_60V": {
+  "unit": "-",
+  "source": "bracketed",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "min": 0.45,
+  "typ": 0.6,
+  "max": 0.8
+ },
+ "ESR_20kHz": {
+  "unit": "Ohm",
+  "source": "class",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "min": 0.02,
+  "typ": 0.05,
+  "max": 0.15
+ },
+ "ESL": {
+  "unit": "H",
+  "source": "class",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "min": 4e-10,
+  "typ": 6e-10,
+  "max": 9e-10
+ }
+}

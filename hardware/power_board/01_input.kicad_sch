@@ -1,0 +1,13 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "9eea2f17-b0b9-5f8b-a767-a93525b92e57")
+	(paper "A4")
+	(title_block (title "servodrive — board B, power / IO — 01_input") (date "2026-09-07") (rev "A")
+		(company "Sequoia Hope Alexander"))
+	(lib_symbols)
+	(text "XT30, SMDJ64A, bulk, LTC4359 + E100N4P0HL1 ideal diode" (exclude_from_sim no) (at 25 30 0)
+		(effects (font (size 1.27 1.27)) (justify left top)) (uuid "b69dbe18-9360-5046-a87c-5d76945968e3"))
+	(embedded_fonts no)
+)

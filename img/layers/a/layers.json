@@ -1,0 +1,148 @@
+{
+ "board": "servodrive_A.kicad_pcb",
+ "generated": "2026-09-22",
+ "page_mm": [
+  98.0186,
+  71.12
+ ],
+ "view_mm": [
+  15.7693,
+  5.286,
+  66.5,
+  66.5
+ ],
+ "centre_mm": [
+  33.25,
+  33.25
+ ],
+ "dia_mm": 65.0,
+ "plate": "#0b0d11",
+ "vias": 278,
+ "layers": [
+  {
+   "name": "F.Cu",
+   "slug": "f",
+   "kind": "copper",
+   "file": "f.svg",
+   "color": "#C83434",
+   "note": "Outward face, 2 oz. Three phase cells, three utility wedges, and the three arcs of bare copper the heatsink ring clamps.",
+   "tracks": 744,
+   "length_mm": 625.0,
+   "pads": 417,
+   "zones": [
+    "SW_C",
+    "GND",
+    "SW_A",
+    "SW_B",
+    "VREG_LX",
+    "+1V1",
+    "+3V3"
+   ]
+  },
+  {
+   "name": "In1.Cu",
+   "slug": "in1",
+   "kind": "copper",
+   "file": "in1.svg",
+   "color": "#7FC87F",
+   "note": "Solid ground, directly under F.Cu \u2014 the return for everything switching above it, and the other plate of the plane capacitor In2 forms.",
+   "tracks": 0,
+   "length_mm": 0.0,
+   "pads": 147,
+   "zones": [
+    "GND"
+   ]
+  },
+  {
+   "name": "In2.Cu",
+   "slug": "in2",
+   "kind": "copper",
+   "file": "in2.svg",
+   "color": "#CE7D2C",
+   "note": "The power plane. VBUS over the phase block and the link that feeds it, +3V3 over the CPU wedge.",
+   "tracks": 0,
+   "length_mm": 0.0,
+   "pads": 147,
+   "zones": [
+    "+3V3",
+    "VBUS",
+    "GND"
+   ]
+  },
+  {
+   "name": "In3.Cu",
+   "slug": "in3",
+   "kind": "copper",
+   "file": "in3.svg",
+   "color": "#4FCBCB",
+   "note": "The signal layer, and the only one that crosses the whole board, so the long hauls between the RP2350A and the phase cells live here.",
+   "tracks": 307,
+   "length_mm": 901.4,
+   "pads": 147,
+   "zones": [
+    "GND"
+   ]
+  },
+  {
+   "name": "In4.Cu",
+   "slug": "in4",
+   "kind": "copper",
+   "file": "in4.svg",
+   "color": "#DB628B",
+   "note": "Solid ground again, under the signal layer and over the motor-facing copper.",
+   "tracks": 0,
+   "length_mm": 0.0,
+   "pads": 147,
+   "zones": [
+    "GND"
+   ]
+  },
+  {
+   "name": "B.Cu",
+   "slug": "b",
+   "kind": "copper",
+   "file": "b.svg",
+   "color": "#4D7FC4",
+   "note": "Motor-facing face, 2 oz. MT6701 at the centre, the shunts and the sense amplifiers, and the FET drain thermal vias coming through. Motor leads land here, so the outward perimeter stays thermal.",
+   "tracks": 310,
+   "length_mm": 535.4,
+   "pads": 280,
+   "zones": [
+    "PHASE_A",
+    "SW_A",
+    "SNUB_A",
+    "SNUB_B",
+    "PHASE_B",
+    "GND",
+    "SNUB_C",
+    "SW_B",
+    "SW_C",
+    "PHASE_C"
+   ]
+  },
+  {
+   "name": "Edge.Cuts",
+   "slug": "edge",
+   "kind": "outline",
+   "file": "edge.svg",
+   "color": "#D0D2CD",
+   "note": "The outline and every hole in it."
+  },
+  {
+   "name": "F.Fab",
+   "slug": "fab_f",
+   "kind": "fab",
+   "file": "fab_f.svg",
+   "color": "#DDE1E8",
+   "note": "Part bodies and reference designators, front."
+  },
+  {
+   "name": "B.Fab",
+   "slug": "fab_b",
+   "kind": "fab",
+   "file": "fab_b.svg",
+   "color": "#96A2CE",
+   "note": "Part bodies and reference designators, back."
+  }
+ ]
+}

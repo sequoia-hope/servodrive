@@ -1,0 +1,499 @@
+{
+ "Q6": {
+  "question": "Q6",
+  "estimate": {
+   "R_shunt_Ohm": 0.0008,
+   "TCR_assumed_ppm_per_K": 50,
+   "V_per_A": 0.04
+  },
+  "per_cell": {
+   "A": {
+    "R_copper_error_Ohm": 3.006925180260648e-05,
+    "R_shunt_Ohm": 0.0008,
+    "R_tap_to_tap_Ohm": 0.0008300692518026066,
+    "R_tap_to_tap_125C_Ohm": 0.0008456587089541081,
+    "copper_share": 0.03622499175497354,
+    "TCR_pct_per_K": 0.018780911493404853,
+    "pass_copper_share": true,
+    "pass_TCR": true,
+    "per_side": {
+     "sw": {
+      "R_error_Ohm": 3.872326600104511e-08,
+      "R_drain_to_shunt_Ohm": 0.00039923604498827485,
+      "nodes": 64784
+     },
+     "phase": {
+      "R_error_Ohm": 3.0030528536605435e-05,
+      "R_shunt_to_lead_Ohm": 3.0034022825442746e-05,
+      "nodes": 40314
+     }
+    }
+   },
+   "B": {
+    "R_copper_error_Ohm": 3.014104458576898e-05,
+    "R_shunt_Ohm": 0.0008,
+    "R_tap_to_tap_Ohm": 0.0008301410445857691,
+    "R_tap_to_tap_125C_Ohm": 0.0008457581908054894,
+    "copper_share": 0.03630834155514985,
+    "TCR_pct_per_K": 0.018812641925822538,
+    "pass_copper_share": true,
+    "pass_TCR": true,
+    "per_side": {
+     "sw": {
+      "R_error_Ohm": 3.901849576589749e-08,
+      "R_drain_to_shunt_Ohm": 0.0003998460412132691,
+      "nodes": 64850
+     },
+     "phase": {
+      "R_error_Ohm": 3.0102026090003084e-05,
+      "R_shunt_to_lead_Ohm": 3.010815481882863e-05,
+      "nodes": 40428
+     }
+    }
+   },
+   "C": {
+    "R_copper_error_Ohm": 3.0270404014558777e-05,
+    "R_shunt_Ohm": 0.0,
+    "R_tap_to_tap_Ohm": 3.0270404014558777e-05,
+    "R_tap_to_tap_125C_Ohm": 4.19373931996651e-05,
+    "copper_share": 1.0,
+    "TCR_pct_per_K": 0.3854256183529957,
+    "pass_copper_share": null,
+    "pass_TCR": null,
+    "per_side": {
+     "sw": {
+      "R_error_Ohm": 4.0678256783025286e-08,
+      "R_drain_to_shunt_Ohm": 0.00037746183386261426,
+      "nodes": 64891
+     },
+     "phase": {
+      "R_error_Ohm": 3.022972575777575e-05,
+      "R_shunt_to_lead_Ohm": 3.023380297193099e-05,
+      "nodes": 40359
+     }
+    },
+    "note": "cell C carries 0 Ohm links instead of shunts (SPEC.md sec.1.5), so all of its tap-to-tap resistance is copper.  It is not a current sense at all -- I_c is inferred as -(I_a + I_b) -- so the copper-share and TCR criteria do not apply to it; the number is here only to show what a tap on bare copper would read."
+   }
+  },
+  "seconds": 20.1
+ },
+ "Q6_sharing": {
+  "R_path_to_shunt1_Ohm": 0.0002765435175111717,
+  "R_path_to_shunt2_Ohm": 0.0004073415179223992,
+  "share_shunt1": 0.5168385520191674,
+  "share_shunt2": 0.4831614479808327,
+  "imbalance_pct": 6.735420807666927,
+  "pass": true
+ },
+ "Q7": {
+  "question": "Q7",
+  "estimate": {
+   "IPC2152_width_mm": 6.0,
+   "phase_band_width_mm": 3.0,
+   "band_current_density_A_per_mm2": 95.0,
+   "FET_VIA_N": 16,
+   "via_drill_mm": 0.4,
+   "via_plating_mm": 0.025
+  },
+  "via_array_connectivity": {
+   "Q1": {
+    "net": "VBUS",
+    "cell": "A",
+    "n_barrels": 16,
+    "per_layer": {
+     "F.Cu": {
+      "connected": 16,
+      "n": 16,
+      "main_area_mm2": 20.07,
+      "pieces": 5
+     },
+     "In1.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In2.Cu": {
+      "connected": 16,
+      "n": 16,
+      "main_area_mm2": 294.18,
+      "pieces": 1
+     },
+     "In3.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In4.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "B.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     }
+    },
+    "connected_on_F_Cu": 16,
+    "connected_below_F_Cu": 16,
+    "note": "a barrel conducts only if its pad is joined to real copper on both ends"
+   },
+   "Q2": {
+    "net": "SW_A",
+    "cell": "A",
+    "n_barrels": 16,
+    "per_layer": {
+     "F.Cu": {
+      "connected": 16,
+      "n": 16,
+      "main_area_mm2": 45.44,
+      "pieces": 3
+     },
+     "In1.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In2.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In3.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In4.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "B.Cu": {
+      "connected": 4,
+      "n": 16,
+      "main_area_mm2": 68.89,
+      "pieces": 13
+     }
+    },
+    "connected_on_F_Cu": 16,
+    "connected_below_F_Cu": 4,
+    "note": "a barrel conducts only if its pad is joined to real copper on both ends"
+   },
+   "Q3": {
+    "net": "VBUS",
+    "cell": "B",
+    "n_barrels": 16,
+    "per_layer": {
+     "F.Cu": {
+      "connected": 16,
+      "n": 16,
+      "main_area_mm2": 20.07,
+      "pieces": 5
+     },
+     "In1.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In2.Cu": {
+      "connected": 16,
+      "n": 16,
+      "main_area_mm2": 325.47,
+      "pieces": 2
+     },
+     "In3.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In4.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "B.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     }
+    },
+    "connected_on_F_Cu": 16,
+    "connected_below_F_Cu": 16,
+    "note": "a barrel conducts only if its pad is joined to real copper on both ends"
+   },
+   "Q4": {
+    "net": "SW_B",
+    "cell": "B",
+    "n_barrels": 16,
+    "per_layer": {
+     "F.Cu": {
+      "connected": 16,
+      "n": 16,
+      "main_area_mm2": 45.44,
+      "pieces": 3
+     },
+     "In1.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In2.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In3.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In4.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "B.Cu": {
+      "connected": 4,
+      "n": 16,
+      "main_area_mm2": 68.34,
+      "pieces": 13
+     }
+    },
+    "connected_on_F_Cu": 16,
+    "connected_below_F_Cu": 4,
+    "note": "a barrel conducts only if its pad is joined to real copper on both ends"
+   },
+   "Q5": {
+    "net": "VBUS",
+    "cell": "C",
+    "n_barrels": 16,
+    "per_layer": {
+     "F.Cu": {
+      "connected": 16,
+      "n": 16,
+      "main_area_mm2": 20.07,
+      "pieces": 5
+     },
+     "In1.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In2.Cu": {
+      "connected": 16,
+      "n": 16,
+      "main_area_mm2": 333.22,
+      "pieces": 1
+     },
+     "In3.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In4.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "B.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     }
+    },
+    "connected_on_F_Cu": 16,
+    "connected_below_F_Cu": 16,
+    "note": "a barrel conducts only if its pad is joined to real copper on both ends"
+   },
+   "Q6": {
+    "net": "SW_C",
+    "cell": "C",
+    "n_barrels": 16,
+    "per_layer": {
+     "F.Cu": {
+      "connected": 16,
+      "n": 16,
+      "main_area_mm2": 45.44,
+      "pieces": 3
+     },
+     "In1.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In2.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In3.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "In4.Cu": {
+      "connected": 0,
+      "n": 16,
+      "main_area_mm2": 0.5,
+      "pieces": 16
+     },
+     "B.Cu": {
+      "connected": 4,
+      "n": 16,
+      "main_area_mm2": 71.69,
+      "pieces": 13
+     }
+    },
+    "connected_on_F_Cu": 16,
+    "connected_below_F_Cu": 4,
+    "note": "a barrel conducts only if its pad is joined to real copper on both ends"
+   }
+  },
+  "phase_A": {
+   "R_lead_to_shunt_Ohm": 3.0033899312127333e-05,
+   "P_phase_pour_W": 0.024026461284389,
+   "phase_current_density": {
+    "A_per_mm_max": 8.130016513537003,
+    "A_per_mm_p999": 5.1935756503094685,
+    "A_per_mm_p99": 4.501847012922428,
+    "A_per_mm2_p999": 74.19393786156382,
+    "note": "p99.9 is the number to compare with a width rule; the maximum is a single cell at a corner and grows without limit as the grid is refined"
+   },
+   "J_max_phase_A_per_mm2": 116.1430930505286,
+   "R_hi_source_to_shunt_Ohm": 0.0009258607858937497,
+   "P_sw_node_W": 0.7406749601527068,
+   "low_side_via_array": {
+    "n": 16,
+    "I_max_A": 7.301022966221187,
+    "I_min_A": 9.976100453748233e-13,
+    "I_mean_A": 1.767751616578498,
+    "spread_pct": 413.01181103436903,
+    "I_rms_per_via_A": 5.162602849013723,
+    "pass_2A_rms": false
+   },
+   "sw_current_density_F_Cu": {
+    "A_per_mm_max": 32.45725434190875,
+    "A_per_mm_p999": 17.58375816603711,
+    "A_per_mm_p99": 11.329728357707934,
+    "A_per_mm2_p999": 251.19654522910156,
+    "note": "p99.9 is the number to compare with a width rule; the maximum is a single cell at a corner and grows without limit as the grid is refined"
+   },
+   "sw_current_density_B_Cu": {
+    "A_per_mm_max": 36.20703119672931,
+    "A_per_mm_p999": 18.143806137735133,
+    "A_per_mm_p99": 9.422633311014827,
+    "A_per_mm2_p999": 259.1972305390733,
+    "note": "p99.9 is the number to compare with a width rule; the maximum is a single cell at a corner and grows without limit as the grid is refined"
+   },
+   "R_gnd_source_to_header_Ohm": 0.0003754561597297181,
+   "P_gnd_W": 0.30035904492247556
+  },
+  "vbus": {
+   "current_A": 28.284,
+   "Q1": {
+    "R_header_to_drain_Ohm": 0.004711699173317225,
+    "P_at_28A_W": 3.7692870423416642,
+    "P_at_20A_rms_W": 1.88467966932689,
+    "via_array": {
+     "n": 16,
+     "I_max_A": 3.4226323383511232,
+     "I_min_A": 0.9679863304708205,
+     "I_mean_A": 1.7677497475122441,
+     "spread_pct": 138.85709848550275,
+     "I_rms_per_via_A": 2.420166535956449,
+     "pass_2A_rms": false
+    },
+    "In2_current_density": {
+     "A_per_mm_max": 26.252402560077925,
+     "A_per_mm_p999": 7.806769753313192,
+     "A_per_mm_p99": 5.851842168691899,
+     "A_per_mm2_p999": 223.0505643803769,
+     "note": "p99.9 is the number to compare with a width rule; the maximum is a single cell at a corner and grows without limit as the grid is refined"
+    }
+   },
+   "Q3": {
+    "R_header_to_drain_Ohm": 0.0031724012754180864,
+    "P_at_28A_W": 2.537872343009299,
+    "P_at_20A_rms_W": 1.2689605101672345,
+    "via_array": {
+     "n": 16,
+     "I_max_A": 3.3582520265740374,
+     "I_min_A": 0.9541530194782525,
+     "I_mean_A": 1.769775787649938,
+     "spread_pct": 135.8420102632411,
+     "I_rms_per_via_A": 2.3746427809239674,
+     "pass_2A_rms": false
+    }
+   },
+   "Q5": {
+    "R_header_to_drain_Ohm": 0.0015917257159961027,
+    "P_at_28A_W": 1.2733561493574959,
+    "P_at_20A_rms_W": 0.636690286398441,
+    "via_array": {
+     "n": 16,
+     "I_max_A": 3.3144877927045275,
+     "I_min_A": 0.974293835280119,
+     "I_mean_A": 1.7677499486989507,
+     "spread_pct": 132.38263472425905,
+     "I_rms_per_via_A": 2.343696794381403,
+     "pass_2A_rms": false
+    }
+   }
+  },
+  "seconds": 23.5
+ },
+ "convergence": [
+  {
+   "cell_mm": 0.12,
+   "R_lead_to_shunt_Ohm": 3.1922810006904646e-05,
+   "J_max_phase_A_per_mm2": 87.63806176612026,
+   "sheet_p999_A_per_mm": 5.289089521842122,
+   "sheet_p99_A_per_mm": 4.54535924855513
+  },
+  {
+   "cell_mm": 0.08,
+   "R_lead_to_shunt_Ohm": 3.0965355125594065e-05,
+   "J_max_phase_A_per_mm2": 97.51956243820827,
+   "sheet_p999_A_per_mm": 5.226585900040506,
+   "sheet_p99_A_per_mm": 4.533422098996878
+  },
+  {
+   "cell_mm": 0.05,
+   "R_lead_to_shunt_Ohm": 3.003388844563845e-05,
+   "J_max_phase_A_per_mm2": 116.14305102909141,
+   "sheet_p999_A_per_mm": 5.193573771235063,
+   "sheet_p99_A_per_mm": 4.501845384120652
+  }
+ ],
+ "_phase": {
+  "seconds": 88.5
+ },
+ "_meta": {
+  "written": "2026-09-12T00:32:33",
+  "board_mtime": "2026-09-09T12:24:35"
+ }
+}

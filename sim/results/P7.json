@@ -1,0 +1,836 @@
+{
+ "Q1_crosscheck": {
+  "question": "Q1 (L2 cross-check)",
+  "fasthenry": {
+   "L_eff_all_four_nH": 2.0648325282012423,
+   "port_ref": "C103",
+   "port_index": 3,
+   "f_Hz": 1000000.0,
+   "L_single_port_nH": 2.6812514952805424,
+   "fasthenry_convergence": [
+    {
+     "target_mm": 1.8,
+     "segments": 3708,
+     "f_Hz": 1000000.0,
+     "L_single_port_nH": 3.1167471660628956,
+     "L_eff_nH": 2.3489843061926385
+    },
+    {
+     "target_mm": 1.4,
+     "segments": 5049,
+     "f_Hz": 1000000.0,
+     "L_single_port_nH": 2.9648974348589183,
+     "L_eff_nH": 2.178117663498378
+    },
+    {
+     "target_mm": 1.1,
+     "segments": 7870,
+     "f_Hz": 1000000.0,
+     "L_single_port_nH": 2.7059364269540955,
+     "L_eff_nH": 2.0191805079113285
+    },
+    {
+     "target_mm": 0.9,
+     "segments": 10502,
+     "f_Hz": 1000000.0,
+     "L_single_port_nH": 2.6469536050442395,
+     "L_eff_nH": 1.946188976990095
+    },
+    {
+     "target_mm": 0.75,
+     "segments": 12805,
+     "f_Hz": 1000000.0,
+     "L_single_port_nH": 2.6812514952805424,
+     "L_eff_nH": 1.9764810113332212
+    }
+   ],
+   "L_single_port_production_nH": 2.7225044565299616,
+   "L_single_port_production_f_Hz": 100000000.0,
+   "grid_target_mm": 0.75,
+   "last_refinement_change": 0.012791746800579143
+  },
+  "L1_fasthenry_nH": 2.6812514952805424,
+  "L1_fasthenry_L_eff_nH": 2.0648325282012423,
+  "uniform_mesh_series": [
+   {
+    "snapped": false,
+    "barrel": "pad",
+    "port_box": {
+     "p0": [
+      23.918597187015134,
+      4.1604209999999995
+     ],
+     "p1": [
+      24.882602812984867,
+      4.704979000000001
+     ],
+     "dir": "x",
+     "copper_gap_mm": 0.564,
+     "bite_mm": 0.2,
+     "overlap_pad1_mm2": 0.082,
+     "overlap_pad2_mm2": 0.082
+    },
+    "bridge_shrink": 1.0,
+    "bridges": [
+     {
+      "from": "Q1 VBUS",
+      "to": "Q1 SW_A",
+      "width_mm": 0.35,
+      "gap_mm": 0.9079
+     },
+     {
+      "from": "Q2 SW_A",
+      "to": "Q2 GND",
+      "width_mm": 1.0,
+      "gap_mm": 0.4005
+     }
+    ],
+    "min_step_mm": 0.09166666666666667,
+    "step_used_x_mm": 0.0917,
+    "step_used_y_mm": 0.0917,
+    "fixed_lines_x": 0,
+    "fixed_lines_y": 0,
+    "res_mm": 0.55,
+    "polys": 267,
+    "barrels": 51,
+    "barrel_shadowed_polys": 151,
+    "L_nH": 0.6182448287680583,
+    "L_band_mean_nH": 0.6196806317163771,
+    "lc_fit": {
+     "L_nH": 0.6182448287680583,
+     "C_pF": 5.010340047584146,
+     "f_resonance_MHz": 2859.6065580722984,
+     "fit_band_Hz": [
+      20020716.545070525,
+      247260902.2052966
+     ],
+     "rel_residual": 0.00013902850816041983
+    },
+    "L_nH_spread": 0.0011818261138544991,
+    "R_mOhm_at_100MHz": -0.10837950109902698,
+    "min_cell_mm": {
+     "x": 0.2008345054103593,
+     "y": 0.13770300000000013,
+     "z": 0.03325553426198491
+    },
+    "cells": 325748,
+    "mesh": "62x74x71",
+    "final_energy_dB": "-42.83",
+    "dropped_primitives": 13,
+    "workdir": "/home/sequoia/pcb/servodrive/sim/work/openems/p7_cellA_loop_u0.55",
+    "L_nH_from_record_fraction": {
+     "0.50": 0.48022867606647696,
+     "0.75": 0.48022867606647696,
+     "1.00": 0.6196806712711178
+    }
+   },
+   {
+    "snapped": false,
+    "barrel": "pad",
+    "port_box": {
+     "p0": [
+      23.918597187015134,
+      4.1604209999999995
+     ],
+     "p1": [
+      24.882602812984867,
+      4.704979000000001
+     ],
+     "dir": "x",
+     "copper_gap_mm": 0.564,
+     "bite_mm": 0.2,
+     "overlap_pad1_mm2": 0.082,
+     "overlap_pad2_mm2": 0.082
+    },
+    "bridge_shrink": 1.0,
+    "bridges": [
+     {
+      "from": "Q1 VBUS",
+      "to": "Q1 SW_A",
+      "width_mm": 0.35,
+      "gap_mm": 0.9079
+     },
+     {
+      "from": "Q2 SW_A",
+      "to": "Q2 GND",
+      "width_mm": 1.0,
+      "gap_mm": 0.4005
+     }
+    ],
+    "min_step_mm": 0.05833333333333333,
+    "step_used_x_mm": 0.0583,
+    "step_used_y_mm": 0.0583,
+    "fixed_lines_x": 0,
+    "fixed_lines_y": 0,
+    "res_mm": 0.35,
+    "polys": 267,
+    "barrels": 51,
+    "barrel_shadowed_polys": 151,
+    "L_nH": 1.7587021623583352,
+    "L_band_mean_nH": 1.8464739804152517,
+    "lc_fit": {
+     "L_nH": 1.7587021623583352,
+     "C_pF": 33.33223229573215,
+     "f_resonance_MHz": 657.3426071271236,
+     "fit_band_Hz": [
+      20020716.545070525,
+      247260902.2052966
+     ],
+     "rel_residual": 0.014620241346749784
+    },
+    "L_nH_spread": 0.06777571539169805,
+    "R_mOhm_at_100MHz": -9.567411401572516,
+    "min_cell_mm": {
+     "x": 0.28122318701513294,
+     "y": 0.13770300000000013,
+     "z": 0.03325553426198491
+    },
+    "cells": 589300,
+    "mesh": "83x100x71",
+    "final_energy_dB": "-44.47",
+    "dropped_primitives": 8,
+    "workdir": "/home/sequoia/pcb/servodrive/sim/work/openems/p7_cellA_loop_u0.35",
+    "L_nH_from_record_fraction": {
+     "0.50": 1.8814823799616749,
+     "0.75": 1.823161395081366,
+     "1.00": 1.8464739981000864
+    }
+   },
+   {
+    "snapped": false,
+    "barrel": "pad",
+    "port_box": {
+     "p0": [
+      23.918597187015134,
+      4.1604209999999995
+     ],
+     "p1": [
+      24.882602812984867,
+      4.704979000000001
+     ],
+     "dir": "x",
+     "copper_gap_mm": 0.564,
+     "bite_mm": 0.2,
+     "overlap_pad1_mm2": 0.082,
+     "overlap_pad2_mm2": 0.082
+    },
+    "bridge_shrink": 1.0,
+    "bridges": [
+     {
+      "from": "Q1 VBUS",
+      "to": "Q1 SW_A",
+      "width_mm": 0.35,
+      "gap_mm": 0.9079
+     },
+     {
+      "from": "Q2 SW_A",
+      "to": "Q2 GND",
+      "width_mm": 1.0,
+      "gap_mm": 0.4005
+     }
+    ],
+    "min_step_mm": 0.03333333333333333,
+    "step_used_x_mm": 0.0333,
+    "step_used_y_mm": 0.0333,
+    "fixed_lines_x": 0,
+    "fixed_lines_y": 0,
+    "res_mm": 0.2,
+    "polys": 267,
+    "barrels": 51,
+    "barrel_shadowed_polys": 151,
+    "L_nH": 3.2862166469648604,
+    "L_band_mean_nH": 3.8574897480624353,
+    "lc_fit": {
+     "L_nH": 3.2862166469648604,
+     "C_pF": 54.8348910803772,
+     "f_resonance_MHz": 374.92426037798526,
+     "fit_band_Hz": [
+      20020716.545070525,
+      247260902.2052966
+     ],
+     "rel_residual": 0.005956131775025311
+    },
+    "L_nH_spread": 0.6233165737745947,
+    "R_mOhm_at_100MHz": 11.52191712784097,
+    "min_cell_mm": {
+     "x": 0.1406115935075647,
+     "y": 0.13457600000000003,
+     "z": 0.03325553426198491
+    },
+    "cells": 1450960,
+    "mesh": "131x156x71",
+    "final_energy_dB": "-42.74",
+    "dropped_primitives": 6,
+    "workdir": "/home/sequoia/pcb/servodrive/sim/work/openems/p7_cellA_loop_u0.2",
+    "L_nH_from_record_fraction": {
+     "0.50": 3.7958926309350325,
+     "0.75": 3.921018010977288,
+     "1.00": 3.85748989062933
+    }
+   }
+  ],
+  "mesh_convergence": [
+   {
+    "snapped": true,
+    "barrel": "pad",
+    "port_box": {
+     "p0": [
+      23.918597187015134,
+      4.1604209999999995
+     ],
+     "p1": [
+      24.882602812984867,
+      4.704979000000001
+     ],
+     "dir": "x",
+     "copper_gap_mm": 0.564,
+     "bite_mm": 0.2,
+     "overlap_pad1_mm2": 0.082,
+     "overlap_pad2_mm2": 0.082
+    },
+    "bridge_shrink": 1.0,
+    "bridges": [
+     {
+      "from": "Q1 VBUS",
+      "to": "Q1 SW_A",
+      "width_mm": 0.35,
+      "gap_mm": 0.9079
+     },
+     {
+      "from": "Q2 SW_A",
+      "to": "Q2 GND",
+      "width_mm": 1.0,
+      "gap_mm": 0.4005
+     }
+    ],
+    "min_step_mm": 0.2,
+    "step_used_x_mm": 0.2,
+    "step_used_y_mm": 0.2,
+    "fixed_lines_x": 94,
+    "fixed_lines_y": 119,
+    "res_mm": 0.3,
+    "polys": 267,
+    "barrels": 51,
+    "barrel_shadowed_polys": 151,
+    "L_nH": 3.1770945143217726,
+    "L_band_mean_nH": 3.72120028898702,
+    "lc_fit": {
+     "L_nH": 3.1770945143217726,
+     "C_pF": 55.285729629637,
+     "f_resonance_MHz": 379.7506636645069,
+     "fit_band_Hz": [
+      20020716.545070525,
+      247260902.2052966
+     ],
+     "rel_residual": 0.01029439060872235
+    },
+    "L_nH_spread": 0.5617120208024039,
+    "R_mOhm_at_100MHz": -22.758271322858775,
+    "min_cell_mm": {
+     "x": 0.12898916666666693,
+     "y": 0.12783333333333502,
+     "z": 0.03325553426198491
+    },
+    "cells": 1225100,
+    "mesh": "119x145x71",
+    "final_energy_dB": "-43.90",
+    "dropped_primitives": 7,
+    "workdir": "/home/sequoia/pcb/servodrive/sim/work/openems/p7_cellA_loop_s0.2",
+    "L_nH_from_record_fraction": {
+     "0.50": 3.5856992533546928,
+     "0.75": 3.6946815587031243,
+     "1.00": 3.7212000754223964
+    }
+   },
+   {
+    "snapped": true,
+    "barrel": "pad",
+    "port_box": {
+     "p0": [
+      23.918597187015134,
+      4.1604209999999995
+     ],
+     "p1": [
+      24.882602812984867,
+      4.704979000000001
+     ],
+     "dir": "x",
+     "copper_gap_mm": 0.564,
+     "bite_mm": 0.2,
+     "overlap_pad1_mm2": 0.082,
+     "overlap_pad2_mm2": 0.082
+    },
+    "bridge_shrink": 1.0,
+    "bridges": [
+     {
+      "from": "Q1 VBUS",
+      "to": "Q1 SW_A",
+      "width_mm": 0.35,
+      "gap_mm": 0.9079
+     },
+     {
+      "from": "Q2 SW_A",
+      "to": "Q2 GND",
+      "width_mm": 1.0,
+      "gap_mm": 0.4005
+     }
+    ],
+    "min_step_mm": 0.14,
+    "step_used_x_mm": 0.14,
+    "step_used_y_mm": 0.14,
+    "fixed_lines_x": 127,
+    "fixed_lines_y": 165,
+    "res_mm": 0.3,
+    "polys": 267,
+    "barrels": 51,
+    "barrel_shadowed_polys": 151,
+    "L_nH": 3.0911828631304235,
+    "L_band_mean_nH": 3.594287478642926,
+    "lc_fit": {
+     "L_nH": 3.0911828631304235,
+     "C_pF": 54.642591806294085,
+     "f_resonance_MHz": 387.250634297756,
+     "fit_band_Hz": [
+      20020716.545070525,
+      247260902.2052966
+     ],
+     "rel_residual": 0.023379801663405586
+    },
+    "L_nH_spread": 0.5107719638289656,
+    "R_mOhm_at_100MHz": -39.3035575336421,
+    "min_cell_mm": {
+     "x": 0.1400749999999995,
+     "y": 0.13443083333333306,
+     "z": 0.03325553426198491
+    },
+    "cells": 1988850,
+    "mesh": "149x188x71",
+    "final_energy_dB": "-40.72",
+    "dropped_primitives": 4,
+    "workdir": "/home/sequoia/pcb/servodrive/sim/work/openems/p7_cellA_loop_s0.14",
+    "L_nH_from_record_fraction": {
+     "0.50": 3.735350213813813,
+     "0.75": 3.621713129284506,
+     "1.00": 3.594287610649289
+    }
+   },
+   {
+    "snapped": true,
+    "barrel": "pad",
+    "port_box": {
+     "p0": [
+      23.918597187015134,
+      4.1604209999999995
+     ],
+     "p1": [
+      24.882602812984867,
+      4.704979000000001
+     ],
+     "dir": "x",
+     "copper_gap_mm": 0.564,
+     "bite_mm": 0.2,
+     "overlap_pad1_mm2": 0.082,
+     "overlap_pad2_mm2": 0.082
+    },
+    "bridge_shrink": 1.0,
+    "bridges": [
+     {
+      "from": "Q1 VBUS",
+      "to": "Q1 SW_A",
+      "width_mm": 0.35,
+      "gap_mm": 0.9079
+     },
+     {
+      "from": "Q2 SW_A",
+      "to": "Q2 GND",
+      "width_mm": 1.0,
+      "gap_mm": 0.4005
+     }
+    ],
+    "min_step_mm": 0.1,
+    "step_used_x_mm": 0.1,
+    "step_used_y_mm": 0.1,
+    "fixed_lines_x": 170,
+    "fixed_lines_y": 218,
+    "res_mm": 0.3,
+    "polys": 267,
+    "barrels": 51,
+    "barrel_shadowed_polys": 151,
+    "L_nH": 3.0413741938455376,
+    "L_band_mean_nH": 3.486539717115351,
+    "lc_fit": {
+     "L_nH": 3.0413741938455376,
+     "C_pF": 52.2760986693413,
+     "f_resonance_MHz": 399.14768873115094,
+     "fit_band_Hz": [
+      20020716.545070525,
+      247260902.2052966
+     ],
+     "rel_residual": 0.014589765305075138
+    },
+    "L_nH_spread": 0.4719964454361555,
+    "R_mOhm_at_100MHz": -0.19212433108127694,
+    "min_cell_mm": {
+     "x": 0.10000000000000142,
+     "y": 0.10005499999999934,
+     "z": 0.03325553426198491
+    },
+    "cells": 3278070,
+    "mesh": "190x243x71",
+    "final_energy_dB": "-43.75",
+    "dropped_primitives": 4,
+    "workdir": "/home/sequoia/pcb/servodrive/sim/work/openems/p7_cellA_loop_s0.1",
+    "L_nH_from_record_fraction": {
+     "0.50": 3.40245903132235,
+     "0.75": 3.565398153709409,
+     "1.00": 3.4865395986690064
+    }
+   }
+  ],
+  "barrel_model_sensitivity": {
+   "snapped": false,
+   "barrel": "plated",
+   "port_box": {
+    "p0": [
+     23.918597187015134,
+     4.1604209999999995
+    ],
+    "p1": [
+     24.882602812984867,
+     4.704979000000001
+    ],
+    "dir": "x",
+    "copper_gap_mm": 0.564,
+    "bite_mm": 0.2,
+    "overlap_pad1_mm2": 0.082,
+    "overlap_pad2_mm2": 0.082
+   },
+   "bridge_shrink": 1.0,
+   "bridges": [
+    {
+     "from": "Q1 VBUS",
+     "to": "Q1 SW_A",
+     "width_mm": 0.35,
+     "gap_mm": 0.9079
+    },
+    {
+     "from": "Q2 SW_A",
+     "to": "Q2 GND",
+     "width_mm": 1.0,
+     "gap_mm": 0.4005
+    }
+   ],
+   "min_step_mm": 0.05833333333333333,
+   "step_used_x_mm": 0.0583,
+   "step_used_y_mm": 0.0583,
+   "fixed_lines_x": 0,
+   "fixed_lines_y": 0,
+   "res_mm": 0.35,
+   "polys": 418,
+   "barrels": 51,
+   "barrel_shadowed_polys": 0,
+   "L_nH": 2.013394009143147,
+   "L_band_mean_nH": 2.1272801099726477,
+   "lc_fit": {
+    "L_nH": 2.013394009143147,
+    "C_pF": 31.328992872494624,
+    "f_resonance_MHz": 633.6982804549081,
+    "fit_band_Hz": [
+     20020716.545070525,
+     247260902.2052966
+    ],
+    "rel_residual": 0.018775295484380217
+   },
+   "L_nH_spread": 0.08031207291245555,
+   "R_mOhm_at_100MHz": -0.1836986276688431,
+   "min_cell_mm": {
+    "x": 0.28122318701513294,
+    "y": 0.13770300000000013,
+    "z": 0.03325553426198491
+   },
+   "cells": 589300,
+   "mesh": "83x100x71",
+   "final_energy_dB": "-41.24",
+   "dropped_primitives": 9,
+   "workdir": "/home/sequoia/pcb/servodrive/sim/work/openems/p7_cellA_loop_v0.35"
+  },
+  "shorting_survey": {
+   "layer": "In1.Cu",
+   "uniform": [
+    {
+     "res_mm": 0.55,
+     "cells_joining_two_nets": 57
+    },
+    {
+     "res_mm": 0.35,
+     "cells_joining_two_nets": 11
+    },
+    {
+     "res_mm": 0.2,
+     "cells_joining_two_nets": 0
+    }
+   ],
+   "snapped": [
+    {
+     "min_step_mm": 0.2,
+     "step_used_mm": 0.2,
+     "cells_joining_two_nets": 0
+    },
+    {
+     "min_step_mm": 0.14,
+     "step_used_mm": 0.14,
+     "cells_joining_two_nets": 0
+    },
+    {
+     "min_step_mm": 0.1,
+     "step_used_mm": 0.1,
+     "cells_joining_two_nets": 0
+    }
+   ]
+  },
+  "bridge_deembed": {
+   "full_width": {
+    "snapped": true,
+    "barrel": "pad",
+    "port_box": {
+     "p0": [
+      23.918597187015134,
+      4.1604209999999995
+     ],
+     "p1": [
+      24.882602812984867,
+      4.704979000000001
+     ],
+     "dir": "x",
+     "copper_gap_mm": 0.564,
+     "bite_mm": 0.2,
+     "overlap_pad1_mm2": 0.082,
+     "overlap_pad2_mm2": 0.082
+    },
+    "bridge_shrink": 1.0,
+    "bridges": [
+     {
+      "from": "Q1 VBUS",
+      "to": "Q1 SW_A",
+      "width_mm": 0.35,
+      "gap_mm": 0.9079
+     },
+     {
+      "from": "Q2 SW_A",
+      "to": "Q2 GND",
+      "width_mm": 1.0,
+      "gap_mm": 0.4005
+     }
+    ],
+    "min_step_mm": 0.2,
+    "step_used_x_mm": 0.2,
+    "step_used_y_mm": 0.2,
+    "fixed_lines_x": 94,
+    "fixed_lines_y": 119,
+    "res_mm": 0.3,
+    "polys": 267,
+    "barrels": 51,
+    "barrel_shadowed_polys": 151,
+    "L_nH": 3.1770945143217726,
+    "L_band_mean_nH": 3.72120028898702,
+    "lc_fit": {
+     "L_nH": 3.1770945143217726,
+     "C_pF": 55.285729629637,
+     "f_resonance_MHz": 379.7506636645069,
+     "fit_band_Hz": [
+      20020716.545070525,
+      247260902.2052966
+     ],
+     "rel_residual": 0.01029439060872235
+    },
+    "L_nH_spread": 0.5617120208024039,
+    "R_mOhm_at_100MHz": -22.758271322858775,
+    "min_cell_mm": {
+     "x": 0.12898916666666693,
+     "y": 0.12783333333333502,
+     "z": 0.03325553426198491
+    },
+    "cells": null,
+    "mesh": null,
+    "final_energy_dB": "-43.90",
+    "dropped_primitives": 7,
+    "workdir": "/home/sequoia/pcb/servodrive/sim/work/openems/p7_cellA_loop_s0.2"
+   },
+   "half_width": {
+    "snapped": true,
+    "barrel": "pad",
+    "port_box": {
+     "p0": [
+      23.918597187015134,
+      4.1604209999999995
+     ],
+     "p1": [
+      24.882602812984867,
+      4.704979000000001
+     ],
+     "dir": "x",
+     "copper_gap_mm": 0.564,
+     "bite_mm": 0.2,
+     "overlap_pad1_mm2": 0.082,
+     "overlap_pad2_mm2": 0.082
+    },
+    "bridge_shrink": 0.5,
+    "bridges": [
+     {
+      "from": "Q1 VBUS",
+      "to": "Q1 SW_A",
+      "width_mm": 0.175,
+      "gap_mm": 0.9079
+     },
+     {
+      "from": "Q2 SW_A",
+      "to": "Q2 GND",
+      "width_mm": 0.5,
+      "gap_mm": 0.4005
+     }
+    ],
+    "min_step_mm": 0.2,
+    "step_used_x_mm": 0.2,
+    "step_used_y_mm": 0.2,
+    "fixed_lines_x": 94,
+    "fixed_lines_y": 119,
+    "res_mm": 0.3,
+    "polys": 267,
+    "barrels": 51,
+    "barrel_shadowed_polys": 151,
+    "L_nH": 3.4439760795858696,
+    "L_band_mean_nH": 4.138225061537681,
+    "lc_fit": {
+     "L_nH": 3.4439760795858696,
+     "C_pF": 57.26770162929273,
+     "f_resonance_MHz": 358.372925248532,
+     "fit_band_Hz": [
+      20020716.545070525,
+      247260902.2052966
+     ],
+     "rel_residual": 0.024816577372361794
+    },
+    "L_nH_spread": 0.7578073756539223,
+    "R_mOhm_at_100MHz": -3.1817374695618543,
+    "min_cell_mm": {
+     "x": 0.13816666666666677,
+     "y": 0.12783333333333502,
+     "z": 0.03325553426198491
+    },
+    "cells": null,
+    "mesh": null,
+    "final_energy_dB": "-40.34",
+    "dropped_primitives": 7,
+    "workdir": "/home/sequoia/pcb/servodrive/sim/work/openems/p7_cellA_loop_h0.2"
+   },
+   "L_ideal_short_nH": 2.9102129490576756,
+   "bridge_term_nH": 0.266881565264097,
+   "note": "L(w) = L0 + k/w: halving the bridge width doubles the strip's own term and leaves the loop unchanged, so L0 = 2*L1 - L2 is the loop with the ideal short the PEEC model assumes."
+  },
+  "L2_openems_nH": 3.0413741938455376,
+  "L2_spread_nH": 0.4719964454361555,
+  "L2_lc_fit": {
+   "L_nH": 3.0413741938455376,
+   "C_pF": 52.2760986693413,
+   "f_resonance_MHz": 399.14768873115094,
+   "fit_band_Hz": [
+    20020716.545070525,
+    247260902.2052966
+   ],
+   "rel_residual": 0.014589765305075138
+  },
+  "R_mOhm_at_100MHz": -0.19212433108127694,
+  "workdir": "/home/sequoia/pcb/servodrive/sim/work/openems/p7_cellA_loop_s0.1",
+  "diagnostics": {
+   "cells": null,
+   "mesh": null,
+   "final_energy_dB": "-43.75",
+   "dropped_primitives": 4
+  },
+  "last_refinement_change": 0.016377027656010762,
+  "convergence_tests": {
+   "one_L_and_one_C_describe_the_port": true,
+   "lc_fit_residual": 0.014589765305075138,
+   "last_refinement_under_10pct": true,
+   "no_dropped_primitives": true,
+   "record_long_enough": true,
+   "record_fraction_spread": 0.045700119695618976,
+   "residual_energy_dB": -43.75
+  },
+  "converged": true,
+  "ratio_L2_over_L1": 1.0853935015719876,
+  "agreement_raw_pct": 12.396365396840588,
+  "compared_on": "the FDTD value with the device strip de-embedded",
+  "L2_for_comparison_nH": 2.9102129490576756,
+  "agreement_pct": 8.539350157198761,
+  "pass_25pct": true,
+  "note": "The two solvers approach this loop from opposite sides, and the mechanism is different at each end.  A uniform FDTD mesh reads low until its cells are inside the board's 0.40 mm clearances -- there are no nets in FDTD, only metal, so a cell that spans a clearance joins VBUS to GND -- and it climbs from 0.62 nH at 0.55 mm to 3.29 nH at 0.20 mm as that stops happening.  Snapping the mesh to the copper reaches the same place without the uniform cost: 3.04 nH, moving 1.6 % on the last refinement.  FastHenry falls down its own series, 3.12 nH at 1.8 mm to 2.68 nH at 0.75 mm, because a filament grid that coarse cannot let the return current concentrate under a leg running 0.4 mm above it, which is most of what sets this loop, and it has settled there: the last refinement moved it 1.3 % and in the other direction.  The figure quoted for FastHenry here is the converged end of that sweep, 0.75 mm at 1 MHz, not the production run's 1.2 mm grid; the production model's own frequency sweep falls about 3 % between 1 MHz and 100 MHz, which is the band the FDTD extraction sits in, so the comparison is fair to within a few per cent either way.  Neither solver had been run to its own convergence before this.",
+  "seconds": 4189.7
+ },
+ "Q11": {
+  "question": "Q11",
+  "far_field": {
+   "1e+05": {
+    "E_at_3m_V_per_m": 3.782339363458268e-18,
+    "dBuV_per_m": -120.0,
+    "Dmax": -4.612952448692918e-09
+   },
+   "1e+06": {
+    "E_at_3m_V_per_m": 3.783036808494426e-17,
+    "dBuV_per_m": -120.0,
+    "Dmax": -4.6147043979299777e-07
+   },
+   "2e+07": {
+    "E_at_3m_V_per_m": 8.14711802386262e-16,
+    "dBuV_per_m": -120.0,
+    "Dmax": -0.00021596055660270133
+   },
+   "1.18e+08": {
+    "E_at_3m_V_per_m": 1.7666058540099963e-14,
+    "dBuV_per_m": -120.0,
+    "Dmax": 0.03110380000356676
+   },
+   "3e+08": {
+    "E_at_3m_V_per_m": 7.050222560054662e-14,
+    "dBuV_per_m": -120.0,
+    "Dmax": 0.1327392495857967
+   }
+  },
+  "workdir": "/home/sequoia/pcb/servodrive/sim/work/openems/p7_board_nf",
+  "diagnostics": {
+   "dropped_primitives": 278,
+   "final_energy": 1.28e-10,
+   "final_energy_dB": "-10.20",
+   "mesh": "78x78x67",
+   "cells": 407628
+  },
+  "negative_directivity_at_Hz": [
+   "1e+05",
+   "1e+06",
+   "2e+07"
+  ],
+  "lead_anchored_at": {
+   "x": 24.7882,
+   "y": 16.7199,
+   "z": 1.545001,
+   "pad": "J1.1"
+  },
+  "converged": false,
+  "not_converged_reason": "The mesh cannot represent this board.  Its clearances are 0.40 mm and its tracks 0.15 mm; a 65 mm six-layer board allows 1.2 mm cells here, and at that size copper the board keeps apart is joined -- there are no nets in FDTD, only metal.  Q1's cell-A model showed what that costs: the same loop came out 0.62 nH at 0.55 mm cells and 3.04 nH once the clearances were resolved, a factor of five.  Snapping the mesh to the copper rescued the cell, which is 21 x 26 mm; pinning a line to every feature on the whole board is a 10^8-cell problem.  No radiated level is quoted.  (The directivity also comes out negative at 3 of the 5 probe frequencies, all of them below 30 MHz, where a board this size radiates almost nothing and the near-to-far-field transform is differencing numbers at its own floor -- that one is not the mesh's fault.  278 primitives were reported unused; those are mostly via pads their own barrels already provide and are not evidence of anything.)",
+  "cispr32_class_B_3m_dBuV_per_m": {
+   "30-230 MHz": 40.0,
+   "230-1000 MHz": 47.0,
+   "note": "quasi-peak limits at 3 m.  This simulation drives the switch node with a 1 V port, not with the real 60 V edge, so the absolute level has to be scaled by the real excitation and by the duty cycle of the harmonic in question; what it is good for is the shape of the spectrum and the relative effect of a lead."
+  },
+  "seconds": 36.0,
+  "negative_directivity_above_30MHz": [],
+  "mesh_resolves_clearances": false
+ },
+ "_phase": {
+  "seconds": 62.9
+ },
+ "_meta": {
+  "written": "2026-09-12T08:21:57",
+  "board_mtime": "2026-09-09T12:24:35"
+ }
+}

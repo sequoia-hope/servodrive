@@ -1,0 +1,191 @@
+{
+ "part": "INA241A3",
+ "maker": "Texas Instruments",
+ "package": {
+  "unit": "",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": "TSOT-23-8"
+ },
+ "gain": {
+  "unit": "V/V",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 50.0
+ },
+ "gain_error": {
+  "unit": "%",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "typ": 0.002,
+  "max": 0.01
+ },
+ "gain_error_drift": {
+  "unit": "ppm/K",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "typ": 0.05,
+  "max": 1.0
+ },
+ "V_os": {
+  "unit": "V",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "typ": 3e-06,
+  "max": 1e-05
+ },
+ "dV_os_dT": {
+  "unit": "V/K",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "typ": 2e-08,
+  "max": 1e-07
+ },
+ "V_CM_range": {
+  "unit": "V",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "min": -5.0,
+  "max": 110.0
+ },
+ "CMRR_dc": {
+  "unit": "dB",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "min": 150,
+  "typ": 166
+ },
+ "CMRR_50kHz": {
+  "unit": "dB",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 105
+ },
+ "bandwidth": {
+  "unit": "Hz",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 1100000.0,
+  "note": "-3 dB, all gains"
+ },
+ "slew_rate": {
+  "unit": "V/s",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 8000000.0,
+  "note": "rising"
+ },
+ "settling_1pct": {
+  "unit": "s",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 1e-06,
+  "note": "V_CM step to 48 V, 0.5..4.5 V out"
+ },
+ "settling_0p5pct": {
+  "unit": "s",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 1.5e-06
+ },
+ "settling_5pct": {
+  "unit": "s",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 5e-07
+ },
+ "pwm_hold": {
+  "unit": "s",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 1e-06,
+  "note": "Enhanced PWM rejection (sec.7.3.1.1): on a large common-mode dV/dt the part HOLDS its output for 1 us. Valid up to 125 kHz PWM or CM edges >= 3 us apart."
+ },
+ "pwm_reject_max_f": {
+  "unit": "Hz",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 125000.0
+ },
+ "pwm_reject_min_edge_sep": {
+  "unit": "s",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 3e-06
+ },
+ "I_bias": {
+  "unit": "A",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "min": 2.5e-05,
+  "typ": 3.5e-05,
+  "max": 4.5e-05
+ },
+ "swing_to_VS": {
+  "unit": "V",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "typ": 0.07,
+  "max": 0.2,
+  "note": "R_L = 10 k, -40..125 C"
+ },
+ "swing_to_GND": {
+  "unit": "V",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "typ": 0.008,
+  "max": 0.02
+ },
+ "noise_density": {
+  "unit": "V/sqrt(Hz)",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 3.9e-08,
+  "note": "A3 grade, input referred"
+ },
+ "C_load_max": {
+  "unit": "F",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 1e-09
+ },
+ "I_q": {
+  "unit": "A",
+  "source": "TI INA241A/INA241B SBOSA30D, March 2022 rev December 2024, local copy sim/models/datasheets/ina241a.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "typ": 0.0025,
+  "max": 0.0032
+ },
+ "R_in_diff": {
+  "unit": "Ohm",
+  "source": "not specified as a number in SBOSA30D",
+  "read": "2026-09-11",
+  "status": "bracketed",
+  "min": 1000.0,
+  "typ": 5000.0,
+  "note": "TI gives the input bias current (35 uA) rather than an input resistance."
+ }
+}

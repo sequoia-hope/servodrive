@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-52 -44 138 62" width="980" height="440" role="img">
+<style>
+  :root { --bg:#ffffff; --panel:#f4f2ec; --ink:#1e2126; --muted:#6b7280;
+          --line:#c9c4b8; --accent:#6b4fa0; --warn:#a05a00;
+          --zone:#ffffff00; --partfill:#eae4f5; --copper:#c08a3e; }
+
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1e2128; --panel:#262a33; --ink:#e8e6e1; --muted:#9aa3af;
+            --line:#3d434f; --accent:#a98fd8; --warn:#e0a44c;
+            --zone:#00000000; --partfill:#332c47; --copper:#b8823c; }
+  }
+
+  .board  { fill: var(--panel); stroke: var(--ink); stroke-width: .35; }
+  .zone   { fill: var(--zone); stroke: var(--line); stroke-width: .18;
+            stroke-dasharray: 1.2 .9; }
+  .keep   { fill: none; stroke: var(--warn); stroke-width: .16;
+            stroke-dasharray: .8 .7; }
+  .hole   { fill: var(--bg); stroke: var(--ink); stroke-width: .28; }
+  .part   { fill: var(--partfill); stroke: var(--accent); stroke-width: .28; }
+  .pad    { fill: var(--copper); stroke: none; }
+  .lead   { stroke: var(--muted); stroke-width: .16; fill: none; }
+  .dim    { stroke: var(--muted); stroke-width: .14; fill: none; }
+  text    { font-family: ui-sans-serif, system-ui, sans-serif;
+            fill: var(--ink); }
+  .lbl    { font-size: 1.7px; }
+  .sub    { font-size: 1.35px; fill: var(--muted); }
+  .tiny   { font-size: 1.30px; fill: var(--muted); }
+  .ctr    { text-anchor: middle; }
+  .rt     { text-anchor: end; }
+</style>
+
+<title>servodrive stack elevation, in mm</title>
+<rect class="board" x="-35.00" y="-0.00" width="70.00" height="12.00" />
+<text class="sub ctr" x="0" y="6.60">motor</text>
+<path class="dim" d="M -35 0 H 35"/>
+<rect class="pad" x="-3.00" y="-5.00" width="6.00" height="5.00" />
+<rect class="part" x="-4.00" y="-7.50" width="8.00" height="2.50" />
+<rect class="part" x="-3.20" y="-10.75" width="6.40" height="1.75" opacity=".7"/>
+<path class="keep" d="M -9 -7.50 H 9 M -9 -9.00 H 9"/>
+<rect class="board" x="-14.10" y="-10.75" width="3.20" height="10.75" />
+<rect class="board" x="10.90" y="-10.75" width="3.20" height="10.75" />
+<rect class="part" x="-32.50" y="-12.35" width="65.00" height="1.60" />
+<rect class="board" x="-31.10" y="-23.35" width="3.20" height="11.00" />
+<rect class="board" x="27.90" y="-23.35" width="3.20" height="11.00" />
+<rect class="part" x="-32.50" y="-24.95" width="65.00" height="1.60" />
+<rect class="zone" x="-32.50" y="-35.95" width="65.00" height="11.00" />
+<rect class="part" x="-26.00" y="-33.95" width="9.00" height="9.00" opacity=".6"/>
+<rect class="part" x="4.00" y="-31.45" width="11.00" height="6.50" opacity=".6"/>
+<rect class="part" x="19.00" y="-34.95" width="8.00" height="10.00" opacity=".6"/>
+<path class="dim" d="M -38.5 0 V -10.75 M -39.5 0 h 2 M -39.5 -10.75 h 2"/>
+<text class="tiny" text-anchor="end" x="-40.30" y="-5.78">10.75 mm</text>
+<text class="tiny" text-anchor="end" x="-40.30" y="-3.98">M3 standoff</text>
+<path class="dim" d="M 27.00 -30.45 L 37.80 -30.45 L 39.00 -30.45"/>
+<text class="lbl" x="40.00" y="-30.75">XT30, two RS-485 ports, USB-C,</text>
+<text class="tiny" x="40.00" y="-28.95">100 &#181;F/100 V cans</text>
+<path class="dim" d="M 32.50 -24.15 L 37.80 -24.15 L 39.00 -23.31"/>
+<text class="lbl" x="40.00" y="-23.61">board B &#8212; power / IO</text>
+<text class="tiny" x="40.00" y="-21.81">4 layer, 2 oz outer, 1.6 mm</text>
+<path class="dim" d="M 31.10 -17.85 L 37.80 -17.85 L 39.00 -16.17"/>
+<text class="lbl" x="40.00" y="-16.47">11 mm on M2.5 perimeter standoffs</text>
+<text class="tiny" x="40.00" y="-14.67">board A parts + mated interconnect height</text>
+<path class="dim" d="M 32.50 -11.55 L 37.80 -11.55 L 39.00 -9.03"/>
+<text class="lbl" x="40.00" y="-9.33">board A &#8212; motor board</text>
+<text class="tiny" x="40.00" y="-7.53">6 layer, 2 oz outer, 1.6 mm; MT6701 on the underside</text>
+<path class="dim" d="M 9.00 -8.25 L 37.80 -8.25 L 39.00 -0.02"/>
+<text class="lbl" x="40.00" y="-1.12">air gap 1.5 mm</text>
+<text class="tiny" x="40.00" y="0.68">MT6701 wants 1&#8211;3 mm; this is the</text>
+<text class="tiny" x="40.00" y="2.48">dimension the whole stack is built around</text>
+<path class="dim" d="M 4.00 -6.25 L 37.80 -6.25 L 39.00 8.99"/>
+<text class="lbl" x="40.00" y="8.69">&#216;6 diametric magnet</text>
+<text class="tiny" x="40.00" y="10.49">2.5 mm with its holder cap</text>
+<path class="dim" d="M 3.00 -2.50 L 37.80 -2.50 L 39.00 16.13"/>
+<text class="lbl" x="40.00" y="15.83">shaft, proud of the rear face</text>
+<text class="tiny" x="40.00" y="17.63">5.0 mm &#8212; set by the motor, not by us</text>
+<text class="tiny ctr" x="0" y="-38.95">36.0 mm above the motor rear face</text>
+</svg>

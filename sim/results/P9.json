@@ -1,0 +1,25 @@
+{
+ "report": "/home/sequoia/pcb/servodrive/sim/report/index.html",
+ "findings": 24,
+ "handback": "/home/sequoia/pcb/servodrive/sim/HANDBACK.md",
+ "index_link": "already-linked",
+ "phases_present": [
+  "P0",
+  "P1",
+  "P2",
+  "P3",
+  "P4",
+  "P5",
+  "P6",
+  "P7",
+  "P8",
+  "P9"
+ ],
+ "_phase": {
+  "seconds": 0.0
+ },
+ "_meta": {
+  "written": "2026-09-12T08:21:57",
+  "board_mtime": "2026-09-09T12:24:35"
+ }
+}

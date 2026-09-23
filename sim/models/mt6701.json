@@ -1,0 +1,122 @@
+{
+ "part": "MT6701CT-STD",
+ "maker": "MagnTek",
+ "package": {
+  "unit": "",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": "SOP-8"
+ },
+ "B_pk_at_IC": {
+  "unit": "T",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "min": 0.02,
+  "max": 0.1,
+  "note": "200..1000 Gauss measured at the IC surface"
+ },
+ "air_gap": {
+  "unit": "m",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "min": 0.0005,
+  "typ": 0.001,
+  "max": 0.002
+ },
+ "off_axis_max": {
+  "unit": "m",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 0.0003
+ },
+ "magnet_recommended": {
+  "unit": "m",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": {
+   "diameter": 0.006,
+   "thickness": 0.0025
+  },
+  "note": "the board carries Dia 8 x 2.5 (geometry.py)"
+ },
+ "rotation_speed_max": {
+  "unit": "rpm",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 55000
+ },
+ "INL": {
+  "unit": "deg",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "typ": 1.0,
+  "max": 1.5,
+  "note": "max is over temperature, max air gap and worst-case off-axis"
+ },
+ "DNL": {
+  "unit": "deg",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 0.02,
+  "note": "ABZ mode"
+ },
+ "transition_noise": {
+  "unit": "deg_rms",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 0.01,
+  "note": "ABZ mode, 25 C"
+ },
+ "hysteresis": {
+  "unit": "deg",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 0.088
+ },
+ "propagation_delay": {
+  "unit": "s",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 5e-06,
+  "note": "constant speed"
+ },
+ "TC_magnet_NdFeB": {
+  "unit": "%/K",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": -0.12
+ },
+ "TC_magnet_SmCo": {
+  "unit": "%/K",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": -0.035
+ },
+ "ssi_bits": {
+  "unit": "bit",
+  "source": "MagnTek MT6701 rev 1.5, 2021-03, local copy ~/pcb/rp2350-motor-controller/hardware/encoder/docs/2109011830_Magn-Tek-MT6701CT-STD_C2856764.pdf",
+  "read": "2026-09-11",
+  "status": "datasheet",
+  "value": 14
+ },
+ "lsb_deg": {
+  "unit": "deg",
+  "source": "derived from the 14-bit SSI word",
+  "read": "2026-09-11",
+  "status": "derived",
+  "value": 0.02197265625
+ }
+}

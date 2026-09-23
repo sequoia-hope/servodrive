@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>servodrive — board S</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* The drawings want more width than the prose: main is wide on this page,
+     the sections keep the site's 900 px measure, the figures take the rest. */
+  main { max-width: 1400px; grid-template-columns: minmax(0, 1fr); }
+  main > section { width: 100%; max-width: 900px; justify-self: center;
+                   box-sizing: border-box; }
+  .wide { width: 100%; margin: .5rem 0; }
+  .wide object { display: block; width: 100%; aspect-ratio: 150 / 79; }
+  .wide figcaption { max-width: 860px; margin-left: auto; margin-right: auto; }
+  table.parts td:first-child { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                               white-space: nowrap; }
+  table.parts td:nth-child(4) { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  table.parts { font-size: .88rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="crumb"><a href="index.html">servodrive</a> &rsaquo; board S</p>
+  <div class="title">
+    <h1>Board S &mdash; one board</h1>
+    <span class="state active"><span class="dot"></span>Board S routed, DRC / ERC / netlist clean</span>
+    <span class="state draft"><span class="dot"></span>not built &middot; values and stock to check</span>
+  </div>
+  <p class="lede">Board A with its two link wedges rebuilt to carry the minimum of board B: bus
+  input, bulk, TVS, the gate and logic rails, USB-C, full-duplex RS-485 on two ports, and a
+  header for a second board doing USB-PD or Ethernet. The phase cells and the CPU wedge are
+  board A's, untouched; the middle of the board, which board A keeps empty, carries the
+  low-current parts on both faces. 48&nbsp;V operational max.</p>
+  <p class="meta">The floorplan is <code>tools/placement_s.py</code>, the netlist
+  <code>tools/schematic_s.py</code>, the board <code>gen_boards.py --board s</code> and
+  <code>route.py --board s</code>. The sketch that decided the arrangement is further down the page,
+  kept as it was argued; its drawings and parts table are regenerated from the arrangement as
+  built. Hover a part for its note; each drawing opens full size on its own.</p>
+</header>
+
+<main>
+
+  <section>
+    <h2>Where it is</h2>
+    <p><strong>Captured, placed and routed</strong> &mdash; 191 components, 111 nets, 577 pin connections, every one made, from scratch by the pipeline (re-routed 2026-09-23 for TI's buck parts; the README has exactly how); DRC clean, ERC clean, and KiCad's own exported netlist matches the intended one connection for connection. KiCad 9, in
+    <code>hardware/single_board/</code>: <code>servodrive_S.kicad_pro</code>, five sheets, one board.
+    Built as a variant of board A from the same generators, so the phase cells, the CPU wedge and
+    the encoder are board A's own; board A's generated output is byte-for-byte what it was.</p>
+    <table class="num">
+      <thead><tr><th></th><th>Board S</th><th>Board A</th></tr></thead>
+      <tbody>
+        <tr><td>Parts on the board</td><td>195 (95 front, 100 back, 10 DNP)</td><td>136 + 4 holes</td></tr>
+        <tr><td>Captured</td><td>191 components, 111 nets, 577 connections</td><td>136, 87, 425</td></tr>
+        <tr><td>Routed</td><td>1804 track segments, 405 vias (306 of them the tools')</td><td>1361, 278</td></tr>
+        <tr><td>Unconnected</td><td>0</td><td>0</td></tr>
+        <tr><td>DRC / ERC</td><td>0 / 0</td><td>0 / 0</td></tr>
+        <tr><td>Bus pad barrels, VMOT / GND</td><td>7 / 8</td><td>&mdash;</td></tr>
+      </tbody>
+    </table>
+    <pre><code>python3 tools/schematic_s.py                       # netlist and checks
+python3 tools/gen_boards.py --board s --force       # emit, stitch, fan out (discards routing)
+python3 tools/route.py --board s --rounds 1 --first EN_12V,USB_VBUS,LIN_A,EXP_GP19
+python3 tools/route.py --board s --polish           # twice</code></pre>
+  </section>
+
+  <section id="copper" data-dir="img/layers/s/">
+    <h2>Copper, layer by layer</h2>
+    <p>Board S's six copper layers as routed, plotted out of the board file by
+    <code>tools/plot_layers.py</code> and stacked in register &mdash; the same viewer as board A's
+    on the <a href="index.html#copper">project page</a>. Pick a layer to bring it to the front;
+    drag to pan, scroll to zoom. The cursor reads out in millimetres and in radius and angle.</p>
+    <p class="sub" id="cu-stats"></p>
+    <div class="cu">
+      <div class="cu-panel">
+        <div id="cu-layers"></div>
+        <p class="cu-hint" style="margin-top:.3rem">The dot puts a layer on top at full
+        opacity; the box says whether it is drawn at all.</p>
+        <div class="cu-row">
+          <button data-act="all" title="show every layer">all</button>
+          <button data-act="none" title="show only the selected layer">none</button>
+          <button data-act="solo" title="selected layer and the outline only">solo</button>
+          <button data-act="grid" title="the six layers side by side">grid</button>
+        </div>
+        <label class="cu-ctl">opacity of the unselected copper
+          <input type="range" id="cu-dim" min="0" max="60" value="16"></label>
+        <label class="cu-ctl"><input type="checkbox" id="cu-mirror">
+          view from the back (mirrored)</label>
+        <div class="cu-row">
+          <button data-act="out" title="zoom out">&minus;</button>
+          <button data-act="fit" title="fit the board">fit</button>
+          <button data-act="in" title="zoom in">+</button>
+          <span class="sub" id="cu-zoom">1.0&times;</span>
+        </div>
+        <p class="cu-note" id="cu-note"></p>
+        <p class="cu-read" id="cu-read"></p>
+        <p class="cu-hint">Keys: <b>1</b>&ndash;<b>9</b> pick a layer, <b>s</b> solo,
+        <b>a</b> all, <b>m</b> mirror, <b>0</b> fit. Angles are measured from the +x axis, the
+        way the section boundaries at 0/68/136/204/256/308&deg; are.</p>
+      </div>
+      <div>
+        <div id="cu-stack">
+          <div class="cu-plate" id="cu-plate">
+            <div class="cu-pan" id="cu-pan"><div class="cu-flip" id="cu-flip"></div></div>
+            <div class="cu-scale"><i id="cu-bar"></i><span id="cu-barlab"></span></div>
+            <div class="cu-back" id="cu-back"></div>
+          </div>
+        </div>
+        <div class="cu-grid" id="cu-gridbox" hidden></div>
+      </div>
+    </div>
+    <p class="cu-files" id="cu-files"></p>
+    <p class="sub" id="cu-fallback"></p>
+    <p class="sub">Rebuild after any routing change with
+    <code>python3 tools/plot_layers.py --board s</code> &mdash; <code>route.py --board s</code> runs it
+    at the end of every run.</p>
+  </section>
+
+  <section>
+    <h2>What capture settled</h2>
+    <p><strong>GATE_EN is <code>GATE_OFF</code> on this board, and high kills the gate
+    rail.</strong> The 12&nbsp;V buck's EN sits on a divider from the bus, up to 8&nbsp;V, which no
+    GPIO may see, so the 2N7002 the sketch proposed does the pulling &mdash; and that inverts the
+    sense. The net is named for what high does. Through a reset the pin is pulled down (4k7,
+    against RP2350-E9, as the drivers' pulls are), the FET is off, the rail is on and the low sides
+    brake, which is what spec &sect;3 asks of a reset. Firmware writes 1 to kill, not 0.</p>
+    <p><strong>The LMR38010's datasheet (SNVSC73B) changed three of the sketch's values</strong>,
+    each of which would have been wrong on the board:</p>
+    <ul>
+      <li><strong>VREF is 1.000&nbsp;V</strong>: the feedback bottom legs are 9.09k (12&nbsp;V) and
+      24.9k (5&nbsp;V), the datasheet's own table. The sketch's 11k and 27k made 10.1&nbsp;V and
+      4.7&nbsp;V.</li>
+      <li><strong>RT/SYNC cannot float or be grounded</strong>: each buck has 64.9k to ground,
+      400&nbsp;kHz. The sketch's modules had no RT resistor.</li>
+      <li><strong>EN rises at 1.25&nbsp;V (1.4 max)</strong>: 470k over 22k would not have started the
+      gate rail below 26&nbsp;V. It is 470k over 68k &mdash; on at 9.9&nbsp;V, 11.1 worst case, off at
+      8.7&nbsp;V, inside the 12&nbsp;V floor &mdash; which also holds the 2N7002's drain to 11&nbsp;V when
+      the TVS clamps at 87&nbsp;V. The 5&nbsp;V buck's EN is tied to VIN.</li>
+    </ul>
+    <p>Two symbols are the project's own: the <strong>LMR38010</strong>, drawn from the datasheet's pin
+    table &mdash; the LMR336x0 and LMR36510 in KiCad's library share its package, not its pins
+    &mdash; and the <strong>SIT3088</strong>, derived from the MAX3485 as the sister project wires it.
+    The per-phase clamps are the 54&nbsp;V grade. The USB-C's unused SBU pads carry
+    <code>SBU1_NC</code>/<code>SBU2_NC</code>: a pad with no net has no clearance class, and the router
+    laid USB_DP 0.137&nbsp;mm from one.</p>
+  </section>
+
+  <section>
+    <h2>What building it changed</h2>
+    <p>The sketch answered &ldquo;does it fit&rdquo; with courtyards. A board answers to copper, and
+    these are the differences that made:</p>
+    <ul>
+      <li><strong>A through-hole lead is copper on both faces, at 60&nbsp;V.</strong> C1001's +
+      lead &mdash; a 2&nbsp;mm square pad, 1.41&nbsp;mm on its diagonal &mdash; landed on U15's pin&nbsp;7 on
+      the other face. Leads are now tested as their pads' bounding circles plus 0.45&nbsp;mm.</li>
+      <li><strong>The sister project's DFN-8 draws its courtyard inside its own pads</strong>
+      (&plusmn;1.6 against &plusmn;1.72&nbsp;mm): two SIT3088 sat 0.05&nbsp;mm pad to pad with their
+      courtyards apart. Widened for placing.</li>
+      <li><strong>60&nbsp;V parts keep 0.25&nbsp;mm more from their neighbours</strong>: the EN
+      divider's top resistor had its VBUS pad 0.36&nbsp;mm from two ground pads.</li>
+      <li><strong>The buck module was drawn before its pinout was read.</strong> It is now laid
+      against the pins, as TI's example layout is: the input cap left of pins 1&ndash;3, RT under
+      pin&nbsp;4, the divider at pin&nbsp;5, the bootstrap cap at 7&ndash;8, the inductor over the switch
+      corner. EN is between GND and VIN; it leaves as a 0.15&nbsp;mm track between the input cap's
+      pads, 0.40&nbsp;mm from the VIN one, to the divider beside it. On the back the module is
+      mirrored, as its footprints are, and the two modules are no longer stacked on opposite
+      faces &mdash; neither could drop a via.</li>
+      <li><strong>The RS-485 relay, re-placed for its wiring.</strong> Port IN takes the rim slot
+      at 241&deg; beside its two transceivers and OUT the one at 219&deg; beside its own, where
+      the sketch had each port's pairs crossing the other's through the CPU's traffic; each
+      SIT3088 is turned so its A/B pins face its port; its 100&nbsp;n sits past the end of its pin
+      row and its 120&nbsp;&Omega; beyond its escape vias. The escapes were the missing piece: at
+      0.65&nbsp;mm pitch the router never reached pins 1, 4, 6 or 7 of any of the four, the same
+      trap board A's current-sense amplifiers set, and they get a stub and a via per pin the same
+      way.</li>
+      <li><strong>The cans' + leads point outward</strong>, onto In2's VBUS at R&nbsp;17 &mdash;
+      the short way to the bridges &mdash; and the TVS's cathode faces the VMOT pad.</li>
+      <li><strong>In2</strong> is VBUS everywhere but the CPU wedge, with a tab over each can's +
+      lead, and +3V3 over the CPU wedge and the centre disc. The bucks are where board A's
+      signal-wedge ground was.</li>
+      <li><strong>A VBUS spine on the outward face</strong>: VMOT pad, TVS cathode, C1001's + lead
+      and the expansion header's four VMOT pins as one piece of copper. The header sits inside
+      In2's +3V3 disc and a PD board can put 5&nbsp;A through it; this is its way to the bus.</li>
+      <li><strong>The bus pads' barrels are drilled, not drawn</strong>: RS-485 port IN's mounting
+      tab is under the VMOT pad on the other face, and a fixed array came through onto it.
+      <code>fanout.bus_field</code> drills a lattice where the far face leaves room and carries on into the VBUS spine: 7 barrels for VMOT (5 in its pad, 2 in the spine beside it), 8 in the GND pad.</li>
+    </ul>
+    <p><strong>Three bugs in the tools, found here.</strong> The fan-out held new 60&nbsp;V copper
+    only 0.15&nbsp;mm from ordinary copper (board A's tools never laid any); it and the stitcher
+    ignored a footprint's own clearance (TI's PowerPAD asks 0.2&nbsp;mm); and <strong>the router's
+    session rounds every part's rotation to a whole degree</strong>, which KiCad's import then
+    applies &mdash; 93 of board A's 140 footprints sit up to 0.48&deg; off the generator's angles
+    on the routed board A today. <code>route.py</code> now puts every part back where it was after
+    the import. Board A is DRC-clean as it stands and was not touched; it straightens the next
+    time it is routed.</p>
+  </section>
+
+  <section>
+    <h2>The sketch it grew from</h2>
+    <p class="sub">Written 2026-09-22 while the arrangement was being argued, before capture;
+    left as it was. Where the build changed something, the sections above say what.</p>
+    <h3>The answer</h3>
+    <p><strong>As specified, it does not fit.</strong> With board A's rule that nothing goes inside
+    R&nbsp;17, every variant tried leaves parts over: <!-- missed:begin --><code>D1001</code> (SMDJ54A), <code>U11</code> (LMR38010 12V), <code>R802</code> (4k7 0.1%), <code>C801</code> (100n), <code>J13</code> (EXPANSION), <code>J15</code> (RS485 port B), <code>TP7</code> (RUN)<!-- missed:end -->.
+    The board is short of <em>rim</em>, not of area, and the numbers are below.</p>
+    <p><strong>With the middle of the board used, all of it fits</strong> &mdash; 67 new or
+    re-placed parts, the checks clean, and nothing downgraded:</p>
+    <ul>
+      <li><strong>Both bulk cans in the centre</strong> of the outward face, at 230&deg; and
+      324&deg;, 14.5 and 15.3&nbsp;mm off the shaft axis, clear of the four screw heads.</li>
+      <li><strong>The 3&nbsp;kW SMDJ54A beside the VMOT pad</strong>, on the outward face where the
+      bus comes in. It fits there because the cans took their through-hole leads out of the power
+      wedge.</li>
+      <li><strong>The spec's two LMR38010</strong>, each laid out as a module &mdash; the 100&nbsp;nF
+      input cap, bootstrap, RT and feedback divider against the pins, the inductor and first output
+      cap within a few millimetres &mdash; 12&nbsp;V on the signal wedge's back, 5&nbsp;V on its front.
+      Their other ceramics go where the rest of the board leaves room (below).</li>
+      <li><strong>RS-485 relayed by the CPU</strong>: two ports, each a point-to-point full-duplex
+      link with its own receiver and driver.</li>
+      <li><strong>The 2&times;10 expansion header across the shaft axis</strong>, the middle of the
+      stack, 1.96&nbsp;mm clear of the nearest screw head.</li>
+    </ul>
+    <p><strong>Decided 2026-09-22</strong>, to make it fit:</p>
+    <ul class="checks">
+      <li class="done"><strong>The MT6701's five stitching vias move out about 2.5&nbsp;mm</strong>,
+      onto short stubs, to clear the header's pad rows. They are the stitcher's via-in-pad today;
+      a 1.27&nbsp;mm header's rows cannot straddle them. They stay inside the magnet keepout on the
+      back, where nothing else goes.</li>
+      <li class="done"><strong>Both RS-485 ports as JST-SH&nbsp;6 (1.0&nbsp;mm)</strong>, side by side
+      on the power wedge's motor-facing rim. Two JST-GH&nbsp;6 need 52&deg; of rim, the whole wedge,
+      bosses included; the USB-C's through-hole tabs take the other wedge's. SH holds by friction
+      only.</li>
+      <li class="done"><s>Small parts round each LMR38010</s>: 1&nbsp;&micro;F/100&nbsp;V 0805
+      in, a 3&nbsp;&times;&nbsp;3&nbsp;mm 33&nbsp;&micro;H inductor, 22&nbsp;&micro;F 0805 out. Replaced on
+      2026-09-23, below: the internal compensation wants TI's own L and C<sub>OUT</sub>.</li>
+    </ul>
+    <p><strong>Decided 2026-09-23: TI's parts round each LMR38010</strong> (SNVSC73B table 9-1,
+    400&nbsp;kHz from a 48&nbsp;V bus). The internal compensation is tuned for those values, and the
+    small parts were well off them &mdash; a 22&nbsp;&micro;F 0805 is a few &micro;F at 12&nbsp;V.</p>
+    <table class="num">
+      <thead><tr><th></th><th>12&nbsp;V gate rail</th><th>5&nbsp;V logic rail</th></tr></thead>
+      <tbody>
+        <tr><td>Inductor</td><td>68&nbsp;&micro;H SWPA4030S680MT, 4&times;4, 0.72&nbsp;A sat.</td><td>33&nbsp;&micro;H SWPA4030S330MT, 4&times;4, 1.1&nbsp;A sat.</td></tr>
+        <tr><td>Peak current at the spec's load</td><td>~0.3&nbsp;A at 0.1&nbsp;A</td><td>~0.7&nbsp;A at 0.5&nbsp;A</td></tr>
+        <tr><td>Output</td><td>22&nbsp;&micro;F/25&nbsp;V 1206 + 22&nbsp;&micro;F/25&nbsp;V 1210 X7R, ~20&nbsp;&micro;F at 12&nbsp;V (TI: 22 nominal, 15 minimum)</td><td>3 &times; 22&nbsp;&micro;F/25&nbsp;V 0805 (TI: 3 nominal, 2 minimum)</td></tr>
+        <tr><td>Input</td><td colspan="2">100&nbsp;nF/100&nbsp;V 0805 at the pins, 4.7&nbsp;&micro;F/100&nbsp;V 1206 X7S (TI: 4.7&nbsp;&micro;F minimum)</td></tr>
+      </tbody>
+    </table>
+    <p>They do not fit a rigid module: the signal wedge held the old one with fractions of a
+    millimetre to spare, and a 4&nbsp;&times;&nbsp;4 inductor alone left both bucks nowhere to go.
+    So the placer keeps rigid only what has to be on a pin, puts the inductor and first output
+    cap wherever they fit within a few millimetres of the pad they join, and places the rest
+    last. That still leaves three with no room in the link wedges &mdash; both 4.7&nbsp;&micro;F input
+    caps and the 12&nbsp;V rail's second 22&nbsp;&micro;F &mdash; and they go in the outward centre, at
+    the user's call. The 4.7&nbsp;&micro;F caps are 10&ndash;18&nbsp;mm from their bucks, on a finger of
+    In2's VBUS plane: across the In1/In2 plane pair that is a nanohenry or two, nothing at
+    400&nbsp;kHz, and the 100&nbsp;nF at each IC's pins takes the switching edges.</p>
+    <p><strong>Checked 2026-09-22: the cans' field at the encoder is not a problem.</strong> The
+    simulation's encoder phase, re-run for board S (<code>sim/run.py --phase P5S</code>), puts each
+    can's ripple loop where it runs &mdash; both leads, the inside of the can, and out round the
+    VBUS annulus to the bridges with the ground return beneath it &mdash; at the peak ripple of the
+    20&nbsp;A RMS burst, 8.2&nbsp;A per can. The cans add <strong>0.008&ndash;0.013&deg;</strong> over the
+    Dia&nbsp;6 magnet's gap tolerance, under a quarter of the 0.05&deg; criterion; in the power wedge
+    they would add 0.004&ndash;0.006&deg;. The leads are short stubs and the sensor is below their
+    ends, which is why the first estimate, 0.06&deg;, was high.</p>
+    <figure>
+      <img src="sim/report/img/p5s_board_s.png" alt="Left: worst angle error against air gap for the
+      Dia 6 magnet: the bulk-cap ripple adds under 0.013 degrees in the centre and under 0.006 in the
+      wedge, against a 0.05 degree criterion; the motor leads and copper add 0.10 to 0.16 degrees.
+      Right: angle error over a rotor revolution at the weakest field, 54 mT, with and without the
+      cans.">
+      <figcaption>What is over the criterion is the motor leads, not the cans &mdash; on board A as
+      much as here. With the Dia&nbsp;6 magnet the leads' error is 0.10&ndash;0.16&deg; (0.12&deg; at the
+      nominal 1.5&nbsp;mm gap), where P5 found 0.09&deg; with Dia&nbsp;8 at 1.0&nbsp;mm: the smaller magnet's
+      weaker field lets them move the angle further. The simulation's own fix stands and matters
+      more now: twist or bundle the three leads for the first 50&nbsp;mm.</figcaption>
+    </figure>
+    <h3>The RS-485 relay</h3>
+    <p>Port IN (upstream) is UART0 on GPIO0/1; port OUT (downstream) is a PIO UART on GPIO2/3,
+    which were RS485_DE and RS485_TERM_EN and are not needed any more: every driver is alone on
+    its pair, so its enable is tied on, and every receiver has a 120&nbsp;&Omega; across it, always
+    &mdash; the termination jumpers are gone. Four SIT3088 and four SM712, one per pair. The
+    pinout stays as the spec has it, named from each port's own side, so a straight cable still
+    works. <strong>The cost:</strong> a dead or unpowered drive cuts off everything below it, where
+    the spec's pass-through let the bus carry on.</p>
+    <h3>Two bucks or one</h3>
+    <p>The spec has two because a fault on the gate rail should not take the CPU down, and
+    because GATE_EN can then kill the gate rail through the 12&nbsp;V buck's own enable. Both
+    fit, so keep two. One buck with a load switch keeps the kill but not the isolation: the
+    TPS22810 has no current limit, and an eFuse that has one (TPS2596) is as big as the buck
+    it would save.</p>
+    <h3>What the centre carries</h3>
+    <p><strong>Outward face:</strong> the two cans, the expansion header across the axis, and the
+    LED, BOOTSEL and four test pads. <strong>Motor-facing face:</strong> parts under 1.5&nbsp;mm only,
+    outside the &#216;12 magnet keepout and 3.75&nbsp;mm clear of each M3 standoff &mdash; the four
+    SIT3088 with their decoupling and termination, in the quadrant toward the ports; the 3V3 LDO
+    and its row; the VBUS-detect divider. The cans' leads come through here too, trimmed flush.
+    <strong>Kept out:</strong> the bucks and their inductors, the TVS, the 60&nbsp;V divider, and the
+    ESD parts, which belong at their connectors. <strong>Let in (2026-09-23):</strong> three of
+    the bucks' ceramics that the link wedges had no room for &mdash; the two 4.7&nbsp;&micro;F/100&nbsp;V
+    input caps on the outward face beside phase A's DC-link caps, and the 12&nbsp;V rail's second
+    22&nbsp;&micro;F at the top of the centre, toward phase B's driver. None of them in front of
+    the CPU: between the M3 head at (0,&nbsp;&minus;9.5) and C1002 is the outward face's only way
+    from the RP2350 to the header, encoder and LED, and a cap there left five of them unrouted.
+    Nothing switching, nothing ferrous.</p>
+  </section>
+
+  <figure class="wide">
+    <object type="image/svg+xml" data="img/board_s_plan.svg" aria-label="Board S placement,
+      both faces: the arrangement that fits"></object>
+    <figcaption><a href="img/board_s_plan.svg">The arrangement that fits: cans in the centre,
+    the 3 kW TVS at the bus pads, two compact bucks, the RS-485 relay, the header across the
+    axis.</a> Filled: new or
+    re-placed. Grey: board A, unchanged. Tan: heatsink lands (outward) and phase lead pads
+    (motor side). Red: the bus lead pads. The motor-facing face is drawn as seen <em>through</em>
+    the board, so the two panels register.</figcaption>
+  </figure>
+
+  <section>
+    <h2>Why the rim, not the area</h2>
+    <p>A horizontal connector has to reach the board edge, and a round board has only
+    360&deg; of edge. Board A spends 204&deg; of it on the three phase cells &mdash; heatsink lands
+    on one face, motor lead pads and the phase pour on the other &mdash; and 52&deg; on the CPU
+    wedge's crystal and flash. That leaves the two link wedges, 52&deg; each,
+    with an M2.5 boss at each end. Measured at the rim:</p>
+    <table class="num">
+      <thead><tr><th></th><th>Rim it takes</th><th>Faces</th></tr></thead>
+      <tbody>
+        <tr><td>USB-C, HRO TYPE-C-31-M-12</td><td>26.6&deg;</td><td>both &mdash; its shell tabs are through-hole</td></tr>
+        <tr><td>JST-GH 6, horizontal</td><td>26.1&deg;</td><td>one</td></tr>
+        <tr><td>JST-SH 6, horizontal</td><td>21.8&deg;</td><td>one</td></tr>
+        <tr><td>One link wedge</td><td>52&deg;</td><td>a boss at each end</td></tr>
+      </tbody>
+    </table>
+    <p>So the signal wedge can hold the USB-C and nothing else of that size on either face, and
+    the power wedge can hold two SH&nbsp;6 but not two GH&nbsp;6. The only library USB-C with
+    SMD shell tabs is a 6-pin power-only part. The front of the power wedge is the two cans and
+    the bus pads; nothing deeper than 3&nbsp;mm fits outboard of the cans.</p>
+  </section>
+
+  <figure class="wide">
+    <object type="image/svg+xml" data="img/board_s_asked.svg" aria-label="Board S placement,
+      both faces: as specified"></object>
+    <figcaption><a href="img/board_s_asked.svg">As specified</a>, for comparison: two LMR38010,
+    one GH&nbsp;6 port per wedge, the SMC TVS by the bus pads. The parts that did not fit are
+    missing from the drawing.</figcaption>
+  </figure>
+
+  <section>
+    <h2>What board A's netlist changed</h2>
+    <ul>
+      <li><strong>Gone:</strong> J7, J8 (power link), J9 (signal link), TP1&ndash;TP3. C603 and
+      C604 stay as the two rails' output caps.</li>
+      <li><strong>GPIO:</strong> 0/1 UART0 for RS-485 port IN; 2/3 a PIO UART for port OUT (they
+      were RS485_DE and RS485_TERM_EN). 19&ndash;24 to the expansion header &mdash; 20/21 are I2C0
+      SDA/SCL and 20&ndash;23 are SPI0 RX/CSn/SCK/TX, which covers a FUSB302 or a W5500, and 19 and
+      24 are interrupt and reset. USB_VBUS_DET moves from 22 to 25. SWCLK and SWDIO go to the
+      header too, and to test pads.</li>
+      <li><strong>Per-phase clamps:</strong> TPSMF4L64A &rarr; the 54&nbsp;V grade, to match a
+      48&nbsp;V bus and the 54&nbsp;V bus TVS.</li>
+      <li><strong>New:</strong> the parts in the table below &mdash; 69 placed, 103 of board A's
+      kept where they are, and two bus pads. GPIO14 is <code>GATE_OFF</code>, active high (see
+      above).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Not checked yet</h2>
+    <ul class="checks">
+      <li><strong>The bucks' loops, on the bench.</strong> The passives are TI's table-9-1 values
+      now, but the effective output capacitance at bias is an estimate from typical X5R/X7R
+      curves, not a datasheet figure, and TI asks for a load-transient test or Bode plot before
+      production. Neither inductor is rated to the LMR38010's 1.9&nbsp;A high-side limit (TI's
+      "ideally"): a hard short on either rail saturates it until hiccup mode stops the part.</li>
+      <li><strong>The motor-facing centre.</strong> Heights are package maxima, not chosen parts;
+      whatever is bought has to stay under 1.5&nbsp;mm. Some SOT and DFN lead frames are Alloy&nbsp;42,
+      which is magnetic; at 7&ndash;16&nbsp;mm from the sensor it should not matter, and the encoder's
+      field budget has not been re-run to prove it.</li>
+      <li><strong>Copper under the standoffs.</strong> On the motor-facing face a few tracks and a
+      via sit inside the M3 standoffs' 3.25&nbsp;mm circles &mdash; on board A as well, where
+      <code>route.py</code> keeps copper only from under the screw heads on the outward face. Under
+      solder mask, and not yet a rule.</li>
+      <li><strong>P5S predates the cans' leads being turned.</strong> The encoder check modelled
+      the cans in the same places with + inboard; + is outboard now, onto In2's VBUS. Same two
+      leads, same loop, polarity reversed; not re-run.</li>
+      <li><strong>Height.</strong> The cans are 12&ndash;13&nbsp;mm tall on the outward face;
+      board B's standoffs were 11&nbsp;mm. A stacked expansion board needs longer standoffs or a
+      cutout over the cans.</li>
+      <li><strong>The heatsink ring.</strong> Board A clamps an aluminium ring on the phase cells'
+      lands. The USB-C reaches the edge in the signal wedge, so a continuous ring would need a gap
+      there.</li>
+      <li><strong>VMOT through the header.</strong> A PD board feeding the bus puts up to
+      5&nbsp;A through the header, whose end pins are about 6&nbsp;mm from the encoder. With VMOT and GND
+      pins paired it passes as a dipole, roughly 0.1&nbsp;mT against the magnet's 20&ndash;100
+      &mdash; estimated, not simulated.</li>
+      <li><strong>The cans' ripple rating.</strong> At a 20&nbsp;A RMS burst the bulk carries about
+      12&nbsp;A RMS, 6&nbsp;A per can; C2887236's rating is not read yet.</li>
+      <li><strong>RS-485 fail-safe.</strong> Every receiver has a permanent 120&nbsp;&Omega; and no
+      bias network; an idle or open link relies on the SIT3088's own fail-safe, which the
+      datasheet has to be shown to give with the termination present (the sister project's F-01).</li>
+      <li><strong>The RGB LED's pinout.</strong> <code>LED_RGB_1210</code> with a common anode on
+      pad 4 is an assumption: 1210 RGB parts differ. Check against the part bought.</li>
+      <li><strong>Firmware.</strong> GPIO14 is <code>GATE_OFF</code>, active high; UART0 on
+      GPIO0/1 is port IN and a PIO UART on 2/3 port OUT; USB_VBUS_DET is GPIO25; 19&ndash;24 go to the
+      expansion header.</li>
+      <li><strong>Stock.</strong> The bucks' parts are checked at JLCPCB (2026-09-23):
+      LMR38010SDDAR C5219310, SWPA4030S680MT C83473, SWPA4030S330MT C83470, 4.7&nbsp;&micro;F/100&nbsp;V
+      1206 C237304, 100&nbsp;nF/100&nbsp;V 0805 C28233, 22&nbsp;&micro;F/25&nbsp;V 1206 C12891, 1210 C21397,
+      0805 C45783; C2887236 is stocked. SMDJ54A, TPSMF4L54A, SIT3088 and SM712 are not checked
+      yet.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>The new and re-placed parts</h2>
+    <p class="sub">The arrangement that fits. R is the courtyard centre's radius; the centre's
+    parts say which face.</p>
+    <table class="parts">
+      <thead><tr><th>Ref</th><th>Value</th><th>Where</th><th>R</th><th>Note</th></tr></thead>
+      <tbody>
+<!-- parts:begin -->
+<tr><td>C801</td><td>100n</td><td>power wedge, 230&deg;, motor side</td><td>R 21.1</td><td>ADC2 filter</td></tr>
+<tr><td>D1101</td><td>SM712</td><td>power wedge, 230&deg;, motor side</td><td>R 23.6</td><td>RS-485 ESD, IN, DOWN pair, at the port</td></tr>
+<tr><td>D1102</td><td>SM712</td><td>power wedge, 230&deg;, motor side</td><td>R 23.6</td><td>RS-485 ESD, IN, UP pair, at the port</td></tr>
+<tr><td>D1104</td><td>SM712</td><td>power wedge, 230&deg;, motor side</td><td>R 23.6</td><td>RS-485 ESD, OUT, DOWN pair, at the port</td></tr>
+<tr><td>D1105</td><td>SM712</td><td>power wedge, 230&deg;, motor side</td><td>R 23.7</td><td>RS-485 ESD, OUT, UP pair, at the port</td></tr>
+<tr><td>J14</td><td>RS485 IN (upstream)</td><td>power wedge, 230&deg;, motor side</td><td>R 28.7</td><td>full-duplex RS-485, JST-SH 6, motor-facing rim, mouth outward</td></tr>
+<tr><td>J15</td><td>RS485 OUT (downstream)</td><td>power wedge, 230&deg;, motor side</td><td>R 28.7</td><td>a link of its own, relayed by the CPU</td></tr>
+<tr><td>R801</td><td>56k 0.1%</td><td>power wedge, 230&deg;, motor side</td><td>R 19.1</td><td>bus divider, high leg</td></tr>
+<tr><td>R802</td><td>4k7 0.1%</td><td>power wedge, 230&deg;, motor side</td><td>R 18.8</td><td>bus divider, low leg</td></tr>
+<tr><td>R806</td><td>56k 0.1%</td><td>power wedge, 230&deg;, motor side</td><td>R 19.1</td><td>bus divider, high leg, second half</td></tr>
+<tr><td>D1001</td><td>SMDJ54A</td><td>power wedge, 230&deg;, outward</td><td>R 23.6</td><td>bus TVS, 3 kW, 54 V standoff, 60-66 V breakdown</td></tr>
+<tr><td>C1102</td><td>100n</td><td>centre, motor side</td><td>R 14.6</td><td>U14 decoupling, at VCC</td></tr>
+<tr><td>C1103</td><td>100n</td><td>centre, motor side</td><td>R 16.1</td><td>U15 decoupling, at VCC</td></tr>
+<tr><td>C1104</td><td>100n</td><td>centre, motor side</td><td>R 13.0</td><td>U17 decoupling, at VCC</td></tr>
+<tr><td>C1105</td><td>100n</td><td>centre, motor side</td><td>R 10.9</td><td>U18 decoupling, at VCC</td></tr>
+<tr><td>C712</td><td>1u</td><td>centre, motor side</td><td>R 12.7</td><td>3V3 out</td></tr>
+<tr><td>C713</td><td>1u</td><td>centre, motor side</td><td>R 14.9</td><td>5 V in</td></tr>
+<tr><td>C717</td><td>100n</td><td>centre, motor side</td><td>R 15.2</td><td>RUN</td></tr>
+<tr><td>C802</td><td>100n</td><td>centre, motor side</td><td>R 14.7</td><td>ADC3 filter</td></tr>
+<tr><td>R1103</td><td>10k</td><td>centre, motor side</td><td>R 13.3</td><td>VBUS_DET divider, top</td></tr>
+<tr><td>R1104</td><td>15k</td><td>centre, motor side</td><td>R 14.8</td><td>VBUS_DET divider, bottom -&gt; GPIO25</td></tr>
+<tr><td>R1105</td><td>120R</td><td>centre, motor side</td><td>R 15.3</td><td>port IN DOWN pair termination, always on</td></tr>
+<tr><td>R1106</td><td>120R</td><td>centre, motor side</td><td>R 7.9</td><td>port OUT UP pair termination, always on</td></tr>
+<tr><td>R704</td><td>10k</td><td>centre, motor side</td><td>R 15.8</td><td>RUN pull-up</td></tr>
+<tr><td>R705</td><td>10k</td><td>centre, motor side</td><td>R 15.8</td><td>FAULT_n pull-up</td></tr>
+<tr><td>R803</td><td>10k 0.1%</td><td>centre, motor side</td><td>R 11.6</td><td>thermistor divider -&gt; ADC3</td></tr>
+<tr><td>U14</td><td>SIT3088</td><td>centre, motor side</td><td>R 13.7</td><td>port IN: receiver, DOWN pair -&gt; UART0 RX</td></tr>
+<tr><td>U15</td><td>SIT3088</td><td>centre, motor side</td><td>R 14.1</td><td>port IN: driver, UP pair &lt;- UART0 TX, DE on</td></tr>
+<tr><td>U17</td><td>SIT3088</td><td>centre, motor side</td><td>R 10.2</td><td>port OUT: driver, DOWN pair &lt;- PIO TX, DE on</td></tr>
+<tr><td>U18</td><td>SIT3088</td><td>centre, motor side</td><td>R 8.2</td><td>port OUT: receiver, UP pair -&gt; PIO RX</td></tr>
+<tr><td>U9</td><td>SPX3819-3.3</td><td>centre, motor side</td><td>R 9.2</td><td>5 V -&gt; 3V3</td></tr>
+<tr><td>C1001</td><td>100u/100V polymer</td><td>centre, outward</td><td>R 14.5</td><td>bulk, C2887236, Dia 10 x 12, in the centre, + lead outward</td></tr>
+<tr><td>C1002</td><td>100u/100V polymer</td><td>centre, outward</td><td>R 15.3</td><td>bulk, C2887236, Dia 10 x 12, in the centre, + lead outward</td></tr>
+<tr><td>C1004</td><td>4u7/100V</td><td>centre, outward</td><td>R 14.9</td><td>+12 V buck input, 4.7 uF ceramic; in the outward centre, 10 mm from C1003</td></tr>
+<tr><td>C1007</td><td>4u7/100V</td><td>centre, outward</td><td>R 11.0</td><td>+5 V buck input, 4.7 uF ceramic; in the outward centre, 17 mm from C1006</td></tr>
+<tr><td>C1009</td><td>22u/25V</td><td>centre, outward</td><td>R 8.7</td><td>+12 V out; in the outward centre, 11 mm from C603</td></tr>
+<tr><td>D1103</td><td>RGB</td><td>centre, outward</td><td>R 12.7</td><td>status LED, three GPIO</td></tr>
+<tr><td>J13</td><td>EXPANSION</td><td>centre, outward</td><td>R 0.0</td><td>2x10 1.27 SMD: 4 VMOT, 5 GND, +5V, +3V3, RUN, GPIO19-24, SWCLK, SWDIO; across the axis, the MT6701's vias moved clear</td></tr>
+<tr><td>R1107</td><td>1k</td><td>centre, outward</td><td>R 13.2</td><td>LED series</td></tr>
+<tr><td>R1108</td><td>1k</td><td>centre, outward</td><td>R 13.8</td><td>LED series</td></tr>
+<tr><td>R1109</td><td>1k</td><td>centre, outward</td><td>R 15.2</td><td>LED series</td></tr>
+<tr><td>SW1</td><td>BOOTSEL</td><td>centre, outward</td><td>R 12.7</td><td>BOOTSEL to GND, via R701</td></tr>
+<tr><td>TP4</td><td>ADC3</td><td>centre, outward</td><td>R 7.4</td><td>test point, ADC3, outward face</td></tr>
+<tr><td>TP5</td><td>SWCLK</td><td>centre, outward</td><td>R 9.6</td><td>test point, SWCLK, outward face</td></tr>
+<tr><td>TP6</td><td>SWDIO</td><td>centre, outward</td><td>R 6.4</td><td>test point, SWDIO, outward face</td></tr>
+<tr><td>TP7</td><td>RUN</td><td>centre, outward</td><td>R 8.8</td><td>test point, RUN, outward face</td></tr>
+<tr><td>C1003</td><td>100n/100V</td><td>signal wedge, 334&deg;, motor side</td><td>R 22.3</td><td>+12 V buck input, HF, at VIN/GND</td></tr>
+<tr><td>C1005</td><td>100n</td><td>signal wedge, 334&deg;, motor side</td><td>R 28.7</td><td>+12 V bootstrap, BOOT to SW</td></tr>
+<tr><td>C1011</td><td>22u/25V</td><td>signal wedge, 334&deg;, motor side</td><td>R 29.7</td><td>+5 V out</td></tr>
+<tr><td>C603</td><td>22u/25V</td><td>signal wedge, 334&deg;, motor side</td><td>R 19.6</td><td>+12 V out</td></tr>
+<tr><td>D1002</td><td>B5819WS</td><td>signal wedge, 334&deg;, motor side</td><td>R 20.3</td><td>USB VBUS -&gt; +5V</td></tr>
+<tr><td>D1003</td><td>B5819WS</td><td>signal wedge, 334&deg;, motor side</td><td>R 17.9</td><td>5 V buck -&gt; +5V, so USB cannot back-feed the rails</td></tr>
+<tr><td>L1001</td><td>68u</td><td>signal wedge, 334&deg;, motor side</td><td>R 21.6</td><td>+12 V buck inductor, SWPA4030S680MT</td></tr>
+<tr><td>Q1001</td><td>2N7002</td><td>signal wedge, 334&deg;, motor side</td><td>R 25.1</td><td>GATE_OFF high pulls EN low: kills the gate rail</td></tr>
+<tr><td>R1001</td><td>100k</td><td>signal wedge, 334&deg;, motor side</td><td>R 30.4</td><td>+12 V feedback, top</td></tr>
+<tr><td>R1002</td><td>9k09</td><td>signal wedge, 334&deg;, motor side</td><td>R 30.2</td><td>+12 V feedback, bottom</td></tr>
+<tr><td>R1003</td><td>470k</td><td>signal wedge, 334&deg;, motor side</td><td>R 21.1</td><td>EN from VMOT: UVLO, on unless pulled down</td></tr>
+<tr><td>R1004</td><td>68k</td><td>signal wedge, 334&deg;, motor side</td><td>R 19.2</td><td>EN divider, bottom: 9.9 V start</td></tr>
+<tr><td>R1005</td><td>4k7</td><td>signal wedge, 334&deg;, motor side</td><td>R 23.2</td><td>GATE_OFF pull-down: the rail is ON through reset, so a reset brakes; 4k7 clears E9</td></tr>
+<tr><td>R1008</td><td>64k9</td><td>signal wedge, 334&deg;, motor side</td><td>R 26.9</td><td>+12 V RT: 400 kHz</td></tr>
+<tr><td>R1101</td><td>5k1</td><td>signal wedge, 334&deg;, motor side</td><td>R 22.5</td><td>CC1 pull-down: a sink, 5 V only</td></tr>
+<tr><td>R1102</td><td>5k1</td><td>signal wedge, 334&deg;, motor side</td><td>R 21.4</td><td>CC2 pull-down</td></tr>
+<tr><td>U11</td><td>LMR38010SDDAR</td><td>signal wedge, 334&deg;, motor side</td><td>R 26.0</td><td>+12 V rail, EN on a VMOT divider, GATE_OFF pulls it down</td></tr>
+<tr><td>U13</td><td>USBLC6-2SC6</td><td>signal wedge, 334&deg;, motor side</td><td>R 28.8</td><td>USB ESD, as close to the connector as the wedge allows</td></tr>
+<tr><td>C1006</td><td>100n/100V</td><td>signal wedge, 334&deg;, outward</td><td>R 26.7</td><td>+5 V buck input, HF, at VIN/GND</td></tr>
+<tr><td>C1008</td><td>100n</td><td>signal wedge, 334&deg;, outward</td><td>R 20.2</td><td>+5 V bootstrap, BOOT to SW</td></tr>
+<tr><td>C1010</td><td>22u/25V</td><td>signal wedge, 334&deg;, outward</td><td>R 19.3</td><td>+5 V out</td></tr>
+<tr><td>C604</td><td>22u/25V</td><td>signal wedge, 334&deg;, outward</td><td>R 29.4</td><td>+5 V out</td></tr>
+<tr><td>J12</td><td>USB-C</td><td>signal wedge, 334&deg;, outward</td><td>R 27.2</td><td>USB 2.0 data + 5 V logic, no PD; HRO TYPE-C-31-M-12</td></tr>
+<tr><td>L1002</td><td>33u</td><td>signal wedge, 334&deg;, outward</td><td>R 27.0</td><td>+5 V buck inductor, SWPA4030S330MT</td></tr>
+<tr><td>R1006</td><td>100k</td><td>signal wedge, 334&deg;, outward</td><td>R 18.7</td><td>+5 V feedback, top</td></tr>
+<tr><td>R1007</td><td>24k9</td><td>signal wedge, 334&deg;, outward</td><td>R 18.3</td><td>+5 V feedback, bottom</td></tr>
+<tr><td>R1009</td><td>64k9</td><td>signal wedge, 334&deg;, outward</td><td>R 22.3</td><td>+5 V RT: 400 kHz</td></tr>
+<tr><td>U12</td><td>LMR38010SDDAR</td><td>signal wedge, 334&deg;, outward</td><td>R 22.4</td><td>+5 V rail, logic; EN tied to VIN</td></tr>
+<!-- parts:end -->
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  <p>2026-09-22. Decisions this rests on: 48&nbsp;V max; 2&nbsp;&times;&nbsp;C2887236
+  (100&nbsp;&micro;F/100&nbsp;V polymer, Dia&nbsp;10); a 54&nbsp;V TVS; full-duplex RS-485; an expansion
+  header for PD or Ethernet; both centres open to low-current parts, the motor-facing one
+  under 1.5&nbsp;mm. The two-board design stays; this is a variant of board A.</p>
+</footer>
+
+<script src="copper.js"></script>
+</body>
+</html>

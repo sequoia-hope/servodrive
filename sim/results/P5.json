@@ -1,0 +1,607 @@
+{
+ "Q10": {
+  "question": "Q10",
+  "sensor_point_mm": [
+   0.0,
+   0.0,
+   2.445001
+  ],
+  "criterion": "B at the IC within 20-100 mT over the gap tolerance; current-induced angle error <= 0.05 deg (about 2 LSB of the 14-bit word)",
+  "magnet": [
+   {
+    "grade": "N35",
+    "B_r_T": 1.195,
+    "gap_mm": 0.5,
+    "off_axis_mm": 0.0,
+    "B_inplane_mT": 110.75123988564428,
+    "B_z_mT": 0.0,
+    "in_window": false
+   },
+   {
+    "grade": "N35",
+    "B_r_T": 1.195,
+    "gap_mm": 0.5,
+    "off_axis_mm": 0.3,
+    "B_inplane_mT": 110.60767240175635,
+    "B_z_mT": 10.677836213414619,
+    "in_window": false
+   },
+   {
+    "grade": "N35",
+    "B_r_T": 1.195,
+    "gap_mm": 1.0,
+    "off_axis_mm": 0.0,
+    "B_inplane_mT": 93.68648706175172,
+    "B_z_mT": 0.0,
+    "in_window": true
+   },
+   {
+    "grade": "N35",
+    "B_r_T": 1.195,
+    "gap_mm": 1.0,
+    "off_axis_mm": 0.3,
+    "B_inplane_mT": 93.4346797628454,
+    "B_z_mT": 9.763464826004896,
+    "in_window": true
+   },
+   {
+    "grade": "N35",
+    "B_r_T": 1.195,
+    "gap_mm": 1.5,
+    "off_axis_mm": 0.0,
+    "B_inplane_mT": 78.4322166277373,
+    "B_z_mT": 0.0,
+    "in_window": true
+   },
+   {
+    "grade": "N35",
+    "B_r_T": 1.195,
+    "gap_mm": 1.5,
+    "off_axis_mm": 0.3,
+    "B_inplane_mT": 78.14010026076686,
+    "B_z_mT": 8.528681054166235,
+    "in_window": true
+   },
+   {
+    "grade": "N35",
+    "B_r_T": 1.195,
+    "gap_mm": 2.0,
+    "off_axis_mm": 0.0,
+    "B_inplane_mT": 65.30590547003295,
+    "B_z_mT": 0.0,
+    "in_window": true
+   },
+   {
+    "grade": "N35",
+    "B_r_T": 1.195,
+    "gap_mm": 2.0,
+    "off_axis_mm": 0.3,
+    "B_inplane_mT": 65.01828070007959,
+    "B_z_mT": 7.225092310940173,
+    "in_window": true
+   },
+   {
+    "grade": "N42",
+    "B_r_T": 1.3,
+    "gap_mm": 0.5,
+    "off_axis_mm": 0.0,
+    "B_inplane_mT": 120.48252037768835,
+    "B_z_mT": 0.0,
+    "in_window": false
+   },
+   {
+    "grade": "N42",
+    "B_r_T": 1.3,
+    "gap_mm": 0.5,
+    "off_axis_mm": 0.3,
+    "B_inplane_mT": 120.3263381776429,
+    "B_z_mT": 11.61605613174812,
+    "in_window": false
+   },
+   {
+    "grade": "N42",
+    "B_r_T": 1.3,
+    "gap_mm": 1.0,
+    "off_axis_mm": 0.0,
+    "B_inplane_mT": 101.918354125755,
+    "B_z_mT": 0.0,
+    "in_window": false
+   },
+   {
+    "grade": "N42",
+    "B_r_T": 1.3,
+    "gap_mm": 1.0,
+    "off_axis_mm": 0.3,
+    "B_inplane_mT": 101.64442149932971,
+    "B_z_mT": 10.62134248854089,
+    "in_window": false
+   },
+   {
+    "grade": "N42",
+    "B_r_T": 1.3,
+    "gap_mm": 1.5,
+    "off_axis_mm": 0.0,
+    "B_inplane_mT": 85.3237503063251,
+    "B_z_mT": 0.0,
+    "in_window": true
+   },
+   {
+    "grade": "N42",
+    "B_r_T": 1.3,
+    "gap_mm": 1.5,
+    "off_axis_mm": 0.3,
+    "B_inplane_mT": 85.00596681087607,
+    "B_z_mT": 9.278063071477913,
+    "in_window": true
+   },
+   {
+    "grade": "N42",
+    "B_r_T": 1.3,
+    "gap_mm": 2.0,
+    "off_axis_mm": 0.0,
+    "B_inplane_mT": 71.04408126447099,
+    "B_z_mT": 0.0,
+    "in_window": true
+   },
+   {
+    "grade": "N42",
+    "B_r_T": 1.3,
+    "gap_mm": 2.0,
+    "off_axis_mm": 0.3,
+    "B_inplane_mT": 70.73118402519118,
+    "B_z_mT": 7.859933057926549,
+    "in_window": true
+   }
+  ],
+  "magnet_window_ok": false,
+  "magnet_dia6_reference": [
+   {
+    "gap_mm": 0.5,
+    "B_inplane_mT": 111.75311288980909
+   },
+   {
+    "gap_mm": 1.0,
+    "B_inplane_mT": 88.05056116303594
+   },
+   {
+    "gap_mm": 2.0,
+    "B_inplane_mT": 54.1610862103152
+   }
+  ],
+  "current_field": {
+   "n_elements": 30747,
+   "B_per_amp_nT": {
+    "A": [
+     2.271368550523561,
+     -2.7015760700450326,
+     14.45516372381721
+    ],
+    "B": [
+     3.396216624313368,
+     1.1248530864756563,
+     15.055934294333845
+    ],
+    "C": [
+     0.247447629611027,
+     3.5514911199369847,
+     14.445631261721871
+    ]
+   },
+   "B_from_copper_inplane_mT_at_peak": 0.00014311017746042909,
+   "B_from_leads_0.05m_mT": 0.12594626430448422,
+   "B_from_leads_0.25m_mT": 0.13586503398687608,
+   "B_from_leads_0.5m_mT": 0.1364541740597005,
+   "note": "the board copper contributes little because the three phase pours are symmetric about the shaft axis and their in-plane fields cancel; the leads, which leave the board at three points and do not, are what is left"
+  },
+  "angle_error": {
+   "sweep": [
+    {
+     "rotor_deg": 0.0,
+     "err_deg": -0.08299936652170459,
+     "B_total_inplane_mT": 93.68498048000602
+    },
+    {
+     "rotor_deg": 4.931506849315069,
+     "err_deg": -0.0859633803212887,
+     "B_total_inplane_mT": 93.67858338452893
+    },
+    {
+     "rotor_deg": 9.863013698630137,
+     "err_deg": -0.08821376910816525,
+     "B_total_inplane_mT": 93.6714508622318
+    },
+    {
+     "rotor_deg": 14.794520547945206,
+     "err_deg": -0.08968388789563164,
+     "B_total_inplane_mT": 93.66379360644297
+    },
+    {
+     "rotor_deg": 19.726027397260275,
+     "err_deg": -0.09033010470426461,
+     "B_total_inplane_mT": 93.65583786405645
+    },
+    {
+     "rotor_deg": 24.657534246575345,
+     "err_deg": -0.09013311088935438,
+     "B_total_inplane_mT": 93.64781875946795
+    },
+    {
+     "rotor_deg": 29.589041095890412,
+     "err_deg": -0.08909851613438491,
+     "B_total_inplane_mT": 93.63997334972844
+    },
+    {
+     "rotor_deg": 34.52054794520548,
+     "err_deg": -0.08725670768166083,
+     "B_total_inplane_mT": 93.6325336155659
+    },
+    {
+     "rotor_deg": 39.45205479452055,
+     "err_deg": -0.08466197502070827,
+     "B_total_inplane_mT": 93.62571959564325
+    },
+    {
+     "rotor_deg": 44.38356164383562,
+     "err_deg": -0.08139092321036401,
+     "B_total_inplane_mT": 93.61973286798795
+    },
+    {
+     "rotor_deg": 49.31506849315069,
+     "err_deg": -0.07754021960235491,
+     "B_total_inplane_mT": 93.61475057295348
+    },
+    {
+     "rotor_deg": 54.24657534246575,
+     "err_deg": -0.07322373925276793,
+     "B_total_inplane_mT": 93.61092015655707
+    },
+    {
+     "rotor_deg": 59.178082191780824,
+     "err_deg": -0.06856919305656106,
+     "B_total_inplane_mT": 93.60835499198076
+    },
+    {
+     "rotor_deg": 64.10958904109589,
+     "err_deg": -0.06371433894616985,
+     "B_total_inplane_mT": 93.60713101102004
+    },
+    {
+     "rotor_deg": 69.04109589041096,
+     "err_deg": -0.058802889758311494,
+     "B_total_inplane_mT": 93.60728444708573
+    },
+    {
+     "rotor_deg": 73.97260273972603,
+     "err_deg": -0.053980241089362835,
+     "B_total_inplane_mT": 93.60881075794504
+    },
+    {
+     "rotor_deg": 78.9041095890411,
+     "err_deg": -0.04938914825214624,
+     "B_total_inplane_mT": 93.61166476077614
+    },
+    {
+     "rotor_deg": 83.83561643835617,
+     "err_deg": -0.0451654830876862,
+     "B_total_inplane_mT": 93.61576197545162
+    },
+    {
+     "rotor_deg": 88.76712328767124,
+     "err_deg": -0.041434198811884926,
+     "B_total_inplane_mT": 93.62098113543773
+    },
+    {
+     "rotor_deg": 93.69863013698631,
+     "err_deg": -0.038305624387874104,
+     "B_total_inplane_mT": 93.62716779047595
+    },
+    {
+     "rotor_deg": 98.63013698630138,
+     "err_deg": -0.0358721993737845,
+     "B_total_inplane_mT": 93.63413889242504
+    },
+    {
+     "rotor_deg": 103.56164383561644,
+     "err_deg": -0.03420574620992056,
+     "B_total_inplane_mT": 93.64168822631677
+    },
+    {
+     "rotor_deg": 108.4931506849315,
+     "err_deg": -0.033355360005543844,
+     "B_total_inplane_mT": 93.6495925237107
+    },
+    {
+     "rotor_deg": 113.42465753424658,
+     "err_deg": -0.03334597668481365,
+     "B_total_inplane_mT": 93.65761807556392
+    },
+    {
+     "rotor_deg": 118.35616438356165,
+     "err_deg": -0.03417765953301455,
+     "B_total_inplane_mT": 93.66552764760588
+    },
+    {
+     "rotor_deg": 123.28767123287672,
+     "err_deg": -0.035825622452222206,
+     "B_total_inplane_mT": 93.67308749298698
+    },
+    {
+     "rotor_deg": 128.21917808219177,
+     "err_deg": -0.03824098628950878,
+     "B_total_inplane_mT": 93.68007425490866
+    },
+    {
+     "rotor_deg": 133.15068493150685,
+     "err_deg": -0.04135224310988406,
+     "B_total_inplane_mT": 93.68628155600733
+    },
+    {
+     "rotor_deg": 138.08219178082192,
+     "err_deg": -0.04506738286050904,
+     "B_total_inplane_mT": 93.69152608124011
+    },
+    {
+     "rotor_deg": 143.013698630137,
+     "err_deg": -0.04927661805825778,
+     "B_total_inplane_mT": 93.69565297652727
+    },
+    {
+     "rotor_deg": 147.94520547945206,
+     "err_deg": -0.05385562539447619,
+     "B_total_inplane_mT": 93.69854040592624
+    },
+    {
+     "rotor_deg": 152.87671232876713,
+     "err_deg": -0.058669208874931655,
+     "B_total_inplane_mT": 93.70010313500265
+    },
+    {
+     "rotor_deg": 157.8082191780822,
+     "err_deg": -0.0635752776018137,
+     "B_total_inplane_mT": 93.70029503658974
+    },
+    {
+     "rotor_deg": 162.73972602739727,
+     "err_deg": -0.06842902279203145,
+     "B_total_inplane_mT": 93.69911044647442
+    },
+    {
+     "rotor_deg": 167.67123287671234,
+     "err_deg": -0.07308717326907299,
+     "B_total_inplane_mT": 93.69658432985132
+    },
+    {
+     "rotor_deg": 172.6027397260274,
+     "err_deg": -0.07741220656396308,
+     "B_total_inplane_mT": 93.69279125373816
+    },
+    {
+     "rotor_deg": 177.53424657534248,
+     "err_deg": -0.0812763939488832,
+     "B_total_inplane_mT": 93.68784319502979
+    },
+    {
+     "rotor_deg": 182.46575342465755,
+     "err_deg": -0.08456556218669675,
+     "B_total_inplane_mT": 93.68188624755172
+    },
+    {
+     "rotor_deg": 187.39726027397262,
+     "err_deg": -0.08718246242838745,
+     "B_total_inplane_mT": 93.67509632345637
+    },
+    {
+     "rotor_deg": 192.3287671232877,
+     "err_deg": -0.08904964738715648,
+     "B_total_inplane_mT": 93.66767397369775
+    },
+    {
+     "rotor_deg": 197.26027397260276,
+     "err_deg": -0.09011177145382021,
+     "B_total_inplane_mT": 93.65983847830014
+    },
+    {
+     "rotor_deg": 202.1917808219178,
+     "err_deg": -0.0903372445062871,
+     "B_total_inplane_mT": 93.6518213789384
+    },
+    {
+     "rotor_deg": 207.12328767123287,
+     "err_deg": -0.08971918844670768,
+     "B_total_inplane_mT": 93.64385964330809
+    },
+    {
+     "rotor_deg": 212.05479452054794,
+     "err_deg": -0.0882756655290109,
+     "B_total_inplane_mT": 93.6361886623188
+    },
+    {
+     "rotor_deg": 216.986301369863,
+     "err_deg": -0.0860491687932381,
+     "B_total_inplane_mT": 93.62903528688284
+    },
+    {
+     "rotor_deg": 221.91780821917808,
+     "err_deg": -0.08310538680731838,
+     "B_total_inplane_mT": 93.6226111107226
+    },
+    {
+     "rotor_deg": 226.84931506849315,
+     "err_deg": -0.07953127677831162,
+     "B_total_inplane_mT": 93.61710619910559
+    },
+    {
+     "rotor_deg": 231.78082191780823,
+     "err_deg": -0.07543250123760004,
+     "B_total_inplane_mT": 93.6126834508307
+    },
+    {
+     "rotor_deg": 236.7123287671233,
+     "err_deg": -0.07093030322585037,
+     "B_total_inplane_mT": 93.60947376244138
+    },
+    {
+     "rotor_deg": 241.64383561643837,
+     "err_deg": -0.06615791250999337,
+     "B_total_inplane_mT": 93.60757214002642
+    },
+    {
+     "rotor_deg": 246.57534246575344,
+     "err_deg": -0.06125659021998331,
+     "B_total_inplane_mT": 93.60703487576876
+    },
+    {
+     "rotor_deg": 251.5068493150685,
+     "err_deg": -0.056371430837572234,
+     "B_total_inplane_mT": 93.60787787448137
+    },
+    {
+     "rotor_deg": 256.43835616438355,
+     "err_deg": -0.05164704826174216,
+     "B_total_inplane_mT": 93.61007618071339
+    },
+    {
+     "rotor_deg": 261.36986301369865,
+     "err_deg": -0.04722327641113111,
+     "B_total_inplane_mT": 93.61356472073001
+    },
+    {
+     "rotor_deg": 266.3013698630137,
+     "err_deg": -0.043231014354972785,
+     "B_total_inplane_mT": 93.61824023692579
+    },
+    {
+     "rotor_deg": 271.2328767123288,
+     "err_deg": -0.039788341308593544,
+     "B_total_inplane_mT": 93.6239643562131
+    },
+    {
+     "rotor_deg": 276.16438356164383,
+     "err_deg": -0.036997018174048435,
+     "B_total_inplane_mT": 93.63056769978692
+    },
+    {
+     "rotor_deg": 281.09589041095893,
+     "err_deg": -0.03493947998194358,
+     "B_total_inplane_mT": 93.63785491048931
+    },
+    {
+     "rotor_deg": 286.027397260274,
+     "err_deg": -0.033676408074825304,
+     "B_total_inplane_mT": 93.64561044674753
+    },
+    {
+     "rotor_deg": 290.95890410958907,
+     "err_deg": -0.033244952737760514,
+     "B_total_inplane_mT": 93.65360496956093
+    },
+    {
+     "rotor_deg": 295.8904109589041,
+     "err_deg": -0.03365765688408828,
+     "B_total_inplane_mT": 93.66160213190696
+    },
+    {
+     "rotor_deg": 300.8219178082192,
+     "err_deg": -0.0349021100426512,
+     "B_total_inplane_mT": 93.66936556868019
+    },
+    {
+     "rotor_deg": 305.75342465753425,
+     "err_deg": -0.03694133996552296,
+     "B_total_inplane_mT": 93.6766658801313
+    },
+    {
+     "rotor_deg": 310.68493150684935,
+     "err_deg": -0.03971492737798599,
+     "B_total_inplane_mT": 93.68328740278885
+    },
+    {
+     "rotor_deg": 315.6164383561644,
+     "err_deg": -0.043140808360675464,
+     "B_total_inplane_mT": 93.6890345689057
+    },
+    {
+     "rotor_deg": 320.54794520547944,
+     "err_deg": -0.04711770917126046,
+     "B_total_inplane_mT": 93.69373766826902
+    },
+    {
+     "rotor_deg": 325.47945205479454,
+     "err_deg": -0.05152814048273058,
+     "B_total_inplane_mT": 93.69725784430058
+    },
+    {
+     "rotor_deg": 330.4109589041096,
+     "err_deg": -0.05624186246592444,
+     "B_total_inplane_mT": 93.69949117916379
+    },
+    {
+     "rotor_deg": 335.3424657534247,
+     "err_deg": -0.06111971921640702,
+     "B_total_inplane_mT": 93.7003717494023
+    },
+    {
+     "rotor_deg": 340.2739726027397,
+     "err_deg": -0.06601773099086472,
+     "B_total_inplane_mT": 93.6998735636744
+    },
+    {
+     "rotor_deg": 345.2054794520548,
+     "err_deg": -0.07079132576564007,
+     "B_total_inplane_mT": 93.69801132658455
+    },
+    {
+     "rotor_deg": 350.13698630136986,
+     "err_deg": -0.07529958789416469,
+     "B_total_inplane_mT": 93.69484000655602
+    },
+    {
+     "rotor_deg": 355.06849315068496,
+     "err_deg": -0.07940940118118078,
+     "B_total_inplane_mT": 93.69045322022124
+    }
+   ],
+   "peak_deg": 0.0903372445062871,
+   "peak_LSB": 4.111348372197244,
+   "lsb_deg": 0.02197265625,
+   "pass": false,
+   "B_magnet_inplane_mT": 93.68648706175172
+  },
+  "rotor_leakage": [
+   {
+    "leak_mT": 0.0,
+    "worst_angle_error_deg": 0.0,
+    "LSB": 0.0
+   },
+   {
+    "leak_mT": 1.0,
+    "worst_angle_error_deg": 0.6115460779448728,
+    "LSB": 27.832141502913323
+   },
+   {
+    "leak_mT": 2.0,
+    "worst_angle_error_deg": 1.2229528487583614,
+    "LSB": 55.65794298349165
+   },
+   {
+    "leak_mT": 5.0,
+    "worst_angle_error_deg": 3.054948238349394,
+    "LSB": 139.03408871421243
+   }
+  ],
+  "temperature": {
+   "TC_pct_per_K": -0.12,
+   "B_at_125C_mT": 82.44410861434152,
+   "still_in_window": true
+  },
+  "figure": "p5_encoder.png",
+  "seconds": 1.6
+ },
+ "_phase": {
+  "seconds": 1.6
+ },
+ "_meta": {
+  "written": "2026-09-12T00:32:35",
+  "board_mtime": "2026-09-09T12:24:35"
+ }
+}

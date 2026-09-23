@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>servodrive — status</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="title">
+    <h1>servodrive</h1>
+    <span class="state active"><span class="dot"></span>Board A routed, DRC / ERC / netlist clean</span>
+    <span class="state draft"><span class="dot"></span>7 decisions open &middot; 4 of 14 proposed changes applied</span>
+  </div>
+  <p class="lede">A round, motor-mounted servodrive. Two &#216;65&nbsp;mm boards stacked on the
+  back of a brushless motor, with the magnetic rotary encoder on the shaft axis: a motor board
+  carrying the encoder, the three-phase bridge and an RP2350A, and a power/IO board above it.
+  60&nbsp;V bus on 80&nbsp;V silicon, and down to 12&nbsp;V.</p>
+
+  <div class="stats">
+    <div class="stat"><b>Board A</b><span>136 parts &middot; 87 nets &middot; 425 connections</span></div>
+    <div class="stat"><b>Copper</b><span>6 layers &middot; 1361 tracks &middot; 278 vias</span></div>
+    <div class="stat"><b>Checks</b><span>DRC 0 &middot; ERC 0 &middot; unconnected 0</span></div>
+    <div class="stat"><b>Rating</b><span>12&ndash;60 V bus &middot; 20 A RMS/phase in bursts</span></div>
+    <div class="stat"><b>EM simulation</b><span>P0&ndash;P9 complete &middot; 24 findings</span></div>
+    <div class="stat"><b>Board B</b><span>outline only &mdash; not captured</span></div>
+  </div>
+  <p class="meta"><a href="spec.html">The specification</a> &middot;
+  <a href="sim/report/index.html">The electromagnetic simulation</a> &middot;
+  <a href="spec.html#s11">Open questions in full (&sect;11)</a> &middot;
+  <a href="single.html">Board S, the single board</a></p>
+</header>
+
+<main>
+
+  <section id="copper" data-dir="img/layers/a/">
+    <h2>Copper, layer by layer</h2>
+    <p>Board A's six copper layers as routed, plotted straight out of the board file by
+    <code>tools/plot_layers.py</code> and stacked in register. Pick a layer to bring it to the
+    front; drag to pan, scroll to zoom &mdash; they are vector, so a 0.15&nbsp;mm track stays a
+    track all the way in. The cursor reads out in millimetres and in the radius and angle the
+    floorplan is written in, so a run can be checked against the numbers in
+    <code>tools/geometry.py</code> without leaving the page.</p>
+    <p class="sub" id="cu-stats"></p>
+    <div class="cu">
+      <div class="cu-panel">
+        <div id="cu-layers"></div>
+        <p class="cu-hint" style="margin-top:.3rem">The dot puts a layer on top at full
+        opacity; the box says whether it is drawn at all.</p>
+        <div class="cu-row">
+          <button data-act="all" title="show every layer">all</button>
+          <button data-act="none" title="show only the selected layer">none</button>
+          <button data-act="solo" title="selected layer and the outline only">solo</button>
+          <button data-act="grid" title="the six layers side by side">grid</button>
+        </div>
+        <label class="cu-ctl">opacity of the unselected copper
+          <input type="range" id="cu-dim" min="0" max="60" value="16"></label>
+        <label class="cu-ctl"><input type="checkbox" id="cu-mirror">
+          view from the back (mirrored)</label>
+        <div class="cu-row">
+          <button data-act="out" title="zoom out">&minus;</button>
+          <button data-act="fit" title="fit the board">fit</button>
+          <button data-act="in" title="zoom in">+</button>
+          <span class="sub" id="cu-zoom">1.0&times;</span>
+        </div>
+        <p class="cu-note" id="cu-note"></p>
+        <p class="cu-read" id="cu-read"></p>
+        <p class="cu-hint">Keys: <b>1</b>&ndash;<b>9</b> pick a layer, <b>s</b> solo,
+        <b>a</b> all, <b>m</b> mirror, <b>0</b> fit. Angles are measured from the +x axis, the
+        way the section boundaries at 0/68/136/204/256/308&deg; are.</p>
+      </div>
+      <div>
+        <div id="cu-stack">
+          <div class="cu-plate" id="cu-plate">
+            <div class="cu-pan" id="cu-pan"><div class="cu-flip" id="cu-flip"></div></div>
+            <div class="cu-scale"><i id="cu-bar"></i><span id="cu-barlab"></span></div>
+            <div class="cu-back" id="cu-back"></div>
+          </div>
+        </div>
+        <div class="cu-grid" id="cu-gridbox" hidden></div>
+      </div>
+    </div>
+    <p class="cu-files" id="cu-files"></p>
+    <p class="sub" id="cu-fallback"></p>
+    <p class="sub">Rebuild after any routing change with
+    <code>python3 tools/plot_layers.py</code> &mdash; <code>gen_boards.py</code> runs it with
+    the rest of the renders. Drill holes are painted in the plate colour, so a hole reads as a
+    hole on every layer; the outline layer carries all of them and sits on top.</p>
+  </section>
+
+  <section>
+    <h2>Where it stands</h2>
+    <p><strong>Board A is placed, captured and routed, and every connection is made.</strong>
+    136 parts, 87 nets, 425 pin connections; 1361 track segments and 278 vias. DRC finds
+    nothing, ERC finds nothing, nothing is unconnected, no right-angle corners survive, and
+    KiCad's own exported netlist matches the one the repo intended &mdash; net by net,
+    connection by connection. The whole board comes out of
+    <code>tools/gen_boards.py</code>, so the drawings, the floorplan and the netlist cannot
+    drift from the numbers the spec quotes.</p>
+    <p><strong>Re-routed 2026-09-22 with four of the simulation's changes</strong>, and five
+    open questions answered: XT30 for the bus, a reset <em>brakes</em>, SimpleFOC, VMOT down to
+    12&nbsp;V, and no enclosure fins &mdash; 20&nbsp;A is a burst to be measured on the
+    prototype, not a continuous rating. On the board: every barrel under the low-side drains now
+    reaches the switch-node pour on B.Cu (four of sixteen did), the high sides have twenty
+    barrels rather than sixteen, each cell carries an unfitted RC snubber, the LIN pulls go to
+    GND, and the magnet is &#216;6. The simulation's conduction solver, re-run on the routed
+    board, has the busiest low-side barrel at <strong>2.82&nbsp;A rms</strong> (was 5.16) and
+    the busiest high-side one at <strong>2.10</strong> (was 2.42): better, and still over the
+    2&nbsp;A guideline at a continuous 20&nbsp;A; under it below about 14&nbsp;A RMS.</p>
+    <p><strong>The simulation</strong> &mdash; ten phases, fourteen questions, twenty-four
+    findings (<a href="sim/report/index.html">the report</a>) &mdash; still describes the board
+    <em>before</em> those changes; <code>sim/results/</code> was not re-run into place. Its
+    other two corrections to the design's arithmetic are not applied yet: the commutation loop
+    is about <strong>2&nbsp;nH</strong> where <code>geometry.commutation_loop()</code> says
+    0.39, and the DC-link ceramics are worth about half their marking at 60&nbsp;V.</p>
+    <p><strong>What is not done:</strong> nobody has looked at board A's routing by eye, and
+    board B is still an outline &mdash; now with three things waiting for it: the gate rail's
+    enable held on through a reset, and the polymer-hybrid bulk. (USB-PD and a pack on the XT30
+    are not used together, so the PD front end stays as specified.)</p>
+  </section>
+
+  <section>
+    <h2>Open decisions &mdash; waiting on a person</h2>
+    <ol class="q">
+      <li><strong>How hard does the EG2103's output stage actually drive?</strong> The only
+      obtainable document gives I<sub>O+</sub>/I<sub>O&minus;</sub> with no test condition, and
+      the whole edge hangs off it: 62.6&nbsp;V of V<sub>ds</sub> with no ring and no snubber at
+      the datasheet reading, 73.9&nbsp;V and a 145&nbsp;MHz ring at a strong output stage. It
+      decides Q2, Q3, Q4 and Q12 between them. Get the real datasheet, or measure the gate edge
+      into a known capacitance on a built board.</li>
+      <li><strong>Which motor?</strong> Sets the air gap, the standoffs, and whether the
+      25&nbsp;&#215;&nbsp;19&nbsp;mm pattern bolts to anything. Deliberately deferred &mdash;
+      one constant in <code>geometry.py</code> moves the whole stack.</li>
+      <li><strong>What happens on a decel?</strong> At the design-point braking torque the bus
+      reaches the TVS breakdown in 0.26&nbsp;ms and leaves about 2&nbsp;J on a part that
+      survives a few. There is no brake chopper; the firmware's 63&ndash;66&nbsp;V fold-back
+      reacts in one 50&nbsp;&micro;s period. A brake resistor, an active clamp, much more bulk,
+      or a documented deceleration limit. (A <em>reset</em> now brakes, which does not pump the
+      bus; a controlled decel still does.)</li>
+      <li><strong>How is the motor frame bonded?</strong> Nothing on this board bonds it
+      &mdash; the four motor mounts are NPTH &mdash; so it follows the switch node to
+      71&nbsp;V peak against a 10&nbsp;V criterion, and a long bonding wire makes it worse,
+      not better. The sweep's best option is a 4.7&nbsp;nF Y capacitor at 2&nbsp;V of frame
+      swing. Measure the motor's winding-to-frame capacitance first; the table moves with it.</li>
+      <li>E-stop loop: keep it?</li>
+      <li>Hardware overcurrent trip: populate, DNP, or omit.</li>
+      <li>Interconnect &mdash; header, or brass standoffs as the power path.</li>
+    </ol>
+    <p class="sub">Full text in <a href="spec.html#s11">&sect;11 of the spec</a>; 1, 3 and 4
+    come out of the simulation's own open findings. Decided 2026-09-22 and taken off this list:
+    XT30 for the bus, a reset brakes, SimpleFOC, VMOT down to 12&nbsp;V, no enclosure fins, and
+    USB-PD as a replacement for a pack rather than alongside one.</p>
+  </section>
+
+  <section>
+    <h2>Changes the simulation proposes</h2>
+    <p>Fourteen of them; the four at the top were applied on 2026-09-22 with one re-route.
+    <code>sim/</code> does not touch <code>hardware/</code> or <code>tools/</code>; this is the
+    hand-back list, for a human to decide from, and its own register still lists all fourteen
+    because it has not been re-run into place.</p>
+    <table class="hb">
+    <thead>
+      <tr><th>Change</th><th>Where</th><th>What it buys</th><th>Cost to apply</th></tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>Widen the SW_x pour on B.Cu to cover the whole 4&nbsp;&#215;&nbsp;4 array, or move the
+          array inboard of the PHASE pour</td>
+      <td><code>tools/gen_boards.py: via_tab()</code></td>
+      <td>Twelve of sixteen barrels stop being islands. Measured after: all sixteen joined, the
+          busiest at 2.82&nbsp;A rms from 5.16 &mdash; not the four times hoped for, because the
+          current crowds toward the shunts</td>
+      <td class="fix"><strong>applied</strong> 2026-09-22</td>
+    </tr>
+    <tr>
+      <td>More VBUS vias under the high-side drains, or spread the entry into the array</td>
+      <td><code>geometry.py: FET_VIA_NY_HS</code> (5 rows, 20 barrels)</td>
+      <td>The busiest high-side via carried 2.4&nbsp;A rms against 2&nbsp;A. Measured after:
+          2.10. A fifth row is all that fits</td>
+      <td class="fix"><strong>applied</strong> 2026-09-22</td>
+    </tr>
+    <tr>
+      <td>Two unstuffed 0805 per cell for an RC snubber, 2.2&nbsp;&#8486;&nbsp;+&nbsp;0.47&nbsp;nF,
+          SW_x to GND</td>
+      <td><code>tools/placement.py</code>, <code>tools/schematic.py</code>:
+          <code>R{n}13</code>, <code>C{n}09</code></td>
+      <td>Worst V<sub>ds</sub> 73.9&nbsp;&rarr;&nbsp;62.7&nbsp;V for 0.034&nbsp;W per cell, if
+          the driver turns out to be the strong one. Placed as 0603, which is what fits</td>
+      <td class="fix"><strong>applied</strong> 2026-09-22, DNP</td>
+    </tr>
+    <tr>
+      <td>Magnet Dia&nbsp;6&nbsp;&#215;&nbsp;2.5&nbsp;mm, as the MT6701 datasheet recommends, or
+          an N35 with the gap held at or above 1&nbsp;mm</td>
+      <td><code>geometry.py: MAGNET_D</code> (6.0)</td>
+      <td>Keeps the field at the die inside the part's 20&ndash;100&nbsp;mT window over the
+          whole air-gap tolerance; &#216;8 was over 100&nbsp;mT at the short end. The price,
+          measured 2026-09-22 (P5S): the weaker field lets the motor leads move the angle
+          further, 0.12&deg; at the nominal 1.5&nbsp;mm gap where P5 had 0.09&deg; &mdash; which makes
+          the lead-twisting row below matter more</td>
+      <td class="fix"><strong>applied</strong> 2026-09-22 &mdash; no board geometry reads it</td>
+    </tr>
+    <tr>
+      <td>Commutation loop 1.98&nbsp;nH &mdash; the solved value at the converged end of its own
+          grid sweep &mdash; not &micro;<sub>0</sub><i>hl</i>/<i>w</i> = 0.387</td>
+      <td><code>geometry.py: commutation_loop()</code></td>
+      <td>Every number derived from it moves: overshoot, ring frequency, the snubber decision</td>
+      <td class="keep">a number only</td>
+    </tr>
+    <tr>
+      <td>DC-link ceramics 7.0&nbsp;&micro;F at 60&nbsp;V (bracket 5.5&ndash;9.7), not 13.2</td>
+      <td><code>geometry.py: interconnect()</code></td>
+      <td>The ripple split shifts and more of it crosses the header</td>
+      <td class="keep">a number only</td>
+    </tr>
+    <tr>
+      <td>Budget Miller cross-conduction &mdash; 0.86&nbsp;W per half-bridge and a 74&nbsp;A peak
+          &mdash; or pick a device with a smaller Q<sub>gd</sub>/C<sub>iss</sub></td>
+      <td><code>geometry.py</code> switching-loss term, or the FET choice</td>
+      <td>The off device's V<sub>gs</sub> reaches 3.62&nbsp;V at the die on every high-side
+          turn-on, above its own 2.2&nbsp;V minimum threshold. Neither R<sub>g</sub>, a stronger
+          driver, nor a gate-source capacitor moves it</td>
+      <td class="keep">a number only, unless the device changes</td>
+    </tr>
+    <tr>
+      <td>Board B bulk: 4&nbsp;&#215;&nbsp;100&nbsp;&micro;F polymer hybrid at
+          20&ndash;40&nbsp;m&#8486; each, not 3&nbsp;&#215;&nbsp;100&nbsp;&micro;F electrolytic
+          at 0.2&nbsp;&#8486;</td>
+      <td><code>spec.html &sect;8</code></td>
+      <td>Bus ripple at the drains falls from over 6&nbsp;V p-p to under 2</td>
+      <td class="keep">board B, not yet captured</td>
+    </tr>
+    <tr>
+      <td>Pace the ADC from the PWM slice's wrap DREQ &mdash; one conversion per phase at the
+          counter's zero, instead of free-running round-robin</td>
+      <td>firmware, <code>patches/simplefoc_rp2040_current_sense.cpp</code></td>
+      <td>Current-loop measurement error 0.638&nbsp;&rarr;&nbsp;0.210&nbsp;A rms, and the bias
+          halves</td>
+      <td class="keep">firmware</td>
+    </tr>
+    <tr>
+      <td>Set <code>dead_zone</code> to 0 and rely on the EG2103's own 560&nbsp;ns interlock</td>
+      <td>firmware</td>
+      <td>Recovers 0.76&nbsp;% of torque and changes the distortion hardly at all</td>
+      <td class="keep">firmware</td>
+    </tr>
+    <tr>
+      <td>Clamp the modulation index: never command a duty below 2.40&nbsp;% or above its mirror</td>
+      <td>firmware</td>
+      <td>Keeps the loop out of the region where the driver's minimum pulse silently passes
+          nothing</td>
+      <td class="keep">firmware</td>
+    </tr>
+    <tr>
+      <td>Twist or bundle the three phase leads for the first 50&nbsp;mm after the lead pads</td>
+      <td>assembly instruction, not a board change</td>
+      <td>Removes most of the 0.090&deg; current-dependent angle error; the board copper's own
+          field already cancels on the shaft axis</td>
+      <td class="keep">assembly</td>
+    </tr>
+    <tr>
+      <td>Give <code>add_barrel()</code> a bar of the plated tube's geometric mean distance, with
+          conductivity scaled to keep the copper area, then re-run P1 Q1</td>
+      <td><code>sim/fasthenry/mesher.py</code></td>
+      <td>An equal-<em>area</em> bar is right for R and 2.2&times; too inductive for a
+          0.4&nbsp;mm drill, and the loop runs through sixteen of them</td>
+      <td class="keep">the simulation's own model</td>
+    </tr>
+    <tr>
+      <td>Known-answer expectation 14.53&nbsp;nH, not 17.4, for the straight wire at
+          <i>l</i>&nbsp;=&nbsp;20&nbsp;mm, <i>d</i>&nbsp;=&nbsp;1&nbsp;mm</td>
+      <td><code>sim/SPEC.md &sect;5.4</code></td>
+      <td>The test passes as written once the expected value is right; FastHenry already returns
+          the formula's own answer to 0.03&nbsp;%</td>
+      <td class="keep">a number only</td>
+    </tr>
+    </tbody>
+    </table>
+    <p class="sub">Each row's evidence, and the six findings still marked OPEN rather than
+    HAND-BACK, are in <a href="sim/report/index.html#Summary">the report</a>;
+    <code>sim/FINDINGS.md</code> is the register and <code>sim/HANDBACK.md</code> the list as
+    generated. Cite a finding by its evidence key &mdash; the S-numbers are positions in a
+    severity-sorted table and renumber whenever one is added.</p>
+  </section>
+
+  <section>
+    <h2>Before ordering</h2>
+    <ul class="checks">
+      <li><strong>Look at board A's routing by eye.</strong> The tools prove DRC, connectivity
+      and the heatsink land; they do not judge whether a run is where a person would put it</li>
+      <li class="done">Take the four placement changes above, re-route, and verify again from
+      scratch &mdash; done 2026-09-22</li>
+      <li>Capture board B: the polymer-hybrid bulk rather than the spec's original
+      3&nbsp;&#215;&nbsp;100&nbsp;&micro;F, the gate rail's enable pulled <em>on</em> so a
+      reset brakes</li>
+      <li>Re-run the simulation (<code>sim/run.py</code>) on the new board, so its register
+      describes the board that exists</li>
+      <li>Confirm <strong>INA241A3</strong> stock in TSOT-23-8 &mdash; A3 is the 50&nbsp;V/V
+      grade, not A2 &mdash; and the 1.6&nbsp;m&#8486; 2010 shunts</li>
+    </ul>
+  </section>
+
+  <h2 class="archhead">Past work</h2>
+
+  <details class="arch">
+    <summary>Board A, at a glance <span class="sub">&mdash; the settled numbers</span></summary>
+    <table>
+    <tbody>
+    <tr><th>Form</th><td>Two &#216;65 mm round boards; motor board bolts to the encoder's
+        4&nbsp;&#215;&nbsp;M3 pattern, power/IO board to six perimeter M2.5</td></tr>
+    <tr><th>Sections</th><td>Three 68&deg; phase cells adjacent over 0&#8211;204&deg;, then three
+        52&deg; utility wedges. Six M2.5 on the section boundaries, at
+        0/68/136/204/256/308&deg;</td></tr>
+    <tr><th>Encoder</th><td>MT6701 on the shaft axis, SSI to the CPU on the same board — no
+        cable, no line drivers, no encoder port</td></tr>
+    <tr><th>Heat</th><td>279 mm&sup2; of bare copper laid out for an aluminium ring. No fins:
+        the drive runs below its peak current, and bursts are measured on the prototype</td></tr>
+    <tr><th>Bus</th><td>60 V nominal, 12 V minimum, 80 V silicon, TVS breakdown 71–79 V; XT30</td></tr>
+    <tr><th>Phase current</th><td><strong>20 A RMS per phase</strong>, a burst figure — 28.3 A peak,
+        &plusmn;32 A of sense, 10.7 W if it were continuous</td></tr>
+    <tr><th>CPU</th><td>RP2350A, QFN-60. Three PWM slices for three half-bridges; four ADC
+        channels, all spoken for</td></tr>
+    <tr><th>Sensing</th><td>Two inline 0.8 m&#8486; shunts + <strong>INA241A3</strong> at
+        50 V/V = 40 mV/A → ±36.2 A, third phase reconstructed; bus voltage; FET
+        temperature</td></tr>
+    <tr><th>Gate drive</th><td>EG2103 on a 12 V rail — <em>not</em> the sister board's EG3113
+        at 5 V, for two separate reasons. Six 4.7 k input pulls, which two errata made
+        compulsory, all to GND: a reset brakes. RC snubber footprints, DNP</td></tr>
+    <tr><th>I/O</th><td>USB-C with full PD — a 20 V contract feeds VMOT and runs the motor —
+        and full-duplex RS-485 on two chained ports</td></tr>
+    </tbody>
+    </table>
+  </details>
+
+  <details class="arch">
+    <summary>How it got here <span class="sub">&mdash; placement, capture, routing</span></summary>
+    <p>The first routed board made 69 of 170 connections and blamed the driver ring. Measuring it
+    said otherwise: nearly every open connection ended at the RP2350, which had no room to fan
+    out. The second pass rebuilt the CPU wedge around a clear band for a four-row escape, turned
+    the FETs so their gates face the driver row, rearranged the sense row for arcs, and took the
+    regulator cluster from Raspberry Pi's reference design. Then the connections freerouting does
+    badly — the QFN escape, the gates, the sense nets — were made as copper by a tool before the
+    router ran. The last three connections turned out to be arithmetic rather than routing: the
+    escape via rows were 0.71 mm apart and a track passing between two of them needs 0.91, so
+    there was no radial lane out of the via field at all. Moving the outermost row out 0.2 mm
+    bought one, and freerouting finished the board in its first round. &sect;10 and &sect;10b of
+    the spec have the detail.</p>
+    <p>The phase cells are <strong>68&deg;</strong>, not the 60 the floorplan sweep promised.
+    Routing found that the channel interior to the screws can only hold parts whose nets are
+    ground or the phase output, so five per cell came back in and the cells had to pay for them.
+    It costs the even bolt circle and buys 29 mm&sup2; of heatsink land.</p>
+    <p>The three phase cells are <strong>adjacent</strong> rather than alternating with the
+    utility wedges — the RP2350A sits in the middle of the quiet side instead of between two
+    switching cells, and the three motor leads leave together.</p>
+    <p>Three things unblocked the specification itself. The drive is rated <strong>20 A RMS per
+    phase, continuous</strong>, which settles the thermal question by paying for it. The EG2103
+    datasheet was read rather than argued about. And the motor is set aside — every dimension
+    that depends on it is derived from one constant in <code>geometry.py</code>, so naming the
+    motor later moves the whole stack at once.</p>
+    <p>Committing to 20 A found two real errors in draft 0.2. Capturing the schematic found
+    seven more — the RP2350A had no core-buck inductor, the bus divider would have put 5.5 V on
+    a 3.3 V ADC pin, and the MOSFET's symbol and footprint numbered their pins differently,
+    which would have wired every FET backwards. That is what capture is for.</p>
+  </details>
+
+  <details class="arch">
+    <summary>What is settled</summary>
+    <ul class="checks">
+      <li class="done">&#216;65 mm, both boards</li>
+      <li class="done">60 V bus, 12 V minimum, 80 V silicon; <strong>20 A RMS in bursts</strong>,
+      not continuous &mdash; no fins (2026-09-22)</li>
+      <li class="done">XT30 bus input; SimpleFOC firmware; a reset brakes (2026-09-22)</li>
+      <li class="done">Board-side thermal path: 279 mm&sup2; of bare copper for an aluminium ring</li>
+      <li class="done">Sense chain resized to reach the design point's 28.3 A peak — twice</li>
+      <li class="done">Three phase cells grouped adjacent, 68&deg; each, bolts at
+      0/68/136/204/256/308&deg;</li>
+      <li class="done">Board A captured: 136 components, 87 nets, ERC clean</li>
+      <li class="done">Board A routed: all 425 connections, DRC clean, heatsink land clear</li>
+      <li class="done">RP2350 regulator cluster and 1V1 ring from the RP-006440 reference design</li>
+      <li class="done">EG2103's LIN is pulled <em>up</em> inside the part — read off the datasheet,
+      not argued; the board pulls it down, so a reset brakes</li>
+      <li class="done">Six 4.7 k input pulls, because RP2350-E9 meets that pull-up</li>
+      <li class="done">Board A floorplan: 98 parts, DRC- and ERC-clean</li>
+      <li class="done">USB-C with PD (20 V to VMOT) + full-duplex RS-485, two ports, chained</li>
+      <li class="done">Encoder circuit and mount pattern inherited from the sister project</li>
+      <li class="done">12 V gate rail with EG2103 — closes two of their open findings</li>
+      <li class="done">Interlock + 560 ns hardware dead time kept, at ~2 W of edge rate</li>
+      <li class="done">The sense chain's DC accuracy, measured: 0.8301 m&#8486; tap to tap,
+      3.6&nbsp;% of it copper, 0.019&nbsp;%/K total TCR</li>
+      <li class="done">No gate-source capacitors: 22 nF moves the pin and not the die, because
+      1.6&nbsp;&#8486; of internal gate resistance sits between them</li>
+    </ul>
+  </details>
+
+  <details class="arch">
+    <summary>The two decisions worth arguing about</summary>
+
+    <div class="note good">
+      <strong>The 12 V gate rail is the whole thermal budget.</strong> The sister board drives
+      10 V-rated MOSFETs from a 5.04 V rail, which its own review costs at ~2 W per bridge of
+      switching loss plus ~15% on R<sub>DS(on)</sub> (its F-41). It cannot easily fix this,
+      because thirteen 5.5&nbsp;V-max analog switches sit on that same rail. This board has no
+      such rail and no such constraint. Taking the 12 V rail — and with it a driver that wants
+      one — moves board A from ~18 W to <strong>10.7 W</strong> at 20 A RMS. It also shapes the USB-PD behaviour: the
+      gate rail's buck cannot boost, so before a PD contract is negotiated VMOT sits at 5 V, the
+      logic and encoder are up and the motor physically cannot energise. Ask for 20 V and it runs.
+    </div>
+
+    <div class="note warn">
+      <strong>20 A continuous is a rating the enclosure grants, not one the board has.</strong>
+      Board A is sealed between the motor and board B; neither face sees moving air. Bare, the
+      stack is about 15 K/W to ambient, and 10.7 W through that puts the junctions at
+      <strong>214&nbsp;&deg;C</strong>. The design is the machined aluminium ring: it clamps
+      279 mm&sup2; of mask-free copper across the three phase cells, bolts through all six
+      perimeter M2.5 — now plated, padded on every layer, and doubling as the ground bond — and
+      the whole board is laid out around it, with every outward-face part stopping at
+      R&nbsp;29.2. What is left is the outside of that ring: <strong>&ge; 100 cm&sup2; of
+      external surface</strong> for &le; 6.7 K/W. A plain &#216;65&nbsp;&#215;&nbsp;35 mm barrel
+      is 71 cm&sup2; and misses; the same barrel with sixteen 6 mm fins is ~138 cm&sup2; and
+      lands at 105&nbsp;&deg;C junction. The fins are the rating.
+    </div>
+
+    <div class="note warn">
+      <strong>&ldquo;20 A&rdquo; meant two different things, and the sense chain lost —
+      twice.</strong>
+      The thermal budget was written at 20 A <em>RMS per phase</em>; the sense chain was designed
+      for &plusmn;20.6 A <em>instantaneous</em>, to reproduce the sister board's 80 mV/A so its
+      firmware constants would carry across. Those differ by &radic;2 — the chain would have
+      clipped on every cycle above 14.6 A RMS, and you cannot close a current loop on a clipped
+      measurement. The first correction, 1.0 m&#8486; for &plusmn;32 A, was sized against the
+      amplifier's <em>typical</em> output swing; the datasheet's worst case turns that into
+      &plusmn;29 A, which is 2.5% over the peak and not margin. The shunt is now
+      0.8 m&#8486; (2 &#215; 1.6 m&#8486;), 40 mV/A, <strong>&plusmn;36.2 A</strong> worst
+      case — 28% clear. And the part number was wrong too: the 50 V/V grade of INA241 is
+      <strong>A3</strong>, not A2. Consolation: desolder one of each pair and the precision
+      mode lands on exactly 80 mV/A, the sister board's scaling, so its firmware constants come
+      back after all.
+    </div>
+  </details>
+
+  <details class="arch">
+    <summary>How the hardware is generated</summary>
+    <p>Two KiCad 9 projects, both DRC- and ERC-clean, emitted from
+    <code>tools/geometry.py</code>, <code>tools/placement.py</code> and
+    <code>tools/schematic.py</code> by <code>tools/gen_boards.py</code> — so the outlines, the
+    mount patterns, the thermal land, every part position <em>and</em> every net come from the
+    same numbers the spec quotes. Board A carries 136 parts and 87 nets; board B is still an
+    outline. The three tools are checked against each other before anything is written: a part
+    cannot be on the board and not in the netlist, or the other way round, and their footprints
+    have to agree.</p>
+    <p>The schematic is generated and drawn with labels rather than wires — an honest
+    description of a machine-laid-out sheet. What it is for is a netlist that cannot drift from
+    the placement, and KiCad's own export confirms it net by net.</p>
+
+    <figure style="max-width:24rem">
+      <img src="img/board_b_kicad.svg" alt="Board B outline in KiCad: 65 mm circle with six M2.5 perimeter holes on the same bolt circle as board A.">
+      <figcaption><code>hardware/power_board/</code> — 4 layer, 2 oz outer. Same six M2.5 at
+      R&nbsp;=&nbsp;29.5, so the stack aligns. Board A is in the copper viewer at the top of
+      this page.</figcaption>
+    </figure>
+
+    <table>
+    <tbody>
+    <tr><th>Origin</th><td>Board centre = the shaft axis = the MT6701 sensing centre, on both
+        boards. Grid and drill origins set there too.</td></tr>
+    <tr><th>Symbols</th><td>RP2350A QFN-60 lifted from <code>rp2350-bike-light</code>, MT6701
+        from the sister project's encoder — both copied into
+        <code>hardware/parts/servodrive.kicad_sym</code> so the projects open standalone.</td></tr>
+    <tr><th>Design rules</th><td>0.15 mm track and clearance &mdash; JLCPCB's floor for 2 oz
+        outer copper &mdash; except the 60 V nets at 0.4 mm; vias 0.5/0.20 signal, 0.6/0.30
+        power, 0.8/0.40 phase; and <strong>0.5 mm hole-to-hole</strong>, chosen early so
+        JLCPCB's free via-in-pad on 6 layers stays available. Their F-48 is the cost of
+        deciding that late.</td></tr>
+    <tr><th>Net classes</th><td>Track widths Default 0.2, Gate 0.35, Analog 0.25, Power 0.5,
+        Phase 2.0 mm; the Phase class covers <code>PHASE_*</code>, <code>SW_*</code> and
+        <code>VBUS</code>, and deliberately not GND. They actually reach KiCad now &mdash; the
+        generated project used <code>uvia_*</code> where KiCad 9 wants <code>microvia_*</code>
+        plus a <code>priority</code>, and silently fell back to a factory 0.2 mm class.</td></tr>
+    <tr><th>Placement</th><td>136 parts on board A, checked by <code>tools/placement.py</code>
+        before any board is written: courtyards, radial and sector bounds, the perimeter boss
+        pads, both arc lands, and through-hole pads landing on the opposite face.</td></tr>
+    <tr><th>Routing</th><td><code>stitch.py</code> (via-in-pad) and <code>fanout.py</code> (the
+        QFN escape field, gate and sense arcs, In3 links, plane taps) lay deterministic locked
+        copper; <code>route.py</code> hands the rest to freerouting 2.2.4 and then
+        <code>finish.py</code>, a maze router over the board's rasterised free space, closes
+        whatever is still in pieces.</td></tr>
+    </tbody>
+    </table>
+
+    <p class="sub">Regenerate with <code>python3 tools/gen_boards.py --force</code> — which
+    also stitches and fans out — and then <code>python3 tools/route.py --rounds 4 --loose</code>;
+    <code>--force</code> throws the routing away, and without it the board is kept and only the
+    drawings are redone. It refuses to write anything at all if the floorplan check fails.</p>
+  </details>
+
+  <details class="arch">
+    <summary>Handed back to the sister project</summary>
+    <ul>
+      <li><strong>Their F-17 is right — and draft 0.2 of this spec was wrong to doubt it.</strong>
+      Their E-stop does brake, but not for the reason their register gives: <code>R1</code>,
+      <code>R2</code>, <code>R21</code> and <code>R22</code> are 10 k pull-downs on both EG3113
+      inputs, and a pulled-down active-low LIN turns the low side <em>on</em>. The driver alone
+      would coast. Worth telling them the consequence: their bridge <strong>hard-shorts the
+      motor at every power-up</strong>, before firmware runs, with no current limit</li>
+      <li><strong>RP2350-E9 reaches the gate driver.</strong> A Bank 0 input can latch near
+      2.1–2.2 V; against EG Micro's internal 200 k pull-up on LIN that lands the driver input
+      between V<sub>IL</sub> and V<sub>IH</sub>. Their pull-downs happen to defeat it —
+      anyone copying the circuit without them should size an external pull deliberately</li>
+      <li><strong>NCP5183DR2G</strong> as an answer to <strong>F-40</strong> (EG3113
+      unbuyable, blocking their orders) — and a warning that EG2131, the obvious swap, is out
+      of stock too</li>
+      <li>The observation that its <strong>F-41</strong> remedy is cheap on a board without
+      the TS5A3159 rail constraint</li>
+    </ul>
+  </details>
+
+  <details class="arch">
+    <summary>Log <span class="sub">&mdash; 2026-09-07 to 2026-09-12</span></summary>
+    <div class="log">
+      <div class="entry">
+        <time datetime="2026-09-22">2026-09-22</time>
+        <div><strong>Five decisions, four of the simulation's changes, one re-route.</strong>
+        Decided: XT30 for the bus; a reset <em>brakes</em>; SimpleFOC; VMOT down to 12&nbsp;V;
+        and no enclosure fins &mdash; the drive runs below its peak current and 20&nbsp;A becomes
+        a burst to measure on the prototype. On board A, the low side's via array is under a tab
+        of the switch-node pour on B.Cu, so all sixteen barrels carry current rather than four;
+        the high side has a fifth row of barrels, twenty in all, which is the most the drain pad
+        and the shunts' courtyards on the back allow; an unfitted 2.2&nbsp;&#8486; + 470&nbsp;pF
+        snubber sits under each high side; both input pulls of every driver go to GND; and the
+        magnet is &#216;6. Freerouting finished in its first round again: 1361 segments,
+        278 vias, DRC, ERC and the netlist diff clean.
+        <p>The simulation's conduction solver, re-run on the routed board in a scratch copy, is
+        the honest check: the busiest low-side barrel falls from 5.16 to 2.82&nbsp;A rms and the
+        busiest high-side one from 2.42 to 2.10, both still over the 2&nbsp;A guideline at a
+        continuous 20&nbsp;A because the current crowds toward the shunts, and both under it
+        below about 14&nbsp;A RMS. Two consequences for board B came with the decisions: the
+        gate rail has to stay on through a reset, or the brake lasts only as long as its
+        capacitors; and a 20&nbsp;V PD contract could back-drive a lower-voltage pack, which
+        is answered by not using the two together &mdash; PD replaces a pack.</p></div>
+      </div>
+      <div class="entry">
+        <time datetime="2026-09-12">2026-09-12</time>
+        <div><strong>The electromagnetic simulation, ten phases.</strong> <code>sim/</code>
+        solves the board rather than estimating it: FastHenry on the copper as routed, FastCap
+        for the sense taps, ngspice for the edges, openEMS full wave as a cross-check, plus the
+        encoder field and the thermal path. Fourteen questions, twenty-four findings, four
+        hypotheses — all four confirmed or resolved. Three answers change the design's own
+        arithmetic: the commutation loop is 2.06 nH where
+        <code>geometry.commutation_loop()</code> says 0.39, because VBUS reaches the high-side
+        drain from In2 through a sixteen-via field rather than from a plane 0.1 mm away; twelve
+        of those sixteen vias under each low-side drain are islands on B.Cu and carry nothing;
+        and the DC-link ceramics are worth 5.5–9.7 µF of their 13.2 µF marking at 60 V. One
+        number the board cannot settle decides several of the others — how hard the EG2103's
+        output stage drives, which its only obtainable document gives without a test condition:
+        62.6 V of V<sub>ds</sub> and no snubber at the datasheet reading, 73.9 V and a 145 MHz
+        ring at a strong output stage.
+        <p><strong>P7 was rebuilt, and the disagreement turned out to be the model.</strong>
+        openEMS first returned 3.82 nH against FastHenry's 2.06 and it was recorded as a solver
+        disagreement. It was five defects in the full-wave model: the conducting FETs were
+        cylinders about an axis lying <em>in</em> F.Cu, which is 0.1525 mm above In1, so each rod
+        cut about 1 mm² out of the ground plane and the high-side one shorted VBUS to GND at the
+        drain; a port box sized from pad centres bit into the copper and none of its four
+        coordinates survived the mesh merge; the excitation was a Gaussian centred at 750 MHz
+        while the answer was read at 30–200 MHz; a band mean folded the loop's own 399 MHz
+        resonance into &ldquo;inductance&rdquo;; and an unscaled &omega;&sup2; against a 1e8
+        intercept returned 1e36 nH. Fixed, the cross-check agrees to 8.5 % — 2.91 nH de-embedded
+        against 2.68. There are no nets in FDTD, only metal: two conductors inside one cell are
+        one conductor, and a mesh that looks converged can be converged on the wrong topology,
+        which this one was twice on the way up.</p>
+        <p>Nothing in <code>sim/</code> applies any of it. The hand-back list is fourteen
+        proposed changes and six findings still open, all of them above.</p></div>
+      </div>
+      <div class="entry">
+        <time datetime="2026-09-11">2026-09-11</time>
+        <div><strong>A copper viewer on this page.</strong>
+        <code>tools/plot_layers.py</code> exports one SVG per layer with
+        <code>kicad-cli</code>, all on the same board-area page so they land in register, then
+        crops every one of them to the outline's own box and repaints the drill holes in the
+        plate colour so a hole reads as a hole. It also reads the board for what the panel
+        says — tracks, copper length, pads, pour nets, vias — and writes
+        <code>layers.json</code>, which is the only thing the viewer knows about the board: add
+        a layer and the page follows. The four static layer figures are gone; the stack, the
+        grid and a 16&times; zoom replace them, and the cursor reads out in the radius and angle
+        the floorplan is written in. <code>gen_boards.py</code> and <code>route.py</code> both
+        re-run it, so the page cannot show yesterday's copper.</div>
+      </div>
+      <div class="entry">
+        <time datetime="2026-09-09">2026-09-09</time>
+        <div><strong>Board A routed, all of it.</strong> 1351 track segments, 283 vias,
+        nothing unconnected, DRC and ERC clean, the heatsink land clear. The first routed board
+        had made 69 of 170 connections and blamed the driver ring; measured, nearly every open
+        connection ended at the RP2350, which had no room to fan out — a 0.4 mm-pitch QFN needs
+        four staggered rows of vias, 2.9 mm deep, and the chip had 0.3 mm. The CPU wedge was
+        rebuilt around that band, the FETs turned so their gates face the driver row instead of
+        the heatsink land, the sense row rearranged for arcs, the shunts moved under the
+        switch-node island so every 20 A pad takes a via, and the regulator cluster copied from
+        Raspberry Pi's RP-006440 reference to the 0.05 mm — which found the bootstrap diode
+        backwards, VREG_AVDD tied straight to 3V3, and no USB series resistors.
+        <p>Then the router was measured rather than trusted, some of it by reading its bytecode.
+        Freerouting joins a wire to a pad only if the wire ends on the pad's centre to the
+        0.1 µm; it cannot leave a fine-pitch pad that is not on the 45° grid; a protected wire is
+        something it cannot tee into and, joined twice, something it normalises for ever; and
+        its last pass can undo its earlier ones. So a new <code>tools/fanout.py</code> makes the
+        copper it does badly — the QFN escape, the gate and sense arcs, the escapes, the plane
+        taps — as locked tracks, and <code>route.py</code> hands the router vias instead of stubs
+        and takes every finished net away from it.</p>
+        <p>That got to three open connections and stuck there, whichever router or order was
+        used — which is the shape of a capacity limit, not of a search. It was:
+        the escape vias sat in four rows 0.71 mm apart, and a 0.15 mm track passing radially
+        between two rows needs 0.23 to clear a via pad, 0.15 of clearance and half its own width
+        on each side, so <strong>0.91 mm</strong>. There was no radial lane anywhere in the field.
+        Pushing the outermost row alone out by 0.20 mm buys one the whole way round the chip for
+        0.2 mm of depth; with that, and a second try at the one pin the planned rows could not
+        place, freerouting finished the board in its first round. Also new:
+        <code>tools/finish.py</code>, a maze router over the board's rasterised free space, which
+        closed connections when the board was still short of them and now has nothing to
+        do.</p></div>
+      </div>
+      <div class="entry">
+        <time datetime="2026-09-07">2026-09-07</time>
+        <div><strong>Phase cells in from 70° to 60°, using the channel interior to the
+        screws.</strong> A cell is short of <em>angle</em>, not area, and angle costs radius: a
+        millimetre of arc at R 20 is 2.9°, the same millimetre at R 29.5 is 1.9°. The cell was
+        70° because small parts sat at small radius — a 1 µF 0805 beside the gate driver took
+        30° on its own, while both MOSFETs together needed 18. The band the six boss pads sit on
+        is empty between them, so the bootstrap diode, the DC-link 100 n, both input pulls and
+        each phase's clamp diode moved out there at R 29.3, and the DC-link bulk to its own row
+        at R 26.8.
+        <p>Three consolidations paid for it: one 4.7 µF at the power link instead of a 1 µF per
+        driver, the lead pad narrowed to ±7°, and the row packer taught to dodge parts in other
+        rows. The result was 60/60 — which put the six bolts back on an even circle, the thing
+        grouping the phases had cost.</p>
+        <p><strong>Routing later took most of it back.</strong> A part in a phase cell's channel
+        can only be connected if its nets are GND or the phase output: the phase-output pour owns
+        B.Cu beneath it, the heatsink land owns F.Cu above it, and the bosses cut the outer ring
+        into six arcs. Five of the six parts per cell came back in and the cells widened to
+        68&deg;, which costs the even bolt circle and buys 29 mm² of heatsink land. Only the
+        clamp diode stayed out there.</p>
+        <p>One methodological note, because it nearly produced a wrong answer: the first sweep
+        said the cells would come down to 50°. They will not. Rewriting
+        <code>geometry.py</code> repeatedly within the same second, with the same file length,
+        let Python reuse a stale <code>.pyc</code> — so every run in that sweep was quietly
+        re-measuring 70°. Re-run with <code>-B</code> and a fresh interpreter, the limit is
+        60.</p></div>
+      </div>
+      <div class="entry">
+        <time datetime="2026-09-07">2026-09-07</time>
+        <div><strong>Phases grouped, board A captured.</strong> The three phase cells are
+        adjacent now, 0–210°, with the three utility wedges together on the other side: the
+        RP2350A sits in the middle wedge instead of between two half-bridges, the motor leads
+        leave as one bundle, and the heatsink land grew to 286 mm². The six M2.5 moved onto the
+        section boundaries to do it, which costs the even 60° spacing and is worth it.
+        <p>Then the schematic: 115 components, 81 nets, ERC clean, generated from a netlist in
+        <code>tools/schematic.py</code> and cross-checked against the placement both ways.
+        Capture found seven things — no core-buck inductor for the RP2350A, a bus divider that
+        would have put 5.5 V on a 3.3 V ADC pin (and a 0603 asked to hold off 60 V), a floating
+        <code>FAULT_n</code>, a <code>USB_VBUS_DET</code> with nowhere to go, a signal link
+        whose pins had never been counted, three phase TVS that were in the parts table and not
+        on the board, and a MOSFET whose symbol and footprint numbered their pins differently.
+        Reading the INA241 datasheet moved the shunt again: the 50 V/V grade is A3, not A2, and
+        the output only swings to V<sub>S</sub>−0.2 V worst case.</p>
+        <p>Three more KiCad file-format facts, all found by the netlist diff rather than by ERC:
+        a schematic's <code>lib_symbols</code> names units by the bare symbol name and gets them
+        wrong silently; a sheet has two different uuids and the instance path uses only one of
+        them; and two label stubs on one coordinate weld two nets together.</p></div>
+      </div>
+      <div class="entry">
+        <time datetime="2026-09-07">2026-09-07</time>
+        <div><strong>Board A placed, and 20 A RMS made real.</strong> 98 parts, DRC- and
+        ERC-clean, from a new <code>tools/placement.py</code> that holds the floorplan and the
+        rules it has to obey. Committing to 20 A RMS continuous rather than 20 A of full-scale
+        sense turned up two errors in draft 0.2: the sense chain clipped at 14.6 A RMS, and the
+        2&#215;8 power link had 0.8 A of margin against 23.2 A RMS. Both fixed — 1.0 m&#8486;
+        shunts at 50 mV/A, two 2&#215;5 headers. The EG2103 datasheet was read: LIN is pulled
+        <em>up</em>, its truth table matches &sect;6, and one sentence of its own prose
+        contradicts the rest of the document. Six 4.7 k pulls went on anyway, because RP2350's
+        reset-state pull-down against that 200 k pull-up parks the input at ~1.2 V — between
+        V<sub>IL</sub> and V<sub>IH</sub>. Reading the sister project's actual board rather than
+        its driver's datasheet also showed that draft 0.2's criticism of their F-17 was wrong:
+        their E-stop brakes, because of four 10 k pull-downs.
+        <p>Four KiCad file-format facts cost most of the debugging, and all four are now in the
+        generator: pads carry an absolute angle (without it every fine-pitch part's copper is
+        turned the wrong way, which DRC showed as a 1.27 mm-pitch SOIC-8 with 0.0000 mm between
+        pins at 90&deg; and nothing at 45&deg;); custom pads need it separately; net classes want
+        <code>microvia_*</code> and a priority or they are discarded silently; and the stackup
+        did not add up to 1.6 mm.</p></div>
+      </div>
+      <div class="entry">
+        <time datetime="2026-09-07">2026-09-07</time>
+        <div>KiCad projects started. <code>tools/gen_boards.py</code> emits both boards from
+        <code>tools/geometry.py</code>: outlines, mount patterns, stackups, design rules, net
+        classes and a hierarchical sheet skeleton. Both DRC-clean and ERC-clean, verified with
+        <code>kicad-cli</code> — which caught two real format errors (<code>justify center</code>
+        is not valid KiCad, and hand-rolled mounting holes trip
+        <code>lib_footprint_mismatch</code>; the stock footprints are embedded instead).</div>
+      </div>
+      <div class="entry">
+        <time datetime="2026-09-07">2026-09-07</time>
+        <div>Draft 0.2. Gate driver settled against real LCSC stock rather than a parts search:
+        EG2131 and FD2103S are both out of stock, and <strong>EG2103</strong> (C480654, 2,225,
+        $0.19) is the pick — keeping EG Micro's logic convention, the interlock and a 560 ns
+        hardware dead time, at about 2 W of switching loss against a 4 A driver. USB-PD restored
+        as a first-class power source: a 20 V contract feeds VMOT, so the sister project's F-27
+        and F-39 come across as adopted <em>fixes</em> rather than avoided problems. Reading the
+        EG3113 datasheet to settle the driver's float behaviour turned up a likely error in
+        their F-17: it claims the E-stop brakes, and the part coasts.</div>
+      </div>
+      <div class="entry">
+        <time datetime="2026-09-07">2026-09-07</time>
+        <div>Specification draft 0.1. Read the sister project end to end; pulled the MT6701
+        circuit and mount pattern from <code>hardware/encoder</code>, the power-stage numbers
+        from <code>review/gan.html</code> §7 and <code>review/power.html</code>, and the
+        inheritance list from <code>review/findings.html</code>. Diameter, power class, sensing
+        and I/O settled. Geometry moved into <code>tools/geometry.py</code> so the drawings and
+        the prose cannot drift.</div>
+      </div>
+      <div class="entry">
+        <time datetime="2026-09-07">2026-09-07</time>
+        <div>Project created and registered with the hub. Status page scaffolded.</div>
+      </div>
+    </div>
+  </details>
+
+</main>
+
+<footer>
+  <p>Served from <code>~/pcb/servodrive</code> — <code>proj up servodrive</code> to start,
+  <code>proj down servodrive</code> to stop, <code>proj url servodrive</code> for the address.</p>
+  <p>Sister project: <code>~/pcb/rp2350-motor-controller</code>. CERN-OHL-P, like its parent.</p>
+</footer>
+
+<script src="copper.js"></script>
+
+</body>
+</html>

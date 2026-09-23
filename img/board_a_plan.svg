@@ -1,0 +1,211 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-54 -44 108 88" width="940" height="766" role="img">
+<style>
+  :root { --bg:#ffffff; --panel:#f4f2ec; --ink:#1e2126; --muted:#6b7280;
+          --line:#c9c4b8; --accent:#6b4fa0; --warn:#a05a00;
+          --zone:#ffffff00; --partfill:#eae4f5; --copper:#c08a3e; }
+
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1e2128; --panel:#262a33; --ink:#e8e6e1; --muted:#9aa3af;
+            --line:#3d434f; --accent:#a98fd8; --warn:#e0a44c;
+            --zone:#00000000; --partfill:#332c47; --copper:#b8823c; }
+  }
+
+  .board  { fill: var(--panel); stroke: var(--ink); stroke-width: .35; }
+  .zone   { fill: var(--zone); stroke: var(--line); stroke-width: .18;
+            stroke-dasharray: 1.2 .9; }
+  .keep   { fill: none; stroke: var(--warn); stroke-width: .16;
+            stroke-dasharray: .8 .7; }
+  .hole   { fill: var(--bg); stroke: var(--ink); stroke-width: .28; }
+  .part   { fill: var(--partfill); stroke: var(--accent); stroke-width: .28; }
+  .pad    { fill: var(--copper); stroke: none; }
+  .lead   { stroke: var(--muted); stroke-width: .16; fill: none; }
+  .dim    { stroke: var(--muted); stroke-width: .14; fill: none; }
+  text    { font-family: ui-sans-serif, system-ui, sans-serif;
+            fill: var(--ink); }
+  .lbl    { font-size: 1.7px; }
+  .sub    { font-size: 1.35px; fill: var(--muted); }
+  .tiny   { font-size: 1.30px; fill: var(--muted); }
+  .ctr    { text-anchor: middle; }
+  .rt     { text-anchor: end; }
+</style>
+
+<title>Board A, motor board, outward face, in mm. Solid: outward side. Dashed: motor-facing side.</title>
+<circle class="board" cx="0" cy="0" r="32.5"/>
+<path class="pad" d="M 29.04 -3.05 L 31.33 -3.29 A 31.5 31.5 0 0 0 14.79 -27.81 L 13.71 -25.78 A 29.2 29.2 0 0 1 29.04 -3.05 Z" opacity=".85"/>
+<path class="lead" d="M 25.39 -12.94 L 27.89 -14.21 A 31.3 31.3 0 0 0 23.62 -20.53 L 21.51 -18.70 A 28.5 28.5 0 0 1 25.39 -12.94 Z" fill="none" stroke-dasharray="1 .8"/>
+<path class="pad" d="M 8.05 -28.07 L 8.68 -30.28 A 31.5 31.5 0 0 0 -20.25 -24.13 L -18.77 -22.37 A 29.2 29.2 0 0 1 8.05 -28.07 Z" opacity=".85"/>
+<path class="lead" d="M -2.48 -28.39 L -2.73 -31.18 A 31.3 31.3 0 0 0 -10.19 -29.59 L -9.28 -26.95 A 28.5 28.5 0 0 1 -2.48 -28.39 Z" fill="none" stroke-dasharray="1 .8"/>
+<path class="pad" d="M -23.01 -17.98 L -24.82 -19.39 A 31.5 31.5 0 0 0 -29.96 9.73 L -27.77 9.02 A 29.2 29.2 0 0 1 -23.01 -17.98 Z" opacity=".85"/>
+<path class="lead" d="M -27.25 -8.33 L -29.93 -9.15 A 31.3 31.3 0 0 0 -31.26 -1.64 L -28.46 -1.49 A 28.5 28.5 0 0 1 -27.25 -8.33 Z" fill="none" stroke-dasharray="1 .8"/>
+<circle class="keep" cx="0" cy="0" r="29.2"/>
+<circle class="keep" cx="0" cy="0" r="16.0"/>
+<polygon class="part" points="20.32,-11.89 22.95,-5.24 28.22,-7.32 25.58,-13.98"/>
+<polygon class="part" points="13.45,-19.32 18.64,-14.38 22.54,-18.48 17.36,-23.42"/>
+<polygon class="part" points="23.07,-3.45 25.99,-3.98 25.73,-5.42 22.81,-4.89"/>
+<polygon class="part" points="13.08,-19.32 14.66,-21.82 13.42,-22.60 11.84,-20.10"/>
+<polygon class="part" points="22.51,-0.92 27.09,-1.34 26.88,-3.63 22.30,-3.21"/>
+<polygon class="part" points="11.33,-19.47 13.43,-23.56 11.39,-24.62 9.28,-20.53"/>
+<polygon class="part" points="20.81,-9.57 16.67,-15.71 12.19,-12.69 16.33,-6.55"/>
+<polygon class="part" points="14.27,-14.56 12.89,-15.80 12.26,-15.10 13.65,-13.86"/>
+<polygon class="part" points="12.61,-16.02 11.10,-17.11 10.55,-16.34 12.06,-15.26"/>
+<polygon class="part" points="9.83,-15.60 11.30,-18.16 10.04,-18.89 8.56,-16.33"/>
+<polygon class="part" points="19.48,-6.03 18.85,-7.78 17.97,-7.46 18.60,-5.71"/>
+<polygon class="part" points="20.02,-3.88 19.58,-5.69 18.67,-5.47 19.10,-3.66"/>
+<polygon class="part" points="18.34,-1.82 21.28,-2.23 21.07,-3.68 18.14,-3.27"/>
+<polygon class="part" points="20.26,-8.45 25.53,-12.00 23.76,-14.62 18.49,-11.07" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="18.48,-11.34 23.75,-14.90 21.98,-17.52 16.71,-13.96" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="15.90,-21.19 14.06,-18.87 15.20,-17.96 17.04,-20.28" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="22.90,-20.93 19.71,-23.96 18.13,-22.30 21.32,-19.27" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="13.12,-14.27 15.04,-16.53 13.92,-17.47 12.00,-15.22" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="13.21,-18.13 14.87,-20.58 13.66,-21.40 12.00,-18.95" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="8.51,-15.83 9.87,-18.73 8.15,-19.54 6.79,-16.64" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="19.10,-5.91 16.24,-5.14 16.62,-3.73 19.48,-4.50" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="16.75,-13.35 13.35,-11.06 15.25,-8.24 18.65,-10.53" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="16.35,-7.13 19.01,-8.42 18.37,-9.73 15.71,-8.44" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="16.93,-5.61 19.70,-6.65 19.18,-8.02 16.42,-6.97" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="22.65,-2.44 22.14,-5.36 20.70,-5.11 21.21,-2.19" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="22.04,-5.76 21.10,-8.57 19.72,-8.11 20.65,-5.30" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-3.42,-23.29 3.74,-23.24 3.78,-28.90 -3.38,-28.95"/>
+<polygon class="part" points="-12.87,-19.71 -6.35,-22.67 -8.69,-27.82 -15.21,-24.87"/>
+<polygon class="part" points="5.45,-22.69 6.05,-25.59 4.62,-25.88 4.02,-22.98"/>
+<polygon class="part" points="-13.02,-19.36 -14.74,-21.77 -15.93,-20.91 -14.20,-18.51"/>
+<polygon class="part" points="7.58,-21.22 8.91,-25.62 6.70,-26.28 5.38,-21.88"/>
+<polygon class="part" points="-13.81,-17.80 -16.81,-21.28 -18.56,-19.78 -15.56,-16.30"/>
+<polygon class="part" points="-1.08,-22.88 -8.32,-21.34 -7.20,-16.05 0.04,-17.59"/>
+<polygon class="part" points="-8.16,-18.69 -9.83,-17.87 -9.41,-17.02 -7.74,-17.85"/>
+<polygon class="part" points="-10.13,-17.69 -11.70,-16.70 -11.20,-15.90 -9.63,-16.90"/>
+<polygon class="part" points="-10.78,-14.95 -12.60,-17.28 -13.75,-16.38 -11.93,-14.05"/>
+<polygon class="part" points="1.71,-20.32 -0.15,-20.39 -0.19,-19.45 1.67,-19.38"/>
+<polygon class="part" points="3.90,-20.01 2.06,-20.29 1.92,-19.36 3.76,-19.08"/>
+<polygon class="part" points="5.18,-17.69 5.90,-20.56 4.48,-20.92 3.77,-18.05"/>
+<polygon class="part" points="-0.24,-21.95 -1.57,-28.17 -4.66,-27.51 -3.33,-21.29" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-3.59,-21.38 -4.92,-27.60 -8.01,-26.95 -6.68,-20.72" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-13.69,-22.68 -12.23,-20.10 -10.96,-20.82 -12.42,-23.40" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-10.83,-29.08 -14.84,-27.25 -13.88,-25.16 -9.88,-26.98" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-8.32,-17.51 -9.69,-20.13 -10.98,-19.46 -9.61,-16.83" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-11.86,-19.04 -13.51,-21.50 -14.72,-20.69 -13.08,-18.23" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-11.49,-13.82 -13.67,-16.17 -15.06,-14.88 -12.89,-12.53" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-6.10,-20.53 -5.25,-16.52 -1.92,-17.23 -2.78,-21.24" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-0.48,-17.83 -0.68,-20.78 -2.14,-20.68 -1.94,-17.73" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="1.14,-17.80 1.21,-20.76 -0.25,-20.79 -0.32,-17.83" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="6.22,-21.91 3.32,-22.53 3.02,-21.11 5.91,-20.49" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="2.91,-22.59 -0.04,-22.78 -0.13,-21.32 2.82,-21.13" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-22.88,-5.56 -20.15,-12.18 -25.38,-14.34 -28.11,-7.72"/>
+<polygon class="part" points="-23.10,4.55 -23.40,-2.60 -29.05,-2.36 -28.75,4.79"/>
+<polygon class="part" points="-19.00,-13.55 -21.46,-15.19 -22.27,-13.98 -19.81,-12.33"/>
+<polygon class="part" points="-22.83,4.82 -25.70,5.52 -25.36,6.94 -22.48,6.23"/>
+<polygon class="part" points="-16.83,-14.98 -20.42,-17.86 -21.86,-16.06 -18.27,-13.18"/>
+<polygon class="part" points="-21.68,6.14 -26.03,7.62 -25.29,9.80 -20.94,8.32"/>
+<polygon class="part" points="-21.61,-7.57 -22.90,-0.28 -17.58,0.66 -16.30,-6.63"/>
+<polygon class="part" points="-20.38,0.56 -20.25,2.42 -19.31,2.35 -19.45,0.49"/>
+<polygon class="part" points="-20.20,2.77 -19.87,4.60 -18.94,4.43 -19.28,2.60"/>
+<polygon class="part" points="-17.90,4.39 -20.75,5.21 -20.34,6.61 -17.50,5.80"/>
+<polygon class="part" points="-18.20,-9.20 -18.96,-7.50 -18.10,-7.11 -17.34,-8.81"/>
+<polygon class="part" points="-17.10,-11.11 -18.04,-9.51 -17.23,-9.03 -16.29,-10.64"/>
+<polygon class="part" points="-14.46,-11.43 -16.85,-13.17 -17.71,-11.99 -15.32,-10.25"/>
+<polygon class="part" points="-20.44,-8.00 -26.70,-9.10 -27.25,-5.99 -20.99,-4.88" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-21.17,-4.68 -27.43,-5.78 -27.98,-2.67 -21.72,-1.57" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-26.16,4.19 -23.22,3.81 -23.41,2.36 -26.35,2.75" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-31.02,-0.85 -30.82,3.55 -28.53,3.45 -28.72,-0.95" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-19.35,1.16 -22.30,1.44 -22.15,2.90 -19.21,2.61" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-22.10,3.87 -24.99,4.47 -24.69,5.90 -21.80,5.30" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-17.12,5.48 -20.11,6.61 -19.44,8.39 -16.45,7.25" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-21.32,-2.03 -17.28,-1.32 -16.69,-4.67 -20.73,-5.38" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-16.71,-6.23 -19.52,-7.15 -19.98,-5.76 -17.16,-4.84" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-16.07,-7.73 -18.79,-8.90 -19.37,-7.56 -16.65,-6.39" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-17.99,-13.97 -19.65,-11.52 -18.44,-10.70 -16.78,-13.16" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-19.85,-11.17 -21.13,-8.50 -19.82,-7.86 -18.54,-10.53" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-16.27,8.74 -20.19,13.40 -9.69,22.21 -5.78,17.54"/>
+<polygon class="part" points="-20.39,13.64 -24.30,18.31 -13.81,27.11 -9.89,22.45"/>
+<polygon class="part" points="-8.84,21.81 -9.87,24.58 -8.50,25.09 -7.47,22.31"/>
+<polygon class="part" points="-10.98,24.48 -12.11,27.22 -10.76,27.78 -9.63,25.04"/>
+<polygon class="part" points="-7.25,22.39 -8.07,25.23 -6.67,25.64 -5.85,22.79"/>
+<polygon class="part" points="-20.68,11.23 -23.23,12.73 -22.50,13.99 -19.94,12.49"/>
+<polygon class="part" points="-0.49,17.51 1.22,25.57 9.28,23.86 7.57,15.80"/>
+<polygon class="part" points="10.57,20.14 11.09,22.59 13.14,22.15 12.62,19.71"/>
+<polygon class="part" points="8.67,20.89 9.05,22.67 9.95,22.48 9.57,20.70"/>
+<polygon class="part" points="9.60,20.70 9.98,22.48 10.88,22.28 10.50,20.50"/>
+<polygon class="part" points="11.00,23.11 9.22,23.49 9.42,24.39 11.20,24.01"/>
+<polygon class="part" points="12.83,22.71 11.01,23.10 11.21,24.01 13.03,23.63"/>
+<polygon class="part" points="13.00,17.25 11.18,17.64 11.38,18.56 13.20,18.17"/>
+<polygon class="part" points="13.21,18.23 11.39,18.62 11.59,19.54 13.40,19.15"/>
+<polygon class="part" points="10.96,24.95 9.14,25.33 9.33,26.25 11.15,25.87" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="12.90,24.55 11.11,24.92 11.31,25.82 13.09,25.45" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-3.45,22.70 -5.23,23.08 -5.03,23.98 -3.25,23.60"/>
+<polygon class="part" points="-3.20,23.88 -4.98,24.25 -4.78,25.15 -3.00,24.78"/>
+<polygon class="part" points="-2.93,25.04 -4.75,25.42 -4.55,26.34 -2.73,25.96"/>
+<polygon class="part" points="-3.93,16.84 -4.30,18.63 -3.40,18.81 -3.03,17.03" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-3.54,19.07 -3.83,20.87 -2.93,21.01 -2.64,19.22" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="-3.14,21.26 -3.37,23.07 -2.46,23.18 -2.23,21.38" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="9.69,14.32 10.75,15.80 11.50,15.27 10.44,13.79" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="10.22,16.48 11.22,18.01 11.99,17.50 10.99,15.98" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="10.73,18.62 11.68,20.18 12.46,19.70 11.52,18.15" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="2.99,31.31 6.45,30.78 6.00,27.81 2.54,28.34"/>
+<polygon class="part" points="0.67,30.37 2.48,30.27 2.44,29.35 0.62,29.45"/>
+<polygon class="part" points="-1.49,30.34 0.33,30.37 0.35,29.45 -1.47,29.42"/>
+<polygon class="part" points="14.10,24.46 10.26,26.30 11.34,28.55 15.18,26.71"/>
+<polygon class="part" points="12.92,27.64 12.18,25.98 11.34,26.36 12.08,28.02" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="12.55,25.78 13.40,27.44 14.23,27.01 13.39,25.35" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="14.63,17.59 22.34,21.35 30.58,4.46 22.87,0.70"/>
+<polygon class="part" points="18.30,8.40 16.63,7.59 16.21,8.43 17.89,9.25"/>
+<polygon class="part" points="14.90,9.62 17.45,11.12 18.19,9.86 15.64,8.36"/>
+<polygon class="part" points="13.96,10.94 16.36,12.67 17.21,11.48 14.81,9.75"/>
+<polygon class="part" points="13.35,16.21 16.25,13.31 13.84,10.91 10.94,13.81"/>
+<polygon class="part" points="16.22,7.18 18.97,8.27 19.51,6.91 16.75,5.82"/>
+<polygon class="part" points="16.81,5.67 19.65,6.50 20.06,5.09 17.21,4.26"/>
+<polygon class="part" points="19.80,3.65 17.98,3.27 17.79,4.19 19.61,4.58"/>
+<polygon class="part" points="18.04,3.04 19.84,3.30 19.97,2.39 18.17,2.13"/>
+<polygon class="part" points="19.78,8.14 22.14,8.96 22.95,6.59 20.59,5.78" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="17.23,12.67 19.33,14.03 20.69,11.93 18.59,10.57" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="20.63,5.64 23.08,6.15 23.59,3.71 21.15,3.19" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="15.53,14.70 17.45,16.31 19.06,14.40 17.14,12.79" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="14.19,15.66 16.25,17.79 17.30,16.77 15.23,14.65" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="20.92,2.99 23.86,3.31 24.02,1.85 21.08,1.54" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="2.70,3.70 2.70,-3.70 -2.70,-3.70 -2.70,3.70" stroke-dasharray=".6 .5" opacity=".55"/>
+<polygon class="part" points="0.91,-5.06 -0.91,-5.06 -0.91,-4.14 0.91,-4.14" stroke-dasharray=".6 .5" opacity=".55"/>
+<circle class="hole" cx="29.50" cy="-0.00" r="1.35"/>
+<circle class="hole" cx="11.05" cy="-27.35" r="1.35"/>
+<circle class="hole" cx="-21.22" cy="-20.49" r="1.35"/>
+<circle class="hole" cx="-26.95" cy="12.00" r="1.35"/>
+<circle class="hole" cx="-7.14" cy="28.62" r="1.35"/>
+<circle class="hole" cx="18.16" cy="23.25" r="1.35"/>
+<circle class="keep" cx="12.5" cy="0" r="3.25"/>
+<circle class="hole" cx="12.5" cy="0" r="1.6"/>
+<circle class="keep" cx="-12.5" cy="0" r="3.25"/>
+<circle class="hole" cx="-12.5" cy="0" r="1.6"/>
+<circle class="keep" cx="0" cy="-9.5" r="3.25"/>
+<circle class="hole" cx="0" cy="-9.5" r="1.6"/>
+<circle class="keep" cx="0" cy="9.5" r="3.25"/>
+<circle class="hole" cx="0" cy="9.5" r="1.6"/>
+<text class="tiny ctr" x="0" y="0.5">MT6701</text>
+<text class="tiny ctr" x="0" y="3.2">far face</text>
+<path class="dim" d="M 31.53 -7.86 L 33.86 -8.44"/>
+<text class="lbl" text-anchor="start" x="35.44" y="-9.54">phase A</text>
+<text class="tiny" text-anchor="start" x="35.44" y="-7.79">2 FET + driver + DC link</text>
+<text class="tiny" text-anchor="start" x="35.44" y="-6.04">shunt and lead pad on the far face</text>
+<path class="dim" d="M 4.52 -32.18 L 4.86 -34.56"/>
+<text class="lbl" text-anchor="start" x="5.77" y="-36.25">phase B</text>
+<text class="tiny" text-anchor="start" x="5.77" y="-34.50">2 FET + driver + DC link</text>
+<text class="tiny" text-anchor="start" x="5.77" y="-32.75">shunt and lead pad on the far face</text>
+<path class="dim" d="M -28.15 -16.25 L -30.22 -17.45"/>
+<text class="lbl" text-anchor="end" x="-31.72" y="-18.75">phase C</text>
+<text class="tiny" text-anchor="end" x="-31.72" y="-17.00">2 FET + driver + DC link</text>
+<text class="tiny" text-anchor="end" x="-31.72" y="-15.25">shunt and lead pad on the far face</text>
+<path class="dim" d="M 19.10 -26.29 L 20.51 -28.23"/>
+<text class="lbl" text-anchor="start" x="21.78" y="-29.78">heatsink land</text>
+<text class="tiny" text-anchor="start" x="21.78" y="-28.03">bare copper, R 29.2-31.5,</text>
+<text class="tiny" text-anchor="start" x="21.78" y="-26.28">one per cell</text>
+<path class="dim" d="M 32.50 -0.00 L 34.90 -0.00"/>
+<text class="lbl" text-anchor="start" x="36.50" y="-0.15">power link</text>
+<text class="tiny" text-anchor="start" x="36.50" y="1.60">2 x 2x5, 10 VBUS + 10 GND</text>
+<path class="dim" d="M -16.25 -28.15 L -17.45 -30.22"/>
+<text class="lbl" text-anchor="end" x="-18.65" y="-31.07">RP2350A</text>
+<text class="tiny" text-anchor="end" x="-18.65" y="-29.32">QFN-60 + crystal + flash + LDO</text>
+<path class="dim" d="M -16.25 28.15 L -17.45 30.22"/>
+<text class="lbl" text-anchor="end" x="-18.65" y="30.77">signal link</text>
+<text class="tiny" text-anchor="end" x="-18.65" y="32.52">2x14 @ 1.27, 18 signals</text>
+<path class="dim" d="M -32.5 40.5 H 32.5 M -32.5 39.5 v 2 M 32.5 39.5 v 2"/>
+<text class="tiny ctr" x="0" y="40.0">&#216;65 board, 124 parts</text>
+<text class="tiny ctr" x="0" y="43.4">dashed courtyards are on the motor-facing side; nothing but the encoder inside &#216;32</text>
+<text class="tiny ctr" x="0" y="-38.5">&#216;59 bolt circle, 6 &#215; M2.5 &#8212; standoff, heatsink joint and ground bond</text>
+</svg>

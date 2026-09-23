@@ -1,0 +1,13 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "5b0754c7-a2f3-5b51-a339-3d07ac3e71a5")
+	(paper "A4")
+	(title_block (title "servodrive — board B, power / IO — 04_rs485") (date "2026-09-07") (rev "A")
+		(company "Sequoia Hope Alexander"))
+	(lib_symbols)
+	(text "2x SIT3088ETK full duplex, two chained ports, jumpered 120R" (exclude_from_sim no) (at 25 30 0)
+		(effects (font (size 1.27 1.27)) (justify left top)) (uuid "b4615ee9-8217-5c89-aca9-eb56b3f23470"))
+	(embedded_fonts no)
+)
