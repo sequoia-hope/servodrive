@@ -275,6 +275,7 @@ function init(root) {
 
   function focus(p) {
     const box = new THREE.Box3().setFromObject(p);
+    if (box.isEmpty()) return;                   // a node with no geometry: nowhere to fly
     const c = box.getCenter(new THREE.Vector3());
     let dir = camera.position.clone().sub(controls.target).normalize();
     let up = camera.up.clone();
@@ -402,6 +403,7 @@ function init(root) {
     let h = dl([
       ['Designator', esc(x.ref) + (d && d.attrs.includes('dnp') ? '<span class="b3-dnp">DNP</span>' : '')],
       ['Component', esc(x.value) + small(d && d.role)],
+      d && !d.attrs.includes('exclude_from_bom') && ['LCSC', lcsc(d, x)],
       ['Footprint', '<span class="mono">' + esc(x.footprint) + '</span>' +
         small(d && [d.lib, d.descr].filter(Boolean).join(' \u00b7 '))],
     ]);
@@ -431,6 +433,22 @@ function init(root) {
     }
     ib.innerHTML = h;
     ib.scrollTop = 0;
+  }
+
+  // The number hardware/parts/lcsc.csv (or the footprint) gives it, to its LCSC
+  // page -- and to JLCPCB's, the same C-number, which lists a few parts LCSC's
+  // own shop does not. With none chosen yet, a search for its value and package.
+  function lcsc(d, x) {
+    const ext = (href, text, cls) => '<a' + (cls ? ' class="' + cls + '"' : '') + ' href="' + esc(href) +
+      '" target="_blank" rel="noopener">' + esc(text) + '</a>';
+    if (/^C\d+$/.test(d.lcsc)) {
+      return ext('https://www.lcsc.com/product-detail/' + d.lcsc + '.html', d.lcsc) + ' ' +
+        ext('https://jlcpcb.com/partdetail/' + d.lcsc, 'JLCPCB', 'b3-alt') + small(d.mpn);
+    }
+    const pkg = (x.footprint.match(/_(\d{4})_\d{4}Metric/) || [])[1];
+    const q = [x.value.replace(/\//g, ' '), pkg].filter(Boolean).join(' ');
+    return '<span class="b3-nc">none chosen</span> ' +
+      ext('https://www.lcsc.com/search?q=' + encodeURIComponent(q), 'search LCSC', 'b3-alt');
   }
 
   // how far the part's model stands off its own face of the laminate, in mm

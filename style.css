@@ -470,6 +470,8 @@ section.vw { padding: 0; overflow: hidden; }
 .b3-ib h4 span { color: var(--muted); font-weight: 500; }
 .b3-ib h4 + dl { padding-top: .15rem; }
 .b3-ib .mono { font-family: var(--mono); font-size: .76rem; }
+.b3-ib a[target=_blank]::after { content: "\2197"; font-size: .8em; margin-left: .15em; }
+.b3-ib a.b3-alt { font-size: .72rem; margin-left: .35rem; }
 .b3-dnp {
   display: inline-block; margin-left: .4rem; padding: 0 .35rem; border-radius: 2px;
   font-size: .66rem; font-weight: 600; color: #1e1e1e; background: var(--warn); vertical-align: .08em;

@@ -11,7 +11,8 @@ Writes into img/3d/:
                   have no model, which models were substituted, file size
     <board>.parts.json
                   what the viewer's component pane says about a clicked part:
-                  its role note, footprint and its description, where it sits
+                  its role note, LCSC number (hardware/parts/lcsc.csv, or the
+                  footprint's own LCSC field), footprint and its description, where it sits
                   (mm from the board centre, y up, as the copper viewer reads
                   out), rotation, attributes, other fields, and the net on
                   every pin. Read from the board file alone, so
@@ -42,7 +43,7 @@ what it knows about a part is in <board>.parts.json.
 The result is the same bytes for the same board: kicad-cli's timestamp is
 dropped, so a re-export after a change that did not move copper is not a diff.
 """
-import argparse, json, re, shutil, struct, subprocess, sys, tempfile
+import argparse, csv, json, re, shutil, struct, subprocess, sys, tempfile
 from datetime import date
 from pathlib import Path
 
@@ -53,6 +54,7 @@ import sexp
 ROOT = Path(__file__).resolve().parent.parent
 HW = ROOT / "hardware"
 MODELS = HW / "parts" / "3dmodels"
+LCSC = HW / "parts" / "lcsc.csv"          # the part numbers chosen so far
 OUT = ROOT / "img" / "3d"
 
 BOARDS = {"a": ("motor_board", "servodrive_A"),
@@ -114,7 +116,16 @@ def parts_of(text):
 
 
 # fields every footprint has, shown in their own rows rather than as parameters
-OWN_FIELDS = {"Reference", "Value", "Footprint", "Datasheet", "Description", "servodrive_role"}
+OWN_FIELDS = {"Reference", "Value", "Footprint", "Datasheet", "Description", "servodrive_role", "LCSC"}
+
+
+def lcsc_table():
+    """(value, footprint) -> {lcsc, mpn} from hardware/parts/lcsc.csv."""
+    if not LCSC.exists():
+        return {}
+    rows = csv.DictReader(l for l in LCSC.read_text().splitlines()
+                          if l.strip() and not l.startswith("#"))
+    return {(r["value"], r["footprint"]): {"lcsc": r["lcsc"], "mpn": r["mpn"]} for r in rows}
 
 
 def centre_of(tree):
@@ -147,6 +158,7 @@ def details_of(text):
     """ref -> everything the component pane shows, for every footprint."""
     tree = sexp.parse(text)
     ring = centre_of(tree)
+    table = lcsc_table()
     cx, cy = ring[:2] if ring else (0.0, 0.0)
     out = {}
     for fp in sexp.findall(tree, "footprint"):
@@ -173,6 +185,8 @@ def details_of(text):
                "datasheet": props.get("Datasheet", "").strip("~"),
                "description": props.get("Description", ""),
                "fields": {k: v for k, v in props.items() if k not in OWN_FIELDS and v},
+               **({"lcsc": props["LCSC"], "mpn": ""} if props.get("LCSC")
+                  else table.get((props.get("Value", ""), name), {"lcsc": "", "mpn": ""})),
                "pins": [[n, pins[n]] for n in sorted(pins, key=natural)]}
         out[props.get("Reference", "?")] = row
     return out, ring

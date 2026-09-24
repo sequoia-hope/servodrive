@@ -294,6 +294,8 @@ tools/export_3d.py   the board as a GLB for the 3D viewer: kicad-cli's export,
 hardware/
   parts/3dmodels/    two STEP models the footprints name and KiCad's library
                      lacks, for export_3d.py (sources in its README)
+  parts/lcsc.csv     the LCSC numbers chosen so far, by value and footprint, for
+                     the 3D viewer's part pane; a part not in it has none yet
   parts/             two symbols copied in, three DERIVED (EG2103, INA241A3,
                      W25Q128JV), two copied from the RP2350A reference design
                      (the 2016 inductor, a small-pad 0402) and five GENERATED
