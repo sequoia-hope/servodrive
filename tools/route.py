@@ -1429,6 +1429,9 @@ def main():
                          "(HARD_NETS for this run)")
     ap.add_argument("--pcb", help="route this copy of the board instead (its project "
                                   "file beside it, work in .route/ beside it; no plots)")
+    ap.add_argument("--sim", choices=("background", "wait", "no"), default="background",
+                    help="board S: after the run, re-run the simulation into the page "
+                         "(tools/regen.py); 'background' by default, about two hours")
     ap.add_argument("--loose", action="store_true",
                     help="rounds after the first leave the router's own earlier "
                          "wires in its hands (only the tools' copper is protected), "
@@ -1516,13 +1519,17 @@ def main():
               + ("" if not left else ": " + ", ".join(left)), flush=True)
         if made:
             settle(BOARD)
-    # The page's copper viewer stacks one plot per layer, and its 3D viewer
-    # draws a GLB; re-make them here so what the pages show is the board that
-    # was just routed.
+    # The hook: the page's copper viewer stacks one plot per layer, its 3D
+    # viewer draws a GLB, board S's page states the board's numbers and its
+    # simulation.  tools/regen.py re-makes all of it, so what the pages show is
+    # the board that was just routed.  The simulation is started only on a
+    # board with nothing left unconnected, and detached: it takes hours.
     if not args.pcb:
-        print("plots:", flush=True)
-        plot_layers.run(BOARD_KEY)
-        export_3d.run(BOARD_KEY)
+        import regen
+        left = stats(pcbnew.LoadBoard(str(BOARD)))["unconnected"]
+        regen.run(BOARD_KEY, sim=args.sim if left == 0 else "no")
+        if left:
+            print(f"  {left} unconnected: simulation not started")
     sys.stdout.flush()
     # pcbnew's SWIG teardown segfaults on a board this size after the work is
     # done and saved, which turns a good run into a non-zero exit. Leave now.

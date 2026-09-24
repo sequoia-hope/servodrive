@@ -1772,10 +1772,11 @@ def render_svgs(which="ab"):
         i = t.index(">", t.index("<svg")) + 1
         dst.write_text(t[:i] + "\n" + SVG_THEME + t[i:])
         print(f"  wrote  {dst.relative_to(ROOT)}")
-    # ... and the per-layer plots the copper viewer on index.html stacks,
-    # and the GLB its 3D viewer draws.
-    plot_layers.run("s" if which == "s" else "a")
-    export_3d.run("s" if which == "s" else "a")
+    # ... and the per-layer plots the copper viewer on index.html stacks, the
+    # GLB its 3D viewer draws, and board S's page status (tools/regen.py).  No
+    # simulation: a board straight out of the generator is not routed yet.
+    import regen
+    regen.run("s" if which == "s" else "a", sim="no")
 
 # ------------------------------------------------------------------ main ----
 def write(path, text, force, protect=False):
