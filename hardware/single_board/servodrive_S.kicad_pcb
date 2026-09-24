@@ -2310,7 +2310,7 @@
 				)
 			)
 		)
-		(property "Value" "W25Q128JVUXIQ"
+		(property "Value" "W25Q16JVUXIQ"
 			(at 0 1.95 0)
 			(layer "F.Fab")
 			(uuid "2fcd2624-2ec6-4ae3-9d1d-d71e045deb26")
@@ -19183,7 +19183,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "1m6"
+		(property "Value" "2m0"
 			(at 0 -2.280002 0)
 			(layer "B.Fab")
 			(uuid "0d235b1f-5ef1-4ba7-9fbf-30076155e5dd")
@@ -19219,7 +19219,7 @@
 				)
 			)
 		)
-		(property "servodrive_role" "inline shunt, parallel pair - desolder one for the 18 A mode"
+		(property "servodrive_role" "inline shunt, parallel pair - desolder one for the 14.5 A mode"
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
@@ -27959,7 +27959,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "1m6"
+		(property "Value" "2m0"
 			(at 0 -2.28 0)
 			(layer "B.Fab")
 			(uuid "6b005e6b-4671-4cdc-91b1-689d20076670")
@@ -27995,7 +27995,7 @@
 				)
 			)
 		)
-		(property "servodrive_role" "inline shunt, parallel pair - desolder one for the 18 A mode"
+		(property "servodrive_role" "inline shunt, parallel pair - desolder one for the 14.5 A mode"
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
@@ -31862,7 +31862,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "1m6"
+		(property "Value" "2m0"
 			(at 0 -2.28 0)
 			(layer "B.Fab")
 			(uuid "e4a70201-832d-43a4-ab85-a02197d0e54f")
@@ -31898,7 +31898,7 @@
 				)
 			)
 		)
-		(property "servodrive_role" "inline shunt, parallel pair - desolder one for the 18 A mode"
+		(property "servodrive_role" "inline shunt, parallel pair - desolder one for the 14.5 A mode"
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
@@ -32114,7 +32114,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "1m6"
+		(property "Value" "2m0"
 			(at 0 -2.280002 0)
 			(layer "B.Fab")
 			(uuid "17111264-cbd2-40af-ab65-70de41d72871")
@@ -32150,7 +32150,7 @@
 				)
 			)
 		)
-		(property "servodrive_role" "inline shunt, parallel pair - desolder one for the 18 A mode"
+		(property "servodrive_role" "inline shunt, parallel pair - desolder one for the 14.5 A mode"
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)

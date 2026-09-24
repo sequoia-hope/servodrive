@@ -2167,11 +2167,11 @@
 				)
 			)
 		)
-		(symbol "servodrive:W25Q128JV"
+		(symbol "servodrive:W25Q16JV"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(symbol "W25Q128JV_0_1"
+			(symbol "W25Q16JV_0_1"
 				(rectangle
 					(start -7.62 10.16)
 					(end 10.16 -10.16)
@@ -2184,7 +2184,7 @@
 					)
 				)
 			)
-			(symbol "W25Q128JV_1_1"
+			(symbol "W25Q16JV_1_1"
 				(pin input line
 					(at -10.16 7.62 0)
 					(length 2.54)
@@ -2339,7 +2339,7 @@
 					)
 				)
 			)
-			(property "Value" "W25Q128JVUXIQ"
+			(property "Value" "W25Q16JVUXIQ"
 				(at 7.62 11.43 0)
 				(effects
 					(font
@@ -2365,7 +2365,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Winbond 128 Mbit QSPI flash, USON-8 2x3 mm."
+			(property "Description" "Winbond 16 Mbit QSPI flash, USON-8 2x3 mm -- the RP2350 reference design's part; no 128 Mbit part comes in this package."
 				(at 0 27.94 0)
 				(effects
 					(font
@@ -4049,7 +4049,7 @@
 		(effects (font (size 2.0 2.0) (bold yes)) (justify left bottom))
 		(uuid "ca1223da-6e16-5d8a-992d-d0350adb4991"))
 	(symbol
-		(lib_id "servodrive:W25Q128JV")
+		(lib_id "servodrive:W25Q16JV")
 		(at 38.1000 355.6000 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -4060,7 +4060,7 @@
 		(property "Reference" "U8"
 			(at 27.9400 340.3600 0)
 			(effects (font (size 1.27 1.27)) (justify left)))
-		(property "Value" "W25Q128JVUXIQ"
+		(property "Value" "W25Q16JVUXIQ"
 			(at 27.9400 370.8400 0)
 			(effects (font (size 1.27 1.27)) (justify left)))
 		(property "Footprint" "Package_SON:Winbond_USON-8-1EP_3x2mm_P0.5mm_EP0.2x1.6mm"

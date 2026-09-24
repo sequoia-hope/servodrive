@@ -508,9 +508,9 @@ python3 tools/route.py --board s --polish           # twice</code></pre>
 <tr><td>U9</td><td>SPX3819-3.3</td><td>centre, motor side</td><td>R 9.2</td><td>5 V -&gt; 3V3</td></tr>
 <tr><td>C1001</td><td>100u/100V polymer</td><td>centre, outward</td><td>R 14.5</td><td>bulk, C2887236, Dia 10 x 12, in the centre, + lead outward</td></tr>
 <tr><td>C1002</td><td>100u/100V polymer</td><td>centre, outward</td><td>R 15.3</td><td>bulk, C2887236, Dia 10 x 12, in the centre, + lead outward</td></tr>
-<tr><td>C1004</td><td>4u7/100V</td><td>centre, outward</td><td>R 14.9</td><td>+12 V buck input, 4.7 uF ceramic; in the outward centre, 10 mm from C1003</td></tr>
+<tr><td>C1004</td><td>4u7/100V</td><td>centre, outward</td><td>R 14.9</td><td>+12 V buck input, 4.7 uF ceramic; in the outward centre, 11 mm from C1003</td></tr>
 <tr><td>C1007</td><td>4u7/100V</td><td>centre, outward</td><td>R 11.0</td><td>+5 V buck input, 4.7 uF ceramic; in the outward centre, 17 mm from C1006</td></tr>
-<tr><td>C1009</td><td>22u/25V</td><td>centre, outward</td><td>R 8.7</td><td>+12 V out; in the outward centre, 11 mm from C603</td></tr>
+<tr><td>C1009</td><td>22u/25V</td><td>centre, outward</td><td>R 14.0</td><td>+12 V out; in the outward centre, 24 mm from C603</td></tr>
 <tr><td>D1103</td><td>RGB</td><td>centre, outward</td><td>R 12.7</td><td>status LED, three GPIO</td></tr>
 <tr><td>J13</td><td>EXPANSION</td><td>centre, outward</td><td>R 0.0</td><td>2x10 1.27 SMD: 4 VMOT, 5 GND, +5V, +3V3, RUN, GPIO19-24, SWCLK, SWDIO; across the axis, the MT6701's vias moved clear</td></tr>
 <tr><td>R1107</td><td>1k</td><td>centre, outward</td><td>R 13.2</td><td>LED series</td></tr>
@@ -521,24 +521,24 @@ python3 tools/route.py --board s --polish           # twice</code></pre>
 <tr><td>TP5</td><td>SWCLK</td><td>centre, outward</td><td>R 9.6</td><td>test point, SWCLK, outward face</td></tr>
 <tr><td>TP6</td><td>SWDIO</td><td>centre, outward</td><td>R 6.4</td><td>test point, SWDIO, outward face</td></tr>
 <tr><td>TP7</td><td>RUN</td><td>centre, outward</td><td>R 8.8</td><td>test point, RUN, outward face</td></tr>
-<tr><td>C1003</td><td>100n/100V</td><td>signal wedge, 334&deg;, motor side</td><td>R 22.3</td><td>+12 V buck input, HF, at VIN/GND</td></tr>
-<tr><td>C1005</td><td>100n</td><td>signal wedge, 334&deg;, motor side</td><td>R 28.7</td><td>+12 V bootstrap, BOOT to SW</td></tr>
-<tr><td>C1011</td><td>22u/25V</td><td>signal wedge, 334&deg;, motor side</td><td>R 29.7</td><td>+5 V out</td></tr>
-<tr><td>C603</td><td>22u/25V</td><td>signal wedge, 334&deg;, motor side</td><td>R 19.6</td><td>+12 V out</td></tr>
+<tr><td>C1003</td><td>100n/100V</td><td>signal wedge, 334&deg;, motor side</td><td>R 22.7</td><td>+12 V buck input, HF, at VIN/GND</td></tr>
+<tr><td>C1005</td><td>100n</td><td>signal wedge, 334&deg;, motor side</td><td>R 29.1</td><td>+12 V bootstrap, BOOT to SW</td></tr>
+<tr><td>C1011</td><td>22u/25V</td><td>signal wedge, 334&deg;, motor side</td><td>R 19.1</td><td>+5 V out</td></tr>
+<tr><td>C603</td><td>22u/25V</td><td>signal wedge, 334&deg;, motor side</td><td>R 19.7</td><td>+12 V out</td></tr>
 <tr><td>D1002</td><td>B5819WS</td><td>signal wedge, 334&deg;, motor side</td><td>R 20.3</td><td>USB VBUS -&gt; +5V</td></tr>
-<tr><td>D1003</td><td>B5819WS</td><td>signal wedge, 334&deg;, motor side</td><td>R 17.9</td><td>5 V buck -&gt; +5V, so USB cannot back-feed the rails</td></tr>
-<tr><td>L1001</td><td>68u</td><td>signal wedge, 334&deg;, motor side</td><td>R 21.6</td><td>+12 V buck inductor, SWPA4030S680MT</td></tr>
-<tr><td>Q1001</td><td>2N7002</td><td>signal wedge, 334&deg;, motor side</td><td>R 25.1</td><td>GATE_OFF high pulls EN low: kills the gate rail</td></tr>
-<tr><td>R1001</td><td>100k</td><td>signal wedge, 334&deg;, motor side</td><td>R 30.4</td><td>+12 V feedback, top</td></tr>
-<tr><td>R1002</td><td>9k09</td><td>signal wedge, 334&deg;, motor side</td><td>R 30.2</td><td>+12 V feedback, bottom</td></tr>
-<tr><td>R1003</td><td>470k</td><td>signal wedge, 334&deg;, motor side</td><td>R 21.1</td><td>EN from VMOT: UVLO, on unless pulled down</td></tr>
-<tr><td>R1004</td><td>68k</td><td>signal wedge, 334&deg;, motor side</td><td>R 19.2</td><td>EN divider, bottom: 9.9 V start</td></tr>
-<tr><td>R1005</td><td>4k7</td><td>signal wedge, 334&deg;, motor side</td><td>R 23.2</td><td>GATE_OFF pull-down: the rail is ON through reset, so a reset brakes; 4k7 clears E9</td></tr>
-<tr><td>R1008</td><td>64k9</td><td>signal wedge, 334&deg;, motor side</td><td>R 26.9</td><td>+12 V RT: 400 kHz</td></tr>
-<tr><td>R1101</td><td>5k1</td><td>signal wedge, 334&deg;, motor side</td><td>R 22.5</td><td>CC1 pull-down: a sink, 5 V only</td></tr>
-<tr><td>R1102</td><td>5k1</td><td>signal wedge, 334&deg;, motor side</td><td>R 21.4</td><td>CC2 pull-down</td></tr>
-<tr><td>U11</td><td>LMR38010SDDAR</td><td>signal wedge, 334&deg;, motor side</td><td>R 26.0</td><td>+12 V rail, EN on a VMOT divider, GATE_OFF pulls it down</td></tr>
-<tr><td>U13</td><td>USBLC6-2SC6</td><td>signal wedge, 334&deg;, motor side</td><td>R 28.8</td><td>USB ESD, as close to the connector as the wedge allows</td></tr>
+<tr><td>D1003</td><td>B5819WS</td><td>signal wedge, 334&deg;, motor side</td><td>R 29.5</td><td>5 V buck -&gt; +5V, so USB cannot back-feed the rails</td></tr>
+<tr><td>L1001</td><td>68u</td><td>signal wedge, 334&deg;, motor side</td><td>R 21.7</td><td>+12 V buck inductor, SWPA4030S680MT</td></tr>
+<tr><td>Q1001</td><td>2N7002</td><td>signal wedge, 334&deg;, motor side</td><td>R 28.4</td><td>GATE_OFF high pulls EN low: kills the gate rail</td></tr>
+<tr><td>R1001</td><td>100k</td><td>signal wedge, 334&deg;, motor side</td><td>R 30.5</td><td>+12 V feedback, top</td></tr>
+<tr><td>R1002</td><td>9k09</td><td>signal wedge, 334&deg;, motor side</td><td>R 30.4</td><td>+12 V feedback, bottom</td></tr>
+<tr><td>R1003</td><td>470k</td><td>signal wedge, 334&deg;, motor side</td><td>R 22.2</td><td>EN from VMOT: UVLO, on unless pulled down</td></tr>
+<tr><td>R1004</td><td>68k</td><td>signal wedge, 334&deg;, motor side</td><td>R 20.3</td><td>EN divider, bottom: 9.9 V start</td></tr>
+<tr><td>R1005</td><td>4k7</td><td>signal wedge, 334&deg;, motor side</td><td>R 27.0</td><td>GATE_OFF pull-down: the rail is ON through reset, so a reset brakes; 4k7 clears E9</td></tr>
+<tr><td>R1008</td><td>64k9</td><td>signal wedge, 334&deg;, motor side</td><td>R 27.3</td><td>+12 V RT: 400 kHz</td></tr>
+<tr><td>R1101</td><td>5k1</td><td>signal wedge, 334&deg;, motor side</td><td>R 21.4</td><td>CC1 pull-down: a sink, 5 V only</td></tr>
+<tr><td>R1102</td><td>5k1</td><td>signal wedge, 334&deg;, motor side</td><td>R 22.2</td><td>CC2 pull-down</td></tr>
+<tr><td>U11</td><td>LMR38010SDDAR</td><td>signal wedge, 334&deg;, motor side</td><td>R 26.5</td><td>+12 V rail, EN on a VMOT divider, GATE_OFF pulls it down</td></tr>
+<tr><td>U13</td><td>USBLC6-2SC6</td><td>signal wedge, 334&deg;, motor side</td><td>R 23.9</td><td>USB ESD, as close to the connector as the wedge allows</td></tr>
 <tr><td>C1006</td><td>100n/100V</td><td>signal wedge, 334&deg;, outward</td><td>R 26.7</td><td>+5 V buck input, HF, at VIN/GND</td></tr>
 <tr><td>C1008</td><td>100n</td><td>signal wedge, 334&deg;, outward</td><td>R 20.2</td><td>+5 V bootstrap, BOOT to SW</td></tr>
 <tr><td>C1010</td><td>22u/25V</td><td>signal wedge, 334&deg;, outward</td><td>R 19.3</td><td>+5 V out</td></tr>

@@ -224,7 +224,7 @@
 <polygon class="old" points="2.99,31.31 6.45,30.78 6.00,27.81 2.54,28.34"><title>Y1  12MHz -- 12 MHz 2520, CL to suit C709/C710</title></polygon>
 <polygon class="old" points="0.67,30.37 2.48,30.27 2.44,29.35 0.62,29.45"><title>C709  27p -- crystal load</title></polygon>
 <polygon class="old" points="-1.49,30.34 0.33,30.37 0.35,29.45 -1.47,29.42"><title>C710  27p -- crystal load</title></polygon>
-<polygon class="old" points="14.10,24.46 10.26,26.30 11.34,28.55 15.18,26.71"><title>U8  W25Q128 -- QSPI flash</title></polygon>
+<polygon class="old" points="14.10,24.46 10.26,26.30 11.34,28.55 15.18,26.71"><title>U8  W25Q16JVUXIQ -- QSPI flash</title></polygon>
 <circle class="new" cx="-9.32" cy="11.11" r="5.25"><title>C1001  100u/100V polymer -- bulk, C2887236, Dia 10 x 12, in the centre, + lead outward</title></circle>
 <circle class="hole" cx="-10.93" cy="13.02" r="1.00"/>
 <circle class="hole" cx="-7.71" cy="9.19" r="1.00"/>
@@ -257,9 +257,9 @@
 <polygon class="new" points="-5.95,-7.25 -3.95,-7.25 -3.95,-9.25 -5.95,-9.25"><title>TP5  SWCLK -- test point, SWCLK, outward face</title></polygon>
 <polygon class="new" points="2.35,-4.50 4.35,-4.50 4.35,-6.50 2.35,-6.50"><title>TP6  SWDIO -- test point, SWDIO, outward face</title></polygon>
 <polygon class="new" points="3.65,-6.50 5.65,-6.50 5.65,-8.50 3.65,-8.50"><title>TP7  RUN -- test point, RUN, outward face</title></polygon>
-<polygon class="new" points="16.19,-4.94 12.94,-8.19 11.31,-6.56 14.56,-3.31"><title>C1004  4u7/100V -- +12 V buck input, 4.7 uF ceramic; in the outward centre, 10 mm from C1003</title></polygon>
+<polygon class="new" points="16.19,-4.94 12.94,-8.19 11.31,-6.56 14.56,-3.31"><title>C1004  4u7/100V -- +12 V buck input, 4.7 uF ceramic; in the outward centre, 11 mm from C1003</title></polygon>
 <polygon class="new" points="10.81,-6.94 7.56,-3.69 9.19,-2.06 12.44,-5.31"><title>C1007  4u7/100V -- +5 V buck input, 4.7 uF ceramic; in the outward centre, 17 mm from C1006</title></polygon>
-<polygon class="new" points="7.10,9.05 7.10,4.45 3.90,4.45 3.90,9.05"><title>C1009  22u/25V -- +12 V out; in the outward centre, 11 mm from C603</title></polygon>
+<polygon class="new" points="6.51,-13.01 3.26,-16.26 0.99,-13.99 4.24,-10.74"><title>C1009  22u/25V -- +12 V out; in the outward centre, 24 mm from C603</title></polygon>
 <polygon class="new" points="20.98,0.25 17.58,0.25 17.58,2.21 20.98,2.21"><title>C1010  22u/25V -- +5 V out</title></polygon>
 <text class="lb" x="-9.32" y="11.66" text-anchor="middle">C1001</text>
 <text class="lb" x="12.36" y="9.62" text-anchor="middle">C1002</text>
@@ -285,7 +285,7 @@
 <text class="ls" x="4.65" y="-7.20" text-anchor="middle">TP7</text>
 <text class="ls" x="13.75" y="-5.45" text-anchor="middle">C1004</text>
 <text class="ls" x="10.00" y="-4.20" text-anchor="middle">C1007</text>
-<text class="ls" x="5.50" y="7.05" text-anchor="middle">C1009</text>
+<text class="ls" x="3.75" y="-13.20" text-anchor="middle">C1009</text>
 <text class="ls" x="19.28" y="1.53" text-anchor="middle">C1010</text>
 </g>
 <g transform="translate(76 0)">
@@ -350,8 +350,8 @@
 <circle class="hole" cx="20.12" cy="-17.54" r="0.39"/>
 <circle class="hole" cx="19.46" cy="-16.85" r="0.39"/>
 <circle class="hole" cx="18.81" cy="-16.16" r="0.39"/>
-<polygon class="old" points="20.26,-8.45 25.53,-12.00 23.76,-14.62 18.49,-11.07"><title>R106  1m6 -- inline shunt, parallel pair - desolder one for the 18 A mode</title></polygon>
-<polygon class="old" points="18.48,-11.34 23.75,-14.90 21.98,-17.52 16.71,-13.96"><title>R105  1m6 -- inline shunt, parallel pair - desolder one for the 18 A mode</title></polygon>
+<polygon class="old" points="20.26,-8.45 25.53,-12.00 23.76,-14.62 18.49,-11.07"><title>R106  2m0 -- inline shunt, parallel pair - desolder one for the 14.5 A mode</title></polygon>
+<polygon class="old" points="18.48,-11.34 23.75,-14.90 21.98,-17.52 16.71,-13.96"><title>R105  2m0 -- inline shunt, parallel pair - desolder one for the 14.5 A mode</title></polygon>
 <polygon class="old" points="15.90,-21.19 14.06,-18.87 15.20,-17.96 17.04,-20.28"><title>R108  10R -- sense tap, phase-output side</title></polygon>
 <polygon class="old" points="22.90,-20.93 19.71,-23.96 18.13,-22.30 21.32,-19.27"><title>D102  TPSMF4L64A -- phase A clamp to GND, beside the lead pad</title></polygon>
 <polygon class="old" points="13.12,-14.27 15.04,-16.53 13.92,-17.47 12.00,-15.22"><title>R109  10k -- G-S bleed, high side; gate pad under the resistor's, SW pad over the pour</title></polygon>
@@ -399,8 +399,8 @@
 <circle class="hole" cx="-8.73" cy="-25.22" r="0.39"/>
 <circle class="hole" cx="-8.33" cy="-24.36" r="0.39"/>
 <circle class="hole" cx="-7.94" cy="-23.49" r="0.39"/>
-<polygon class="old" points="-0.24,-21.95 -1.57,-28.17 -4.66,-27.51 -3.33,-21.29"><title>R206  1m6 -- inline shunt, parallel pair - desolder one for the 18 A mode</title></polygon>
-<polygon class="old" points="-3.59,-21.38 -4.92,-27.60 -8.01,-26.95 -6.68,-20.72"><title>R205  1m6 -- inline shunt, parallel pair - desolder one for the 18 A mode</title></polygon>
+<polygon class="old" points="-0.24,-21.95 -1.57,-28.17 -4.66,-27.51 -3.33,-21.29"><title>R206  2m0 -- inline shunt, parallel pair - desolder one for the 14.5 A mode</title></polygon>
+<polygon class="old" points="-3.59,-21.38 -4.92,-27.60 -8.01,-26.95 -6.68,-20.72"><title>R205  2m0 -- inline shunt, parallel pair - desolder one for the 14.5 A mode</title></polygon>
 <polygon class="old" points="-13.69,-22.68 -12.23,-20.10 -10.96,-20.82 -12.42,-23.40"><title>R208  10R -- sense tap, phase-output side</title></polygon>
 <polygon class="old" points="-10.83,-29.08 -14.84,-27.25 -13.88,-25.16 -9.88,-26.98"><title>D202  TPSMF4L64A -- phase B clamp to GND, beside the lead pad</title></polygon>
 <polygon class="old" points="-8.32,-17.51 -9.69,-20.13 -10.98,-19.46 -9.61,-16.83"><title>R209  10k -- G-S bleed, high side; gate pad under the resistor's, SW pad over the pour</title></polygon>
@@ -496,18 +496,18 @@
 <polygon class="new" points="-15.03,20.50 -11.75,22.54 -9.95,19.65 -13.23,17.62"><title>D1102  SM712 -- RS-485 ESD, IN, UP pair, at the port</title></polygon>
 <polygon class="new" points="-20.39,15.11 -17.86,18.03 -15.29,15.80 -17.82,12.89"><title>D1104  SM712 -- RS-485 ESD, OUT, DOWN pair, at the port</title></polygon>
 <polygon class="new" points="-22.88,11.17 -20.93,14.50 -17.99,12.78 -19.95,9.45"><title>D1105  SM712 -- RS-485 ESD, OUT, UP pair, at the port</title></polygon>
-<polygon class="new" points="20.85,4.31 24.85,11.24 29.53,8.54 25.53,1.61"><title>U11  LMR38010SDDAR -- +12 V rail, EN on a VMOT divider, GATE_OFF pulls it down</title></polygon>
-<polygon class="new" points="23.13,0.65 20.19,2.35 21.17,4.05 24.11,2.35"><title>C1003  100n/100V -- +12 V buck input, HF, at VIN/GND</title></polygon>
-<polygon class="new" points="21.67,0.06 20.06,0.99 20.53,1.81 22.14,0.88"><title>R1003  470k -- EN from VMOT: UVLO, on unless pulled down</title></polygon>
-<polygon class="new" points="19.71,0.97 18.10,1.90 18.57,2.71 20.18,1.78"><title>R1004  68k -- EN divider, bottom: 9.9 V start</title></polygon>
-<polygon class="new" points="27.62,3.09 26.69,1.48 25.88,1.95 26.81,3.56"><title>R1008  64k9 -- +12 V RT: 400 kHz</title></polygon>
-<polygon class="new" points="28.48,6.46 29.41,8.07 30.22,7.60 29.29,5.99"><title>R1002  9k09 -- +12 V feedback, bottom</title></polygon>
-<polygon class="new" points="27.97,11.49 29.58,10.56 29.11,9.74 27.50,10.67"><title>R1001  100k -- +12 V feedback, top</title></polygon>
-<polygon class="new" points="27.03,10.32 25.45,11.23 25.91,12.03 27.49,11.12"><title>C1005  100n -- +12 V bootstrap, BOOT to SW</title></polygon>
-<polygon class="new" points="23.28,8.60 20.98,4.62 17.08,6.87 19.38,10.85"><title>L1001  68u -- +12 V buck inductor, SWPA4030S680MT</title></polygon>
-<polygon class="new" points="15.02,8.05 17.32,12.03 19.32,10.88 17.02,6.90"><title>C603  22u/25V -- +12 V out</title></polygon>
-<polygon class="new" points="17.81,14.90 20.94,17.15 22.93,14.39 19.79,12.14"><title>Q1001  2N7002 -- GATE_OFF high pulls EN low: kills the gate rail</title></polygon>
-<polygon class="new" points="16.36,15.06 17.76,16.29 18.38,15.59 16.98,14.35"><title>R1005  4k7 -- GATE_OFF pull-down: the rail is ON through reset, so a reset brakes; 4k7 clears E9</title></polygon>
+<polygon class="new" points="21.25,4.71 25.25,11.64 29.93,8.94 25.93,2.01"><title>U11  LMR38010SDDAR -- +12 V rail, EN on a VMOT divider, GATE_OFF pulls it down</title></polygon>
+<polygon class="new" points="23.53,1.05 20.59,2.75 21.57,4.45 24.51,2.75"><title>C1003  100n/100V -- +12 V buck input, HF, at VIN/GND</title></polygon>
+<polygon class="new" points="22.76,0.06 21.15,0.99 21.62,1.81 23.23,0.88"><title>R1003  470k -- EN from VMOT: UVLO, on unless pulled down</title></polygon>
+<polygon class="new" points="20.80,0.97 19.19,1.90 19.66,2.71 21.27,1.78"><title>R1004  68k -- EN divider, bottom: 9.9 V start</title></polygon>
+<polygon class="new" points="28.02,3.49 27.09,1.88 26.28,2.35 27.21,3.96"><title>R1008  64k9 -- +12 V RT: 400 kHz</title></polygon>
+<polygon class="new" points="28.68,6.51 29.61,8.12 30.42,7.65 29.49,6.04"><title>R1002  9k09 -- +12 V feedback, bottom</title></polygon>
+<polygon class="new" points="27.99,11.64 29.60,10.71 29.13,9.90 27.52,10.83"><title>R1001  100k -- +12 V feedback, top</title></polygon>
+<polygon class="new" points="27.33,10.55 25.75,11.46 26.21,12.25 27.79,11.34"><title>C1005  100n -- +12 V bootstrap, BOOT to SW</title></polygon>
+<polygon class="new" points="23.43,8.50 21.13,4.52 17.23,6.77 19.53,10.75"><title>L1001  68u -- +12 V buck inductor, SWPA4030S680MT</title></polygon>
+<polygon class="new" points="15.17,7.95 17.47,11.93 19.47,10.78 17.17,6.80"><title>C603  22u/25V -- +12 V out</title></polygon>
+<polygon class="new" points="21.01,16.19 24.21,18.35 26.11,15.53 22.91,13.37"><title>Q1001  2N7002 -- GATE_OFF high pulls EN low: kills the gate rail</title></polygon>
+<polygon class="new" points="20.05,16.65 21.50,17.81 22.09,17.08 20.64,15.92"><title>R1005  4k7 -- GATE_OFF pull-down: the rail is ON through reset, so a reset brakes; 4k7 clears E9</title></polygon>
 <polygon class="new" points="-8.03,12.77 -5.77,15.03 -2.97,12.23 -5.23,9.97"><title>U14  SIT3088 -- port IN: receiver, DOWN pair -&gt; UART0 RX</title></polygon>
 <polygon class="new" points="-7.79,11.17 -9.08,12.46 -8.43,13.11 -7.14,11.82"><title>C1102  100n -- U14 decoupling, at VCC</title></polygon>
 <polygon class="new" points="-3.72,13.19 -5.81,15.28 -4.78,16.31 -2.69,14.22"><title>R1105  120R -- port IN DOWN pair termination, always on</title></polygon>
@@ -528,34 +528,34 @@
 <polygon class="new" points="9.53,13.23 9.53,10.27 8.07,10.27 8.07,13.23"><title>C802  100n -- ADC3 filter</title></polygon>
 <polygon class="new" points="11.02,11.99 12.34,10.67 11.68,10.01 10.36,11.33"><title>R704  10k -- RUN pull-up</title></polygon>
 <polygon class="new" points="13.49,5.46 15.31,5.46 15.31,4.54 13.49,4.54"><title>C717  100n -- RUN</title></polygon>
-<polygon class="new" points="22.80,20.40 25.32,17.17 22.64,15.07 20.12,18.31"><title>U13  USBLC6-2SC6 -- USB ESD, as close to the connector as the wedge allows</title></polygon>
-<polygon class="new" points="17.99,14.31 19.09,12.81 18.33,12.26 17.23,13.76"><title>R1101  5k1 -- CC1 pull-down: a sink, 5 V only</title></polygon>
-<polygon class="new" points="16.46,14.50 17.63,13.06 16.90,12.46 15.73,13.91"><title>R1102  5k1 -- CC2 pull-down</title></polygon>
-<polygon class="new" points="12.55,13.87 14.82,16.13 16.16,14.79 13.90,12.53"><title>D1002  B5819WS -- USB VBUS -&gt; +5V</title></polygon>
-<polygon class="new" points="17.91,6.24 18.70,3.14 16.86,2.67 16.07,5.77"><title>D1003  B5819WS -- 5 V buck -&gt; +5V, so USB cannot back-feed the rails</title></polygon>
+<polygon class="new" points="16.56,14.38 19.86,16.82 21.88,14.09 18.59,11.65"><title>U13  USBLC6-2SC6 -- USB ESD, as close to the connector as the wedge allows</title></polygon>
+<polygon class="new" points="16.71,14.06 17.85,12.58 17.11,12.01 15.97,13.48"><title>R1101  5k1 -- CC1 pull-down: a sink, 5 V only</title></polygon>
+<polygon class="new" points="15.42,14.70 16.80,15.96 17.43,15.26 16.06,14.01"><title>R1102  5k1 -- CC2 pull-down</title></polygon>
+<polygon class="new" points="13.90,16.13 16.16,13.87 14.81,12.53 12.55,14.79"><title>D1002  B5819WS -- USB VBUS -&gt; +5V</title></polygon>
+<polygon class="new" points="20.80,18.66 23.25,20.71 24.47,19.26 22.02,17.20"><title>D1003  B5819WS -- 5 V buck -&gt; +5V, so USB cannot back-feed the rails</title></polygon>
 <polygon class="new" points="-5.72,16.65 -6.57,19.49 -5.17,19.90 -4.33,17.07"><title>R801  56k 0.1% -- bus divider, high leg</title></polygon>
 <polygon class="new" points="-7.36,16.07 -8.48,18.81 -7.13,19.37 -6.01,16.63"><title>R806  56k 0.1% -- bus divider, high leg, second half</title></polygon>
 <polygon class="new" points="-8.49,15.06 -9.84,17.70 -8.54,18.36 -7.19,15.72"><title>R802  4k7 0.1% -- bus divider, low leg</title></polygon>
 <polygon class="new" points="-11.91,18.41 -9.33,19.84 -8.62,18.57 -11.20,17.13"><title>C801  100n -- ADC2 filter</title></polygon>
-<polygon class="new" points="27.73,4.71 31.13,4.71 31.13,2.75 27.73,2.75"><title>C1011  22u/25V -- +5 V out</title></polygon>
+<polygon class="new" points="20.48,2.75 17.08,2.75 17.08,4.71 20.48,4.71"><title>C1011  22u/25V -- +5 V out</title></polygon>
 <text class="lb" x="-13.99" y="25.60" text-anchor="middle">J14</text>
 <text class="lb" x="-22.36" y="18.57" text-anchor="middle">J15</text>
 <text class="ls" x="-8.40" y="22.38" text-anchor="middle">D1101</text>
 <text class="ls" x="-12.49" y="20.38" text-anchor="middle">D1102</text>
 <text class="ls" x="-17.84" y="15.76" text-anchor="middle">D1104</text>
 <text class="ls" x="-20.44" y="12.27" text-anchor="middle">D1105</text>
-<text class="lb" x="25.19" y="6.97" text-anchor="middle">U11</text>
-<text class="ls" x="22.15" y="2.65" text-anchor="middle">C1003</text>
-<text class="ls" x="21.10" y="1.24" text-anchor="middle">R1003</text>
-<text class="ls" x="19.14" y="2.14" text-anchor="middle">R1004</text>
-<text class="ls" x="26.75" y="2.82" text-anchor="middle">R1008</text>
-<text class="ls" x="29.35" y="7.33" text-anchor="middle">R1002</text>
-<text class="ls" x="28.54" y="10.91" text-anchor="middle">R1001</text>
-<text class="ls" x="26.47" y="11.47" text-anchor="middle">C1005</text>
-<text class="ls" x="20.18" y="8.04" text-anchor="middle">L1001</text>
-<text class="ls" x="17.17" y="9.76" text-anchor="middle">C603</text>
-<text class="ls" x="20.37" y="14.95" text-anchor="middle">Q1001</text>
-<text class="ls" x="17.37" y="15.62" text-anchor="middle">R1005</text>
+<text class="lb" x="25.59" y="7.37" text-anchor="middle">U11</text>
+<text class="ls" x="22.55" y="3.05" text-anchor="middle">C1003</text>
+<text class="ls" x="22.19" y="1.24" text-anchor="middle">R1003</text>
+<text class="ls" x="20.23" y="2.14" text-anchor="middle">R1004</text>
+<text class="ls" x="27.15" y="3.22" text-anchor="middle">R1008</text>
+<text class="ls" x="29.55" y="7.38" text-anchor="middle">R1002</text>
+<text class="ls" x="28.56" y="11.07" text-anchor="middle">R1001</text>
+<text class="ls" x="26.77" y="11.70" text-anchor="middle">C1005</text>
+<text class="ls" x="20.33" y="7.94" text-anchor="middle">L1001</text>
+<text class="ls" x="17.32" y="9.66" text-anchor="middle">C603</text>
+<text class="ls" x="23.56" y="16.16" text-anchor="middle">Q1001</text>
+<text class="ls" x="21.07" y="17.16" text-anchor="middle">R1005</text>
 <text class="ls" x="-5.50" y="12.80" text-anchor="middle">U14</text>
 <text class="ls" x="-8.11" y="12.44" text-anchor="middle">C1102</text>
 <text class="ls" x="-4.25" y="15.05" text-anchor="middle">R1105</text>
@@ -576,15 +576,15 @@
 <text class="ls" x="8.80" y="12.05" text-anchor="middle">C802</text>
 <text class="ls" x="11.35" y="11.30" text-anchor="middle">R704</text>
 <text class="ls" x="14.40" y="5.30" text-anchor="middle">C717</text>
-<text class="ls" x="22.72" y="18.04" text-anchor="middle">U13</text>
-<text class="ls" x="18.16" y="13.58" text-anchor="middle">R1101</text>
-<text class="ls" x="16.68" y="13.78" text-anchor="middle">R1102</text>
+<text class="ls" x="19.22" y="14.54" text-anchor="middle">U13</text>
+<text class="ls" x="16.91" y="13.33" text-anchor="middle">R1101</text>
+<text class="ls" x="16.43" y="15.28" text-anchor="middle">R1102</text>
 <text class="ls" x="14.36" y="14.63" text-anchor="middle">D1002</text>
-<text class="ls" x="17.39" y="4.76" text-anchor="middle">D1003</text>
+<text class="ls" x="22.64" y="19.26" text-anchor="middle">D1003</text>
 <text class="ls" x="-5.45" y="18.58" text-anchor="middle">R801</text>
 <text class="ls" x="-7.25" y="18.02" text-anchor="middle">R806</text>
 <text class="ls" x="-8.51" y="17.01" text-anchor="middle">R802</text>
 <text class="ls" x="-10.26" y="18.79" text-anchor="middle">C801</text>
-<text class="ls" x="29.43" y="4.03" text-anchor="middle">C1011</text>
+<text class="ls" x="18.78" y="4.03" text-anchor="middle">C1011</text>
 </g>
 </svg>

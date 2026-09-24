@@ -2662,7 +2662,7 @@
 		(property "Reference" "R105"
 			(at 28.1940 158.7500 0)
 			(effects (font (size 1.27 1.27)) (justify left)))
-		(property "Value" "1m6"
+		(property "Value" "2m0"
 			(at 28.1940 171.4500 0)
 			(effects (font (size 1.27 1.27)) (justify left)))
 		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
@@ -2708,7 +2708,7 @@
 		(property "Reference" "R106"
 			(at 57.4040 158.7500 0)
 			(effects (font (size 1.27 1.27)) (justify left)))
-		(property "Value" "1m6"
+		(property "Value" "2m0"
 			(at 57.4040 171.4500 0)
 			(effects (font (size 1.27 1.27)) (justify left)))
 		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
@@ -4045,7 +4045,7 @@
 		(property "Reference" "R205"
 			(at 28.1940 364.4900 0)
 			(effects (font (size 1.27 1.27)) (justify left)))
-		(property "Value" "1m6"
+		(property "Value" "2m0"
 			(at 28.1940 377.1900 0)
 			(effects (font (size 1.27 1.27)) (justify left)))
 		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"
@@ -4091,7 +4091,7 @@
 		(property "Reference" "R206"
 			(at 57.4040 364.4900 0)
 			(effects (font (size 1.27 1.27)) (justify left)))
-		(property "Value" "1m6"
+		(property "Value" "2m0"
 			(at 57.4040 377.1900 0)
 			(effects (font (size 1.27 1.27)) (justify left)))
 		(property "Footprint" "Resistor_SMD:R_2010_5025Metric"

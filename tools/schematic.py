@@ -218,7 +218,7 @@ def phase_cell(i):
         "snubber", dnp=True)
 
     sn = "phase output and sense"
-    val = "1m6" if i < 2 else "0R"
+    val = "2m0" if i < 2 else "0R"
     add(f"R{n}05", R, val, FP_R["2010"], {"1": f"SW_{X}", "2": f"PHASE_{X}"}, sn)
     add(f"R{n}06", R, val, FP_R["2010"], {"1": f"SW_{X}", "2": f"PHASE_{X}"}, sn)
     add(f"D{n}02", DZ, "TPSMF4L64A", "Diode_SMD:D_SOD-123F",
@@ -322,7 +322,7 @@ def control():
     add("C709", C, "27p", FP_C["0402"], {"1": "XIN", "2": "GND"}, "clock")
     add("C710", C, "27p", FP_C["0402"], {"1": "XTAL2", "2": "GND"}, "clock")
 
-    add("U8", "servodrive:W25Q128JV", "W25Q128JVUXIQ",
+    add("U8", "servodrive:W25Q16JV", "W25Q16JVUXIQ",
         "Package_SON:Winbond_USON-8-1EP_3x2mm_P0.5mm_EP0.2x1.6mm",
         {"1": "QSPI_SS", "2": "QSPI_SD1", "3": "QSPI_SD2", "4": "GND",
          "5": "QSPI_SD0", "6": "QSPI_SCLK", "7": "QSPI_SD3", "8": "+3V3"},

@@ -34,7 +34,7 @@ the root of `main`: the pages are plain files with relative links, and
 | Bus | 60 V nominal, **12 V minimum**, 80 V silicon, TVS breakdown 71–79 V; XT30 |
 | Phase current | **20 A RMS per phase, in bursts** — normal running is well below it, and no fins are planned (§4) |
 | CPU | RP2350A, QFN-60 |
-| Sensing | Two inline 0.8 mΩ shunts + **INA241A3** at 50 V/V = 40 mV/A, third phase reconstructed; bus voltage; FET temperature |
+| Sensing | Two inline 1.0 mΩ shunts (2 × 2 mΩ) + **INA241A3** at 50 V/V = 50 mV/A, third phase reconstructed; bus voltage; FET temperature |
 | Gate drive | EG2103 on a 12 V rail (LCSC C480654, 2,225 in stock, MOQ 5, $0.19) — interlock + 560 ns dead time |
 | I/O | USB-C with full PD — a 20 V contract feeds VMOT; full-duplex RS-485 on two chained ports |
 
@@ -50,9 +50,9 @@ sized against it:
 |---|---|
 | Design point | 20 A RMS per phase — a burst figure since 2026-09-22, not a continuous rating |
 | Peak the chain must see | 28.3 A |
-| Sense full scale | ±36.2 A, worst-case output swing |
-| Board A dissipation | 10.6 W |
-| Heatsink it would need to be continuous | ≤ 6.8 K/W, ≥ 98 cm² of external surface — not built |
+| Sense full scale | ±29.0 A, worst-case output swing — 2.5% over the peak, see below |
+| Board A dissipation | 10.7 W |
+| Heatsink it would need to be continuous | ≤ 6.7 K/W, ≥ 100 cm² of external surface — not built |
 
 ## Current sensing
 
@@ -62,23 +62,26 @@ exactly this drifting apart.
 
 | Shunt (per sensed phase) | Gain | V/A | Measurable range |
 |---|---|---|---|
-| 0.8 mΩ (2 × 1.6 mΩ 2010) | 50 V/V | 0.040 | ±36.2 A |
-| 1.6 mΩ (one desoldered) | 50 V/V | 0.080 | ±18.1 A |
+| 1.0 mΩ (2 × 2 mΩ 2010) | 50 V/V | 0.050 | ±29.0 A |
+| 2 mΩ (one desoldered) | 50 V/V | 0.100 | ±14.5 A |
 
 Phase C is reconstructed as `Ic = -(Ia + Ib)`. Its two shunt footprints are
 fitted with 0 Ω links so all three phases have the same series resistance.
 
 Full scale is against the datasheet's **worst-case** output swing, V<sub>S</sub> − 0.2 V,
-not the 0.07 V typical — that is what makes ±36.2 A rather than ±40 A, and it is
-the number the design point has to clear. It does, by 28%.
+not the 0.07 V typical — that is what makes ±29.0 A rather than ±32 A, and it is
+the number the design point has to clear. It does, by 2.5%.
 
-**This took two goes.** Draft 0.2's 1.6 mΩ gave 80 mV/A to match the sister
+**This took three goes.** Draft 0.2's 1.6 mΩ gave 80 mV/A to match the sister
 project's firmware scaling, and ±20.6 A of full scale against a 28.3 A peak: it
 would have clipped on every cycle above 14.6 A RMS. The first correction, 1.0 mΩ,
 used the typical swing figure and had 2.5% of margin, which is not margin. 0.8 mΩ
-is the one that survives the datasheet. The consolation is that the precision
-mode — desolder one of each pair — lands on exactly 80 mV/A, so the sister
-project's firmware constants come back after all.
+(2 × 1.6 mΩ) survived the datasheet, and its precision mode landed on the sister
+project's 80 mV/A. Then sourcing (2026-09-24) found no 1.6 mΩ 2010 at LCSC or
+JLCPCB — 1 and 2 mΩ, nothing between — and the pair became 2 × 2 mΩ: back at
+1.0 mΩ and its 2.5%, taken knowingly. The stocked alternative, 2 × 1 mΩ, reads
+±58 A at 25 mV/A. Neither mode reproduces the sister project's 80 mV/A now, so
+its firmware constants do not carry across.
 
 **And the part number changed.** The 50 V/V grade of INA241 is **A3**, not A2.
 INA240 numbers its gains A1 = 20, A2 = 50; INA241 numbers them A1 = 10, A2 = 20,
@@ -290,14 +293,18 @@ tools/plot_layers.py one SVG per copper layer, in register, for the copper
                      viewer on index.html; gen_boards.py and route.py run it
 tools/export_3d.py   the board as a GLB for the 3D viewer: kicad-cli's export,
                      merged and quantized 30 MB -> 7, stand-ins for the three
-                     models this machine lacks; gen_boards.py and route.py run it
+                     models this machine lacks and the one it cannot mesh;
+                     gen_boards.py and route.py run it
+tools/flatten_step.py a STEP assembly as one flat part, which kicad-cli 9's GLB
+                     export needs (it meshes a nested assembly as nothing)
 hardware/
   parts/3dmodels/    two STEP models the footprints name and KiCad's library
-                     lacks, for export_3d.py (sources in its README)
+                     lacks, and one it has but kicad-cli cannot mesh, flattened;
+                     for export_3d.py (sources in its README)
   parts/lcsc.csv     the LCSC numbers chosen so far, by value and footprint, for
                      the 3D viewer's part pane; a part not in it has none yet
   parts/             two symbols copied in, three DERIVED (EG2103, INA241A3,
-                     W25Q128JV), two copied from the RP2350A reference design
+                     W25Q16JV), two copied from the RP2350A reference design
                      (the 2016 inductor, a small-pad 0402) and five GENERATED
                      footprints (the FET with 16 thermal vias for the low side
                      and 20 for the high, heatsink boss, heatsink land, phase pad)
@@ -1185,14 +1192,27 @@ in stock.
 | FD2103S | C5187182 | — | 5 | $0.10 | **out of stock** |
 | BSC030N08NS5 | C501507 | 27,306 | 1 | $0.60 | inherited, unchanged |
 
+**Every placed part has an LCSC number since 2026-09-24**, in
+`hardware/parts/lcsc.csv`: one row per value and footprint, each checked against
+JLCPCB's library that day (model, package, rating, stock), with a note where the
+choice was not obvious; `export_3d.py` warns about any placed part without one,
+and the 3D viewer's part pane links each to LCSC and JLCPCB. Two values changed
+to reach a stocked part: the shunts (2 × 2 mΩ, see Current sensing) and the
+flash (**W25Q16JVUXIQ**, 16 Mbit, the RP2350 reference design's part — no 128
+Mbit flash comes in the footprint's USON 2×3). Watch before ordering: TPSMF4L64A
+(60 in stock) and TPSMF4L54A (42), the 2×14 1.27 mm SMD header (50, the only
+one); the RGB LED is a 3528 part placed rotated 180° (its pads 1–4 are B, A, G,
+R); the RS-485 connectors are an SH-compatible part whose land pattern wants a
+check against the footprint.
+
 Still unverified, and now more urgent because the layout depends on their packages:
 
 - **INA241A3** — `INA241A3IDDFR`, **TSOT-23-8**, 50 V/V. Not A2 (20 V/V) and not
-  SOT-23-8; draft 0.2 had both wrong. LCSC stock unconfirmed. `INA240A2PWR`
+  SOT-23-8; draft 0.2 had both wrong. In stock as C6051860 (2026-09-24). `INA240A2PWR`
   (C129949) is in stock as a fallback, but it is TSSOP-8 and only ±80 V common
   mode against INA241's ±110 V — a different footprint and less margin on a 60 V
   phase node.
-- **1.6 mΩ 2010** shunts at 1% — the value changed twice, see above.
+- ~~**1.6 mΩ 2010** shunts at 1%~~ — none is stocked; 2 × 2 mΩ since 2026-09-24, see above.
 - **3.3 µH inductor** for the RP2350A's core buck, and the rest of the CPU
   support parts capture turned up.
 - **TPSMF4L64A**, **LMR38010**.

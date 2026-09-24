@@ -354,8 +354,9 @@
       reset brakes</li>
       <li>Re-run the simulation (<code>sim/run.py</code>) on the new board, so its register
       describes the board that exists</li>
-      <li>Confirm <strong>INA241A3</strong> stock in TSOT-23-8 &mdash; A3 is the 50&nbsp;V/V
-      grade, not A2 &mdash; and the 1.6&nbsp;m&#8486; 2010 shunts</li>
+      <li class="done">Every placed part has an LCSC number (<code>hardware/parts/lcsc.csv</code>),
+      <strong>INA241A3</strong> included &mdash; 2026-09-24. No 1.6&nbsp;m&#8486; 2010 is stocked,
+      so the shunts are 2&nbsp;&#215;&nbsp;2&nbsp;m&#8486;; the flash is W25Q16JVUXIQ</li>
     </ul>
   </section>
 
@@ -379,8 +380,8 @@
         &plusmn;32 A of sense, 10.7 W if it were continuous</td></tr>
     <tr><th>CPU</th><td>RP2350A, QFN-60. Three PWM slices for three half-bridges; four ADC
         channels, all spoken for</td></tr>
-    <tr><th>Sensing</th><td>Two inline 0.8 m&#8486; shunts + <strong>INA241A3</strong> at
-        50 V/V = 40 mV/A → ±36.2 A, third phase reconstructed; bus voltage; FET
+    <tr><th>Sensing</th><td>Two inline 1.0 m&#8486; shunts (2 &#215; 2 m&#8486;) + <strong>INA241A3</strong> at
+        50 V/V = 50 mV/A → ±29.0 A, third phase reconstructed; bus voltage; FET
         temperature</td></tr>
     <tr><th>Gate drive</th><td>EG2103 on a 12 V rail — <em>not</em> the sister board's EG3113
         at 5 V, for two separate reasons. Six 4.7 k input pulls, which two errata made
@@ -488,12 +489,12 @@
       clipped on every cycle above 14.6 A RMS, and you cannot close a current loop on a clipped
       measurement. The first correction, 1.0 m&#8486; for &plusmn;32 A, was sized against the
       amplifier's <em>typical</em> output swing; the datasheet's worst case turns that into
-      &plusmn;29 A, which is 2.5% over the peak and not margin. The shunt is now
-      0.8 m&#8486; (2 &#215; 1.6 m&#8486;), 40 mV/A, <strong>&plusmn;36.2 A</strong> worst
-      case — 28% clear. And the part number was wrong too: the 50 V/V grade of INA241 is
-      <strong>A3</strong>, not A2. Consolation: desolder one of each pair and the precision
-      mode lands on exactly 80 mV/A, the sister board's scaling, so its firmware constants come
-      back after all.
+      &plusmn;29 A, which is 2.5% over the peak and not margin. The shunt became
+      0.8 m&#8486; (2 &#215; 1.6 m&#8486;), 40 mV/A, &plusmn;36.2 A worst case — 28% clear. And
+      the part number was wrong too: the 50 V/V grade of INA241 is <strong>A3</strong>, not A2.
+      <strong>Then sourcing undid it (2026-09-24):</strong> no 1.6 m&#8486; 2010 is stocked at
+      LCSC or JLCPCB, and the pair is 2 &#215; 2 m&#8486; &mdash; 1.0 m&#8486;, 50 mV/A,
+      <strong>&plusmn;29.0 A</strong>, the 2.5% again, taken knowingly.
     </div>
   </details>
 

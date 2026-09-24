@@ -3,19 +3,86 @@
 # img/3d/<board>.parts.json for the 3D viewer's part pane; a footprint's own
 # "LCSC" field, if the schematic ever carries one, wins over this table.
 #
-# Only numbers already decided are here -- each from the README's Sourcing
-# notes -- and a part missing from the table has no number chosen yet. The
-# C-number is the same at JLCPCB. Checked against both sites 2026-09-23.
+# Every part the assembler places has a row (export_3d.py warns about one
+# that does not). The first twelve are the README's sourcing notes; the rest
+# were chosen 2026-09-24 -- from the sister board's BOM where it had the part,
+# JLC basic parts where the rating allowed, and each checked against JLCPCB's
+# library (model, package, rating, stock) that day. The C-number is the same
+# at LCSC and JLCPCB. Notes say why where it was not obvious.
 value,footprint,lcsc,mpn,note
 EG2103,SOIC-8_3.9x4.9mm_P1.27mm,C480654,EG2103,README Sourcing 2026-09-07
 BSC030N08NS5,TDSON-8-1_ThermalVias,C501507,BSC030N08NS5,README Sourcing 2026-09-07
 BSC030N08NS5,TDSON-8-1_ThermalVias_HS,C501507,BSC030N08NS5,README Sourcing 2026-09-07
 LMR38010SDDAR,TI_SO-PowerPAD-8,C5219310,LMR38010SDDAR,README board S stock 2026-09-23
-68u,L_Sunlord_SWPA4030S,C83473,SWPA4030S680MT,README board S stock 2026-09-23; JLCPCB lists it and LCSC's own site has no page for it
-33u,L_Sunlord_SWPA4030S,C83470,SWPA4030S330MT,README board S stock 2026-09-23; JLCPCB lists it and LCSC's own site has no page for it
+68u,L_Sunlord_SWPA4030S,C83473,SWPA4030S680MT,"README board S stock 2026-09-23; JLCPCB lists it, LCSC's own shop has no page for it"
+33u,L_Sunlord_SWPA4030S,C83470,SWPA4030S330MT,"README board S stock 2026-09-23; JLCPCB lists it, LCSC's own shop has no page for it"
 4u7/100V,C_1206_3216Metric,C237304,GRM31CC72A475KE11L,README board S stock 2026-09-23
 100n/100V,C_0805_2012Metric,C28233,CL21B104KCFNNNE,README board S stock 2026-09-23
 22u/25V,C_1206_3216Metric,C12891,CL31A226KAHNNNE,README board S stock 2026-09-23
 22u/25V,C_1210_3225Metric,C21397,GRM32ER71E226KE15L,README board S stock 2026-09-23
 22u/25V,C_0805_2012Metric,C45783,CL21A226MAQNNNE,README board S stock 2026-09-23
 100u/100V polymer,CP_Radial_D10.0mm_P5.00mm,C2887236,1011001013R00,README board S stock 2026-09-23
+2.2u/100V,C_1206_3216Metric,C650969,HMK316AC7225KLHTE,X7S 100 V; the sister board's part (rp2350-motor-controller)
+100n/100V,C_0603_1608Metric,C113803,CC0603KRX7R0BB104,"X7R 100 V, on VBUS"
+1u/25V,C_0603_1608Metric,C15849,CL10A105KB8NNNC,"X5R 50 V; bootstrap cap, sees 12 V; JLC basic"
+100n,C_0603_1608Metric,C14663,CC0603KRX7R9BB104,X7R 50 V; +12 V decoupling and the ADC filters; JLC basic
+1n,C_0603_1608Metric,C106246,CC0603JRNPO9BN102,C0G 50 V; sense filter
+470p/100V C0G,C_0603_1608Metric,C326973,CC0603JRNPO0BN471,NP0 100 V; snubber
+4u7/25V,C_0603_1608Metric,C329940,C1608X5R1V475KT000E,X5R 35 V; the sister board's part (rp2350-motor-controller)
+4u7,C_0603_1608Metric,C329940,C1608X5R1V475KT000E,X5R 35 V; the same part as the +12 V bulk
+100n,C_0402_1005Metric,C1525,CL05B104KO5NNNC,"X7R 16 V; everything it decouples is 5 V or less, the bucks' BOOT-SW caps included; JLC basic"
+27p,C_0402_1005Metric,C1557,0402CG270J500NT,C0G 50 V; crystal load
+1u,C_0603_1608Metric,C15849,CL10A105KB8NNNC,X5R 50 V; JLC basic
+1u,C_0402_1005Metric,C52923,CL05A105KA5NQNC,X5R 25 V; JLC basic
+4u7,C_0402_1005Metric,C23733,CL05A475MP5NRNC,"X5R 10 V, on +1V1 and VREG_AVDD; JLC basic"
+4u7,C_0402_1005Metric_small_pads,C23733,CL05A475MP5NRNC,"X5R 10 V, on +1V1 and +3V3; JLC basic"
+3u3,L_pol_2016,C42411119,AOTA-B201610S3R3-101-T,the RP2350 reference design's core-buck inductor
+100V fast,D_SOD-323,C2128,1N4148WS,"100 V repetitive, 75 V DC, 4 ns; bootstrap diode; JLC basic"
+TPSMF4L64A,D_SOD-123F,C1975976,TPSMF4L64A,Littelfuse; only 60 in stock 2026-09-24
+TPSMF4L54A,D_SOD-123F,C1973452,TPSMF4L54A,Littelfuse; only 42 in stock 2026-09-24
+SMDJ54A,D_SMC,C438170,SMDJ54A,"3 kW; 54 V standoff, 60-66.3 V breakdown, 87.1 V clamp, as the spec"
+B5819WS,D_SOD-323,C64886,B5819WS,40 V 1 A Schottky
+SM712,SOT-23,C521963,SM712,RS-485 ESD
+2N7002,SOT-23,C8545,2N7002,JLC basic
+USBLC6-2SC6,SOT-23-6,C7519,USBLC6-2SC6,ST
+2R2,R_0402_1005Metric,C25101,0402WGF220KTCE,1%; gate resistors
+2R2,R_0603_1608Metric,C22939,0603WAF220KT5E,1%; snubber; JLC basic
+2m0,R_2010_5025Metric,C413487,WSLP20102L000FEA,"Vishay 2 W metal strip, 1%; replaces the 1.6 mOhm, which no 2010 part at LCSC offers (2026-09-24)"
+0R,R_2010_5025Metric,C2073836,WSL201000000ZEA9,"Vishay metal-strip jumper, 75 A, 0.2 mOhm max: it carries phase C, where a thick-film 0R carries a few amps"
+10R,R_0603_1608Metric,C22859,0603WAF100JT5E,1%; JLC basic
+10k,R_0603_1608Metric,C25804,0603WAF1002T5E,1%; JLC basic
+120R,R_0603_1608Metric,C22787,0603WAF1200T5E,1%; RS-485 termination; JLC basic
+56k 0.1%,R_0603_1608Metric,C705785,RT0603BRD0756KL,"thin film 25 ppm/K, 75 V; bus divider"
+4k7 0.1%,R_0603_1608Metric,C513565,RT0603BRD074K7L,thin film 25 ppm/K; bus divider
+10k 0.1%,R_0603_1608Metric,C95204,RT0603BRD0710KL,thin film 25 ppm/K; thermistor divider
+10k NTC,R_0603_1608Metric,C13564,NCP18XH103F03RB,"Murata, B25/50 = 3380 K, which the firmware's thermistor beta must match; the sister board's part (rp2350-motor-controller)"
+1k,R_0402_1005Metric,C11702,0402WGF1001TCE,1%; JLC basic
+10R,R_0402_1005Metric,C25077,0402WGF100JTCE,1%; JLC basic
+10k,R_0402_1005Metric,C25744,0402WGF1002TCE,1%; JLC basic
+33R,R_0402_1005Metric,C25105,0402WGF330JTCE,1%; JLC basic
+27R,R_0402_1005Metric,C25100,0402WGF270JTCE,1%; the sister board's part (rp2350-motor-controller)
+4k7,R_0402_1005Metric,C25900,0402WGF4701TCE,1%; JLC basic
+5k1,R_0402_1005Metric,C25905,0402WGF5101TCE,1%; USB-C CC; JLC basic
+15k,R_0402_1005Metric,C25756,0402WGF1502TCE,1%; JLC basic
+100k,R_0402_1005Metric,C25741,0402WGF1003TCE,1%; JLC basic
+9k09,R_0402_1005Metric,C11549,0402WGF9091TCE,1%; buck feedback
+24k9,R_0402_1005Metric,C25874,0402WGF2492TCE,1%; buck feedback
+64k9,R_0402_1005Metric,C26984,0402WGF6492TCE,1%; buck RT
+68k,R_0402_1005Metric,C36871,0402WGF6802TCE,1%; buck EN divider
+470k,R_0402_1005Metric,C25790,0402WGF4703TCE,1%; buck EN divider
+RP2350A,RP2350-QFN-60-1EP_7x7_P0.4mm_EP3.4x3.4mm_ThermalVias,C42411118,RP2350A,the part simple_earring uses
+W25Q16JVUXIQ,Winbond_USON-8-1EP_3x2mm_P0.5mm_EP0.2x1.6mm,C2843335,W25Q16JVUXIQ,"16 Mbit, the RP2350 reference design's flash; was W25Q128, which no USON 2x3 part offers (2026-09-24)"
+SPX3819-3.3,SOT-23-5,C20617301,SPX3819M5-L-3-3,the sister board's part (rp2350-motor-controller)
+SPX3819M5-3.3,SOT-23-5,C20617301,SPX3819M5-L-3-3,the sister board's part (rp2350-motor-controller)
+MT6701,SOIC-8_3.9x4.9mm_P1.27mm,C3003196,MT6701CT-STD-R,the sister board's MT6701CT-STD on reel; its C2856764 had 1 in stock
+INA241A3,TSOT-23-8,C6051860,INA241A3IDDFR,50 V/V
+SIT3088ETK,DFN-8_L3.0-W3.0-P0.65-BL-EP,C601076,SIT3088ETK,the sister board's part (rp2350-motor-controller)
+12MHz,Crystal_SMD_2520-4Pin_2.5x2.0mm,C284156,TXM12M0004252LBCEO00T,"CL 20 pF, 10 ppm: the 27 pF caps load it at about 16.5-18.5 pF"
+RGB,LED_RGB_1210,C2827321,S4-3528RGBTA-A,"common anode, 3.5 x 2.8, pads match; PLACE ROTATED 180 deg: its pads 1-4 are B-K, A, G-K, R-K"
+USB-C,USB_C_Receptacle_HRO_TYPE-C-31-M-12,C165948,TYPE-C-31-M-12,HRO
+BOOTSEL,SW_SPST_B3U-1000P,C231329,B3U-1000P,Omron
+RS485 IN,JST_SH_SM06B-SRSS-TB_1x06-1MP_P1.00mm_Horizontal,C3029345,WAFER-SH1.0-6PWB,SH-compatible; JST's own C160405 had 3 in stock; check its land pattern against the footprint
+RS485 OUT,JST_SH_SM06B-SRSS-TB_1x06-1MP_P1.00mm_Horizontal,C3029345,WAFER-SH1.0-6PWB,SH-compatible; JST's own C160405 had 3 in stock; check its land pattern against the footprint
+EXPANSION,PinHeader_2x10_P1.27mm_Vertical_SMD,C59981,1.27-2*10PVertical SMD Pin,3 A per pin
+SIG_LINK,PinHeader_2x14_P1.27mm_Vertical_SMD,C41427103,A127M05-0B28P51-H10A40,the only 2x14 1.27 mm SMD male header at JLCPCB; 50 in stock 2026-09-24
+PWR_LINK,PinHeader_2x05_P2.54mm_Vertical,C32713278,HX PZ2.54-2x5P ZZ,"3 A per pin, gold"

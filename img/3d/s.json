@@ -1,9 +1,9 @@
 {
  "board": "servodrive_S.kicad_pcb",
- "generated": "2026-09-23",
+ "generated": "2026-09-24",
  "glb": "s.glb",
- "bytes": 6768552,
- "kicad_bytes": 30238412,
+ "bytes": 6783452,
+ "kicad_bytes": 30271428,
  "parts": 195,
  "modelled": 173,
  "no_model": [
@@ -31,14 +31,17 @@
   "TP7"
  ],
  "missing": [],
+ "empty": [],
  "substituted": [
   "J12",
   "L701",
+  "L1001",
+  "L1002",
   "U14",
   "U15",
   "U17",
   "U18"
  ],
- "triangles": 583436,
- "primitives": 459
+ "triangles": 584228,
+ "primitives": 463
 }

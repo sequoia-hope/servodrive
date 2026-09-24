@@ -1390,7 +1390,7 @@ def derive_symbol(src_lib, src_name, new_name, footprint, value=None, descr=None
 
     Three parts here have no symbol of their own and a perfectly good stand-in:
     EG2103 is pin-for-pin IR2103 (same family, same active-low LIN), INA241
-    shares INA240's 8-pin arrangement, and every W25Q128JV variant has the same
+    shares INA240's 8-pin arrangement, and the W25Q16JV has the W25Q128JV's
     SPI pinout whatever the package. Copying beats drawing: the geometry is
     someone else's problem and the pin numbering is already right.
 
@@ -1456,9 +1456,10 @@ DERIVED_SYMBOLS = [
      "TI INA241A3, 50 V/V current-sense amplifier, -5 to +110 V common mode, "
      "enhanced PWM rejection. A3 is the 50 V/V grade -- INA241 numbers its "
      "gains differently from INA240."),
-    ("Memory_Flash", "W25Q128JVS", "W25Q128JV",
+    ("Memory_Flash", "W25Q128JVS", "W25Q16JV",
      "Package_SON:Winbond_USON-8-1EP_3x2mm_P0.5mm_EP0.2x1.6mm",
-     "W25Q128JVUXIQ", "Winbond 128 Mbit QSPI flash, USON-8 2x3 mm."),
+     "W25Q16JVUXIQ", "Winbond 16 Mbit QSPI flash, USON-8 2x3 mm -- the RP2350 "
+     "reference design's part; no 128 Mbit part comes in this package."),
 ]
 
 def lmr38010_symbol():

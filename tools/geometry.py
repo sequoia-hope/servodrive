@@ -119,9 +119,14 @@ I_PHASE_MEAN = 2 / 3.14159265 * I_PHASE_PK         # mean |i| over a cycle
 # Sense chain. Full scale is set against the PEAK, not the RMS -- a chain that
 # clips at 20.6 A cannot close a current loop on a 20 A RMS sinusoid, which is
 # what the 1.6 mOhm shunt in draft 0.2 would have done.
-SHUNT_N      = 2             # 2 x 1.6 mOhm 2010 in parallel, per sensed phase
-SHUNT_EACH   = 0.0016
-SHUNT_R      = SHUNT_EACH / SHUNT_N                # 0.8 mOhm
+# 2 x 2 mOhm since 2026-09-24: no 1.6 mOhm 2010 exists at LCSC/JLCPCB (1 and
+# 2 mOhm, nothing between), so the pair is Vishay WSLP20102L000FEA (C413487).
+# Full scale falls from 36.2 A to 29.0 A worst case -- 2.5% over the 28.3 A
+# peak, the margin draft 0.3 turned down; taken knowingly (the other stocked
+# choice, 2 x 1 mOhm, reads +-58 A at 25 mV/A).
+SHUNT_N      = 2             # 2 x 2 mOhm 2010 in parallel, per sensed phase
+SHUNT_EACH   = 0.002
+SHUNT_R      = SHUNT_EACH / SHUNT_N                # 1.0 mOhm
 INA_GAIN     = 50.0          # INA241A3 -- A3 is the 50 V/V grade, NOT A2.
                              # INA240 numbers its gains A1=20 A2=50; INA241
                              # numbers them A1=10 A2=20 A3=50. Draft 0.2 carried

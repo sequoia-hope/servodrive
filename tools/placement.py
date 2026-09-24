@@ -402,14 +402,14 @@ def phase_cell(i):
     # pour, PHASE pad at R 27.0 in the phase-output pour, and the lead pad
     # directly beyond. Nowhere else on the back is clear of the DC-link
     # caps' vias coming through from the other face.
-    two_m = "1m6" if i < 2 else "0R"
+    two_m = "2m0" if i < 2 else "0R"
     for s, ref in zip(S_SHUNT, (f"R{n}06", f"R{n}05")):
         # rot = -da: both parallel to the cell axis rather than each pointing
         # at the shaft, so 0.3 mm apart really is 0.3 mm apart
         out.append(Part(ref, two_m, "Resistor_SMD:R_2010_5025Metric",
                         R_SHUNT, s, -degrees(s / R_SHUNT), blk, th, "B.Cu",
                         "inline shunt, parallel pair - desolder one for the "
-                        "18 A mode" if i < 2 else
+                        "14.5 A mode" if i < 2 else
                         "0 R link, so phase C has the same series resistance"))
 
     # -- the PHASE-side sense tap: its outer pad over the phase-output pour,
@@ -632,7 +632,7 @@ def cpu_wedge():
     # Turned so that the radial order of each row's pads matches the order
     # of the chip's QSPI pins along its side: SD3, SCLK, SD0 outer to inner
     # on both, and the In3 runs between them do not have to cross.
-    out.append(Part("U8", "W25Q128", "Package_SON:Winbond_USON-8-1EP_3x2mm_P0.5mm_EP0.2x1.6mm",
+    out.append(Part("U8", "W25Q16JVUXIQ", "Package_SON:Winbond_USON-8-1EP_3x2mm_P0.5mm_EP0.2x1.6mm",
                     29.4, 7.0, 270, "CPU", th, note="QSPI flash"))
     # ... and its 100 n and the BOOTSEL series resistor on the back directly
     # beneath its body, radial, between the two pad rows: the flash's pads

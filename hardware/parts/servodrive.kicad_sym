@@ -796,11 +796,11 @@
 				)
 			)
 		)
-	(symbol "W25Q128JV"
+	(symbol "W25Q16JV"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(symbol "W25Q128JV_0_1"
+			(symbol "W25Q16JV_0_1"
 				(rectangle
 					(start -7.62 10.16)
 					(end 10.16 -10.16)
@@ -813,7 +813,7 @@
 					)
 				)
 			)
-			(symbol "W25Q128JV_1_1"
+			(symbol "W25Q16JV_1_1"
 				(pin input line
 					(at -10.16 7.62 0)
 					(length 2.54)
@@ -968,7 +968,7 @@
 					)
 				)
 			)
-			(property "Value" "W25Q128JVUXIQ"
+			(property "Value" "W25Q16JVUXIQ"
 				(at 7.62 11.43 0)
 				(effects
 					(font
@@ -994,7 +994,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Winbond 128 Mbit QSPI flash, USON-8 2x3 mm."
+			(property "Description" "Winbond 16 Mbit QSPI flash, USON-8 2x3 mm -- the RP2350 reference design's part; no 128 Mbit part comes in this package."
 				(at 0 27.94 0)
 				(effects
 					(font

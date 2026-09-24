@@ -20,7 +20,9 @@ Writes into img/3d/:
 
 `kicad-cli pcb export glb` does the work, from a temporary copy of the board
 in which the three models this machine does not have are pointed at ones it
-does (SUBST below) -- the board files themselves are not touched. What comes
+does, and the one it has but cannot mesh at a flattened copy (SUBST below) --
+the board files themselves are not touched. A part whose model loads but comes
+out with no geometry is reported, since kicad-cli is silent about it. What comes
 out of kicad-cli is then rewritten, because as exported it is 24-30 MB and
 ~32,000 primitives, one per track, pad and via, each its own draw call:
 
@@ -33,8 +35,9 @@ out of kicad-cli is then rewritten, because as exported it is 24-30 MB and
     their normals and are welded: they are all flat faces, and a glTF
     without normals is drawn flat-shaded by definition. Parts keep theirs,
     as 8-bit normals, because a capacitor can is round;
-  * KiCad's colours, which it writes as sRGB where glTF means linear, are
-    converted, and the mask is made translucent the way pcbnew draws it.
+  * the board's colours, which KiCad writes as sRGB where glTF means linear,
+    are converted (the parts' come through OCC already linear and are left
+    alone), and the mask is made translucent the way pcbnew draws it.
 
 Each part's node carries its reference, value, footprint and side in its
 extras, which is what the viewer shows when a part is hovered; the rest of
@@ -78,11 +81,17 @@ BOARDS = {"a": ("motor_board", "servodrive_A"),
 #     KiCad's has pin 1 top-left with them vertical, hence the quarter turn
 #     anticlockwise -- which KiCad writes as -90, its model rotations being
 #     clockwise-positive. (Checked: the model's pin-1 dot lands over pad 1.)
+#   Sunlord SWPA4030S: KiCad's own model, but an assembly of sub-assemblies,
+#     which kicad-cli 9.0.8 exports as empty nodes without a word. The same
+#     solids and colours flattened into one part by tools/flatten_step.py;
+#     same origin, so the footprint's own offset and rotation stand.
 SUBST = {
     "Connector_USB.3dshapes/USB_C_Receptacle_HRO_TYPE-C-31-M-12.step":
         (MODELS / "HRO_TYPE-C-31-M-12.step", (-4.45, -3.65, 0), (-90, 0, 0)),
     "Inductor_SMD.3dshapes/AOTA-B201610SR47MT.STEP":
         (MODELS / "AOTA-B201610SR47MT.STEP", (0, 0, 0), (0, 0, 0)),
+    "Inductor_SMD.3dshapes/L_Sunlord_SWPA4030S.step":
+        (MODELS / "L_Sunlord_SWPA4030S.step", None, None),
     "test.3dshapes/DFN-8_L3.0-W3.0-P0.65-BL-EP.wrl":
         ("${KICAD9_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/"
          "DFN-8-1EP_3x3mm_P0.65mm_EP1.55x2.4mm.step", (0, 0, 0), (0, 0, -90)),
@@ -212,6 +221,14 @@ def write_details(board="a"):
     json.loads(path.read_text())                             # it is JSON
     print("  wrote  %s  %d parts, %d pins" % (path.relative_to(ROOT), len(parts),
           sum(len(p["pins"]) for p in parts.values())))
+    # every part the assembler places wants a number; copper features the
+    # footprint library calls parts (lands, lead pads, bosses) do not
+    unbought = sorted((r for r, p in parts.items() if not p["lcsc"] and
+                       not {"exclude_from_bom", "exclude_from_pos_files"} & set(p["attrs"])),
+                      key=natural)
+    if unbought:
+        print("  ! no LCSC number for %s -- add a row to %s"
+              % (" ".join(unbought), LCSC.relative_to(ROOT)))
 
 
 # a model block, up to the paren closing it: the one at its own indentation
@@ -243,6 +260,16 @@ def substitute(text):
 
 
 # ------------------------------------------------------------------ glb ----
+def parts_meshed(g):
+    """name -> meshes under that node, for every node a part could be."""
+    nodes = g["nodes"]
+
+    def count(i):
+        n = nodes[i]
+        return ("mesh" in n) + sum(count(c) for c in n.get("children", []))
+    return {n["name"]: count(i) for i, n in enumerate(nodes) if n.get("name")}
+
+
 def read_glb(path):
     d = path.read_bytes()
     magic, _, total = struct.unpack_from("<III", d, 0)
@@ -403,10 +430,20 @@ def rewrite(g, blob, name, parts):
             n["name"] = layer
             n["extras"] = {"layer": layer}
 
-    # KiCad writes its display colours -- sRGB, the mask's #143324 is
-    # (0.08, 0.2, 0.14) -- where glTF means linear, so every one of them came
-    # out a shade lighter than pcbnew draws it; and base colours only, which
-    # glTF reads as fully metallic. Parts and laminate are not, copper is a bit.
+    # The board's own colours are KiCad's display colours -- sRGB, the mask's
+    # #143324 is (0.08, 0.2, 0.14) -- written where glTF means linear, so they
+    # come out a shade lighter than pcbnew draws them and are converted here.
+    # The parts' colours are not: kicad-cli reads a model's STEP colour
+    # through OCC, which does convert (a body's 0.148 arrives as 0.0192), so
+    # converting those again drew every IC near black and every pin dull.
+    # Base colours only, too, which glTF reads as fully metallic: parts and
+    # laminate are not, copper is a bit.
+    of_board = {p.get("material") for m in meshes if m["name"].startswith(name + "_")
+                for p in m["primitives"]}
+    of_parts = {p.get("material") for m in meshes if not m["name"].startswith(name + "_")
+                for p in m["primitives"]}
+    if of_board & of_parts:
+        sys.exit("a material is shared by the board and a part: its colour space is ambiguous")
     shiny = {p.get("material") for m in meshes
              if m["name"][len(name) + 1:] in ("copper", "pad", "via")
              for p in m["primitives"]}
@@ -417,7 +454,8 @@ def rewrite(g, blob, name, parts):
         pbr["metallicFactor"], pbr["roughnessFactor"] = \
             (0.55, 0.35) if i in shiny else (0.0, 0.6)
         rgba = pbr.get("baseColorFactor", [1] * 4)
-        pbr["baseColorFactor"] = [round(linear(c), 6) for c in rgba[:3]] + rgba[3:]
+        if i in of_board:
+            pbr["baseColorFactor"] = [round(linear(c), 6) for c in rgba[:3]] + rgba[3:]
         # the mask comes with KiCad's alpha, which glTF ignores unless asked
         if rgba[3] < 1:
             mat["alphaMode"] = "BLEND"
@@ -480,6 +518,11 @@ def run(board="a", parts_only=False):
         missing = sorted(set(re.findall(r"Could not add 3D model for (\S+)\.", r.stdout + r.stderr)),
                          key=natural)
         g, blob = read_glb(raw)
+        # a model that loads can still come out with nothing in it, and
+        # kicad-cli says nothing (the SWPA4030S did): count what each part got
+        empty = sorted((ref for ref, n in parts_meshed(g).items()
+                        if n == 0 and parts.get(ref, {}).get("model") and ref not in missing),
+                       key=natural)
         raw_bytes = raw.stat().st_size
     finally:
         shutil.rmtree(tmp)
@@ -494,8 +537,8 @@ def run(board="a", parts_only=False):
                     if p["model"] and any(p["model"].endswith(t) for t in SUBST)), key=natural)
     meta = {"board": src.name, "generated": date.today().isoformat(),
             "glb": glb.name, "bytes": glb.stat().st_size, "kicad_bytes": raw_bytes,
-            "parts": len(parts), "modelled": len(parts) - len(none) - len(missing),
-            "no_model": none, "missing": missing, "substituted": subst,
+            "parts": len(parts), "modelled": len(parts) - len(none) - len(missing) - len(empty),
+            "no_model": none, "missing": missing, "empty": empty, "substituted": subst,
             "triangles": stats["triangles"], "primitives": stats["primitives"]}
     (OUT / f"{glb.stem}.json").write_text(json.dumps(meta, indent=1) + "\n")
     print("  wrote  %s  %.1f MB (kicad-cli's %.1f MB), %d triangles in %d primitives"
@@ -505,6 +548,9 @@ def run(board="a", parts_only=False):
           % (meta["modelled"], len(parts), " ".join(none) or "none",
              " ".join(subst) or "none",
              ("; STILL MISSING: " + " ".join(missing)) if missing else ""))
+    if empty:
+        print("  ! exported with no geometry: %s -- flatten the model (tools/flatten_step.py)"
+              " and add a SUBST row" % " ".join(empty))
 
 
 def natural(ref):

@@ -403,7 +403,8 @@ function init(root) {
     let h = dl([
       ['Designator', esc(x.ref) + (d && d.attrs.includes('dnp') ? '<span class="b3-dnp">DNP</span>' : '')],
       ['Component', esc(x.value) + small(d && d.role)],
-      d && !d.attrs.includes('exclude_from_bom') && ['LCSC', lcsc(d, x)],
+      d && !d.attrs.some(a => a === 'exclude_from_bom' || a === 'exclude_from_pos_files') &&
+        ['LCSC', lcsc(d, x)],
       ['Footprint', '<span class="mono">' + esc(x.footprint) + '</span>' +
         small(d && [d.lib, d.descr].filter(Boolean).join(' \u00b7 '))],
     ]);
@@ -470,6 +471,8 @@ function init(root) {
         ' drawn with a stand-in model (see <code>tools/export_3d.py</code>). ';
     if (f.missing.length)
       html += '<b class="warn">No model found for ' + span(f.missing) + '.</b> ';
+    if (f.empty && f.empty.length)
+      html += '<b class="warn">' + span(f.empty) + ' exported with no geometry.</b> ';
     html += mb + '&nbsp;MB, ' + f.triangles.toLocaleString('en') + ' triangles, exported ' +
       f.generated + ' from <code>' + f.board + '</code>.';
     $('#b3-facts').innerHTML = html;

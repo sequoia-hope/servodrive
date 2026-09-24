@@ -252,13 +252,14 @@ better parts, not merely smaller ones.</p>
     A2&nbsp;=&nbsp;50; INA241 numbers them A1&nbsp;=&nbsp;10, A2&nbsp;=&nbsp;20,
     A3&nbsp;=&nbsp;50. Draft 0.2 carried the INA240 mapping across and asked for a 20 V/V
     part to do a 50 V/V job &mdash; table 4-1 of the INA241A datasheet.</td></tr>
-<tr><td>Shunts, 2&nbsp;&#215;</td><td class="chg">0.8 m&#8486; (2 &#215; 1.6 m&#8486; 2010)</td>
+<tr><td>Shunts, 2&nbsp;&#215;</td><td class="chg">1.0 m&#8486; (2 &#215; 2 m&#8486; 2010)</td>
     <td><strong>Changed again, and this one is a correction rather than an improvement.</strong>
     Draft 0.2's 1.6 m&#8486; was chosen to reproduce the sister board's 80 mV/A so firmware
     constants would carry across. It gives &plusmn;20.6 A of full scale, and the design point
     peaks at 28.3 A: the chain would have clipped on every cycle above 14.6 A RMS. 1.0 m&#8486;
-    &#215; 50 V/V = 40 mV/A &rarr; <strong>&plusmn;36.2 A</strong> worst case, and costs
-    0.64 W instead of 1.28 W. Phase C gets
+    &#215; 50 V/V = 50 mV/A &rarr; <strong>&plusmn;29.0 A</strong> worst case, 2.5% over the
+    peak, and costs 0.80 W instead of 1.28 W &mdash; the 0.8 m&#8486; pair this row carried
+    until 2026-09-24 has no stocked 1.6 m&#8486; 2010 to build it from. Phase C gets
     the same two footprints as 0 &#8486; links so all three phases match. See &sect;5.</td></tr>
 <tr><td>Phase TVS, 3&nbsp;&#215;</td><td>TPSMF4L64A, SOD-123FL</td>
     <td>Same 64 V standoff / 400 W as SMAJ64A (their F-09 fix) in a much smaller package —
@@ -414,12 +415,12 @@ for comparison.</caption>
 <tr><th colspan="3" class="grp">At 20 A RMS per phase &mdash; the design point</th></tr>
 <tr><td>Conduction, 3 bridges</td><td>6.6 W</td><td>5.69 W</td></tr>
 <tr><td>Switching, 3 bridges</td><td>6.0 W</td><td>3.84 W</td></tr>
-<tr><td>Shunts</td><td>4.8 W <span class="sub">(3 phases)</span></td><td>0.64 W <span class="sub">(2 phases)</span></td></tr>
+<tr><td>Shunts</td><td>4.8 W <span class="sub">(3 phases)</span></td><td>0.80 W <span class="sub">(2 phases)</span></td></tr>
 <tr><td>Gate charge + driver quiescent</td><td rowspan="2">0.7 W</td><td>0.14 W</td></tr>
 <tr><td>RP2350A, LDO drop, MT6701, amplifiers</td><td>0.26 W</td></tr>
-<tr class="tot"><td>Total</td><td>18.1 W</td><td>10.56 W</td></tr>
+<tr class="tot"><td>Total</td><td>18.1 W</td><td>10.72 W</td></tr>
 <tr><th colspan="3" class="grp">At 10 A RMS per phase</th></tr>
-<tr class="tot"><td>Total</td><td>6.6 W</td><td>4.12 W</td></tr>
+<tr class="tot"><td>Total</td><td>6.6 W</td><td>4.28 W</td></tr>
 </tbody>
 </table>
 
@@ -434,7 +435,7 @@ dead time, and it is a deliberate purchase.</p>
 
 <table class="num">
 <caption>Junction to ambient at the design point, from <code>geometry.thermal()</code>.
-The first two terms are per-FET at 1.59 W each; the last two carry all 10.56 W.</caption>
+The first two terms are per-FET at 1.59 W each; the last two carry all 10.72 W.</caption>
 <thead><tr><th>Step</th><th>K/W</th><th>&Delta;T</th><th>What sets it</th></tr></thead>
 <tbody>
 <tr><td>Junction &rarr; drain pad</td><td>0.9</td><td>1.4 K</td><td>R<sub>thJC</sub> max, PG-TDSON-8</td></tr>
@@ -442,20 +443,20 @@ The first two terms are per-FET at 1.59 W each; the last two carry all 10.56 W.<
     <td><strong>16 vias of 0.4 mm in the drain pad</strong>, 0.95 mm pitch &mdash; the low side; the high side has 20. The FR4 alone would be 354 K/W</td></tr>
 <tr><td>Phase cells &rarr; perimeter bosses</td><td>1.0</td><td>10.7 K</td><td>Spreading in six layers of copper</td></tr>
 <tr><td>Bare copper &rarr; heatsink</td><td>0.4</td><td>4.3 K</td><td>286 mm&sup2; of mask-free land through a 0.25 mm gap pad</td></tr>
-<tr class="tot"><td>Heatsink &rarr; ambient</td><td><strong>&le; 6.8</strong></td><td>&le; 72 K</td>
+<tr class="tot"><td>Heatsink &rarr; ambient</td><td><strong>&le; 6.67</strong></td><td>&le; 72 K</td>
     <td>Everything left over, for T<sub>j</sub> &le; 125 &deg;C at 25 &deg;C ambient</td></tr>
 </tbody>
 </table>
 
 <div class="note warn">
   <strong>A bare stack does not do this, and it is not close.</strong> At 15 K/W the board would
-  sit at 199&nbsp;&deg;C and the junctions at <strong>212&nbsp;&deg;C</strong>. 20 A RMS
+  sit at 201&nbsp;&deg;C and the junctions at <strong>214&nbsp;&deg;C</strong>. 20 A RMS
   continuous is not a rating this stack can have on its own; it is a rating the enclosure grants
-  it. The requirement is <strong>&le; 6.8 K/W from the heatsink to ambient</strong>, which at
-  15&nbsp;W/m&sup2;K of natural convection plus radiation means <strong>&ge; 98 cm&sup2; of
+  it. The requirement is <strong>&le; 6.67 K/W from the heatsink to ambient</strong>, which at
+  15&nbsp;W/m&sup2;K of natural convection plus radiation means <strong>&ge; 100 cm&sup2; of
   external surface</strong>. A plain &#216;65 &#215; 35 mm aluminium barrel is 71 cm&sup2; and
   falls short; the same barrel with sixteen 6 mm longitudinal fins is about 138 cm&sup2; and
-  lands near 4.8 K/W &mdash; board 90&nbsp;&deg;C, junctions <strong>104&nbsp;&deg;C</strong>.
+  lands near 4.8 K/W &mdash; board 92&nbsp;&deg;C, junctions <strong>105&nbsp;&deg;C</strong>.
   That is the design.
 </div>
 
@@ -501,7 +502,7 @@ spent as follows.</p>
 <caption>ADC allocation</caption>
 <thead><tr><th>Channel</th><th>Signal</th><th>Chain</th></tr></thead>
 <tbody>
-<tr><td>ADC0 / GPIO26</td><td>Phase A current</td><td>0.8 m&#8486; inline &rarr; INA241A3 &#215;50, 1.65 V referenced &rarr; &plusmn;36.2 A</td></tr>
+<tr><td>ADC0 / GPIO26</td><td>Phase A current</td><td>1.0 m&#8486; inline &rarr; INA241A3 &#215;50, 1.65 V referenced &rarr; &plusmn;29.0 A</td></tr>
 <tr><td>ADC1 / GPIO27</td><td>Phase B current</td><td>as above</td></tr>
 <tr><td>ADC2 / GPIO28</td><td>Bus voltage</td><td>50 k / 5.1 k 0.1% divider on board A, where VBUS already is</td></tr>
 <tr><td>ADC3 / GPIO29</td><td>FET temperature</td><td>10 k NTC in the phase-cell copper pour</td></tr>
@@ -528,12 +529,16 @@ rather than a respin.</p>
   &plusmn;32 A, sized against the amplifier's <em>typical</em> output swing. The datasheet's
   worst case is V<sub>S</sub>&nbsp;&minus;&nbsp;0.2&nbsp;V rather than 0.07&nbsp;V, and that
   turns &plusmn;32 A into &plusmn;29 A &mdash; 2.5% over a 28.3 A peak, which is not margin.</p>
-  <p><strong>Now: 0.8 m&#8486; (2 &#215; 1.6 m&#8486; 2010) &#215; 50 V/V = 40 mV/A &rarr;
-  &plusmn;36.2 A</strong> worst case, 28% clear of the peak, at 0.64 W instead of 1.28 W. And
-  the consolation: desoldering one of each pair leaves 1.6 m&#8486; &rarr;
-  <strong>80 mV/A</strong>, which is exactly the sister board's scaling &mdash; so its firmware
-  constants come back after all, in the precision mode, at &plusmn;18.1 A. Keep the table in
-  the README and the firmware define pointed at each other; F-14 is what happens
+  <p><strong>Then: 0.8 m&#8486; (2 &#215; 1.6 m&#8486; 2010) &#215; 50 V/V = 40 mV/A &rarr;
+  &plusmn;36.2 A</strong> worst case, 28% clear of the peak, and a precision mode (one of each
+  pair desoldered) at exactly the sister board's 80 mV/A.</p>
+  <p><strong>Now, since 2026-09-24: 1.0 m&#8486; (2 &#215; 2 m&#8486; 2010) &#215; 50 V/V =
+  50 mV/A &rarr; &plusmn;29.0 A</strong> worst case, at 0.80 W. Sourcing found no 1.6 m&#8486;
+  2010 at LCSC or JLCPCB &mdash; 1 and 2 m&#8486;, nothing between &mdash; so the chain is back
+  at the 2.5% the first correction was turned down for, taken knowingly; the stocked
+  alternative, 2 &#215; 1 m&#8486;, reads &plusmn;58 A at 25 mV/A. The precision mode is now
+  2 m&#8486;, 100 mV/A, &plusmn;14.5 A, and neither mode is the sister board's scaling. Keep the
+  table in the README and the firmware define pointed at each other; F-14 is what happens
   otherwise.</p>
 </div>
 
@@ -1418,8 +1423,7 @@ heat and ground rather than two of them carrying 60 V.</li>
 
 <li class="done"><strong>Firmware &mdash; decided 2026-09-22: SimpleFOC</strong>, as on the
 sister board, whose firmware, tuning scripts and dashboard all transfer. Its shunt scaling
-transfers only in the precision mode &mdash; 80 mV/A at 1.6 m&#8486;; at the design point it is
-40. Three changes from the simulation are waiting for it: pace the ADC from the PWM slice's wrap
+does not transfer: 50 mV/A here, 100 in the precision mode, against its 80. Three changes from the simulation are waiting for it: pace the ADC from the PWM slice's wrap
 (one conversion per phase at the counter's zero), set <code>dead_zone</code> to zero and leave
 the dead time to EG2103, and never command a duty the driver's 560 ns minimum pulse cannot
 reach.</li>
