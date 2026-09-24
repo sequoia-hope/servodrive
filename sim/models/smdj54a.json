@@ -1,0 +1,45 @@
+{
+ "part": "SMDJ54A",
+ "maker": "Shandong Jingdao (LCSC C438170)",
+ "role": "bus TVS, on board S under the XT30",
+ "V_RWM": {
+  "unit": "V",
+  "source": "SMDJ54A (Shandong Jingdao), LCSC C438170 listing: 54 V V_RWM, 66.3 V V_BR max, 87.1 V V_C at 34.4 A, 3 kW",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "value": 54.0
+ },
+ "V_BR": {
+  "unit": "V",
+  "source": "SMDJ54A (Shandong Jingdao), LCSC C438170 listing: 54 V V_RWM, 66.3 V V_BR max, 87.1 V V_C at 34.4 A, 3 kW",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "min": 60.0,
+  "max": 66.3
+ },
+ "V_C": {
+  "unit": "V",
+  "source": "SMDJ54A (Shandong Jingdao), LCSC C438170 listing: 54 V V_RWM, 66.3 V V_BR max, 87.1 V V_C at 34.4 A, 3 kW",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "typ": 87.1,
+  "note": "at I_PP = 34.4 A (10/1000 us)"
+ },
+ "P_PP": {
+  "unit": "W",
+  "source": "SMDJ54A (Shandong Jingdao), LCSC C438170 listing: 54 V V_RWM, 66.3 V V_BR max, 87.1 V V_C at 34.4 A, 3 kW",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "value": 3000.0,
+  "note": "10/1000 us"
+ },
+ "C_j": {
+  "unit": "F",
+  "source": "not in the listing",
+  "read": "2026-09-24",
+  "status": "bracketed",
+  "min": 1e-09,
+  "typ": 2e-09,
+  "max": 4e-09
+ }
+}

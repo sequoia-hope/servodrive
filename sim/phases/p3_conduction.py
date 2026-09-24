@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt                              # noqa: E402
 from shapely.geometry import Polygon                         # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib import paths, jsonio                                # noqa: E402
+from lib import paths, jsonio, board                         # noqa: E402
 from extract import copper                                   # noqa: E402
 from conduction.raster import Raster                         # noqa: E402
 from conduction.solver import Conductor, sigma_at, SIGMA_CU  # noqa: E402
@@ -36,6 +36,13 @@ from conduction.solver import Conductor, sigma_at, SIGMA_CU  # noqa: E402
 paths.import_tools()
 
 I_PEAK = 28.284           # 20 A RMS -> 28.3 A peak (SPEC.md sec.2.1)
+
+
+def _entry_refs():
+    """Where the bus current enters the board: board A's two 2 x 5 headers,
+    board S's XT30."""
+    e = board.P()["bus_entry"]
+    return (e["ref"],) if e else ("J7", "J8")
 CELLS = {"A": dict(hi="Q1", lo="Q2", shunts=("R105", "R106"),
                    taps=("R107", "R108"), sw="SW_A", phase="PHASE_A", lead="J1"),
          "B": dict(hi="Q3", lo="Q4", shunts=("R205", "R206"),
@@ -129,9 +136,10 @@ def tap_resistance(cell="A", temperature=25.0, cellsize=0.05):
 def q6(quick=False):
     t0 = time.time()
     import geometry as G
-    sh = jsonio.model("shunt_1m6_2010")
+    sh = jsonio.model(board.P()["shunt"])
     out = {"question": "Q6", "estimate": {
-        "R_shunt_Ohm": G.SHUNT_R, "TCR_assumed_ppm_per_K": 50,
+        "R_shunt_Ohm": G.SHUNT_R,
+        "TCR_part_ppm_per_K": [sh["TCR"]["min"], sh["TCR"]["max"]],
         "V_per_A": G.V_PER_A}}
 
     cells = ["A"] if quick else ["A", "B", "C"]
@@ -148,8 +156,14 @@ def q6(quick=False):
         Rcu125 = sum(v["R_error_Ohm"] for v in res125.values())
         Rsh = sh["R"]["value"] / 2.0 if cell != "C" else 0.0
         R25 = Rsh + Rcu25
-        R125 = Rsh * (1 + sh["TCR"]["min"] * 1e-6 * 100) + Rcu125
-        tcr = (R125 - R25) / R25 / 100.0 * 100          # %/K
+        # the part's TCR is a bracket; the worse end is the one reported.  On
+        # board A it was +50..+100 ppm/K; board S's 2 mOhm metal strip is
+        # +-275 ppm/K component TCR, terminals included
+        tcrs = []
+        for t_part in (sh["TCR"]["min"], sh["TCR"]["max"]):
+            R125_ = Rsh * (1 + t_part * 1e-6 * 100) + Rcu125
+            tcrs.append(((R125_ - R25) / R25 / 100.0 * 100, R125_))
+        tcr, R125 = max(tcrs, key=lambda x: abs(x[0]))
         per[cell] = {
             "R_copper_error_Ohm": Rcu25,
             "R_shunt_Ohm": Rsh,
@@ -157,6 +171,7 @@ def q6(quick=False):
             "R_tap_to_tap_125C_Ohm": R125,
             "copper_share": abs(Rcu25) / R25 if R25 else None,
             "TCR_pct_per_K": tcr,
+            "TCR_pct_per_K_bracket": [t for t, _ in tcrs],
             "pass_copper_share": bool(R25 and abs(Rcu25) / R25 <= 0.05),
             "pass_TCR": bool(abs(tcr) <= 0.05),
             "per_side": res25,
@@ -203,7 +218,7 @@ def shunt_sharing(cell="A", cellsize=0.04):
     v0, v1 = cond.terminal_voltage(1), cond.terminal_voltage(2)
     vin = cond.terminal_voltage(0)
     R0, R1 = (vin - v0) / 0.5, (vin - v1) / 0.5
-    sh = jsonio.model("shunt_1m6_2010")["R"]["value"]
+    sh = jsonio.model(board.P()["shunt"])["R"]["value"]
     g0, g1 = 1 / (R0 + sh), 1 / (R1 + sh)
     return {"R_path_to_shunt1_Ohm": R0, "R_path_to_shunt2_Ohm": R1,
             "share_shunt1": g0 / (g0 + g1), "share_shunt2": g1 / (g0 + g1),
@@ -303,7 +318,7 @@ def phase_path(cell="A", cellsize=0.06, current=I_PEAK, temperature=25.0):
         g = copper.load()
         hdr = []
         for p in g["through_pads"]:
-            if p["ref"].startswith(("J7", "J8")) and p["net"] == "GND":
+            if p["ref"].startswith(_entry_refs()) and p["net"] == "GND":
                 i, j = condg.r.index(p["x"], p["y"])
                 for layer in condg.layers:
                     k = condg.index[layer][i, j]
@@ -353,7 +368,7 @@ def vbus_path(cellsize=0.08, current=I_PEAK):
     g = copper.load()
     src = []
     for p in g["through_pads"]:
-        if p["ref"].startswith(("J7", "J8")) and p["net"] == "VBUS":
+        if p["ref"].startswith(_entry_refs()) and p["net"] == "VBUS":
             i, j = r.index(p["x"], p["y"])
             for layer in cond.layers:
                 k = cond.index[layer][i, j]
@@ -361,7 +376,7 @@ def vbus_path(cellsize=0.08, current=I_PEAK):
                     src.append(k)
     if not src:
         return {"error": "no VBUS header pads"}
-    out = {"current_A": current}
+    out = {"current_A": current, "entry": list(_entry_refs())}
     src_arr = np.array(sorted(set(src)))
     for ref in ("Q1", "Q3", "Q5"):
         try:
@@ -388,7 +403,8 @@ def vbus_path(cellsize=0.08, current=I_PEAK):
             entry["In2_current_density"] = _jstats(cond, "In2.Cu")
             _plot_J(cond, "In2.Cu", (-32.5, -32.5, 32.5, 32.5),
                     "p3_J_vbus_In2.png",
-                    f"VBUS on In2, header to Q1 at {current:.1f} A")
+                    f"VBUS on In2, {'/'.join(_entry_refs())} to Q1 at "
+                    f"{current:.1f} A")
         out[ref] = entry
     return out
 

@@ -35,9 +35,27 @@ python3 sim/setup.py          # build FastHenry2, FastCap2, the openEMS image
 python3 sim/run.py            # every phase, in order
 python3 sim/run.py --phase P2 # one phase
 python3 sim/run.py --list     # what is done
+python3 sim/run.py --board s  # board S: results/s/, report/img/s/, work/s/
 python3 sim/tests/kat.py      # just the known-answer tests
 proj up servodrive && proj url servodrive     # then /sim/report/
 ```
+
+## Board S
+
+`--board s` runs the same phases on `hardware/single_board/servodrive_S.kicad_pcb`.
+Its results go to `results/s/`, its figures to `report/img/s/` and its scratch to
+`work/s/`, so board A's numbers are never overwritten. What differs is in
+`lib/board.py`, the one place a phase asks for a design constant: a 48 V bus
+(the envelope 20/48/56 V, 56 V being the top of the firmware fold-back), the 54 V
+clamps (Q2's criterion becomes 57 V, board A's 3 V under the clamp's minimum
+breakdown), the 2 × 2 mΩ shunts at 50 mV/A, the Ø6 magnet at a 1.5 mm gap, and a
+bulk that is two polymer cans on the board itself: P1 solves the plane path from
+the cans to cell A in place of the header, and P4 becomes the cans' ripple current
+against their rating, with the battery lead on the far side. P5S is board S's own
+encoder check; P9 is `phases/p9s_summary.py`, which grades each question and writes
+the simulation section of `single.html` between `<!-- sim:begin -->` and
+`<!-- sim:end -->`. `tools/route.py` starts this run (detached, through
+`tools/regen.py`) whenever it finishes routing board S with nothing unconnected.
 
 `--quick` coarsens every sweep. It is for developing the code, never for a
 result: the report does not record which mode produced a number, so do not mix

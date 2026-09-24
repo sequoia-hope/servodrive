@@ -1,0 +1,845 @@
+{
+ "L4_known_answer": {
+  "discretisation": {
+   "pid_tustin": {
+    "got": [
+     2.005,
+     2.015,
+     2.025
+    ],
+    "want": [
+     2.005,
+     2.015,
+     2.025
+    ],
+    "max_abs_error": 0.0
+   },
+   "lpf_alpha": {
+    "got": [
+     0.16666666666666663,
+     0.30555555555555547,
+     0.4212962962962962
+    ],
+    "want": [
+     0.16666666666666663,
+     0.30555555555555547,
+     0.4212962962962962
+    ],
+    "max_abs_error": 0.0
+   },
+   "pass": true
+  },
+  "gains": {
+   "P": 0.36,
+   "I": 1.8,
+   "Tf": 0.005
+  },
+  "plant": {
+   "R": 0.35,
+   "L": 0.001,
+   "note": "the bench bracket's mid point"
+  },
+  "metrics": {
+   "overshoot_pct": -13.521320984897168,
+   "rise_time_ms": 347.1,
+   "settle_time_ms": 499.95,
+   "ss_error_pct": 15.409166600227916
+  },
+  "metric_definitions": "identical to tune.py's analyze_step: 80 % rise, 5 % settling band, steady state from the last 20 %",
+  "pass": true,
+  "implied_bandwidth_rad_s": 5.142857142857143,
+  "note": "the tuner's rule is Kp = omega_c.L, Ki = omega_c.R; with Ki = 1.8 and R in the 0.25-0.5 Ohm bracket that is omega_c = 3.6-7.2 rad/s, two orders below the 200 rad/s tune.py aims for -- which is the disagreement SPEC.md sec.3.1 flags between the two ways of reading R"
+ },
+ "Q8": {
+  "question": "Q8",
+  "adc": {
+   "n_channels": 4,
+   "t_conv_us": 2.0,
+   "channel_refresh_us": 8.0,
+   "resolution_LSB_mA": 16.113281249999996,
+   "aperture_bracket_ns": [
+    20.833333333333336,
+    166.66666666666669
+   ]
+  },
+  "runs": [
+   {
+    "synchronised": false,
+    "seed": 0,
+    "adc_phase_us": 0.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.06998284834933861,
+     "200-1000Hz": 0.07869703559228688,
+     "1000-5000Hz": 0.6140020177360616,
+     "5000-10000Hz": 0.2200094910265687
+    },
+    "iq_mean_measured_A": 28.314328145010894,
+    "iq_mean_true_A": 26.78628245761645,
+    "bias_A": 1.5280456873944437,
+    "noise_A_rms": 0.6607156114644062,
+    "noise_LSB": 41.00441128118497,
+    "i_rms_A": 19.31504443218533
+   },
+   {
+    "synchronised": false,
+    "seed": 1,
+    "adc_phase_us": 1.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.01141212329324403,
+     "200-1000Hz": 0.039097264883137535,
+     "1000-5000Hz": 0.5566175608600071,
+     "5000-10000Hz": 0.22797158279529028
+    },
+    "iq_mean_measured_A": 28.32115986662853,
+    "iq_mean_true_A": 26.80850893868784,
+    "bias_A": 1.512650927940691,
+    "noise_A_rms": 0.60312333223734,
+    "noise_LSB": 37.430199527941596,
+    "i_rms_A": 19.335271398547153
+   },
+   {
+    "synchronised": false,
+    "seed": 2,
+    "adc_phase_us": 2.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.04626619111753429,
+     "200-1000Hz": 0.08509130323458859,
+     "1000-5000Hz": 0.6156645036780488,
+     "5000-10000Hz": 0.2002417415520502
+    },
+    "iq_mean_measured_A": 28.326967651850172,
+    "iq_mean_true_A": 26.800361550081902,
+    "bias_A": 1.5266061017682733,
+    "noise_A_rms": 0.6546150099397825,
+    "noise_LSB": 40.62580425323257,
+    "i_rms_A": 19.326234760629912
+   },
+   {
+    "synchronised": false,
+    "seed": 3,
+    "adc_phase_us": 3.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.017632333275803398,
+     "200-1000Hz": 0.034082465052636735,
+     "1000-5000Hz": 0.5474262519958618,
+     "5000-10000Hz": 0.21837053947123997
+    },
+    "iq_mean_measured_A": 28.297581025930285,
+    "iq_mean_true_A": 26.788821448777252,
+    "bias_A": 1.508759577153035,
+    "noise_A_rms": 0.5909629301027911,
+    "noise_LSB": 36.6755176015308,
+    "i_rms_A": 19.317139356559935
+   },
+   {
+    "synchronised": false,
+    "seed": 4,
+    "adc_phase_us": 4.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.05782570910336053,
+     "200-1000Hz": 0.1001270961623052,
+     "1000-5000Hz": 0.6121045208535462,
+     "5000-10000Hz": 0.22063385414237277
+    },
+    "iq_mean_measured_A": 28.29668547641961,
+    "iq_mean_true_A": 26.77349400242854,
+    "bias_A": 1.523191473991072,
+    "noise_A_rms": 0.6608489315374914,
+    "noise_LSB": 41.012685205720686,
+    "i_rms_A": 19.303761907724855
+   },
+   {
+    "synchronised": false,
+    "seed": 5,
+    "adc_phase_us": 5.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.009158685358274486,
+     "200-1000Hz": 0.033475531844824935,
+     "1000-5000Hz": 0.5485252047968643,
+     "5000-10000Hz": 0.2241416198824262
+    },
+    "iq_mean_measured_A": 28.296452454906138,
+    "iq_mean_true_A": 26.778197036965206,
+    "bias_A": 1.5182554179409344,
+    "noise_A_rms": 0.5939493542222232,
+    "noise_LSB": 36.86085689233677,
+    "i_rms_A": 19.31429721834415
+   },
+   {
+    "synchronised": false,
+    "seed": 6,
+    "adc_phase_us": 6.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.07015506830028413,
+     "200-1000Hz": 0.08756870587280237,
+     "1000-5000Hz": 0.6058776384513657,
+     "5000-10000Hz": 0.2262685770303253
+    },
+    "iq_mean_measured_A": 28.296477023690382,
+    "iq_mean_true_A": 26.776910846725432,
+    "bias_A": 1.5195661769649493,
+    "noise_A_rms": 0.656429836636474,
+    "noise_LSB": 40.73843349792421,
+    "i_rms_A": 19.305288302324232
+   },
+   {
+    "synchronised": false,
+    "seed": 7,
+    "adc_phase_us": 7.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.007370374210017174,
+     "200-1000Hz": 0.037208355770800096,
+     "1000-5000Hz": 0.5443160760657689,
+     "5000-10000Hz": 0.2164557589015203
+    },
+    "iq_mean_measured_A": 28.288511799589106,
+    "iq_mean_true_A": 26.77673052652804,
+    "bias_A": 1.5117812730610642,
+    "noise_A_rms": 0.5872838629197233,
+    "noise_LSB": 36.44719246241193,
+    "i_rms_A": 19.30833677538907
+   },
+   {
+    "synchronised": true,
+    "seed": 0,
+    "adc_phase_us": 0.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.025353313446469242,
+     "200-1000Hz": 0.030308478858956538,
+     "1000-5000Hz": 0.18277007961450728,
+     "5000-10000Hz": 0.0656486089366573
+    },
+    "iq_mean_measured_A": 28.21266259419138,
+    "iq_mean_true_A": 27.480067394653243,
+    "bias_A": 0.7325951995381359,
+    "noise_A_rms": 0.19819935806772038,
+    "noise_LSB": 12.300372282505801,
+    "i_rms_A": 19.87159006500453
+   },
+   {
+    "synchronised": true,
+    "seed": 1,
+    "adc_phase_us": 0.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.025353313446469242,
+     "200-1000Hz": 0.030308478858956538,
+     "1000-5000Hz": 0.18277007961450728,
+     "5000-10000Hz": 0.0656486089366573
+    },
+    "iq_mean_measured_A": 28.21266259419138,
+    "iq_mean_true_A": 27.480067394653243,
+    "bias_A": 0.7325951995381359,
+    "noise_A_rms": 0.19819935806772038,
+    "noise_LSB": 12.300372282505801,
+    "i_rms_A": 19.87159006500453
+   },
+   {
+    "synchronised": true,
+    "seed": 2,
+    "adc_phase_us": 0.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.025353313446469242,
+     "200-1000Hz": 0.030308478858956538,
+     "1000-5000Hz": 0.18277007961450728,
+     "5000-10000Hz": 0.0656486089366573
+    },
+    "iq_mean_measured_A": 28.21266259419138,
+    "iq_mean_true_A": 27.480067394653243,
+    "bias_A": 0.7325951995381359,
+    "noise_A_rms": 0.19819935806772038,
+    "noise_LSB": 12.300372282505801,
+    "i_rms_A": 19.87159006500453
+   },
+   {
+    "synchronised": true,
+    "seed": 3,
+    "adc_phase_us": 0.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.025353313446469242,
+     "200-1000Hz": 0.030308478858956538,
+     "1000-5000Hz": 0.18277007961450728,
+     "5000-10000Hz": 0.0656486089366573
+    },
+    "iq_mean_measured_A": 28.21266259419138,
+    "iq_mean_true_A": 27.480067394653243,
+    "bias_A": 0.7325951995381359,
+    "noise_A_rms": 0.19819935806772038,
+    "noise_LSB": 12.300372282505801,
+    "i_rms_A": 19.87159006500453
+   },
+   {
+    "synchronised": true,
+    "seed": 4,
+    "adc_phase_us": 0.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.025353313446469242,
+     "200-1000Hz": 0.030308478858956538,
+     "1000-5000Hz": 0.18277007961450728,
+     "5000-10000Hz": 0.0656486089366573
+    },
+    "iq_mean_measured_A": 28.21266259419138,
+    "iq_mean_true_A": 27.480067394653243,
+    "bias_A": 0.7325951995381359,
+    "noise_A_rms": 0.19819935806772038,
+    "noise_LSB": 12.300372282505801,
+    "i_rms_A": 19.87159006500453
+   },
+   {
+    "synchronised": true,
+    "seed": 5,
+    "adc_phase_us": 0.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.025353313446469242,
+     "200-1000Hz": 0.030308478858956538,
+     "1000-5000Hz": 0.18277007961450728,
+     "5000-10000Hz": 0.0656486089366573
+    },
+    "iq_mean_measured_A": 28.21266259419138,
+    "iq_mean_true_A": 27.480067394653243,
+    "bias_A": 0.7325951995381359,
+    "noise_A_rms": 0.19819935806772038,
+    "noise_LSB": 12.300372282505801,
+    "i_rms_A": 19.87159006500453
+   },
+   {
+    "synchronised": true,
+    "seed": 6,
+    "adc_phase_us": 0.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.025353313446469242,
+     "200-1000Hz": 0.030308478858956538,
+     "1000-5000Hz": 0.18277007961450728,
+     "5000-10000Hz": 0.0656486089366573
+    },
+    "iq_mean_measured_A": 28.21266259419138,
+    "iq_mean_true_A": 27.480067394653243,
+    "bias_A": 0.7325951995381359,
+    "noise_A_rms": 0.19819935806772038,
+    "noise_LSB": 12.300372282505801,
+    "i_rms_A": 19.87159006500453
+   },
+   {
+    "synchronised": true,
+    "seed": 7,
+    "adc_phase_us": 0.0,
+    "error_spectrum_A_rms": {
+     "0-200Hz": 0.025353313446469242,
+     "200-1000Hz": 0.030308478858956538,
+     "1000-5000Hz": 0.18277007961450728,
+     "5000-10000Hz": 0.0656486089366573
+    },
+    "iq_mean_measured_A": 28.21266259419138,
+    "iq_mean_true_A": 27.480067394653243,
+    "bias_A": 0.7325951995381359,
+    "noise_A_rms": 0.19819935806772038,
+    "noise_LSB": 12.300372282505801,
+    "i_rms_A": 19.87159006500453
+   }
+  ],
+  "free_running_noise_A_rms": 0.6259911086325289,
+  "synchronised_noise_A_rms": 0.19819935806772038,
+  "improvement_factor": 3.158391201341033,
+  "free_running_bias_A": 1.5186070795268076,
+  "synchronised_bias_A": 0.7325951995381359,
+  "error_spectrum_A_rms": {
+   "free_running": {
+    "0-200Hz": 0.03622541662598208,
+    "200-1000Hz": 0.061918469801672794,
+    "1000-5000Hz": 0.5805667218046906,
+    "5000-10000Hz": 0.2192616456002242
+   },
+   "synchronised": {
+    "0-200Hz": 0.025353313446469242,
+    "200-1000Hz": 0.030308478858956538,
+    "1000-5000Hz": 0.18277007961450728,
+    "5000-10000Hz": 0.0656486089366573
+   },
+   "note": "the current loop's own bandwidth is about 1 kHz, so error below that is what it will try to follow and error above it is what the low-pass takes out"
+  },
+  "criterion": "synchronised sampling shown to cut corrupted samples to zero and noise by a stated factor",
+  "seconds": 9.4,
+  "figure": "p6_sampling.png"
+ },
+ "Q9": {
+  "question": "Q9",
+  "estimate": {
+   "V_distortion_with_software_dead_zone_V": 1.44,
+   "V_distortion_hardware_only_V": 0.5376,
+   "note": "V_bus x t_dead / T.  The software dead_zone of 0.02 is 1 us per edge and the EG2103 adds 560 ns, so the two together are about 1.56 us of the 50 us period"
+  },
+  "sweep": [
+   {
+    "dead_zone": 0.0,
+    "t_dead_sw_us": 0.0,
+    "rpm": 500.0,
+    "iq_target_A": 7.0710678118654755,
+    "f_electrical_Hz": 91.66666666666667,
+    "iq_measured_A": 7.062566618209173,
+    "iq_true_A": 6.7261901184030055,
+    "i_rms_A": 4.796293459396385,
+    "THD": 0.09500547200103139,
+    "torque_mean_Nm": 0.9249175343690202,
+    "torque_ripple_pct": 11.470578778219242,
+    "u_q_V": 5.782552460128418
+   },
+   {
+    "dead_zone": 0.0,
+    "t_dead_sw_us": 0.0,
+    "rpm": 500.0,
+    "iq_target_A": 28.284271247461902,
+    "f_electrical_Hz": 91.66666666666667,
+    "iq_measured_A": 28.279036877371777,
+    "iq_true_A": 27.874997459639676,
+    "i_rms_A": 19.724333240570544,
+    "THD": 0.02811217435111865,
+    "torque_mean_Nm": 3.8330873001005874,
+    "torque_ripple_pct": 3.12059390161009,
+    "u_q_V": 6.682509621179551
+   },
+   {
+    "dead_zone": 0.0,
+    "t_dead_sw_us": 0.0,
+    "rpm": 2000.0,
+    "iq_target_A": 7.0710678118654755,
+    "f_electrical_Hz": 366.6666666666667,
+    "iq_measured_A": 7.091429447077888,
+    "iq_true_A": 6.316486205816213,
+    "i_rms_A": 4.624019203423795,
+    "THD": 0.21680948552387871,
+    "torque_mean_Nm": 0.8685792022700922,
+    "torque_ripple_pct": 22.27685262810954,
+    "u_q_V": 20.045812252015082
+   },
+   {
+    "dead_zone": 0.0,
+    "t_dead_sw_us": 0.0,
+    "rpm": 2000.0,
+    "iq_target_A": 28.284271247461902,
+    "f_electrical_Hz": 366.6666666666667,
+    "iq_measured_A": 28.297099692649375,
+    "iq_true_A": 27.576933269669002,
+    "i_rms_A": 19.538808741161382,
+    "THD": 0.07108611488659386,
+    "torque_mean_Nm": 3.7921005318382557,
+    "torque_ripple_pct": 5.031551251531155,
+    "u_q_V": 20.80663897692074
+   },
+   {
+    "dead_zone": 0.005,
+    "t_dead_sw_us": 0.25,
+    "rpm": 500.0,
+    "iq_target_A": 7.0710678118654755,
+    "f_electrical_Hz": 91.66666666666667,
+    "iq_measured_A": 7.062426074192938,
+    "iq_true_A": 6.727278659841834,
+    "i_rms_A": 4.797073122290164,
+    "THD": 0.09498476299597904,
+    "torque_mean_Nm": 0.925067219561668,
+    "torque_ripple_pct": 11.473096966150676,
+    "u_q_V": 5.782653244738104
+   },
+   {
+    "dead_zone": 0.005,
+    "t_dead_sw_us": 0.25,
+    "rpm": 500.0,
+    "iq_target_A": 28.284271247461902,
+    "f_electrical_Hz": 91.66666666666667,
+    "iq_measured_A": 28.279067422184813,
+    "iq_true_A": 27.876059562904572,
+    "i_rms_A": 19.725091796288243,
+    "THD": 0.028120497206430138,
+    "torque_mean_Nm": 3.8332333497833537,
+    "torque_ripple_pct": 3.121134938692238,
+    "u_q_V": 6.682393512368938
+   },
+   {
+    "dead_zone": 0.005,
+    "t_dead_sw_us": 0.25,
+    "rpm": 2000.0,
+    "iq_target_A": 7.0710678118654755,
+    "f_electrical_Hz": 366.6666666666667,
+    "iq_measured_A": 7.088147235021555,
+    "iq_true_A": 6.257388326490733,
+    "i_rms_A": 4.582515946047078,
+    "THD": 0.21646269542053262,
+    "torque_mean_Nm": 0.8604526605176357,
+    "torque_ripple_pct": 22.435024439623376,
+    "u_q_V": 20.04476931116521
+   },
+   {
+    "dead_zone": 0.005,
+    "t_dead_sw_us": 0.25,
+    "rpm": 2000.0,
+    "iq_target_A": 28.284271247461902,
+    "f_electrical_Hz": 366.6666666666667,
+    "iq_measured_A": 28.297106735020478,
+    "iq_true_A": 27.51531504935282,
+    "i_rms_A": 19.49484033620247,
+    "THD": 0.07100554337762942,
+    "torque_mean_Nm": 3.7836274183217173,
+    "torque_ripple_pct": 5.020648097980363,
+    "u_q_V": 20.807601063041474
+   },
+   {
+    "dead_zone": 0.01,
+    "t_dead_sw_us": 0.5,
+    "rpm": 500.0,
+    "iq_target_A": 7.0710678118654755,
+    "f_electrical_Hz": 91.66666666666667,
+    "iq_measured_A": 7.062738665088266,
+    "iq_true_A": 6.728810536326018,
+    "i_rms_A": 4.798201411687647,
+    "THD": 0.09521175830623822,
+    "torque_mean_Nm": 0.925277867699138,
+    "torque_ripple_pct": 11.47846689220937,
+    "u_q_V": 5.78240938693699
+   },
+   {
+    "dead_zone": 0.01,
+    "t_dead_sw_us": 0.5,
+    "rpm": 500.0,
+    "iq_target_A": 28.284271247461902,
+    "f_electrical_Hz": 91.66666666666667,
+    "iq_measured_A": 28.2782467036371,
+    "iq_true_A": 27.877199905506235,
+    "i_rms_A": 19.725916823009936,
+    "THD": 0.028183838875790124,
+    "torque_mean_Nm": 3.833390158147212,
+    "torque_ripple_pct": 3.124694772236927,
+    "u_q_V": 6.683219235412668
+   },
+   {
+    "dead_zone": 0.01,
+    "t_dead_sw_us": 0.5,
+    "rpm": 2000.0,
+    "iq_target_A": 7.0710678118654755,
+    "f_electrical_Hz": 366.6666666666667,
+    "iq_measured_A": 7.087479185243356,
+    "iq_true_A": 6.204938518622529,
+    "i_rms_A": 4.546711111309455,
+    "THD": 0.21809642099512147,
+    "torque_mean_Nm": 0.8532402942125477,
+    "torque_ripple_pct": 22.670017634908803,
+    "u_q_V": 20.043721050786345
+   },
+   {
+    "dead_zone": 0.01,
+    "t_dead_sw_us": 0.5,
+    "rpm": 2000.0,
+    "iq_target_A": 28.284271247461902,
+    "f_electrical_Hz": 366.6666666666667,
+    "iq_measured_A": 28.297209142283144,
+    "iq_true_A": 27.455079073842445,
+    "i_rms_A": 19.452252314374583,
+    "THD": 0.07115401160744922,
+    "torque_mean_Nm": 3.775344377109882,
+    "torque_ripple_pct": 5.043881900728399,
+    "u_q_V": 20.807496075329887
+   },
+   {
+    "dead_zone": 0.02,
+    "t_dead_sw_us": 1.0,
+    "rpm": 500.0,
+    "iq_target_A": 7.0710678118654755,
+    "f_electrical_Hz": 91.66666666666667,
+    "iq_measured_A": 7.0624221287266025,
+    "iq_true_A": 6.72897496398673,
+    "i_rms_A": 4.798567855522355,
+    "THD": 0.09581197433945372,
+    "torque_mean_Nm": 0.9253004781255236,
+    "torque_ripple_pct": 11.526985158858157,
+    "u_q_V": 5.782477415445353
+   },
+   {
+    "dead_zone": 0.02,
+    "t_dead_sw_us": 1.0,
+    "rpm": 500.0,
+    "iq_target_A": 28.284271247461902,
+    "f_electrical_Hz": 91.66666666666667,
+    "iq_measured_A": 28.27825424301808,
+    "iq_true_A": 27.879362224296173,
+    "i_rms_A": 19.727525593717434,
+    "THD": 0.028374584725746964,
+    "torque_mean_Nm": 3.833687498324712,
+    "torque_ripple_pct": 3.1372031836980314,
+    "u_q_V": 6.683041156323253
+   },
+   {
+    "dead_zone": 0.02,
+    "t_dead_sw_us": 1.0,
+    "rpm": 2000.0,
+    "iq_target_A": 7.0710678118654755,
+    "f_electrical_Hz": 366.6666666666667,
+    "iq_measured_A": 7.086361692693097,
+    "iq_true_A": 6.110167876495854,
+    "i_rms_A": 4.484764350329647,
+    "THD": 0.2244938527654483,
+    "torque_mean_Nm": 0.8402083954550998,
+    "torque_ripple_pct": 23.367444245280208,
+    "u_q_V": 20.039588696020136
+   },
+   {
+    "dead_zone": 0.02,
+    "t_dead_sw_us": 1.0,
+    "rpm": 2000.0,
+    "iq_target_A": 28.284271247461902,
+    "f_electrical_Hz": 366.6666666666667,
+    "iq_measured_A": 28.320502680522296,
+    "iq_true_A": 27.349785157539195,
+    "i_rms_A": 19.380314073289608,
+    "THD": 0.07222622868960843,
+    "torque_mean_Nm": 3.76086542427969,
+    "torque_ripple_pct": 5.335231883696683,
+    "u_q_V": 20.69076340839699
+   }
+  ],
+  "torque_loss_from_software_dead_zone_pct": 0.6224093392882434,
+  "min_duty_reachable": 0.024,
+  "min_duty_note": "below 2.40 % duty the commanded pulse is shorter than the EG2103's 560 ns minimum and the high side never turns on; the same applies by symmetry at the top of the range",
+  "recommendation": null,
+  "seconds": 142.0,
+  "figure": "p6_deadtime.png"
+ },
+ "Q10": {
+  "question": "Q10 (consequence)",
+  "angle_error_peak_deg": 0.12267737407515256,
+  "torque_loss_pct": 0.00022922053201090975,
+  "i_d_error_A": 0.06056008841419049,
+  "torque_ripple_from_angle_pct": 7.057256119330991e-05,
+  "angle_error_rms_deg": 0.08829332669929024,
+  "note": "a current-dependent angle error is a torque error that moves with the current, so it shows up as a gain error in the torque loop rather than as noise"
+ },
+ "Q14": {
+  "question": "Q14",
+  "criterion": "reported; no brake chopper exists on this board",
+  "V_bus_V": 48.0,
+  "TVS": "SMDJ54A",
+  "TVS_V_BR_V": [
+   60.0,
+   66.3
+  ],
+  "C_bulk_as_built_uF": 200.0,
+  "sweep": [
+   {
+    "C_bulk_uF": 200.0,
+    "J_kgm2": 0.0001,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 2.1932454224643014,
+    "E_cap_to_TVS_J": 0.1296,
+    "E_cap_to_guard_J": 0.039999999999999994,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 84852.81374238573,
+    "t_to_guard_ms": 0.047140452079103154,
+    "t_to_TVS_ms": 0.14142135623730945,
+    "t_decel_ms": 5.384926079968269,
+    "TVS_energy_J": 2.0636454224643015,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   },
+   {
+    "C_bulk_uF": 200.0,
+    "J_kgm2": 0.001,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 21.932454224643013,
+    "E_cap_to_TVS_J": 0.1296,
+    "E_cap_to_guard_J": 0.039999999999999994,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 84852.81374238573,
+    "t_to_guard_ms": 0.047140452079103154,
+    "t_to_TVS_ms": 0.14142135623730945,
+    "t_decel_ms": 53.849260799682696,
+    "TVS_energy_J": 21.802854224643013,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   },
+   {
+    "C_bulk_uF": 200.0,
+    "J_kgm2": 0.01,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 219.32454224643016,
+    "E_cap_to_TVS_J": 0.1296,
+    "E_cap_to_guard_J": 0.039999999999999994,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 84852.81374238573,
+    "t_to_guard_ms": 0.047140452079103154,
+    "t_to_TVS_ms": 0.14142135623730945,
+    "t_decel_ms": 538.492607996827,
+    "TVS_energy_J": 219.19494224643014,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   },
+   {
+    "C_bulk_uF": 300.0,
+    "J_kgm2": 0.0001,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 2.1932454224643014,
+    "E_cap_to_TVS_J": 0.1944,
+    "E_cap_to_guard_J": 0.06,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 56568.54249492381,
+    "t_to_guard_ms": 0.07071067811865474,
+    "t_to_TVS_ms": 0.21213203435596426,
+    "t_decel_ms": 5.384926079968269,
+    "TVS_energy_J": 1.9988454224643015,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   },
+   {
+    "C_bulk_uF": 300.0,
+    "J_kgm2": 0.001,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 21.932454224643013,
+    "E_cap_to_TVS_J": 0.1944,
+    "E_cap_to_guard_J": 0.06,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 56568.54249492381,
+    "t_to_guard_ms": 0.07071067811865474,
+    "t_to_TVS_ms": 0.21213203435596426,
+    "t_decel_ms": 53.849260799682696,
+    "TVS_energy_J": 21.73805422464301,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   },
+   {
+    "C_bulk_uF": 300.0,
+    "J_kgm2": 0.01,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 219.32454224643016,
+    "E_cap_to_TVS_J": 0.1944,
+    "E_cap_to_guard_J": 0.06,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 56568.54249492381,
+    "t_to_guard_ms": 0.07071067811865474,
+    "t_to_TVS_ms": 0.21213203435596426,
+    "t_decel_ms": 538.492607996827,
+    "TVS_energy_J": 219.13014224643015,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   },
+   {
+    "C_bulk_uF": 470.0,
+    "J_kgm2": 0.0001,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 2.1932454224643014,
+    "E_cap_to_TVS_J": 0.30456,
+    "E_cap_to_guard_J": 0.094,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 36107.58031590882,
+    "t_to_guard_ms": 0.11078006238589243,
+    "t_to_TVS_ms": 0.33234018715767727,
+    "t_decel_ms": 5.384926079968269,
+    "TVS_energy_J": 1.8886854224643015,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   },
+   {
+    "C_bulk_uF": 470.0,
+    "J_kgm2": 0.001,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 21.932454224643013,
+    "E_cap_to_TVS_J": 0.30456,
+    "E_cap_to_guard_J": 0.094,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 36107.58031590882,
+    "t_to_guard_ms": 0.11078006238589243,
+    "t_to_TVS_ms": 0.33234018715767727,
+    "t_decel_ms": 53.849260799682696,
+    "TVS_energy_J": 21.627894224643015,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   },
+   {
+    "C_bulk_uF": 470.0,
+    "J_kgm2": 0.01,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 219.32454224643016,
+    "E_cap_to_TVS_J": 0.30456,
+    "E_cap_to_guard_J": 0.094,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 36107.58031590882,
+    "t_to_guard_ms": 0.11078006238589243,
+    "t_to_TVS_ms": 0.33234018715767727,
+    "t_decel_ms": 538.492607996827,
+    "TVS_energy_J": 219.01998224643015,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   },
+   {
+    "C_bulk_uF": 1000.0,
+    "J_kgm2": 0.0001,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 2.1932454224643014,
+    "E_cap_to_TVS_J": 0.648,
+    "E_cap_to_guard_J": 0.2,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 16970.562748477143,
+    "t_to_guard_ms": 0.2357022603955158,
+    "t_to_TVS_ms": 0.7071067811865474,
+    "t_decel_ms": 5.384926079968269,
+    "TVS_energy_J": 1.5452454224643013,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   },
+   {
+    "C_bulk_uF": 1000.0,
+    "J_kgm2": 0.001,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 21.932454224643013,
+    "E_cap_to_TVS_J": 0.648,
+    "E_cap_to_guard_J": 0.2,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 16970.562748477143,
+    "t_to_guard_ms": 0.2357022603955158,
+    "t_to_TVS_ms": 0.7071067811865474,
+    "t_decel_ms": 53.849260799682696,
+    "TVS_energy_J": 21.284454224643014,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   },
+   {
+    "C_bulk_uF": 1000.0,
+    "J_kgm2": 0.01,
+    "omega0_rad_s": 209.43951023931953,
+    "T_brake_Nm": 3.889366485798699,
+    "E_mech_J": 219.32454224643016,
+    "E_cap_to_TVS_J": 0.648,
+    "E_cap_to_guard_J": 0.2,
+    "P_regen_start_W": 814.5870119269028,
+    "dV_dt_V_per_s": 16970.562748477143,
+    "t_to_guard_ms": 0.2357022603955158,
+    "t_to_TVS_ms": 0.7071067811865474,
+    "t_decel_ms": 538.492607996827,
+    "TVS_energy_J": 218.67654224643016,
+    "bus_guard_catches": true,
+    "guard_reaction_us": 50.0
+   }
+  ],
+  "bus_guard": {
+   "fold_start_V": 52.0,
+   "fold_full_V": 56.0,
+   "runs_at_Hz": 20000.0,
+   "reaction_time_us": 50.0,
+   "note": "the firmware folds current_limit to zero across 52-56 V and runs that check every loop() at about the FOC rate, so it reacts in one 50 us period plus the current loop's own settling"
+  },
+  "brake_chopper": "the sibling has a fourth leg with a 15 Ohm / 100 W resistor and a 300 J budget; servodrive has no fourth leg, so the only places for regen energy are the bulk and the TVSs -- or the battery, when one is connected and accepts charge",
+  "seconds": 0.0
+ },
+ "_phase": {
+  "seconds": 151.5
+ },
+ "_meta": {
+  "written": "2026-09-24T15:33:37",
+  "board_mtime": "2026-09-24T12:09:01"
+ }
+}

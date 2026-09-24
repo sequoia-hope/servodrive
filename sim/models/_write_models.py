@@ -355,6 +355,86 @@ MODELS["d101_bootstrap"] = {
     "C_j": D(unit="F", source="class", status="bracketed", typ=15e-12),
 }
 
+# ------------------------------------------------ board S's chosen parts ----
+# Board S (hardware/single_board) carries parts board A's run did not know:
+# the chosen 54 V clamps, the bulk cans on the board itself, and the 2 mOhm
+# shunts sourcing forced.  Read 2026-09-24 from the LCSC/JLCPCB listings of the
+# C-numbers in hardware/parts/lcsc.csv and the datasheets they link (local
+# copies in sim/work/datasheets/, not committed: vendor PDFs).
+READ_S = "2026-09-24"
+_LCSC = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/"
+DS_TPS54 = ("Littelfuse TPSMF4L54A, LCSC C1973452 listing: 54 V V_RWM, "
+            "66.3 V V_BR max, 87.1 V V_C at 4.6 A, 400 W; V_BR min = "
+            "V_BR max / 1.105 per the series' 10 % window")
+DS_SMDJ54 = ("SMDJ54A (Shandong Jingdao), LCSC C438170 listing: 54 V V_RWM, "
+             "66.3 V V_BR max, 87.1 V V_C at 34.4 A, 3 kW")
+MODELS["tpsmf4l54a"] = {
+    "part": "TPSMF4L54A", "maker": "Littelfuse", "role": "PHASE_x clamp to GND (board S)",
+    "V_RWM": D(54.0, "V", DS_TPS54, read=READ_S),
+    "V_BR": D(unit="V", source=DS_TPS54, read=READ_S, min=60.0, max=66.3),
+    "V_C": D(unit="V", source=DS_TPS54, read=READ_S, typ=87.1,
+             note="clamping voltage at I_PP = 4.6 A"),
+    "C_j": D(unit="F", source="not in the listing", status="bracketed",
+             read=READ_S, min=150e-12, typ=300e-12, max=600e-12,
+             note="as the 64 V grade's bracket; a lower-voltage grade of the "
+                  "same die area has somewhat more"),
+    "package": D("SOD-123FL", source="board footprint", read=READ_S),
+}
+MODELS["smdj54a"] = {
+    "part": "SMDJ54A", "maker": "Shandong Jingdao (LCSC C438170)",
+    "role": "bus TVS, on board S under the XT30",
+    "V_RWM": D(54.0, "V", DS_SMDJ54, read=READ_S),
+    "V_BR": D(unit="V", source=DS_SMDJ54, read=READ_S, min=60.0, max=66.3),
+    "V_C": D(unit="V", source=DS_SMDJ54, read=READ_S, typ=87.1,
+             note="at I_PP = 34.4 A (10/1000 us)"),
+    "P_PP": D(3000.0, "W", DS_SMDJ54, read=READ_S, note="10/1000 us"),
+    "C_j": D(unit="F", source="not in the listing", status="bracketed",
+             read=READ_S, min=1e-9, typ=2e-9, max=4e-9),
+}
+DS_WSLP = (_LCSC + "2304140030_Vishay-Intertech-WSLP20102L000FEA_C413487.pdf "
+           "(Vishay Dale WSLP, rev. of the LCSC copy)")
+MODELS["shunt_2m0_2010"] = {
+    "part": "WSLP20102L000FEA, 2 mOhm 2010 metal strip", "maker": "Vishay Dale",
+    "note": ("Board S's shunt (LCSC C413487): no 1.6 mOhm 2010 is stocked, "
+             "so each sensed phase has 2 x 2 mOhm = 1.0 mOhm."),
+    "R": D(2.0e-3, "Ohm", DS_WSLP, read=READ_S),
+    "tolerance": D(1.0, "%", DS_WSLP, read=READ_S),
+    "TCR": D(unit="ppm/K", source=DS_WSLP, read=READ_S, min=-275, max=275,
+             note="component TCR including the copper terminals, 1-2.9 mOhm; "
+                  "the element alloy alone is < 20 ppm/K"),
+    "L_esl": D(unit="H", source=DS_WSLP + ": 'very low inductance 0.5 nH to "
+               "5 nH' across the family", status="bracketed", read=READ_S,
+               min=0.5e-9, typ=0.8e-9, max=1.5e-9,
+               note="the family's floor for the smallest parts; a 2010 is "
+                    "among the smallest the series makes"),
+    "P_rated": D(2.0, "W", DS_WSLP, read=READ_S),
+}
+DS_CAN = (_LCSC + "2109021730_NJCON-1011001013R00_C2887236.pdf -- Nanjing "
+          "Winner PH series, part 1011001013R00, 100 V 100 uF D10 x 12")
+MODELS["cap_100u_100v_polymer"] = {
+    "part": "1011001013R00, 100 uF 100 V conductive-polymer aluminium, D10 x 12",
+    "maker": "Nanjing Winner (NJCON), LCSC C2887236",
+    "C_nominal": D(100e-6, "F", DS_CAN, read=READ_S, note="+-20 % at 120 Hz"),
+    "V_rated": D(100.0, "V", DS_CAN, read=READ_S),
+    "ESR": D(unit="Ohm", source=DS_CAN, read=READ_S, status="bracketed",
+             min=0.020, typ=0.030, max=0.035,
+             note="the datasheet's 35 mOhm is a maximum at 100 kHz, 20 C; "
+                  "20-40 kHz, where the ripple is, sits a little above it on "
+                  "a polymer part's curve, so max is the number to design with"),
+    "ripple_rated_A_rms": D(2.5, "A", DS_CAN, read=READ_S,
+                            note="at 105 C and 100 kHz"),
+    "ripple_freq_factor_20kHz": D(unit="-", source="not in the datasheet (no "
+                                  "frequency-multiplier table)",
+                                  status="bracketed", read=READ_S,
+                                  min=0.6, typ=0.75, max=0.9,
+                                  note="polymer parts' usual 10-50 kHz "
+                                       "multipliers against the 100 kHz rating"),
+    "ESL": D(unit="H", source="not in the datasheet", status="bracketed",
+             read=READ_S, min=4e-9, typ=6e-9, max=9e-9,
+             note="a D10 radial on 5 mm lead spacing, leads trimmed flush"),
+    "leakage_A": D(unit="A", source=DS_CAN, read=READ_S, max=1000e-6),
+}
+
 
 def main():
     for name, data in MODELS.items():

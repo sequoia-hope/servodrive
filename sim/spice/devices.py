@@ -597,15 +597,40 @@ Cload out 0 1p
 
 
 # -------------------------------------------------------------- passives ----
+def retention(M, bias, corner="typ"):
+    """The fraction of a ceramic's capacitance left at `bias` volts.
+
+    The models carry brackets at particular voltages (retention_at_60V, ...).
+    Between them -- and between 0 V, where it is 1 -- the bracket is
+    interpolated linearly.  An earlier version looked only for an exact key
+    and fell back to 1.0, so any other bias (48 V, say) got no derating at
+    all without saying so."""
+    if isinstance(M, str):
+        M = jsonio.model(M)
+    pts = [(0.0, 1.0)]
+    for k, v in M.items():
+        if k.startswith("retention_at_") and k.endswith("V"):
+            try:
+                vb = float(k[len("retention_at_"):-1])
+            except ValueError:
+                continue
+            pts.append((vb, v.get(corner, v.get("typ", 1.0))))
+    pts.sort()
+    xs = [a for a, _ in pts]
+    ys = [b for _, b in pts]
+    if bias <= xs[0]:
+        return ys[0]
+    if bias >= xs[-1]:
+        return ys[-1]
+    return float(np.interp(bias, xs, ys))
+
+
 def cap_card(name, n1, n2, model, bias=0.0, corner="typ"):
     """A ceramic capacitor as C-ESR-ESL in series, with the DC-bias derating
     from models/*.json applied -- hypothesis H2."""
     M = jsonio.model(model)
     C = M["C_nominal"]["value"]
-    key = f"retention_at_{int(round(bias))}V"
-    ret = 1.0
-    if key in M:
-        ret = M[key].get(corner, M[key].get("typ", 1.0))
+    ret = retention(M, bias, corner)
     esr = M.get("ESR_20kHz", M.get("ESR", {})).get(corner, 1e-2)
     esl = M["ESL"].get(corner, M["ESL"].get("typ", 1e-9))
     return (f"C{name} {n1} {name}_a {C * ret:g}\n"

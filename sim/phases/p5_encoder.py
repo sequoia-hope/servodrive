@@ -25,7 +25,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt                              # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib import paths, jsonio                                # noqa: E402
+from lib import paths, jsonio, board                                # noqa: E402
 from extract import copper                                   # noqa: E402
 from conduction.raster import Raster                         # noqa: E402
 from conduction.solver import Conductor                      # noqa: E402
@@ -56,7 +56,8 @@ def q10(quick=False):
     for grade, Br in (("N35", 1.195), ("N42", 1.30)):
         for gap in (0.5, 1.0, 1.5, 2.0):
             for off in (0.0, 0.3):
-                B = magnet_field(gap_mm=gap, off_axis_mm=off, Br=Br)
+                B = magnet_field(gap_mm=gap, off_axis_mm=off, Br=Br,
+                                 D=board.P()["magnet_D"])
                 rows.append({"grade": grade, "B_r_T": Br, "gap_mm": gap,
                              "off_axis_mm": off,
                              "B_inplane_mT": float(np.hypot(B[0], B[1])) * 1e3,
@@ -105,7 +106,9 @@ def q10(quick=False):
     out["current_field"] = cur
 
     # --- the angle error, over a full electrical revolution -------------
-    B_mag = magnet_field(gap_mm=1.0, Br=1.195)
+    MD, GAP = board.P()["magnet_D"], board.P()["gap_nom"]
+    out["magnet_used"] = {"D_mm": MD * 1e3, "gap_nominal_mm": GAP}
+    B_mag = magnet_field(gap_mm=GAP, Br=1.195, D=MD)
     B_mag_ip = np.hypot(B_mag[0], B_mag[1])
     errs = []
     for th in np.linspace(0, 360, 73 if not quick else 25, endpoint=False):
@@ -115,7 +118,7 @@ def q10(quick=False):
         ic = I_PEAK * math.cos(a + 2 * math.pi / 3)
         Bc = (B_cu_unit["A"] * ia + B_cu_unit["B"] * ib + B_cu_unit["C"] * ic)
         Bl = lead_field(p, ia, ib, ic, length=0.25)
-        Bm = magnet_field(gap_mm=1.0, Br=1.195, angle_deg=th)
+        Bm = magnet_field(gap_mm=GAP, Br=1.195, D=MD, angle_deg=th)
         tot = Bm + Bc + Bl
         e = math.degrees(math.atan2(tot[1], tot[0])
                          - math.atan2(Bm[1], Bm[0]))
@@ -165,7 +168,9 @@ def _plot(out):
                        label=f"{grade}, off-axis {off} mm")
     ax[0].axhspan(20, 100, color="g", alpha=.12, label="MT6701 window")
     ax[0].set_xlabel("air gap (mm)"); ax[0].set_ylabel("in-plane B at the IC (mT)")
-    ax[0].set_title("magnet field over the gap tolerance", fontsize=9)
+    mu = out.get("magnet_used", {})
+    ax[0].set_title(f"Dia {mu.get('D_mm', 8):.0f} mm magnet over the gap "
+                    "tolerance", fontsize=9)
     ax[0].legend(fontsize=6); ax[0].grid(alpha=.3)
     sw = out["angle_error"]["sweep"]
     ax[1].plot([s["rotor_deg"] for s in sw], [s["err_deg"] for s in sw], lw=1.2)

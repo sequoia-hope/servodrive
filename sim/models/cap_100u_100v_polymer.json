@@ -1,0 +1,64 @@
+{
+ "part": "1011001013R00, 100 uF 100 V conductive-polymer aluminium, D10 x 12",
+ "maker": "Nanjing Winner (NJCON), LCSC C2887236",
+ "C_nominal": {
+  "unit": "F",
+  "source": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2109021730_NJCON-1011001013R00_C2887236.pdf -- Nanjing Winner PH series, part 1011001013R00, 100 V 100 uF D10 x 12",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "value": 0.0001,
+  "note": "+-20 % at 120 Hz"
+ },
+ "V_rated": {
+  "unit": "V",
+  "source": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2109021730_NJCON-1011001013R00_C2887236.pdf -- Nanjing Winner PH series, part 1011001013R00, 100 V 100 uF D10 x 12",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "value": 100.0
+ },
+ "ESR": {
+  "unit": "Ohm",
+  "source": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2109021730_NJCON-1011001013R00_C2887236.pdf -- Nanjing Winner PH series, part 1011001013R00, 100 V 100 uF D10 x 12",
+  "read": "2026-09-24",
+  "status": "bracketed",
+  "min": 0.02,
+  "typ": 0.03,
+  "max": 0.035,
+  "note": "the datasheet's 35 mOhm is a maximum at 100 kHz, 20 C; 20-40 kHz, where the ripple is, sits a little above it on a polymer part's curve, so max is the number to design with"
+ },
+ "ripple_rated_A_rms": {
+  "unit": "A",
+  "source": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2109021730_NJCON-1011001013R00_C2887236.pdf -- Nanjing Winner PH series, part 1011001013R00, 100 V 100 uF D10 x 12",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "value": 2.5,
+  "note": "at 105 C and 100 kHz"
+ },
+ "ripple_freq_factor_20kHz": {
+  "unit": "-",
+  "source": "not in the datasheet (no frequency-multiplier table)",
+  "read": "2026-09-24",
+  "status": "bracketed",
+  "min": 0.6,
+  "typ": 0.75,
+  "max": 0.9,
+  "note": "polymer parts' usual 10-50 kHz multipliers against the 100 kHz rating"
+ },
+ "ESL": {
+  "unit": "H",
+  "source": "not in the datasheet",
+  "read": "2026-09-24",
+  "status": "bracketed",
+  "min": 4e-09,
+  "typ": 6e-09,
+  "max": 9e-09,
+  "note": "a D10 radial on 5 mm lead spacing, leads trimmed flush"
+ },
+ "leakage_A": {
+  "unit": "A",
+  "source": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2109021730_NJCON-1011001013R00_C2887236.pdf -- Nanjing Winner PH series, part 1011001013R00, 100 V 100 uF D10 x 12",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "max": 0.001
+ }
+}
