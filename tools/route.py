@@ -41,6 +41,7 @@ import fanout
 import finish
 import placement as PL
 import plot_layers
+import export_3d
 
 ROOT = Path(__file__).resolve().parent.parent
 BOARD = ROOT / "hardware/motor_board/servodrive_A.kicad_pcb"
@@ -1515,11 +1516,13 @@ def main():
               + ("" if not left else ": " + ", ".join(left)), flush=True)
         if made:
             settle(BOARD)
-    # The page's copper viewer stacks one plot per layer; re-make them here so
-    # what index.html shows is the board that was just routed.
+    # The page's copper viewer stacks one plot per layer, and its 3D viewer
+    # draws a GLB; re-make them here so what the pages show is the board that
+    # was just routed.
     if not args.pcb:
         print("plots:", flush=True)
         plot_layers.run(BOARD_KEY)
+        export_3d.run(BOARD_KEY)
     sys.stdout.flush()
     # pcbnew's SWIG teardown segfaults on a board this size after the work is
     # done and saved, which turns a good run into a non-zero exit. Leave now.

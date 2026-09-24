@@ -13,8 +13,8 @@ from the same generators, and re-routed the same day with TI's buck parts
 ([below](#board-s-one-board)).**
 
 - **[spec.html](spec.html)** — the specification
-- **[index.html](index.html)** — status, decisions, open questions
-- **[single.html](single.html)** — board S, the single-board variant: captured, placed and routed, with its copper viewer
+- **[index.html](index.html)** — status, decisions, open questions; board A's copper viewer and 3D viewer
+- **[single.html](single.html)** — board S, the single-board variant: captured, placed and routed, with its copper viewer and 3D viewer
 
 Online at <https://sequoia-hope.github.io/servodrive/> (GitHub Pages, from
 the root of `main`: the pages are plain files with relative links, and
@@ -285,7 +285,12 @@ tools/finish.py      a maze router over the board's free space, for whatever
 tools/route.py       hands the rest to freerouting, headless, and brings it back
 tools/plot_layers.py one SVG per copper layer, in register, for the copper
                      viewer on index.html; gen_boards.py and route.py run it
+tools/export_3d.py   the board as a GLB for the 3D viewer: kicad-cli's export,
+                     merged and quantized 30 MB -> 7, stand-ins for the three
+                     models this machine lacks; gen_boards.py and route.py run it
 hardware/
+  parts/3dmodels/    two STEP models the footprints name and KiCad's library
+                     lacks, for export_3d.py (sources in its README)
   parts/             two symbols copied in, three DERIVED (EG2103, INA241A3,
                      W25Q128JV), two copied from the RP2350A reference design
                      (the 2016 inductor, a small-pad 0402) and five GENERATED
@@ -298,6 +303,10 @@ img/                 generated drawings — do not edit by hand
 img/layers/a/        board A layer by layer, plus layers.json: what the copper
                      viewer on index.html stacks (img/layers/s/: board S, on single.html)
 copper.js            that viewer — layer panel, pan and zoom, mirror, grid
+img/3d/              a.glb and s.glb, each with a .json of what its caption says
+board3d.js           the 3D viewer on index.html and single.html — views, layer
+                     toggles, hover or click a part to name it, find by reference
+vendor/              three.js r160 (MIT), the loader, controls and environment it uses
 spec.html            the specification
 index.html           project status
 ```
@@ -883,7 +892,7 @@ link wedges and the middle of the board carry the bus input, the bulk, the
 TVS, both rails, USB-C, the RS-485 relay and an expansion header for a
 stacked PD or Ethernet board. 48 V operational max. It lives in
 `hardware/single_board/`; [single.html](single.html) is its page, with the
-copper viewer.
+copper viewer and the 3D viewer.
 
 ```sh
 python3 tools/placement_s.py            # the floorplan, img/board_s_*.svg, single.html's tables

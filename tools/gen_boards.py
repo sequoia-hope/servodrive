@@ -23,6 +23,7 @@ import schematic as SCH
 import stitch
 import fanout
 import plot_layers
+import export_3d
 
 ROOT = Path(__file__).resolve().parent.parent
 HW   = ROOT / "hardware"
@@ -1625,8 +1626,10 @@ def render_svgs(which="ab"):
         i = t.index(">", t.index("<svg")) + 1
         dst.write_text(t[:i] + "\n" + SVG_THEME + t[i:])
         print(f"  wrote  {dst.relative_to(ROOT)}")
-    # ... and the per-layer plots the copper viewer on index.html stacks.
+    # ... and the per-layer plots the copper viewer on index.html stacks,
+    # and the GLB its 3D viewer draws.
     plot_layers.run("s" if which == "s" else "a")
+    export_3d.run("s" if which == "s" else "a")
 
 # ------------------------------------------------------------------ main ----
 def write(path, text, force, protect=False):

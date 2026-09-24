@@ -90,6 +90,38 @@
     hole on every layer; the outline layer carries all of them and sits on top.</p>
   </section>
 
+  <section id="board3d" data-model="img/3d/a">
+    <h2>The board in 3D</h2>
+    <p>Board A as routed, every part that has a model standing on it, exported through KiCad's
+    own GLB exporter by <code>tools/export_3d.py</code>. Drag to turn it over, right-drag to pan,
+    scroll to zoom. Hover a part for its reference, value and footprint, click to keep it lit,
+    double-click or type a reference to fly to it. Turn off the mask to see the copper under it,
+    the laminate to see both faces' copper at once; the edge view shows how tall each face
+    stands.</p>
+    <div class="b3">
+      <div class="b3-bar">
+        <div class="cu-row" role="group" aria-label="view">
+          <button data-view="front" title="the outward face, as pcbnew draws it">front</button>
+          <button data-view="back" title="the motor-facing face, turned over left to right">back</button>
+          <button data-view="tilt" title="from the front, tilted towards you">tilted</button>
+          <button data-view="edge" title="edge on: how tall each face stands">edge</button>
+        </div>
+        <div class="b3-layers" id="b3-layers"></div>
+        <label class="b3-find">find <input id="b3-find" list="b3-refs" placeholder="U7"
+          disabled spellcheck="false" autocomplete="off" title="a reference, e.g. U7"></label>
+        <datalist id="b3-refs"></datalist>
+      </div>
+      <div class="b3-stage" id="b3-stage">
+        <p class="b3-msg" id="b3-msg">The model loads when this part of the page is on screen.</p>
+        <div class="b3-tag" id="b3-tag" hidden></div>
+      </div>
+    </div>
+    <p class="cu-files b3-facts" id="b3-facts"></p>
+    <p class="sub">Rebuild after any change to the board with <code>python3 tools/export_3d.py</code>
+    &mdash; <code>gen_boards.py</code> and <code>route.py</code> run it with the layer plots.
+    Board S is in the same viewer on <a href="single.html#board3d">its own page</a>.</p>
+  </section>
+
   <section>
     <h2>Where it stands</h2>
     <p><strong>Board A is placed, captured and routed, and every connection is made.</strong>
@@ -731,6 +763,10 @@
 </footer>
 
 <script src="copper.js"></script>
+<script type="importmap">
+{"imports": {"three": "./vendor/three.module.js"}}
+</script>
+<script type="module" src="board3d.js"></script>
 
 </body>
 </html>
