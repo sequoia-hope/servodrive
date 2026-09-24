@@ -3,9 +3,11 @@
  * Draws img/3d/<board>.glb, written by tools/export_3d.py: the board as
  * kicad-cli exports it, merged and quantized, each part's node carrying its
  * reference, value, footprint and side. img/3d/<board>.json says what the
- * caption says. The section names the pair: <section id="board3d"
- * data-model="img/3d/a">. Nothing loads until the section is near the
- * screen, and nothing draws while it is off it.
+ * caption says, and img/3d/<board>.parts.json what the part pane on the
+ * right says about a clicked part: its role, footprint, position, pins and
+ * nets, read out of the board file by the same tool. The panel names them:
+ * <div id="board3d" data-model="img/3d/a">. Nothing loads until the panel is
+ * near the screen, and nothing draws while it is off it.
  *
  * glTF is y-up: the board lies in x-z, the outward face (F.Cu) towards +y,
  * and +z is KiCad's +y, so looking down -y with -z up is pcbnew's own view.
@@ -39,6 +41,8 @@ function init(root) {
   const BASE = root.dataset.model || 'img/3d/a';
   const $ = s => root.querySelector(s);
   const stage = $('#b3-stage'), msg = $('#b3-msg'), tag = $('#b3-tag');
+  const info = $('#b3-info'), ib = $('#b3-ib');
+  let details = null;                          // <board>.parts.json, when it has come
   const say = html => { msg.innerHTML = html; msg.hidden = !html; };
 
   let started = false, visible = false, running = false;
@@ -82,6 +86,8 @@ function init(root) {
     say('Loading the model&hellip;');
 
     fetch(BASE + '.json').then(r => r.ok ? r.json() : null).then(facts).catch(() => {});
+    fetch(BASE + '.parts.json').then(r => r.ok ? r.json() : null)
+      .then(d => { details = d; if (chosen) pane(chosen); }).catch(() => {});
     new GLTFLoader().load(BASE + '.glb', loaded,
       e => { if (e.total) say('Loading the model&hellip; ' + Math.round(100 * e.loaded / e.total) + '%'); },
       e => say('The model is not built yet &mdash; run <code>python3 tools/export_3d.py' +
@@ -261,6 +267,8 @@ function init(root) {
     chosen = p;
     if (chosen) tint(chosen, true);
     $('#b3-find').value = chosen ? chosen.userData.ref : '';
+    pane(chosen);
+    if (chosen) info.hidden = false;           // the stage narrows; its observer re-fits
     label();
     if (chosen && go) focus(chosen);
   }
@@ -281,8 +289,12 @@ function init(root) {
     root.querySelectorAll('[data-view]').forEach(b => b.classList.remove('on'));
   }
 
+  // the tag names what is under the cursor, and the chosen part only while
+  // the pane is shut: with it open, the pane says it
+  const tagged = () => hover || (info.hidden ? chosen : null);
+
   function label() {
-    const p = hover || chosen;
+    const p = tagged();
     if (!p) { tag.hidden = true; return; }
     const x = p.userData;
     tag.innerHTML = '<b>' + x.ref + '</b> ' + esc(x.value) +
@@ -292,7 +304,7 @@ function init(root) {
   }
 
   function placeTag() {
-    const p = hover || chosen;
+    const p = tagged();
     if (!p || tag.hidden) return;
     const box = new THREE.Box3().setFromObject(p);
     const at = box.getCenter(new THREE.Vector3()).project(camera);
@@ -364,6 +376,70 @@ function init(root) {
     root.addEventListener('keydown', e => {
       if (e.key === 'Escape') { choose(null); $('#b3-find').blur(); }
     });
+    $('#b3-x').addEventListener('click', () => { info.hidden = true; choose(null); });
+  }
+
+  // ---- the part pane ---------------------------------------------------------
+  // What the board file says about the chosen part, laid out the way A365's
+  // properties panel is. Without parts.json it still has the node's own four.
+  const ATTRS = { smd: 'SMD', through_hole: 'through-hole', dnp: 'not fitted (DNP)',
+                  exclude_from_bom: 'not in the BOM', exclude_from_pos_files: 'not in the placement file',
+                  board_only: 'board only', allow_missing_courtyard: 'no courtyard' };
+  const mm = v => (Math.round(v * 100) / 100).toFixed(2).replace('-', '\u2212');
+  const dl = (rows, cls) => '<dl' + (cls ? ' class="' + cls + '"' : '') + '>' +
+    rows.filter(Boolean).map(([k, v]) => '<dt>' + k + '</dt><dd>' + v + '</dd>').join('') + '</dl>';
+  const small = t => t ? '<small>' + esc(t) + '</small>' : '';
+
+  function pane(p) {
+    if (!p) {
+      $('#b3-iref').textContent = '';
+      ib.innerHTML = '<p class="b3-empty">Click a part to see it here.</p>';
+      return;
+    }
+    const x = p.userData, d = details && details.parts && details.parts[x.ref];
+    $('#b3-iref').textContent = x.ref;
+    const back = x.side === 'back';
+    let h = dl([
+      ['Designator', esc(x.ref) + (d && d.attrs.includes('dnp') ? '<span class="b3-dnp">DNP</span>' : '')],
+      ['Component', esc(x.value) + small(d && d.role)],
+      ['Footprint', '<span class="mono">' + esc(x.footprint) + '</span>' +
+        small(d && [d.lib, d.descr].filter(Boolean).join(' \u00b7 '))],
+    ]);
+    const tall = height(p, back);
+    h += dl([
+      d && ['Location', 'x ' + mm(d.x) + ' &middot; y ' + mm(d.y) + ' mm' +
+        small('r ' + mm(Math.hypot(d.x, d.y)) + ' mm \u00b7 \u03b8 ' +
+              ((Math.atan2(d.y, d.x) * 180 / Math.PI + 360) % 360).toFixed(1) + '\u00b0 from the axis')],
+      d && ['Rotation', String(d.rot).replace('-', '\u2212') + '&deg;'],
+      ['Side', back ? 'Back' + small('the motor-facing face') : 'Front' + small('the outward face')],
+      tall != null && ['Height', mm(tall) + ' mm' + small('its model, above the laminate')],
+    ]);
+    if (d) {
+      const par = [];
+      if (d.attrs.length) par.push(['Mounting', esc(d.attrs.map(a => ATTRS[a] || a).join(', '))]);
+      if (/^https?:\/\//.test(d.datasheet))
+        par.push(['Datasheet', '<a href="' + esc(d.datasheet) + '" target="_blank" rel="noopener">open</a>']);
+      if (d.description) par.push(['Description', esc(d.description)]);
+      for (const [k, v] of Object.entries(d.fields)) par.push([esc(k), esc(v)]);
+      if (par.length) h += '<h4>Parameters</h4>' + dl(par, 'par');
+      if (d.pins.length) {
+        h += '<h4>Pins <span>' + d.pins.length + '</span></h4><table class="b3-pins"><tbody>' +
+          d.pins.map(([n, net]) => '<tr><td>' + esc(n) + '</td><td>' +
+            (!net || net.startsWith('unconnected-') ? '<span class="b3-nc">not connected</span>' : esc(net)) +
+            '</td></tr>').join('') + '</tbody></table>';
+      }
+    }
+    ib.innerHTML = h;
+    ib.scrollTop = 0;
+  }
+
+  // how far the part's model stands off its own face of the laminate, in mm
+  function height(p, back) {
+    if (!layers.PCB) return null;
+    const pcb = new THREE.Box3().setFromObject(layers.PCB[0]);
+    const box = new THREE.Box3().setFromObject(p);
+    if (box.isEmpty()) return null;
+    return 1000 * (back ? pcb.min.y - box.min.y : box.max.y - pcb.max.y);
   }
 
   function facts(f) {

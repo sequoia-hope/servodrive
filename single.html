@@ -142,9 +142,16 @@ python3 tools/route.py --board s --polish           # twice</code></pre>
             disabled spellcheck="false" autocomplete="off" title="a reference, e.g. U7"></label>
           <datalist id="b3-refs"></datalist>
         </div>
-        <div class="b3-stage" id="b3-stage">
-          <p class="b3-msg" id="b3-msg">The model loads when this part of the page is on screen.</p>
-          <div class="b3-tag" id="b3-tag" hidden></div>
+        <div class="b3-body">
+          <div class="b3-stage" id="b3-stage">
+            <p class="b3-msg" id="b3-msg">The model loads when this part of the page is on screen.</p>
+            <div class="b3-tag" id="b3-tag" hidden></div>
+          </div>
+          <aside class="b3-info" id="b3-info" aria-label="the selected part" hidden>
+            <div class="b3-ih"><b id="b3-iref"></b><button class="b3-x" id="b3-x"
+              title="close" aria-label="close the part pane">&times;</button></div>
+            <div class="b3-ib" id="b3-ib"></div>
+          </aside>
         </div>
       </div>
       <div class="vw-about">
@@ -152,8 +159,9 @@ python3 tools/route.py --board s --polish           # twice</code></pre>
         <p>Board S as routed, every part that has a model standing on it, exported through KiCad's
         own GLB exporter by <code>tools/export_3d.py</code> &mdash; the same viewer as board A's on the
         <a href="index.html#board3d">project page</a>. Drag to turn it over, right-drag to pan, scroll
-        to zoom. Hover a part for its reference, value and footprint, click to keep it lit,
-        double-click or type a reference to fly to it. The edge view is the one for the motor-facing
+        to zoom. Hover a part for its reference, value and footprint; click it for the pane on the
+        right &mdash; what it is for, where it sits, how tall it stands, and the net on every pin.
+        Double-click or type a reference to fly to it. The edge view is the one for the motor-facing
         centre, where everything has to stay under 1.5&nbsp;mm for the standoffs; the bulk cans stand
         in the outward centre.</p>
         <p class="cu-files b3-facts" id="b3-facts"></p>

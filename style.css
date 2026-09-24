@@ -404,12 +404,17 @@ section.vw { padding: 0; overflow: hidden; }
 }
 .b3-find input:focus { outline: none; border-color: var(--accent); }
 .b3-find input.bad { border-color: var(--warn); }
+/* the stage and the part pane share one box, so opening the pane narrows the
+   canvas and never changes the height of the page */
+.b3-body {
+  display: flex; width: 100%; aspect-ratio: 4 / 3; min-height: 0; overflow: hidden;
+  max-height: calc(100vh - var(--top) - var(--bar) - 5rem);
+}
 .b3-stage {
   position: relative; overflow: hidden; background: var(--canvas);
-  aspect-ratio: 4 / 3; max-height: calc(100vh - var(--top) - var(--bar) - 5rem);
-  width: 100%; touch-action: none;
+  flex: 1; min-width: 0; touch-action: none;
 }
-.vw:fullscreen .b3-stage { aspect-ratio: auto; height: calc(100vh - 34px - 2.4rem); max-height: none; }
+.vw:fullscreen .b3-body { aspect-ratio: auto; height: calc(100vh - 34px - 2.4rem); max-height: none; }
 .b3-stage canvas { display: block; width: 100%; height: 100%; }
 .b3-msg {
   position: absolute; inset: 0; margin: 0; display: grid; place-items: center; padding: 1rem;
@@ -431,8 +436,54 @@ section.vw { padding: 0; overflow: hidden; }
 .b3-tag span { display: block; color: var(--muted); font-size: .68rem; font-family: var(--mono); }
 .b3-facts .warn { color: var(--warn); }
 
+/* the part pane: A365's properties panel, docked on the canvas's right */
+.b3-info {
+  flex: none; width: 18.5rem; display: flex; flex-direction: column; min-height: 0;
+  background: var(--chrome); border-left: 1px solid var(--edge); font-size: .8rem;
+}
+.b3-info[hidden] { display: none; }
+.b3-ih {
+  display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  padding: .6rem .6rem .55rem .95rem; border-bottom: 1px solid var(--line);
+}
+.b3-ih b { font-size: .95rem; font-family: var(--mono); }
+.b3 .b3-x {
+  background: none; color: var(--muted); font-size: 1.15rem; line-height: 1; padding: .1rem .35rem;
+}
+.b3 .b3-x:hover { background: var(--btn); color: #fff; }
+.b3-ib {
+  flex: 1; min-height: 0; overflow-y: auto; padding: 0 .95rem 1rem;
+  scrollbar-width: thin; scrollbar-color: var(--btn) transparent;
+}
+.b3-ib dl {
+  display: grid; grid-template-columns: 5.4rem minmax(0, 1fr); gap: .45rem .6rem;
+  margin: 0; padding: .8rem 0; border-bottom: 1px solid var(--line);
+}
+.b3-ib dt { color: #fff; font-weight: 600; }
+.b3-ib dd { margin: 0; color: var(--fg); overflow-wrap: anywhere; }
+.b3-ib dd small { display: block; color: var(--muted); font-size: .72rem; line-height: 1.4; margin-top: .1rem; }
+.b3-ib dl.par dt { font-weight: 500; color: var(--muted); text-align: right; }
+.b3-ib h4 {
+  margin: .85rem 0 .35rem; color: #fff; font-size: .8rem; font-weight: 600;
+  display: flex; justify-content: space-between;
+}
+.b3-ib h4 span { color: var(--muted); font-weight: 500; }
+.b3-ib h4 + dl { padding-top: .15rem; }
+.b3-ib .mono { font-family: var(--mono); font-size: .76rem; }
+.b3-dnp {
+  display: inline-block; margin-left: .4rem; padding: 0 .35rem; border-radius: 2px;
+  font-size: .66rem; font-weight: 600; color: #1e1e1e; background: var(--warn); vertical-align: .08em;
+}
+table.b3-pins { margin: 0; font-size: .74rem; font-family: var(--mono); }
+table.b3-pins td { padding: .14rem .45rem; border-bottom: 1px solid #313131; }
+table.b3-pins td:first-child { color: var(--muted); width: 3.2rem; padding-left: .2rem; }
+.b3-nc { color: var(--dim); font-style: italic; font-family: Inter, system-ui, sans-serif; }
+.b3-empty { color: var(--muted); margin: 1rem 0; }
+
 @media (max-width: 760px) {
-  .b3-stage { aspect-ratio: 1 / 1; }
+  .b3-body { flex-direction: column; aspect-ratio: auto; max-height: none; overflow: visible; }
+  .b3-stage { flex: none; aspect-ratio: 1 / 1; }
+  .b3-info { width: auto; height: 22rem; border-left: 0; border-top: 1px solid var(--edge); }
   .b3-find { margin-left: 0; }
 }
 
@@ -532,6 +583,10 @@ html.a365 .crumb { display: none; }
   html.nav-open .a3-side { transform: none; box-shadow: 4px 0 24px rgba(0,0,0,.5); }
   .a3-top .a3-btn span { display: none; }
   .a3-bar .a3-page { display: none; }
+}
+@media (max-width: 760px) {
+  /* a wide table scrolls inside its card rather than widening the page */
+  main table:not(.b3-pins) { display: block; overflow-x: auto; }
 }
 @media (max-width: 560px) {
   main, footer { padding: 0 .75rem; }

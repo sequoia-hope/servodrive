@@ -9,6 +9,13 @@ Writes into img/3d/:
     <board>.glb   the board, its copper and every part that has a model
     <board>.json  what the viewer's caption says: part counts, which parts
                   have no model, which models were substituted, file size
+    <board>.parts.json
+                  what the viewer's component pane says about a clicked part:
+                  its role note, footprint and its description, where it sits
+                  (mm from the board centre, y up, as the copper viewer reads
+                  out), rotation, attributes, other fields, and the net on
+                  every pin. Read from the board file alone, so
+                  `--parts-only` rewrites it without re-exporting the model.
 
 `kicad-cli pcb export glb` does the work, from a temporary copy of the board
 in which the three models this machine does not have are pointed at ones it
@@ -29,7 +36,8 @@ out of kicad-cli is then rewritten, because as exported it is 24-30 MB and
     converted, and the mask is made translucent the way pcbnew draws it.
 
 Each part's node carries its reference, value, footprint and side in its
-extras, which is what the viewer shows when a part is clicked.
+extras, which is what the viewer shows when a part is hovered; the rest of
+what it knows about a part is in <board>.parts.json.
 
 The result is the same bytes for the same board: kicad-cli's timestamp is
 dropped, so a re-export after a change that did not move copper is not a diff.
@@ -103,6 +111,93 @@ def parts_of(text):
             "model": sexp.unq(model[1]) if model else None,
         }
     return parts
+
+
+# fields every footprint has, shown in their own rows rather than as parameters
+OWN_FIELDS = {"Reference", "Value", "Footprint", "Datasheet", "Description", "servodrive_role"}
+
+
+def centre_of(tree):
+    """The outline circle's centre: the shaft axis, where the floorplan's
+    radii and angles are measured from. None if the outline is not a circle."""
+    best = None
+    for c in sexp.findall(tree, "gr_circle"):
+        if sexp.unq(sexp.find(c, "layer")[1]) != "Edge.Cuts":
+            continue
+        (cx, cy), (ex, ey) = (tuple(map(float, sexp.find(c, k)[1:3])) for k in ("center", "end"))
+        r = ((ex - cx) ** 2 + (ey - cy) ** 2) ** 0.5
+        if not best or r > best[2]:
+            best = (cx, cy, r)
+    return best
+
+
+def plain(descr):
+    """A footprint description without its sources. KiCad's library ones carry
+    a body-size reference, a URL and "generated with kicad-footprint-generator",
+    none of which says what the package is."""
+    d = re.sub(r"\s*\((?:Body size|see)[^)]*\)", "", descr)
+    d = re.sub(r",?\s*generated (?:with|by) kicad-footprint-generator.*$", "", d)
+    d = re.sub(r"(?:,\s*|\s+)?(?:(?:see|datasheet:?)\s*)?https?://[^\s)]+", "", d, flags=re.I)
+    d = re.sub(r"\(\s*[,;-]?\s*\)", "", d)                 # brackets the URL left empty
+    d = re.sub(r"\(\s*[,;]?\s*", "(", d)
+    return re.sub(r"\s{2,}", " ", d).strip(" ,")
+
+
+def details_of(text):
+    """ref -> everything the component pane shows, for every footprint."""
+    tree = sexp.parse(text)
+    ring = centre_of(tree)
+    cx, cy = ring[:2] if ring else (0.0, 0.0)
+    out = {}
+    for fp in sexp.findall(tree, "footprint"):
+        props = {sexp.unq(p[1]): sexp.unq(p[2]) for p in sexp.findall(fp, "property")}
+        at = sexp.find(fp, "at")
+        x, y = float(at[1]) - cx, cy - float(at[2])           # board mm, y up
+        descr, attr = sexp.find(fp, "descr"), sexp.find(fp, "attr")
+        pins = {}
+        for pad in sexp.findall(fp, "pad"):
+            num = sexp.unq(pad[1])
+            if not num:                                      # thermal and paste pads
+                continue
+            net = sexp.find(pad, "net")
+            name = sexp.unq(net[-1]) if net else ""
+            if not pins.get(num):
+                pins[num] = name
+        lib, _, name = sexp.unq(fp[1]).rpartition(":")
+        row = {"value": props.get("Value", ""), "footprint": name, "lib": lib,
+               "descr": plain(sexp.unq(descr[1])) if descr else "",
+               "side": "back" if sexp.unq(sexp.find(fp, "layer")[1]) == "B.Cu" else "front",
+               "x": round(x, 3), "y": round(y, 3), "rot": float(at[3]) if len(at) > 3 else 0.0,
+               "attrs": attr[1:] if attr else [],
+               "role": props.get("servodrive_role", ""),
+               "datasheet": props.get("Datasheet", "").strip("~"),
+               "description": props.get("Description", ""),
+               "fields": {k: v for k, v in props.items() if k not in OWN_FIELDS and v},
+               "pins": [[n, pins[n]] for n in sorted(pins, key=natural)]}
+        out[props.get("Reference", "?")] = row
+    return out, ring
+
+
+def write_details(board="a"):
+    """img/3d/<board>.parts.json, one part to a line, in reference order, and no
+    date in it: re-running it on an unchanged board is not a diff."""
+    key, name = BOARDS[board]
+    src = HW / key / f"{name}.kicad_pcb"
+    if not src.exists():
+        sys.exit(f"no board at {src}")
+    parts, ring = details_of(src.read_text())
+    OUT.mkdir(parents=True, exist_ok=True)
+    path = OUT / f"{board}.parts.json"
+    head = {"board": src.name,
+            "centre_mm": [ring[0], ring[1]] if ring else None,
+            "dia_mm": round(2 * ring[2], 3) if ring else None}
+    lines = [json.dumps(r, separators=(",", ":")) + ": " + json.dumps(parts[r], separators=(",", ":"))
+             for r in sorted(parts, key=natural)]
+    path.write_text(json.dumps(head)[:-1] + ',\n "parts": {\n  '
+                    + ",\n  ".join(lines) + "\n }\n}\n")
+    json.loads(path.read_text())                             # it is JSON
+    print("  wrote  %s  %d parts, %d pins" % (path.relative_to(ROOT), len(parts),
+          sum(len(p["pins"]) for p in parts.values())))
 
 
 # a model block, up to the paren closing it: the one at its own indentation
@@ -342,8 +437,11 @@ def write_glb(path, gltf, blob):
 
 
 # ------------------------------------------------------------------ run ----
-def run(board="a"):
+def run(board="a", parts_only=False):
     """Export one board's GLB. gen_boards.py and route.py call this after the plots."""
+    write_details(board)
+    if parts_only:
+        return
     if not shutil.which("kicad-cli"):
         print("  ! kicad-cli not found, skipping the 3D model"); return
     key, name = BOARDS[board]
@@ -405,7 +503,10 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--board", default="a", choices=sorted(BOARDS),
                     help="which board to export (default: a)")
-    run(ap.parse_args().board)
+    ap.add_argument("--parts-only", action="store_true",
+                    help="rewrite <board>.parts.json only; leave the GLB alone")
+    a = ap.parse_args()
+    run(a.board, a.parts_only)
 
 
 if __name__ == "__main__":

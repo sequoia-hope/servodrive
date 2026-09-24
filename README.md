@@ -307,8 +307,11 @@ img/layers/a/        board A layer by layer, plus layers.json: what the copper
                      viewer on index.html stacks (img/layers/s/: board S, on single.html)
 copper.js            that viewer, the PCB tab — layer panel, pan and zoom, mirror, grid
 img/3d/              a.glb and s.glb, each with a .json of what its caption says
+                     and a .parts.json of what the part pane says (role, place,
+                     pins and nets; `export_3d.py --parts-only` rewrites it alone)
 board3d.js           the 3D tab on index.html and single.html — views, layer
-                     toggles, hover or click a part to name it, find by reference
+                     toggles, hover a part to name it, click it for the part
+                     pane on the right, find by reference
 shell.js             the frame every page shares, after Altium 365: top bar, the
                      PROJECT tree read off each page's headings, the sheet bar,
                      the viewer's PCB / 3D tabs
