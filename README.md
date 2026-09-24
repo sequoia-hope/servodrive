@@ -9,7 +9,8 @@ KiCad's own extracted netlist matches the intended one connection for
 connection. Re-routed 2026-09-22 with four of the simulation's changes
 ([below](#the-2026-09-22-changes)); board B is still an outline.
 Board S, the single-board variant, captured, placed and routed 2026-09-23
-from the same generators, and re-routed the same day with TI's buck parts
+from the same generators, re-routed the same day with TI's buck parts, and
+re-placed and re-routed 2026-09-24 with an XT30 for the bus
 ([below](#board-s-one-board)).**
 
 - **[spec.html](spec.html)** — the specification
@@ -918,8 +919,7 @@ copper viewer and the 3D viewer.
 python3 tools/placement_s.py            # the floorplan, img/board_s_*.svg, single.html's tables
 python3 tools/schematic_s.py            # the netlist and its checks
 python3 tools/gen_boards.py --board s --force   # emit, stitch, fan out -- destroys routing
-python3 tools/route.py --board s --rounds 1 --first EN_12V,USB_VBUS,LIN_A,EXP_GP19
-                                                # the maze on four, freerouting, the maze
+python3 tools/route.py --board s --rounds 1     # freerouting, then the maze on what is left
 python3 tools/route.py --board s --polish       # twice: the second pass reads the first's DRC
 ```
 
@@ -931,8 +931,18 @@ checked by diffing the emitter's text, not by eye.
 
 `tools/schematic_s.py` builds the netlist out of `schematic.py`'s own
 functions: the phase cells (clamps to the 54 V grade), `control()` with the
-GPIO remapped, `encoder()`, the mechanical parts plus two bus pads, and two
-new sheets, `04_power` and `05_io`. 191 components, 111 nets, 577 pin connections; ERC clean, and KiCad's exported netlist matches `schematic_s.nets()` connection for connection.
+GPIO remapped, `encoder()`, the mechanical parts, and two new sheets,
+`04_power` and `05_io`. 190 components, 111 nets, 577 pin connections; ERC clean, and KiCad's exported netlist matches `schematic_s.nets()` connection for connection.
+The bus comes in on an **XT30** (J4, since 2026-09-24; it was two arc pads, J4
+and J5, for a pigtail): the rp2350-motor-controller's J9 -- the same
+`Connector_Generic:Conn_01x02` symbol, the same KiCad footprint
+(`AMASS_XT30PW-M_1x02_P2.50mm_Horizontal`), the same pinout, **pin 1 GND and
+pin 2 VMOT**, and the same part, C431092 -- so one pack lead fits both boards.
+The footprint is a project copy, `servodrive:`, written by
+`gen_boards.xt30_body`: the same pads, holes, silk and model, with the
+courtyard drawn round the housing, pins and peg ears instead of the library's
+14.3 × 15.9 mm rectangle, whose empty corners are where two SM712s and a cap
+sit. The placer checks the same outline, so KiCad's DRC and it agree.
 
 Reading the LMR38010's datasheet (SNVSC73B) at capture changed three of the
 sketch's values, all of which would have been wrong on the board:
@@ -1028,7 +1038,7 @@ has no stock `extends` to compare against.
   over the 5 V one on its front left the divider's VBUS pad with nowhere to put
   a via on either face.
 - **The cans' + leads point outward**, onto In2's VBUS at R 17, the short way
-  to the bridges; the TVS's cathode faces the VMOT pad.
+  to the bridges.
 - **The RS-485 relay is placed for its wiring.** Port IN takes the rim slot at
   241° beside its two transceivers and OUT the one at 219° beside its own (the
   sketch had each port's pairs crossing the other's); every SIT3088 is turned
@@ -1037,28 +1047,93 @@ has no stock `extends` to compare against.
   motor-facing centre between the two M3 standoffs, C1001's leads and the
   magnet keepout; with the ports the other way round the fourth has no room.
 
+### The XT30
+
+Added 2026-09-24 (asked for as "add xt30 for power, look at my rp2350 motor
+controller as a reference"): an AMASS **XT30PW-M**, horizontal, on the power
+wedge's axis on the outward face, mouth outward, in place of the two bus pads.
+It took three goes to find where, and the answer moved more of the board than
+the connector:
+
+- **A horizontal XT30 cannot sit at the edge.** Its two locating pegs, 11 mm
+  apart and 3.6 mm behind the mouth, are through-holes, and at the rim they
+  land on the motor-facing face exactly where the two RS-485 ports are. No
+  other stretch of rim on the board takes a JST SH: the CPU wedge's is the
+  RP2350's escape-via field, which goes through both faces, and the signal
+  wedge's is 0.1 mm short beside the USB-C, on either face. A flush XT30
+  would have cost one port and the relay with it.
+- **So it sits back** (decided 2026-09-24, "horizontal set back ~5 mm"): its
+  face is at R 27.5, 5.0 mm in from the edge, the nearest its pegs come to
+  clearing the ports. The plug's first 5 mm lie over the board, and
+  `placement_s.PLUG` keeps that path clear on the outward face. Its pins land
+  at R 14.5, inside the centre -- `placement_s.place_xt30`.
+- **It is placed by its body.** The library courtyard is a 14.3 mm rectangle
+  to take the peg ears, which spends 3 mm either side of the pins at the back
+  -- the room the TVS needed. The placer uses the housing and pins (10.6 mm)
+  and keeps each ear as a circle on the same face; a peg (no net) keeps its
+  drill out of the far face's courtyards and its ring 0.25 mm from their
+  copper (`PEG_FPS`), not the 60 V leads' 0.45 mm.
+- **C1001 moved to 135°**, across the M3 head at 180°, in front of phases B
+  and C: the power wedge's quadrant of the centre is the XT30's back end.
+- **The SMDJ54A is under the XT30** on the motor-facing face, between its pins
+  and its pegs, cathode toward the VMOT pin -- the one place left on the board
+  for an SMC, and it had to go in before the ESD parts and the bucks or they
+  took it. The four SM712s are two stacks, one each side outside the pegs: the
+  DOWN pair's on the ports' face, the UP pair's over it on the outward face.
+- **The motor-facing centre is full.** The XT30's pins and the TVS take one
+  quadrant and the cans' leads split two more; what is left holds one tidy
+  pair of SIT3088s. They were also asked to be tidier (2026-09-24, "make the
+  SIT placement cosmetically cleaner"): all four are now turned alike, square
+  to the board with their bus pins toward the ports, each with its 100 n past
+  pin 8 and a receiver's 120 R past its A/B pins in the same place -- the OUT
+  pair side by side in the upper right, U14 and U15 alone where they fit
+  (`Sketch.put_rigid`, `Sketch.pair`); later parts keep out of the strip in
+  front of each pin row where the fan-out puts its escape vias
+  (`ESC_KEEP`), and a transceiver's escapes keep out from under the VBUS
+  spine on the other face -- loosely placed, the divider first sat on U15's,
+  then the spine did. "Place the rest loosely" (decided the same day) put the
+  **bus divider in the motor-facing centre**, one row between the XT30's pins
+  and the magnet, which the 2026-09-22 rule kept out -- with the XT30's pins
+  in there it no longer buys anything; R801's VBUS pad gets a finger of In2
+  as the centre caps do. **BOOTSEL** is at the top of the outward centre, its
+  one spot; the 3V3 LDO in the upper right with its two caps; the 12 V rail's
+  second 22 µF on the power wedge's front beside the XT30. `placement_s.SPINE`
+  keeps the VBUS spine's path clear of parts.
+
 `gen_boards.py --board s` adds three pieces of copper board A never needed:
 
 - **In2** is VBUS everywhere but the CPU wedge (306° round through 0 to
   254°) and +3V3 over the CPU wedge and the centre disc, with a tab reaching
-  in over each can's + lead and a finger in under each centre 4.7 µF's VBUS
-  pad: VBUS is plane-only, never routed, so that is its way in. Board A's signal-wedge ground on In2 went: the
+  in over each can's + lead and over the XT30's VMOT pin (R 14.5, inside the
+  disc; 3.4 mm deep and ±10°, the whole bus comes in there), and a finger in
+  under each centre VBUS pad (the 4.7 µF caps', R801's): VBUS is plane-only,
+  never routed, so that is its way in. Board A's signal-wedge ground on In2 went: the
   bucks are there now, and they want the bus.
-- **The VBUS spine** on the outward face: the VMOT pad, the TVS's cathode,
-  C1001's + lead and the expansion header's four VMOT pins as one piece of
-  copper. The header is on the axis, inside In2's +3V3 disc, and a PD board can
-  put 5 A through it; this is its way to the bus.
-- **The bus pads**, 14 AWG soldered flat, are arcs like the phase pads. Their
-  barrels are not in the footprint: RS-485 port IN's mounting tab is under the
-  VMOT pad on the other face, and a fixed array came through onto it.
-  `fanout.bus_field` drills a lattice at whichever offset lands the most,
-  carrying on into the spine where the far face is clear: 7 barrels for VMOT (5 in its pad, 2 in the spine beside it), 8 for GND.
+- **The VBUS spine** on the outward face: the XT30's VMOT pin and the
+  expansion header's four VMOT pins as one piece of copper, with a 3.4 mm disc
+  round the pin. The header is on the axis, inside In2's +3V3 disc, and a PD
+  board can put 5 A through it; this is its way to the bus. (With the bus
+  pads it also took in the TVS's cathode and C1001's + lead.)
+- **A field of barrels round each XT30 pin** (`fanout.pin_field`): the pins
+  are plated holes and join every plane they pass, but the whole bus goes in
+  at one pin and In2 is 1 oz, so the spine gets its own ways down to In2's
+  tab -- 10 vias round the VMOT pin, inside both -- and the ground pin 7 into
+  In1 and In4, none of them through the VBUS tab. (The bus pads had theirs
+  from `fanout.bus_field`, which is still there for a board with pads.)
+- **Fences over In2's VBUS fingers** (`gen_boards.fence_fingers`, after the
+  fan-out): a rule area on In2 that allows no vias, from just past each
+  finger's pad to 1 mm into the VBUS annulus, cut round any via already there.
+  A finger is 2.6 mm wide, two of the router's vias side by side cut it, and
+  the fill then drops its end as an island: the first route with the XT30 left
+  C1007 off the bus that way. KiCad's DSN export makes each one a
+  `via_keepout` for freerouting, and `finish.py` now keeps a via out of any
+  rule area that allows none, whatever layer it is on.
 
 The fan-out gained two passes and eight escapes: `near_links` lays each buck
 module's own connections -- VIN to the input cap, the switch node through the
 bootstrap cap to the inductor, BOOT, FB, RT, the output, pin 1 to the input
 cap's ground -- as locked copper, since a module turned in 15° steps is off the
-grid freerouting needs; `bus_field` above; and the USB-C, the two SH 6 ports,
+grid freerouting needs; `pin_field` above; and the USB-C, the two SH 6 ports,
 the USB ESD part and the four SIT3088 get an escape via per pad, as the flash
 and the INA241s do. The SIT3088s were found the hard way: 0.28 mm pads at
 0.65 mm, and on the first four routes the router reached pins 1, 4, 6 and 7 of
@@ -1083,12 +1158,14 @@ board S it was a USB-C pad moved 0.024 mm onto the fan-out's stub beside it.
 ### Routing
 
 The board is routed by the same pipeline as board A: `route.py --board s
---rounds 1 --first EN_12V,USB_VBUS,LIN_A,EXP_GP19` has the maze make those
-four nets first, hands what the tools did not make to freerouting, one strict
+--rounds 1` hands what the tools did not make to freerouting, one strict
 round, and the maze (`finish.py`) takes what comes back in pieces.
-**1804 track segments and 405 vias, every one of the 577 pin
+**1913 track segments and 411 vias, every one of the 577 pin
 connections made, DRC clean** (no errors, no warnings), nothing but ground
-under the heatsink land, no right-angle corners. 306 of the vias are the tools'.
+under the heatsink land, no right-angle corners. 313 of the vias are the tools'.
+(Before the XT30: 1804 segments and 405 vias, made with `--first
+EN_12V,USB_VBUS,LIN_A,EXP_GP19`, the maze making those four nets before the
+router.)
 
 It took more than board A did, and what it took is worth keeping:
 
@@ -1116,28 +1193,41 @@ It took more than board A did, and what it took is worth keeping:
   sector; and the maze makes EN_12V, USB_VBUS, LIN_A and EXP_GP19 before the
   router, which with the 2N7002 15 mm from its divider (no room beside it on
   the module's face now) is what leaves the router a board it can finish.
+- **With the XT30 (2026-09-24) the plain round is the one that finished.**
+  Four variants side by side; freerouting left two connections for the maze
+  with the old four nets made first (FET_TEMP, USB_DP), seven with LED_R, LED_G
+  and FET_TEMP added, sixteen with only LED_R and FET_TEMP, and seven with no
+  maze first at all -- and the maze made all seven of those, so the others
+  were stopped there, unfinished. The first plain route had
+  also left C1007 off the bus: its VBUS reaches In2 through a 2.6 mm finger,
+  and two of the router's vias side by side cut it -- hence the fences
+  (`gen_boards.fence_fingers`). One route died in pcbnew without a word
+  after freerouting, as a save once did; the atomic save is why that costs
+  nothing.
 - **`spread_holes` could not see a router's via** at 146.6926 mm, which the DRC
   report gives as 146.693: it matches the nearest hole now, and when the
   offending via is boxed in it moves the other one of the pair, a little off
   straight-apart if it has to (here the header's +5V escape via, 35 µm).
 
-**How the board on disk was made, exactly** (2026-09-23): from scratch, by
-the commands at the top of this section, from the generators as committed,
-with two footnotes. The route ran on a board generated one change earlier --
-In2's +3V3 disc keeping its islands -- and that zone's flag was set in the
-routed file to match, the fill redone; nothing else in the generator's output
-differs. And the maze left one 0.135 mm stub of EXP_GP21 dangling, which
-`route.drop_dangling` took off (`settle` does that after a maze, `--polish`
-does not). DRC (all severities, schematic parity at error level), ERC, the
-netlist diff and deadcheck all pass on the result. The board before this one,
-with the small buck parts, is in `snapshots/2026-09-23-pre-buck-passives.tar.gz`.
+**How the board on disk was made, exactly** (2026-09-24): from scratch, by
+the commands at the top of this section, from the generators as committed --
+`gen_boards.py --board s --force`, `route.py --board s --rounds 1` (routed in
+a scratch copy with `--pcb` and copied back, the way the variants were run),
+then `--polish` twice, which found nothing to do. DRC (all severities) is
+clean; schematic parity reports 219 items, all of the kinds that were there
+before the XT30 (HEAD had 221: the two bus pads' value mismatches went with
+them) -- hierarchical net names against the board's flat ones, and the
+mechanical lands' values; ERC, the netlist diff and deadcheck all pass. The
+board before this one, with the bus pads, is in git (8f9342f).
 
 ### Not checked
 
 - **The bucks' loops, on the bench.** The passives are TI's table-9-1 values now (see Capture), but the effective output capacitance at bias is an estimate, and TI asks for a load-transient test or Bode plot before production. Neither inductor is rated to the LMR38010's 1.9 A high-side limit, which TI calls ideal: a hard short on either rail saturates it until hiccup mode stops the part.
 - **The motor-facing centre.** Heights are package maxima, not chosen parts; whatever is bought has to stay under 1.5 mm. Some SOT and DFN lead frames are Alloy 42, which is magnetic; at 7–16 mm from the sensor it should not matter, and the encoder's field budget has not been re-run to prove it.
 - **Copper under the standoffs.** On the motor-facing face a few tracks and a via sit inside the M3 standoffs' 3.25 mm circles — on board A as well, where `route.py` keeps copper only from under the screw heads on the outward face. Under solder mask, and not yet a rule.
-- **P5S predates the cans' leads being turned.** The encoder check modelled the cans in the same places with + inboard; + is outboard now, onto In2's VBUS. Same two leads, same loop, polarity reversed; not re-run.
+- **The XT30's rating.** AMASS rates the XT30 for 15 A continuous (the LCSC listing says the same); the design point's DC link is 17 A in a burst. Fine for bursts, not a continuous-duty connector at full power.
+- **The plug over the board.** The XT30's mouth is 5 mm in from the edge, so the mating plug's first 5 mm lie over the outward face. The path is kept clear of parts, not of silkscreen or anything clamped to the board.
+- **The XT30's 3D model** is the SolidWorks STEP the rp2040/rp2350 motor controllers use (`hardware/parts/3dmodels/XT30PW-M.STEP`); its licence is not recorded there, and this repo is public.
 - **Height.** The cans are 12–13 mm tall on the outward face; board B's standoffs were 11 mm. A stacked expansion board needs longer standoffs or a cutout over the cans.
 - **The heatsink ring.** Board A clamps an aluminium ring on the phase cells' lands. The USB-C reaches the edge in the signal wedge, so a continuous ring would need a gap there.
 - **VMOT through the header.** A PD board feeding the bus puts up to 5 A through the header, whose end pins are about 6 mm from the encoder. With VMOT and GND pins paired it passes as a dipole, roughly 0.1 mT against the magnet's 20–100 — estimated, not simulated.
@@ -1145,7 +1235,7 @@ with the small buck parts, is in `snapshots/2026-09-23-pre-buck-passives.tar.gz`
 - **RS-485 fail-safe.** Every receiver has a permanent 120 Ω and no bias network; an idle or open link relies on the SIT3088's own fail-safe, which the datasheet has to be shown to give with the termination present (the sister project's F-01).
 - **The RGB LED's pinout.** `LED_RGB_1210` with a common anode on pad 4 is an assumption: 1210 RGB parts differ. Check against the part bought.
 - **Firmware.** GPIO14 is `GATE_OFF`, active high; UART0 on GPIO0/1 is port IN and a PIO UART on 2/3 port OUT; USB_VBUS_DET is GPIO25; 19–24 go to the expansion header.
-- **Stock.** The bucks' parts are checked at JLCPCB (2026-09-23): LMR38010SDDAR C5219310, SWPA4030S680MT C83473, SWPA4030S330MT C83470, 4.7 µF/100 V 1206 C237304, 100 nF/100 V 0805 C28233, 22 µF/25 V 1206 C12891, 1210 C21397, 0805 C45783; C2887236 is stocked. SMDJ54A, TPSMF4L54A, SIT3088 and SM712 are not checked yet.
+- **Stock.** The XT30, C431092, had 68,987 at JLCPCB (2026-09-24). The bucks' parts are checked at JLCPCB (2026-09-23): LMR38010SDDAR C5219310, SWPA4030S680MT C83473, SWPA4030S330MT C83470, 4.7 µF/100 V 1206 C237304, 100 nF/100 V 0805 C28233, 22 µF/25 V 1206 C12891, 1210 C21397, 0805 C45783; C2887236 is stocked. SMDJ54A, TPSMF4L54A, SIT3088 and SM712 are not checked yet.
 
 ## Licence
 

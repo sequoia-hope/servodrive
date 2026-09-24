@@ -435,6 +435,37 @@ def bus_pad():
     return sector_pad("BusPad_Arc", BUS_R0, BUS_R1, BUS_HALF,
                       "Bus lead pad, 14 AWG, barrels drilled by fanout.bus_field,", "J")[0]
 
+# Board S's bus input (2026-09-24): KiCad 9's own AMASS XT30PW-M, the
+# footprint the rp2350-motor-controller's J9 uses -- same pads, holes, silk
+# and model -- with its courtyard drawn round the part rather than round
+# its bounding box. The library's is a 14.3 x 15.9 mm rectangle to take the
+# peg ears 3.6 mm behind the mouth, and its empty corners are where the SM712s
+# and the 12 V rail's second cap sit; this one is the outline placement_s
+# places it by: the housing and the pins, 0.25 round, and a round ear at each
+# peg (EAR_R).
+XT30_STOCK = Path("/usr/share/kicad/footprints/Connector_AMASS.pretty/"
+                  "AMASS_XT30PW-M_1x02_P2.50mm_Horizontal.kicad_mod")
+
+def xt30_body():
+    from shapely.geometry import box, Point
+    from shapely.ops import unary_union
+    t = XT30_STOCK.read_text()
+    for a, b in reversed(_blocks(t, "fp_line")):
+        if '"F.CrtYd"' in t[a:b]:
+            t = t[:a].rstrip(" \t") + t[b:].lstrip("\n")
+            t = t.replace("\n\n", "\n")
+    ear = 1.11 + 0.35
+    body = unary_union([box(-7.81, -13.6, 2.81, 2.0), Point(-8, -10).buffer(ear, 8),
+                        Point(3, -10).buffer(ear, 8)]).simplify(0.01)
+    pts = " ".join(f"(xy {x:.3f} {y:.3f})" for x, y in list(body.exterior.coords)[:-1])
+    poly = ('\t(fp_poly\n\t\t(pts ' + pts + ')\n\t\t(stroke (width 0.05) (type solid))\n'
+            '\t\t(fill no)\n\t\t(layer "F.CrtYd")\n\t\t(uuid "' + uid("xt30", "crtyd") + '")\n\t)\n')
+    i = t.index("\t(pad ")
+    t = t[:i] + poly + t[i:]
+    return t.replace('(descr "Connector XT30 Horizontal PCB Male,',
+                     '(descr "Connector XT30 Horizontal PCB Male, KiCad 9\'s footprint with its '
+                     'courtyard round the housing, pins and peg ears (servodrive),', 1)
+
 # ------------------------------------------------- placing footprints ----
 BACK = {"F.Cu": "B.Cu", "F.Paste": "B.Paste", "F.Mask": "B.Mask",
         "F.SilkS": "B.SilkS", "F.CrtYd": "B.CrtYd", "F.Fab": "B.Fab"}
@@ -944,6 +975,7 @@ def _pad(ref, num):
 S_VBUS = (G.WEDGE_ANG[2] - G.WEDGE_SPAN / 2 - 2 - 360, G.WEDGE_ANG[0] + G.WEDGE_SPAN / 2 - 2)
 S_3V3 = (G.WEDGE_ANG[1] - G.WEDGE_SPAN / 2 - 4, G.WEDGE_ANG[1] + G.WEDGE_SPAN / 2 + 2)
 CAN_TAB = (1.6, 6.0)          # mm inward of the lead, deg either side of it
+XT30_TAB = (3.4, 10.0)        # the same over the XT30's VMOT pin: wider, the whole bus
 PAD_TAB_W = 2.6               # mm across a finger to a centre cap's VBUS pad
 
 def in2_s(tag, edge):
@@ -954,10 +986,13 @@ def in2_s(tag, edge):
     outer = [G.polar(a0 + (a1 - a0) * i / n, edge) for i in range(n + 1)]
     inner = [G.polar(a1 + (a0 - a1) * i / n, R_VBUS_IN) for i in range(n + 1)]
     vbus = Polygon(outer + inner)
-    for ref in ("C1001", "C1002"):
-        x, y = _pad(ref, "1")
+    # ... and over the XT30's VMOT pin (2026-09-24): set back from the edge,
+    # it lands at R 14.5, inside the +3V3 disc, and the whole bus comes in
+    # through it
+    xt30 = [("J4", "2", XT30_TAB)] if any(p.ref == "J4" for p in placed()) else []
+    for ref, num, (dr, da) in [("C1001", "1", CAN_TAB), ("C1002", "1", CAN_TAB)] + xt30:
+        x, y = _pad(ref, num)
         r, th = hypot(x, y), degrees(atan2(y, x))
-        dr, da = CAN_TAB
         tab = [G.polar(th - da + 2 * da * i / 12, r - dr) for i in range(13)]
         tab += [G.polar(th + da - 2 * da * i / 12, R_VBUS_IN + 0.5) for i in range(13)]
         vbus = vbus.union(Polygon(tab))
@@ -966,16 +1001,29 @@ def in2_s(tag, edge):
     # centre): VBUS is plane-only, never routed, so this is its way in.
     # Capacitors only -- the header's VMOT pins have the spine on F.Cu.
     for p in placed():
-        if p.block != "centre" or not p.ref.startswith("C") or p.ref in ("C1001", "C1002"):
+        if p.block != "centre" or p.ref in ("C1001", "C1002"):
+            continue
+        # (and, with the XT30, the bus divider's top, which went in the
+        # motor-facing centre for want of anywhere else)
+        if not (p.ref.startswith("C") or p.ref == "R801"):
             continue
         for num, net in pad_nets(p.ref).items():
             if net != "VBUS":
                 continue
             x, y = _pad(p.ref, num)
             r, th = hypot(x, y), degrees(atan2(y, x))
-            da = degrees(PAD_TAB_W / 2 / r)
-            tab = [G.polar(th - da + 2 * da * i / 12, r - 1.0) for i in range(13)]
-            tab += [G.polar(th + da - 2 * da * i / 12, R_VBUS_IN + 0.5) for i in range(13)]
+            if p.ref.startswith("C"):
+                da = degrees(PAD_TAB_W / 2 / r)
+                tab = [G.polar(th - da + 2 * da * i / 12, r - 1.0) for i in range(13)]
+                tab += [G.polar(th + da - 2 * da * i / 12, R_VBUS_IN + 0.5) for i in range(13)]
+            else:
+                # parallel-sided: from R 8 an angular finger would take a
+                # fifth of the disc at its rim
+                ux, uy = x / r, y / r
+                a, b = (x - ux, y - uy), (ux * (R_VBUS_IN + 0.5), uy * (R_VBUS_IN + 0.5))
+                h = PAD_TAB_W / 2
+                tab = [(a[0] - uy * h, a[1] + ux * h), (b[0] - uy * h, b[1] + ux * h),
+                       (b[0] + uy * h, b[1] - ux * h), (a[0] + uy * h, a[1] - ux * h)]
             vbus = vbus.union(Polygon(tab))
     # Islands go: the escape vias along the sector's inner edge cut slivers
     # off it that touch no VBUS pad or via, and DRC calls them isolated.
@@ -988,9 +1036,90 @@ def in2_s(tag, edge):
                     f"{tag}-z-3v3", priority=1, solid=True, keep_islands=False))
     return out
 
+def fence_fingers(path, verbose=True):
+    """In2 via keepouts over board S's VBUS fingers and tabs.
+
+    VBUS is plane-only: a centre cap's or R801's VBUS pad, and C1001's +
+    lead, reach the bus through a finger of In2 2.6 mm wide into the +3V3
+    disc (in2_s). Two of the router's vias side by side cut that, and the
+    fill then drops the finger's end as an island -- the first route with the
+    XT30 left C1007 off the bus that way. So each finger gets a rule area on
+    In2 that allows no vias: from just past its pad to 1 mm into the VBUS
+    annulus, cut round any via or hole already in it. KiCad's DSN export
+    makes it a via keepout for freerouting, and finish.py honours it."""
+    import pcbnew
+    from math import hypot
+    from shapely.geometry import Polygon, Point
+    from shapely.ops import unary_union
+    b = pcbnew.LoadBoard(str(path))
+    cx, cy = P(0, 0)
+    vbus = b.FindNet("VBUS").GetNetCode()
+    obst = [(pcbnew.ToMM(v.GetPosition().x), pcbnew.ToMM(v.GetPosition().y),
+             pcbnew.ToMM(v.GetWidth(pcbnew.F_Cu)) / 2)
+            for v in b.GetTracks() if v.Type() == pcbnew.PCB_VIA_T]
+    obst += [(pcbnew.ToMM(q.GetPosition().x), pcbnew.ToMM(q.GetPosition().y),
+              pcbnew.ToMM(max(q.GetSize().x, q.GetSize().y)) / 2)
+             for f in b.GetFootprints() for q in f.Pads()
+             if q.GetAttribute() in (pcbnew.PAD_ATTRIB_PTH, pcbnew.PAD_ATTRIB_NPTH)]
+    # the pads a finger or tab of In2 reaches in under: on its outline, inside
+    # R_VBUS_IN (the header's VMOT pins are on the F.Cu spine instead)
+    plane = [z.Outline() for z in b.Zones() if z.GetNetCode() == vbus
+             and not z.GetIsRuleArea() and z.IsOnLayer(pcbnew.In2_Cu)]
+    made = []
+    for f in b.GetFootprints():
+        if f.GetReference() == "J4":
+            continue                    # the XT30's tab lies under the spine's disc
+        for q in f.Pads():
+            if q.GetNetCode() != vbus or not any(o.Contains(q.GetPosition()) for o in plane):
+                continue
+            x, y = pcbnew.ToMM(q.GetPosition().x), pcbnew.ToMM(q.GetPosition().y)
+            dx, dy = x - cx, y - cy
+            r = hypot(dx, dy)
+            if r >= R_VBUS_IN:
+                continue
+            ux, uy = dx / r, dy / r
+            d0 = pcbnew.ToMM(max(q.GetSize().x, q.GetSize().y)) / 2 + 0.1
+            d1 = R_VBUS_IN + 1.0 - r
+            h = PAD_TAB_W / 2
+            strip = Polygon([(x + ux * d0 - uy * h, y + uy * d0 + ux * h),
+                             (x + ux * d1 - uy * h, y + uy * d1 + ux * h),
+                             (x + ux * d1 + uy * h, y + uy * d1 - ux * h),
+                             (x + ux * d0 + uy * h, y + uy * d0 - ux * h)])
+            cut = unary_union([Point(ox, oy).buffer(orr + 0.05) for ox, oy, orr in obst
+                               if hypot(ox - x, oy - y) < d1 + 3])
+            area = strip.difference(cut)
+            for g in getattr(area, "geoms", [area]):
+                if g.is_empty or g.area < 0.5:
+                    continue
+                z = pcbnew.ZONE(b)
+                z.SetIsRuleArea(True)
+                z.SetDoNotAllowVias(True)
+                for fn in ("SetDoNotAllowTracks", "SetDoNotAllowPads",
+                           "SetDoNotAllowFootprints", "SetDoNotAllowCopperPour"):
+                    getattr(z, fn)(False)
+                z.SetLayer(pcbnew.In2_Cu)
+                z.SetZoneName(f"no vias: VBUS finger to {f.GetReference()}")
+                ol = z.Outline()
+                k = ol.NewOutline()
+                for px, py in list(g.exterior.coords)[:-1]:
+                    ol.Append(pcbnew.FromMM(px), pcbnew.FromMM(py), k, -1)
+                for ring in g.interiors:
+                    hk = ol.NewHole(k)
+                    for px, py in list(ring.coords)[:-1]:
+                        ol.Append(pcbnew.FromMM(px), pcbnew.FromMM(py), k, hk)
+                b.Add(z)
+                made.append(f.GetReference())
+    pcbnew.SaveBoard(str(path), b)
+    if verbose:
+        print(f"fences: In2 via keepouts over the VBUS fingers to {', '.join(sorted(set(made)))}")
+    return made
+
 def bus_spine(tag):
     """VBUS on the outward face, from the VMOT pad through the TVS's cathode
-    and C1001's + lead to the expansion header's four VMOT pins.
+    and C1001's + lead to the expansion header's four VMOT pins -- or, with
+    the XT30 (2026-09-24), from its VMOT pin straight to the header's, along
+    the path placement_s kept clear (SPINE): the TVS is on the other face
+    under the XT30 now, and C1001 across the centre on an In2 tab.
 
     The planes join all of these already; this is the short way between
     them. The TVS clamps a bus that arrives on this pad, so the pad and the
@@ -999,8 +1128,23 @@ def bus_spine(tag):
     board can put 5 A through them: this is their only way to the bus. It
     passes C1001's - lead by 1.6 mm and stops short of the M3 head at (0,
     -9.5); the fill keeps the Phase class's 0.4 mm from everything else."""
-    from shapely.geometry import LineString, Polygon
+    from shapely.geometry import LineString, Polygon, Point
     from shapely.ops import unary_union
+    import placement_s as PS
+    if any(p.ref == "J4" for p in placed()):
+        pins = [_pad("J13", n) for n in ("1", "3", "5", "7")]
+        xs = [x for x, _ in pins]
+        ys = [y for _, y in pins]
+        row = Polygon([(min(xs) - 0.37, max(ys) + 1.2), (max(xs) + 0.37, max(ys) + 1.2),
+                       (max(xs) + 0.37, min(ys) - 1.45), (min(xs) - 0.37, min(ys) - 1.45)])
+        (a, vm, _), = PS.SPINE
+        leg = LineString([a, vm]).buffer(1.2, join_style=2)
+        # a disc round the VMOT pin for the via field (fanout.pin_field) to
+        # drill between it and In2's tab; the fill keeps its 0.4 mm from the
+        # ground pin 5 mm away by itself
+        spine = unary_union([row, leg, Point(vm).buffer(3.4)])
+        return [zone("VBUS", "VBUS spine F.Cu", ["F.Cu"], _pts(spine), f"{tag}-z-spine",
+                     priority=3, solid=True, keep_islands=False)]
     cp = _pad("C1001", "1")
     k = _pad("D1001", "1")
     vm = G.polar(placement_bus_axis() - 5.0, BUS_R0 + 0.8)      # into the VMOT pad
@@ -1152,7 +1296,7 @@ def board(key, cfg):
             # the bus's lead pads, VMOT counter-clockwise of GND: the order
             # placement_s.BUS_PADS has them in, which its checks placed by
             import placement_s as PS
-            for ref, (_, r0, r1, ang, half, net) in zip(("J4", "J5"), PS.BUS_PADS):
+            for ref, (_, r0, r1, ang, half, net) in zip(("J4", "J5"), PS.bus_pads()):
                 assert (r0, r1, half) == (BUS_R0, BUS_R1, BUS_HALF), "bus pad drifted"
                 assert pad_nets(ref) == {"1": "VBUS" if net == "VMOT" else net}, ref
                 lx, ly = G.polar(ang, (r0 + r1) / 2)
@@ -1555,7 +1699,8 @@ def seed_parts(force=False):
                       ("ThermalBoss_M2.5", thermal_boss),
                       ("ThermalLand_Phase", thermal_land),
                       ("PhasePad_Arc", phase_pad),
-                      ("BusPad_Arc", bus_pad)):
+                      ("BusPad_Arc", bus_pad),
+                      ("AMASS_XT30PW-M_1x02_P2.50mm_Horizontal", xt30_body)):
         dst = pdir / "servodrive.pretty" / f"{name}.kicad_mod"
         dst.write_text(gen())
         print(f"  wrote  {dst.relative_to(ROOT)}  (generated)")
@@ -1688,6 +1833,7 @@ def emit_s(cfg, force, pcb_too=True):
         stitch.run(pcb)
         if not os.environ.get("SERVODRIVE_NO_FANOUT"):
             fanout.run(pcb)
+            fence_fingers(pcb)
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)

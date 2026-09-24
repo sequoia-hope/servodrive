@@ -81,6 +81,9 @@ BOARDS = {"a": ("motor_board", "servodrive_A"),
 #     KiCad's has pin 1 top-left with them vertical, hence the quarter turn
 #     anticlockwise -- which KiCad writes as -90, its model rotations being
 #     clockwise-positive. (Checked: the model's pin-1 dot lands over pad 1.)
+#   AMASS XT30PW-M: KiCad 9's footprint names a model its library does not
+#     ship. The SolidWorks STEP the rp2040/rp2350-motor-controller boards use
+#     for the same footprint, with their offset and rotation.
 #   Sunlord SWPA4030S: KiCad's own model, but an assembly of sub-assemblies,
 #     which kicad-cli 9.0.8 exports as empty nodes without a word. The same
 #     solids and colours flattened into one part by tools/flatten_step.py;
@@ -90,6 +93,8 @@ SUBST = {
         (MODELS / "HRO_TYPE-C-31-M-12.step", (-4.45, -3.65, 0), (-90, 0, 0)),
     "Inductor_SMD.3dshapes/AOTA-B201610SR47MT.STEP":
         (MODELS / "AOTA-B201610SR47MT.STEP", (0, 0, 0), (0, 0, 0)),
+    "Connector_AMASS.3dshapes/AMASS_XT30PW-M_1x02_P2.50mm_Horizontal.step":
+        (MODELS / "XT30PW-M.STEP", (-2.5, 10.0, 0), (-90, 0, 0)),
     "Inductor_SMD.3dshapes/L_Sunlord_SWPA4030S.step":
         (MODELS / "L_Sunlord_SWPA4030S.step", None, None),
     "test.3dshapes/DFN-8_L3.0-W3.0-P0.65-BL-EP.wrl":

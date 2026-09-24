@@ -857,6 +857,66 @@ def bus_field(board, obs, name="BusPad_Arc", pitch=0.95, verbose=True):
         print("bus pads: " + ", ".join(f"{r} {n} barrels" for r, n in sorted(made.items())))
     return made
 
+def pin_field(board, obs, name="AMASS_XT30", pitch=0.95, spill=3.4, verbose=True):
+    """Barrels round board S's XT30 pins (2026-09-24, when it took the bus
+    pads' place). A pin is a plated hole and joins every plane it passes, but
+    the whole bus goes in at one pin and In2 is 1 oz: a field of vias round
+    the VMOT pin, inside both the F.Cu spine and In2's VBUS tab, gives the
+    spine its own ways down; the ground pin gets the same into In1 and In4.
+    A lattice at `pitch`, at whichever offset lands the most within `spill`
+    of the pin, clear of foreign copper on every layer and of every hole."""
+    made = {}
+    d, k = BUS_VIA
+    r = mm(d) // 2
+    for f in board.GetFootprints():
+        if not str(f.GetFPID().GetLibItemName()).startswith(name):
+            continue
+        vcode = board.FindNet("VBUS").GetNetCode()
+        # VMOT first; the ground pin's may not perforate In2's VBUS tab
+        for pad in sorted((q for q in f.Pads() if q.GetNumber() in ("1", "2")),
+                          key=lambda q: q.GetNetname() != "VBUS"):
+            code, c = pad.GetNetCode(), pad.GetPosition()
+            rp = max(pad.GetSize().x, pad.GetSize().y) // 2
+            local = obs.near(c.x, c.y, reach=mm(spill + 2.0))
+            vbus = pad.GetNetname() == "VBUS"
+            ring = [i * math.pi / 4 for i in range(8)]
+            def ok(x, y, taken):
+                dist = math.hypot(x - c.x, y - c.y)
+                if dist > mm(spill) or dist < rp + r + mm(0.15):
+                    return False
+                if vbus and not all(local.inside(int(x + (r + mm(0.1)) * math.cos(t)),
+                                                 int(y + (r + mm(0.1)) * math.sin(t)), code, l)
+                                    for l in (pcbnew.F_Cu, pcbnew.In2_Cu) for t in ring):
+                    return False
+                if not vbus and any(local.inside(int(x + (r + mm(0.5)) * math.cos(t)),
+                                                 int(y + (r + mm(0.5)) * math.sin(t)), vcode,
+                                                 pcbnew.In2_Cu) for t in ring):
+                    return False
+                if not local.clear(pcbnew.SHAPE_CIRCLE(V(x, y), r), code, None):
+                    return False
+                if not local.hole_ok(x, y, mm(k) // 2):
+                    return False
+                return all(math.hypot(x - px, y - py) >= mm(k + H2H) for px, py in taken)
+            best = []
+            n = int(spill / pitch) + 1
+            for oi in range(10):
+                for oj in range(10):
+                    pts = []
+                    for i in range(-n, n + 1):
+                        for j in range(-n, n + 1):
+                            x = int(c.x + (i + oi / 10) * mm(pitch))
+                            y = int(c.y + (j + oj / 10) * mm(pitch))
+                            if ok(x, y, pts):
+                                pts.append((x, y))
+                    if len(pts) > len(best):
+                        best = pts
+            for x, y in best:
+                add_via(board, obs, (x, y), code, d=d, k=k)
+            made[f"{f.GetReference()}-{pad.GetNumber()} {pad.GetNetname()}"] = len(best)
+    if verbose and made:
+        print("XT30 pins: " + ", ".join(f"{r} {n} barrels" for r, n in sorted(made.items())))
+    return made
+
 def _joined(board, code, layer, a, b):
     """Is there already a track of the net on the layer from pad a to pad b?"""
     for t in board.GetTracks():
@@ -1437,6 +1497,7 @@ def run(path, verbose=True):
                   if pcbnew.In2_Cu in z.GetLayerSet().CuStack() and z.GetNetCode() > 0}
     obs.plane_layer = lambda code: pcbnew.In2_Cu if code in plane_nets else None
     bus_field(board, obs, verbose=verbose)     # board S's bus pads; nothing on A
+    pin_field(board, obs, verbose=verbose)     # ... or its XT30
     q = qfn(board, obs, verbose=verbose)
     # ... and a last try, by the generic escape, at any QFN pin the planned
     # rows could not place: it is not fussy about which row a via lands in,

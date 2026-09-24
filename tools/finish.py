@@ -286,6 +286,23 @@ class Grid:
                         self.px_of(pcbnew.VECTOR2I(c.x + r, c.y + r))], fill=1)
         via_ok &= ~np.array(outside).T & ~np.array(vd).T
         via_ok &= ~np.array(heads).T & ~np.array(land).T
+        # a rule area that allows no vias binds one on whatever layer it is
+        # drawn -- board S's fences over In2's VBUS fingers
+        # (gen_boards.fence_fingers) are on a layer the grid has no bitmap
+        # for -- since a via goes through all of them
+        fence = Image.new("1", (self.w, self.h), 0)
+        dfen = ImageDraw.Draw(fence)
+        for z in board.Zones():
+            if z.GetIsRuleArea() and z.GetDoNotAllowVias():
+                ol = z.Outline()
+                for i in range(ol.OutlineCount()):
+                    ch = ol.Outline(i)
+                    pts = [self.px_of(ch.CPoint(k)) for k in range(ch.PointCount())]
+                    if len(pts) >= 3:
+                        dfen.polygon(pts, fill=1)
+        if np.array(fence).any():
+            dfn = ndimage.distance_transform_edt(~np.array(fence).T) * PX
+            via_ok &= dfn >= VIA_D / 2 + MARGIN
         holes = Image.new("1", (self.w, self.h), 0)
         dhole = ImageDraw.Draw(holes)
         for hx, hy, hr in fanout.Obstacles(board).holes:

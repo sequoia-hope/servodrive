@@ -2,10 +2,10 @@
  "board": "servodrive_S.kicad_pcb",
  "generated": "2026-09-24",
  "glb": "s.glb",
- "bytes": 6783452,
- "kicad_bytes": 30271428,
- "parts": 195,
- "modelled": 173,
+ "bytes": 6939080,
+ "kicad_bytes": 31022512,
+ "parts": 194,
+ "modelled": 174,
  "no_model": [
   "H1",
   "H2",
@@ -20,8 +20,6 @@
   "J1",
   "J2",
   "J3",
-  "J4",
-  "J5",
   "TL1",
   "TL2",
   "TL3",
@@ -33,6 +31,7 @@
  "missing": [],
  "empty": [],
  "substituted": [
+  "J4",
   "J12",
   "L701",
   "L1001",
@@ -42,6 +41,6 @@
   "U17",
   "U18"
  ],
- "triangles": 584228,
- "primitives": 463
+ "triangles": 597341,
+ "primitives": 466
 }

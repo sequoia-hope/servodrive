@@ -21,6 +21,7 @@ Each new part is put by a small search: the nearest legal spot to where it is
 wanted, legal meaning everything placement.check() enforces. Wanting is the
 design; the search only keeps it honest about the millimetres.
 """
+import re
 from math import cos, sin, radians, degrees, hypot, atan2, asin
 from pathlib import Path
 
@@ -31,7 +32,8 @@ from placement import Part
 ROOT = Path(__file__).resolve().parent.parent
 
 PWR, SIG = "power link", "signal link"          # the block names check() knows
-AX = {PWR: G.WEDGE_ANG[0], SIG: G.WEDGE_ANG[2]}
+CPU = "CPU"                                     # board A's name for the middle wedge
+AX = {PWR: G.WEDGE_ANG[0], SIG: G.WEDGE_ANG[2], CPU: G.WEDGE_ANG[1]}
 
 # Parts of board A that this variant takes away: the three link headers, the
 # three spare-GPIO test points (GPIO23-25 go to the expansion header and VBUS
@@ -76,8 +78,13 @@ HEIGHT = {
 # The bus lead pads: arc pads on the outward face at the power wedge's rim,
 # like the phase lead pads -- 14 AWG soldered flat, no holes, so the back of
 # the rim stays free for an RS-485 port. (layer, r0, r1, centre, half-span)
+# The sketches as asked and before 2026-09-24; the board takes an XT30 now.
 BUS_PADS = [("F.Cu", 28.7, 31.4, AX[PWR] - 5.0, 3.8, "VMOT"),
             ("F.Cu", 28.7, 31.4, AX[PWR] + 5.0, 3.8, "GND")]
+BUS = "pads"                  # "pads" or "xt30": set by each sketch as it starts
+
+def bus_pads():
+    return BUS_PADS if BUS == "pads" else []
 
 FP = dict(
     CAN="Capacitor_THT:CP_Radial_D10.0mm_P5.00mm",
@@ -107,7 +114,60 @@ FP = dict(
     SWPA5040="Inductor_SMD:L_Sunlord_SWPA5040S",
     JP="Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
     TP="TestPoint:TestPoint_Pad_D1.0mm",
+    XT30="servodrive:AMASS_XT30PW-M_1x02_P2.50mm_Horizontal",     # KiCad's, courtyard redrawn
 )
+
+# The bus connector (decided 2026-09-24): the rp2350-motor-controller's XT30,
+# its J9 -- AMASS XT30PW-M, horizontal, pin 1 GND and pin 2 VMOT, LCSC
+# C431092 -- on the power wedge's axis on the outward face, mouth outward.
+# Not at the edge: its two pegs, 11 mm apart and 3.6 mm behind the mouth,
+# land on the motor-facing rim, which is the two RS-485 ports' -- and no
+# other stretch of rim on the board takes a JST SH (the CPU wedge's is the
+# RP2350's escape vias, through both faces; the signal wedge's is 0.1 mm
+# short beside the USB-C). So it sits back from the edge until the pegs clear
+# the ports (decided 2026-09-24, "horizontal set back"), and the plug's first
+# few mm lie over the board: PLUG keeps that path clear on the outward face.
+XT30_FACE = 13.21            # the housing's face, mm ahead of the pins (its silk)
+XT30_W = 5.6                 # half the plug's width, with room: the housing is 10.1
+PLUG = []                    # (layer, r0, r1, centre, half-span), set when it is placed
+# ... and the VBUS spine's path on the outward face, from its VMOT pin to the
+# expansion header's four VMOT pins (gen_boards.bus_spine lays the copper):
+# [(x0, y0), (x1, y1), half-width], kept clear of parts once both are down
+SPINE = []
+SPINE_W = 1.2 + 0.45         # the spine's half-width, and room for the 60 V gap
+
+# In front of each SIT3088 pin row the fan-out puts a via per pin, 0.43 and
+# 1.14 mm beyond the pad ends (fanout.escape, ROW0/ROW_PITCH): a strip that
+# later parts keep out of. Loosely placed, the bus divider sat there and left
+# U15's pin 7 no escape. (Strips, not parts: they are never emitted.)
+ESC_KEEP = []
+PL._CY["keep:escape"] = (2.7, 1.3, 0.0, 0.0)
+
+def _escape_strips(u):
+    (ux, uy), _, hh, a = u.rect
+    d = hh + 0.65
+    return [Part.at_xy("ESC", "", "keep:escape", ux - sin(a) * d * k, uy + cos(a) * d * k,
+                       degrees(a), "centre", u.layer) for k in (1, -1)]
+
+def _on_spine(c, any_face=False):
+    if c.layer != "F.Cu" and not any_face:
+        return False
+    for (x0, y0), (x1, y1), hw in SPINE:
+        n = max(1, int(hypot(x1 - x0, y1 - y0) / 0.4))
+        if any(_hits_circle(c, x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n, hw)
+               for k in range(n + 1)):
+            return True
+    return False
+# Placed by its body, not by the library's courtyard, a 14.3 mm rectangle
+# to take the peg ears, which spends 3 mm either side of the pins at the
+# back, where the TVS has to go. So: the housing and the pins, 0.25 round
+# (x -7.81..2.81, y -13.6..2.0 in the footprint), and each peg's ear a
+# circle on the same face (EAR_R: the ear is a 1.11 mm half-disc round it).
+# gen_boards.xt30_body draws the project's copy of the footprint with exactly
+# that courtyard, so KiCad's DRC checks what this checks.
+PL._CY[FP["XT30"]] = (10.62, 15.6, -2.5, 5.8)
+EAR_R = 1.11 + 0.35
+_xcy = PL.courtyard(FP["XT30"])[3]           # the courtyard centre's offset from pin 1
 
 # ------------------------------------------------------------ the vias ----
 # Board A's own copper that this variant keeps: the fan-out's escape vias round
@@ -160,7 +220,7 @@ def _centre(p):
     return p.rect[0]
 
 def _sectors():
-    return PL.sectors() + [s[:5] for s in BUS_PADS]
+    return PL.sectors() + [s[:5] for s in bus_pads()] + PLUG
 
 def _circle_pts(cx, cy, r, n=24):
     return [(cx + r * cos(k * 6.2831853 / n), cy + r * sin(k * 6.2831853 / n))
@@ -172,8 +232,8 @@ def _span_ok(p):
     line there is bookkeeping -- the real neighbours are checked part by part,
     and span_over() reports how far each can crosses it."""
     axis = AX.get(p.block)
-    if axis is None or round_r(p):
-        return True
+    if axis is None or round_r(p) or p.fp in PEG_FPS:
+        return True             # the XT30's back end is in the centre, not the wedge
     pts = p.corners()
     for x, y in pts:
         da = (degrees(atan2(y, x)) - axis + 540) % 360 - 180
@@ -305,9 +365,61 @@ def span_over(p):
 # Phase class's 0.4 mm (and a little) from the other face's courtyards.
 THT_CLR = 0.45
 
+# The XT30's two pegs locate its housing and carry no net: no 60 V to keep
+# clear of, only a drill and a 0.2 mm ring. So a peg keeps its drill out of
+# the far face's courtyards -- the courtyard's own margin is the room round
+# the post -- and its ring PEG_CU from the far face's copper, where a lead
+# keeps THT_CLR from the courtyards. It is the pegs against the two RS-485
+# ports on the far face that set how far back from the edge the XT30 sits.
+PEG_FPS = {FP["XT30"]}
+PEG_CU = 0.25
+
+_DRILLS = {}
+def _tht_drills(fp):
+    """(number, drill) of each through-hole pad, in PL.tht_pads' order."""
+    if fp not in _DRILLS:
+        t = PL.fp_path(fp).read_text()
+        _DRILLS[fp] = [(m.group(1), float(m.group(2))) for m in re.finditer(
+            r'\(pad\s+"([^"]*)"\s+(?:thru_hole|np_thru_hole)\s+\w+\s*\(at [^)]*\)\s*'
+            r'\(size [^)]*\)\s*\(drill (?:oval )?([\d.]+)', t, re.S)]
+        assert len(_DRILLS[fp]) == len(PL.tht_pads(fp)), fp
+    return _DRILLS[fp]
+
+def _is_peg(p, i):
+    return p.fp in PEG_FPS and _tht_drills(p.fp)[i][0] == ""
+
 def _holes(p):
-    return [(x, y, hypot(w, h) / 2)
-            for (x, y, _), (_, _, w, h) in zip(p.tht(), PL.tht_pads(p.fp))]
+    """(x, y, radius, clearance) of each through-hole pad: a lead's bounding
+    circle and THT_CLR, a peg's drill and nothing."""
+    out = []
+    for i, ((x, y, _), (_, _, w, h)) in enumerate(zip(p.tht(), PL.tht_pads(p.fp))):
+        if _is_peg(p, i):
+            out.append((x, y, _tht_drills(p.fp)[i][1] / 2, 0.0))
+        else:
+            out.append((x, y, hypot(w, h) / 2, THT_CLR))
+    return out
+
+def _pegs(p):
+    return [(x, y, r) for i, (x, y, r) in enumerate(p.tht()) if _is_peg(p, i)]
+
+def _ears_clear(p, q):
+    """Same face: does q keep out of p's peg ears?"""
+    return not any(_hits_circle(q, x, y, EAR_R) for x, y, _ in _pegs(p))
+
+def _pegs_clear(p, q):
+    """Do p's pegs' rings keep PEG_CU from q's pads? (q on the other face.)"""
+    import padpos
+    pegs = _pegs(p)
+    if not pegs:
+        return True
+    a = radians(q.ang)
+    for num, x, y, w, h in padpos.pad_xy(q):
+        for px, py, pr in pegs:
+            dx, dy = px - x, py - y
+            u, v = dx * cos(a) + dy * sin(a), -dx * sin(a) + dy * cos(a)
+            if hypot(max(abs(u) - w / 2, 0.0), max(abs(v) - h / 2, 0.0)) < pr + PEG_CU:
+                return False
+    return True
 
 def legal(c, placed):
     """Everything placement.check() enforces, for one candidate against the
@@ -338,20 +450,30 @@ def legal(c, placed):
     if any(hypot(vx - cx, vy - cy) < reach0 + vr and _hits_circle(c, vx, vy, vr)
            for vx, vy, vr in KEPT_VIAS):
         return False
+    if SPINE and _on_spine(c):
+        return False
+    if any(q.layer == c.layer and PL._overlap(c, q) for q in ESC_KEEP):
+        return False
+    # ... and a transceiver's escape vias go through the board: not under
+    # the VBUS spine on the other face, which keeps 0.4 mm from them
+    if SPINE and c.fp == FP["DFN8"] and any(_on_spine(s, True) for s in _escape_strips(c)):
+        return False
     reach = hypot(hw, hh)
     holes = _holes(c)
     for q in placed:
         (qx, qy), qw, qh, _ = q.rect
         if hypot(cx - qx, cy - qy) > reach + hypot(qw, qh) + 3.0:
             continue
-        if q.layer == c.layer and _touch(c, q):
+        if q.layer == c.layer and (_touch(c, q) or not (_ears_clear(q, c) and _ears_clear(c, q))):
             return False
         if q.layer != c.layer:
-            if any(_hits_circle(q, hx, hy, hr + THT_CLR) for hx, hy, hr in holes):
+            if any(_hits_circle(q, hx, hy, hr + cl) for hx, hy, hr, cl in holes):
                 return False
-            if any(_hits_circle(c, hx, hy, hr + THT_CLR) for hx, hy, hr in _holes(q)):
+            if any(_hits_circle(c, hx, hy, hr + cl) for hx, hy, hr, cl in _holes(q)):
                 return False
-    for hx, hy, hr in holes:
+            if not (_pegs_clear(c, q) and _pegs_clear(q, c)):
+                return False
+    for hx, hy, hr, _ in holes:
         for layer, r0, r1, ang, half in _sectors():
             if layer != c.layer and PL._in_sector(hx, hy, r0 - hr, r1 + hr, ang, half):
                 return False
@@ -429,6 +551,14 @@ NEAR_LMR38010 = {
            ("cout2", "C0805", "cout", "1", "1", 12.0),
            ("cout3", "C0805", "cout", "1", "1", 12.0)],
 }
+# The bus divider as one piece: VBUS -> R801 -> R806 -> VBUS_SENSE, then R802
+# and C801 side by side to ground, each pad beside the one it joins.
+MOD_DIVIDER = [
+    ("hi",  "R0603", 0.00,  0.00, 0),
+    ("hi2", "R0603", 3.25,  0.00, 0),
+    ("lo",  "R0603", 6.30,  0.80, 0),
+    ("c",   "C0603", 6.30, -0.80, 0),
+]
 MOD_SOT_BUCK = [
     ("u",    "SOT236", 0.00,  0.00, 0),
     ("l",    "NR30",   4.20,  0.00, 0),
@@ -444,6 +574,10 @@ MOD_SOT_BUCK = [
 # the one at 219. Tuned against the room there is -- the M3 standoffs at
 # (-12.5, 0) and (0, -9.5), C1001's leads, the magnet keepout, R 17.
 RELAY_AT = {"U14": (-5.5, -12.5), "U15": (-10.0, -8.5), "U17": (-12.0, -6.0), "U18": (-7.5, -4.5)}
+# ... and with the XT30 (bus="xt30"), whose pins land in that quadrant: two
+# identical pairs, the receiver first along the row
+RELAY_PAIRS = [("U18", "U17"), ("U14", "U15")]
+RELAY_PAIRS_AT = [(8.0, 8.5), (-6.5, -6.0)]
 
 class Sketch:
     """The board as it fills up: board A's kept parts, then each new one."""
@@ -642,6 +776,62 @@ class Sketch:
         CENTRE.discard(ref)
         return None
 
+    def put_rigid(self, build, x, y, gs, reach=4.0, step=0.25, r_max=None):
+        """A rigid group in the centre: build(x0, y0, g) -> [Part], turned by
+        the first of `gs` that fits anywhere within `reach`, at the nearest
+        legal (x0, y0) to (x, y) for that turn. All or nothing."""
+        n = int(reach / step)
+        cands = sorted((hypot(i, j) * step, x + i * step, y + j * step)
+                       for i in range(-n, n + 1) for j in range(-n, n + 1)
+                       if hypot(i, j) * step <= reach)
+        for g in gs:
+            for _, x0, y0 in cands:
+                built = build(x0, y0, g)
+                placed = self.parts[:]
+                for c in built:
+                    CENTRE.add(c.ref)
+                    if max(_radii(c)) > (r_max or G.ZONE_R0) or not legal(c, placed):
+                        break
+                    placed.append(c)
+                else:
+                    self.parts += built; self.new += built
+                    return built
+        return None
+
+    def pair(self, chips, pitch=5.0, layer="B.Cu"):
+        """build() for two SIT3088 side by side and turned alike, each with its
+        100 n past pin 8, the end of its bus-side row, and a receiver its
+        120 R beyond its A and B pins: the same group twice, so the four
+        transceivers read as two copies of one thing. chips: [(ref, note,
+        cap, term, tnote)], in order along the row."""
+        import padpos
+        def build(x0, y0, g):
+            out = []
+            ca, sa = cos(radians(g)), sin(radians(g))
+            for k, (ref, note, cap, term, tnote) in enumerate(chips):
+                d = (k - (len(chips) - 1) / 2) * pitch
+                u = Part.at_xy(ref, "SIT3088", FP["DFN8"], x0 + d * ca, y0 + d * sa, g, "centre",
+                               layer, note)
+                out.append(u)
+                pads = {n: (px, py) for n, px, py, w, h in padpos.pad_xy(u)}
+                ax, ay = pads["8"][0] - pads["7"][0], pads["8"][1] - pads["7"][1]
+                n = hypot(ax, ay)
+                out.append(Part.at_xy(cap, "100n", FP["C0402"], pads["8"][0] + ax / n * 1.3,
+                                      pads["8"][1] + ay / n * 1.3, degrees(atan2(ay, ax)) + 90,
+                                      "centre", layer, f"{ref} decoupling, at VCC"))
+                if term:
+                    (ux, uy) = u.rect[0]
+                    mx, my = (pads["6"][0] + pads["7"][0]) / 2, (pads["6"][1] + pads["7"][1]) / 2
+                    vx, vy = mx - ux, my - uy
+                    m = hypot(vx, vy)
+                    out.append(Part.at_xy(term, "120R", FP["R0603"], mx + vx / m * 2.6,
+                                          my + vy / m * 2.6,
+                                          degrees(atan2(pads["7"][1] - pads["6"][1],
+                                                        pads["7"][0] - pads["6"][0])),
+                                          "centre", layer, tnote))
+            return out
+        return build
+
     def put_first(self, ref, value, fp, tries, rot=0, note="", rots=None, reach=16.0):
         """put() at the first of several (block, layer, r, s) that works."""
         for blk, layer, r, s in tries:
@@ -682,8 +872,9 @@ def board_s(**opt):
     moves USB to the expansion board; port_b "GH6" or "SH6"; can_rot 0 puts
     a can's pins radial, 90 tangential."""
     o = dict(OPTIONS, **opt)
-    global KEPT_VIAS
+    global KEPT_VIAS, BUS
     KEPT_VIAS = encoder_vias(False)              # board A's vias, as they are
+    BUS = "pads"
     S = Sketch()
     S.options = o
     F, B = "F.Cu", "B.Cu"
@@ -836,10 +1027,45 @@ CENTRE_OK = {"J13", "D1103", "R1107", "R1108", "R1109", "SW1",
              # the bucks' overflow, 2026-09-23: 4.7 uF inputs, the 12 V's second 22 uF
              "C1004", "C1007", "C1009", "C1010", "C1011"}
 
+def _pad_of(S, ref, num):
+    import padpos
+    p = next(q for q in S.parts if q.ref == ref)
+    return next((x, y) for n, x, y, w, h in padpos.pad_xy(p) if n == num)
+
+def spine_path(S):
+    """The VBUS spine's path: from below the header's VMOT row (pins 1, 3, 5,
+    7) to the XT30's VMOT pin."""
+    if not all(any(p.ref == r for p in S.parts) for r in ("J4", "J13")):
+        return
+    import padpos
+    j13 = next(p for p in S.parts if p.ref == "J13")
+    row = [(x, y) for n, x, y, w, h in padpos.pad_xy(j13) if n in ("1", "3", "5", "7")]
+    x0 = min(x for x, _ in row) + 1.0
+    y0 = min(y for _, y in row) - 1.0
+    SPINE[:] = [((x0, y0), _pad_of(S, "J4", "2"), SPINE_W)]
+
+def place_xt30(S):
+    """The XT30 on the power wedge's axis, outward face, mouth out, as far
+    out as the ports on the far face let its pegs come: its face in 0.05 mm
+    steps from the edge. Then the plug's path to the edge is kept clear."""
+    CENTRE.add("J4")                        # its back end is inside R 17
+    for k in range(int(8.0 / 0.05)):
+        face = G.R - 0.05 * k
+        c = Part("J4", "XT30", FP["XT30"], face - XT30_FACE + _xcy, 0.0, 270, PWR, AX[PWR],
+                 "F.Cu", f"bus input, AMASS XT30PW-M as the rp2350-motor-controller's J9: "
+                 f"pin 1 GND, pin 2 VMOT; mouth outward, {G.R - face:.1f} mm in from the edge")
+        if legal(c, S.parts):
+            S.parts.append(c); S.new.append(c)
+            PLUG[:] = [("F.Cu", face, G.R + 1.0, AX[PWR], degrees(asin(XT30_W / face)))]
+            return c
+    CENTRE.discard("J4")
+    S.missed.append(("J4", "XT30", FP["XT30"], PWR, "F.Cu", "bus input"))
+    return None
+
 def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC",
                  tvs_first=False, tvs_centre=False, ports=2, cans="wedge", relay=False,
                  exp="2x10", exp_first=False, buck5="sig", enc_vias="kept", mod_snap=45,
-                 mod_flex=0.0, in_ccw=True):
+                 mod_flex=0.0, in_ccw=True, bus="pads"):
     """Board S with the centre open.
 
       power    "two": the spec's two LMR38010; "one": one LMR38010, a load
@@ -849,13 +1075,21 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
                instead of wiring them pin for pin
       cans     "wedge": both in the power wedge; "centre": in the middle
       tvs      "SMC" (SMDJ54A, 3 kW) or "SMB" (SMBJ54A, 600 W)
+      bus      "pads": two arc pads for 14 AWG leads; "xt30": the XT30 on the
+               power wedge's rim (with relay and cans="centre" only)
     """
-    global KEPT_VIAS
+    global KEPT_VIAS, BUS
     KEPT_VIAS = encoder_vias(enc_vias == "moved")
+    BUS = bus
+    PLUG[:] = []
+    SPINE[:] = []
+    ESC_KEEP[:] = []
+    xt30 = bus == "xt30"
+    assert not xt30 or (relay and ports == 2 and cans == "centre"), "xt30: relay, cans centre"
     S = Sketch()
     S.options = dict(power=power, port=port, can_rot=can_rot, back_centre=back_centre,
                      tvs=tvs, tvs_first=tvs_first, ports=ports, cans=cans, relay=relay,
-                     exp=exp, enc_vias=enc_vias)
+                     exp=exp, enc_vias=enc_vias, bus=bus)
     F, B = "F.Cu", "B.Cu"
     BK = B if back_centre else F                 # where the centre's low parts go
     pf = FP["SH6"] if port == "SH6" else FP["GH6"]
@@ -865,8 +1099,10 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
         # One either side of the CPU's axis, as far from the shaft axis as the
         # four screw heads let them be: their ripple current is the one thing
         # here the encoder could see. They reach past R 17 into the link
-        # wedges' empty fronts. VBUS has to reach them on In2.
-        for ref, ang in (("C1001", 230.0), ("C1002", 320.0)):
+        # wedges' empty fronts. VBUS has to reach them on In2. With the XT30
+        # the power wedge's quadrant is its back end, so C1001 goes to the
+        # other side of the M3 head at 180 deg, in front of phases B and C.
+        for ref, ang in (("C1001", 135.0 if xt30 else 230.0), ("C1002", 320.0)):
             x, y = PL.polar_xy(ang, 14.5)
             # + lead outward (the footprint's pad 1 is its origin, pad 2 is
             # 5 mm along +x): it lands on In2's VBUS at R 17, the short way
@@ -899,8 +1135,27 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
               f"full-duplex RS-485, JST-{port[:2]} 6, motor-facing rim; chained in the harness")
     S.put("J12", "USB-C", FP["USBC"], SIG, 27.6, -10.0, 90, F,
           "USB 2.0 data + 5 V logic, no PD; HRO TYPE-C-31-M-12")
+    tv = ("SMDJ54A", FP["SMC"], "3 kW") if tvs == "SMC" else ("SMBJ54A", FP["SMB"], "600 W")
+    tvs_note = f"bus TVS, {tv[2]}, 54 V standoff, 60-66 V breakdown"
+    if xt30:
+        place_xt30(S)
+        # The TVS under it on the motor-facing face, between its pins and its
+        # pegs, cathode toward the VMOT pin: the one place left on the board
+        # for an SMC, and the right one -- before the ESD parts and the bucks,
+        # which otherwise take it.
+        S.put("D1001", tv[0], tv[1], PWR, 21.7, 0.0, 270, B,
+              tvs_note + "; under the XT30, cathode toward its VMOT pin", reach=1.5, step=0.05)
     # ESD at the ports, one SM712 per pair: a relay has four pairs, not two.
-    if ports != 2:
+    if xt30:
+        # one a side outside the XT30's pegs on the motor-facing face (the
+        # TVS fills the middle), and its twin on the outward face over it:
+        # the DOWN pair's on the port's face, the UP pair's through a via
+        esd = []
+        for ref, s, face, what in (("D1101", 8.0, B, "IN, DOWN pair"), ("D1104", -8.0, B, "OUT, DOWN pair"),
+                                   ("D1102", 8.0, F, "IN, UP pair"), ("D1105", -8.0, F, "OUT, UP pair")):
+            S.put(ref, "SM712", FP["SOT23"], PWR, 23.5, s, 0, face,
+                  f"RS-485 ESD, {what}, at the port", rots=(0, 90), reach=3.0, step=0.05)
+    elif ports != 2:
         esd = [("D1101", 6.0, "DOWN pair"), ("D1102", 9.0, "UP pair")]
     elif relay:
         k = 1 if in_ccw else -1
@@ -939,13 +1194,16 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
                         0, exp_note, rots=(0, 90))
     if exp_first:
         place_exp()
+    if xt30 and exp_first:
+        spine_path(S)
 
     # ---- the TVS ----------------------------------------------------------
-    tv = ("SMDJ54A", FP["SMC"], "3 kW") if tvs == "SMC" else ("SMBJ54A", FP["SMB"], "600 W")
-    tvs_note = f"bus TVS, {tv[2]}, 54 V standoff, 60-66 V breakdown"
     def place_tvs():
         # It clamps regen, which is milliseconds, so anywhere on the VBUS
-        # plane will do -- behind the VMOT pad by preference.
+        # plane will do -- behind the VMOT pad by preference; with the XT30,
+        # on the motor-facing face under it, by its VMOT pin.
+        if any(p.ref == "D1001" for p in S.parts):
+            return                              # the XT30 put it under itself
         got = S.put_first("D1001", tv[0], tv[1],
                           [(PWR, B, 21.5, -4.0), (PWR, F, 23.0, -7.5), (PWR, F, 22.0, 0.0),
                            (SIG, B, 24.0, 8.0), (SIG, B, 21.0, -2.0), (SIG, F, 21.0, 8.0)],
@@ -1171,7 +1429,59 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
             mx, my = sum(p[0] for p in ab) / 2, sum(p[1] for p in ab) / 2
             return hypot(mx - tgt[0], my - tgt[1])
         return sorted(angs, key=cost)
-    if rs is not None:
+    if relay and xt30:
+        # Two identical pairs, turned alike and square to the board (asked
+        # 2026-09-24: "make the SIT placement cosmetically cleaner"; the
+        # pairs had each chip turned to face its port, at 0, 45 and 315
+        # deg). The XT30's pins have taken the motor-facing quadrant they
+        # were in, so: IN beside the CPU, OUT in the quadrant opposite.
+        chip = {c[0]: c for c in relay_chips}
+        # turned so the bus pins face the ports: shorter pairs, and their
+        # escape vias go that way, not under whatever is on the other face
+        ports_at = [PL.polar_xy(AX[PWR], 27.0)]
+        def facing_ports(x, y, gs):
+            def cost(g):
+                u = Part.at_xy("UX", "", FP["DFN8"], x, y, g, "centre", BK)
+                ab = [(px, py) for n, px, py, w, h in padpos.pad_xy(u) if n in ("6", "7")]
+                mx, my = sum(q[0] for q in ab) / 2, sum(q[1] for q in ab) / 2
+                return hypot(mx - ports_at[0][0], my - ports_at[0][1])
+            return sorted(gs, key=cost)
+        g0 = None
+        for (a, b), (x, y) in zip(RELAY_PAIRS, RELAY_PAIRS_AT):
+            got = S.put_rigid(S.pair([chip[a], chip[b]]), x, y,
+                              (g0,) if g0 is not None else facing_ports(x, y, (0, 90, 180, 270)),
+                              reach=5.0)
+            if got is not None:
+                g0 = got[0].ang
+                ESC_KEEP.extend(s for u in got if u.fp == FP["DFN8"] for s in _escape_strips(u))
+                continue
+            # No room for the pair (the XT30's pins have its quadrant): each
+            # chip alone with its own parts, turned as the other pair if it
+            # can be, square to the board if not, at 45 deg if it must --
+            # "place the rest loosely" (decided 2026-09-24).
+            g1 = g0 if g0 is not None else 90
+            for c in (chip[a], chip[b]):
+                for gs in ((g1,), facing_ports(x, y, (g1 + 90, g1 + 180, g1 + 270)),
+                           facing_ports(x, y, (45, 135, 225, 315))):
+                    got = S.put_rigid(S.pair([c]), x, y, gs, reach=17.0)
+                    if got is not None:
+                        ESC_KEEP.extend(_escape_strips(got[0]))
+                        break
+                else:
+                    # the chip, then its parts wherever they fit near it
+                    ref, note, cap, term, tnote = c
+                    u = S.put_xy(ref, "SIT3088", FP["DFN8"], x, y, g1, note,
+                                 angs=(g1, g1 + 90, g1 + 180, g1 + 270, 45, 135, 225, 315),
+                                 layer=BK, reach=17.0)
+                    if u is None:
+                        continue
+                    (ux, uy) = u.rect[0]
+                    S.put_xy(cap, "100n", FP["C0402"], ux, uy, 0, f"{ref} decoupling, at VCC",
+                             angs=(0, 90, 45, 135), layer=BK, reach=5.0)
+                    if term:
+                        S.put_xy(term, "120R", FP["R0603"], ux, uy, 0, tnote,
+                                 angs=(0, 90, 45, 135), layer=BK, reach=6.0)
+    elif rs is not None:
         for ref, val, fp, x, y, note, face in rs:
             angs = facing(ref, fp, x, y, face) if ref in port_of else (0, 90, 45, -45, 135, -135)
             S.put_xy(ref, val, fp, x, y, angs[0], note, angs=angs, layer=face)
@@ -1219,7 +1529,10 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
     for k, ref in enumerate(("R1107", "R1108", "R1109")):
         S.put_xy(ref, "1k", FP["R0402"], 6.5 + 1.2 * k, 11.5, 90, "LED series",
                  angs=(90, 0, 45))
-    S.put_xy("SW1", "BOOTSEL", FP["SW"], -9.0, 9.0, -45, "BOOTSEL to GND, via R701",
+    # BOOTSEL: with the XT30, the one spot left on the outward face, at the
+    # top of the centre -- its old one is C1001's now
+    sx, sy = (0.0, 15.0) if xt30 else (-9.0, 9.0)
+    S.put_xy("SW1", "BOOTSEL", FP["SW"], sx, sy, -45, "BOOTSEL to GND, via R701",
              angs=(-45, 0, 90, 45))
     for k, (ref, val) in enumerate((("TP4", "ADC3"), ("TP5", "SWCLK"),
                                     ("TP6", "SWDIO"), ("TP7", "RUN"))):
@@ -1243,8 +1556,20 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
         # Into the motor-facing centre, toward the signal wedge: the LDO feeds
         # the +3V3 disc on In2 directly above it, and the rest are the CPU's.
         for k, (ref, val, fp, rot, note) in enumerate(lrow):
-            S.put_xy(ref, val, fp, 9.0 + 1.3 * (k % 4), -6.5 - 2.0 * (k // 4), rot, note,
-                     angs=(rot, rot + 90, 45), layer=B)
+            x, y, reach = 9.0 + 1.3 * (k % 4), -6.5 - 2.0 * (k // 4), 9.0
+            if xt30:
+                # the relay's second pair has the LDO's corner: the LDO goes
+                # wherever the centre has room, and its two caps go with it
+                u9 = next((q for q in S.parts if q.ref == "U9"), None)
+                if ref in ("C712", "C713") and u9 is not None:
+                    (x, y), reach = u9.rect[0], 6.0
+                else:
+                    # the LDO from the upper right, leaving the strip by the
+                    # XT30's VMOT pin to the bus divider
+                    (x, y) = (5.0, 13.0) if ref == "U9" else (x, y)
+                    reach = 26.0
+            S.put_xy(ref, val, fp, x, y, rot, note, angs=(rot, rot + 90, 45, 135), layer=B,
+                     reach=reach)
     else:
         for k, (ref, val, fp, rot, note) in enumerate(lrow):
             S.put(ref, val, fp, SIG, 18.4, -9.5 + 1.6 * k, rot, F, note, rots=(rot, rot + 90))
@@ -1260,14 +1585,40 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
             ("D1003", "B5819WS", "Diode_SMD:D_SOD-323", 19.5, -9.0,
              "5 V buck -> +5V, so USB cannot back-feed the rails")):
         S.put_first(ref, val, fp, [(SIG, B, r, s), (SIG, F, r, s)], 90, note, rots=(90, 0))
-    for ref, val, r, s, note in (
-            ("R801", "56k 0.1%", 19.0, 8.0, "bus divider, high leg"),
-            ("R806", "56k 0.1%", 19.0, 10.0, "bus divider, high leg, second half"),
-            ("R802", "4k7 0.1%", 19.0, 12.0, "bus divider, low leg"),
-            ("C801", "100n", 19.0, 14.0, "ADC2 filter")):
-        fp = FP["R0603"] if ref[0] == "R" else FP["C0603"]
-        S.put_first(ref, val, fp, [(PWR, B, r, s), (SIG, B, 25.0, s - 10.0), (PWR, F, r, s)],
-                    0, note, rots=(0, 90))
+    div = {"hi": ("R801", "56k 0.1%", "bus divider, high leg"),
+           "hi2": ("R806", "56k 0.1%", "bus divider, high leg, second half"),
+           "lo": ("R802", "4k7 0.1%", "bus divider, low leg"),
+           "c": ("C801", "100n", "ADC2 filter")}
+    if xt30:
+        # one piece, not four: placed part by part it fell in three places
+        for blk, face, r, s in ((PWR, B, 19.5, 9.0), (PWR, B, 19.5, -9.0), (SIG, B, 21.0, -8.0),
+                                (SIG, F, 20.0, 8.0), (PWR, F, 20.0, 8.0)):
+            if S.put_module(MOD_DIVIDER, div, blk, face, r, s, step=0.25, snap=15):
+                break
+        else:
+            # nowhere in the wedges: as one piece in the motor-facing centre,
+            # by the XT30's VMOT pin; failing that, part by part wherever
+            # there is a pocket (decided 2026-09-24: "place the rest loosely")
+            vx, vy = _pad_of(S, "J4", "2")
+            def build(x0, y0, g):
+                ca, sa = cos(radians(g)), sin(radians(g))
+                return [Part.at_xy(div[role][0], div[role][1], FP[fpk], x0 + dx * ca - dy * sa,
+                                   y0 + dx * sa + dy * ca, g + rot, "centre", B, div[role][2])
+                        for role, fpk, dx, dy, rot in MOD_DIVIDER]
+            if S.put_rigid(build, vx, vy, range(0, 360, 45), reach=12.0) is None:
+                for role, fpk, *_ in MOD_DIVIDER:
+                    ref, val, note = div[role]
+                    if S.put_xy(ref, val, FP[fpk], vx, vy, 0, note, angs=(0, 90, 45, 135),
+                                layer=B, reach=17.0) is None:
+                        S.missed.pop()
+                        S.put_first(ref, val, FP[fpk], [(PWR, B, 19.5, 9.0), (PWR, F, 20.0, 8.0),
+                                                         (SIG, B, 21.0, -8.0), (SIG, F, 20.0, 8.0)],
+                                    0, note, rots=(0, 90))
+    else:
+        for (ref, val, note), r, s in zip(div.values(), (19.0,) * 4, (8.0, 10.0, 12.0, 14.0)):
+            fp = FP["R0603"] if ref[0] == "R" else FP["C0603"]
+            S.put_first(ref, val, fp, [(PWR, B, r, s), (SIG, B, 25.0, s - 10.0), (PWR, F, r, s)],
+                        0, note, rots=(0, 90))
 
     # ---- last, the bucks' near parts: whatever room the rest leave ------------
     # The link wedges hold both modules and not much else. What does not fit
@@ -1276,7 +1627,16 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
     # their bucks. The In1/In2 plane pair under them makes ten or fifteen mm
     # nothing at 400 kHz; the 100 n at each IC's pins takes the edges.
     for _, part, fp, host, apad, opad, reach, layers, a in sorted(pending, key=lambda q: q[0]):
-        S.put_near(part, fp, host, apad, opad, reach, layers, a=a, centre=True)
+        if S.put_near(part, fp, host, apad, opad, reach, layers, a=a, centre=True) is None and xt30:
+            # With the XT30 the outward centre has no room left outside the
+            # CPU's channel: the power wedge's front, either side of the
+            # XT30 (phase C's gate driver is beside the one at 210 deg), or
+            # the CPU wedge's back. An output cap only adds capacitance to
+            # its rail, wherever it is.
+            S.missed.pop()
+            S.put_first(part[0], part[1], fp, [(PWR, F, 24.5, -9.0), (PWR, F, 24.5, 9.0),
+                                               (CPU, B, 22.0, -3.0)], 0,
+                        part[2] + "; beside the XT30", rots=(0, 45, 90, 135), reach=6.0)
     return S
 
 # The arrangement board S is built from (decided 2026-09-22): the centre open
@@ -1289,7 +1649,7 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
 # that wants the 45-degree grid.
 LAYOUT = dict(power="two", tvs="SMC", ports=2, port="SH6", cans="centre", relay=True,
               exp="2x10", exp_first=True, enc_vias="moved", tvs_first=True, mod_snap=15,
-              mod_flex=1.2)
+              mod_flex=1.2, bus="xt30")
 
 def layout():
     """Board S as it is built: the sketch's search, frozen by LAYOUT."""
@@ -1315,21 +1675,30 @@ def check_s(parts):
             continue
         if any(b.startswith(f"{c}: reaches r=") and "centre keepout" in b for c in CENTRE):
             continue
+        peg = {p.ref for p in parts if p.fp in PEG_FPS}
+        if any(b.startswith(f"{r}'s through-hole pads land on") or
+               (b.startswith(f"{r}: ") and " deg off its " in b) for r in peg):
+            continue                        # redone below with the pegs' own rule
         bad.append(b)
-    new = {PWR, SIG, "centre"}            # board A's own pairs are DRC-proven
+    new = {PWR, SIG, "centre"} | {p.block for p in parts if p.ref in EDGE}
+                                          # board A's own pairs are DRC-proven
     for a in parts:
         for b in parts:
             if a.block not in new and b.block not in new:
                 continue
-            if b.layer != a.layer and any(_hits_circle(b, hx, hy, hr + THT_CLR)
-                                          for hx, hy, hr in _holes(a)):
+            if b.layer != a.layer and any(_hits_circle(b, hx, hy, hr + cl)
+                                          for hx, hy, hr, cl in _holes(a)):
                 bad.append(f"{a.ref}'s through-hole leads come within {THT_CLR} mm of {b.ref}")
+            if b.layer != a.layer and not _pegs_clear(a, b):
+                bad.append(f"{a.ref}'s pegs come within {PEG_CU} mm of {b.ref}'s copper")
+            if a is not b and b.layer == a.layer and not _ears_clear(a, b):
+                bad.append(f"{b.ref} is on {a.ref}'s peg ears")
     for p in parts:
         lo, hi = _radii(p)
         lim = R_EDGE if p.ref in EDGE else G.R_USABLE
         if hi > lim + 1e-9:
             bad.append(f"{p.ref}: reaches r={hi:.2f}, past {lim}")
-        for layer, r0, r1, ang, half, net in BUS_PADS:
+        for layer, r0, r1, ang, half, net in bus_pads():
             if p.layer == layer and _in_sector_part(p, r0, r1, ang, half):
                 bad.append(f"{p.ref} sits on the {net} bus pad")
         if p.ref in EDGE and hi < R_RIM:
@@ -1398,7 +1767,7 @@ def _panel(S, layer, ox, title, sub):
     for ly, r0, r1, ang, half in PL.sectors():
         if ly == layer:
             o.append(f'<path class="land" d="{_sector_path(ang - half, ang + half, r0, r1)}"/>')
-    for ly, r0, r1, ang, half, net in BUS_PADS:
+    for ly, r0, r1, ang, half, net in bus_pads():
         if ly == layer:
             o.append(f'<path class="buspad" d="{_sector_path(ang - half, ang + half, r0, r1)}"/>')
             tx, ty = PL.polar_xy(ang, (r0 + r1) / 2)
@@ -1477,7 +1846,9 @@ def render(S, path):
          f'<title>Board S placement sketch: outward face and motor-facing face</title>',
          f'<style>{SVG_STYLE}</style>',
          _panel(S, "F.Cu", 0, "outward face",
-                "the face away from the motor; bus pads, cans, USB-C, expansion header"),
+                "the face away from the motor; "
+                + ("XT30" if getattr(S, "options", {}).get("bus") == "xt30" else "bus pads")
+                + ", cans, USB-C, expansion header"),
          _panel(S, "B.Cu", 76, "motor-facing face, seen through the board",
                 "same orientation as the left; RS-485 ports face out at the rim"),
          '</svg>']
@@ -1515,7 +1886,7 @@ if __name__ == "__main__":
     for name, build, out in (("as asked", board_s, "board_s_asked.svg"),
                              ("the arrangement that fits: cans in the centre, two "
                               "compact bucks, 3 kW TVS, CPU-relay RS-485, 2x10 header on "
-                              "the axis",
+                              "the axis, the bus on an XT30",
                               layout,
                               "board_s_plan.svg")):
         print(f"== {name}")

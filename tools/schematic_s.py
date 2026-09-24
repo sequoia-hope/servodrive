@@ -68,10 +68,17 @@ def control():
     return out
 
 def power():
-    """04_power: the bus from its pads to the rails."""
+    """04_power: the bus from its XT30 to the rails."""
     sh, out = "04_power", []
     def add(ref, lib_id, value, fp, nets, group, dnp=False):
         out.append(Comp(ref, lib_id, value, fp, nets, sh, group, dnp))
+
+    # The bus input (2026-09-24, was two arc pads for a pigtail): the
+    # rp2350-motor-controller's J9, symbol, footprint and pinout -- AMASS
+    # XT30PW-M, pin 1 GND, pin 2 VMOT -- so one pack lead fits both boards.
+    add("J4", "Connector_Generic:Conn_01x02", "XT30",
+        "servodrive:AMASS_XT30PW-M_1x02_P2.50mm_Horizontal", {"1": "GND", "2": "VBUS"},
+        "bus: input")
 
     add("D1001", DZ, "SMDJ54A", "Diode_SMD:D_SMC", {"1": "VBUS", "2": "GND"},
         "bus: TVS and bulk")
@@ -239,16 +246,12 @@ def io():
     return out
 
 def mechanical():
-    """Board A's heatsink lands, bosses and phase lead pads, and the bus's two
-    arc pads: 14 AWG soldered flat on the outward face at the power wedge's
-    rim, each with an array of barrels to the planes."""
+    """Board A's heatsink lands, bosses and phase lead pads. (The bus's two arc
+    pads went for the XT30 on 2026-09-24; it is a placed part, in power().)"""
     out = []
     for c in SCH.mechanical():
         c.sheet = "04_power"
         out.append(c)
-    for ref, net in (("J4", "VBUS"), ("J5", "GND")):
-        out.append(Comp(ref, "Connector:Conn_01x01_Pin", net, "servodrive:BusPad_Arc",
-                        {"1": net}, "04_power", "bus input"))
     return out
 
 GEN_PLACED = {c.ref for c in mechanical()}
@@ -260,7 +263,7 @@ SHEETS = [
     ("01_power_stage", "Three half-bridges, gate drive, DC link, inline sense"),
     ("02_control", "RP2350A, crystal, QSPI flash, 3V3 LDO, ADC supply"),
     ("03_encoder", "MT6701 on the shaft axis, SSI to SPI0"),
-    ("04_power", "Bus pads, TVS, bulk, bus divider, the 12 V and 5 V bucks"),
+    ("04_power", "XT30 bus input, TVS, bulk, bus divider, the 12 V and 5 V bucks"),
     ("05_io", "USB-C, RS-485 relay, expansion header, LED, BOOTSEL, test pads"),
 ]
 
