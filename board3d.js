@@ -1,4 +1,4 @@
-/* board3d.js — the 3D viewer on index.html and single.html.
+/* board3d.js — the 3D viewer on index.html and single.html (the 3D tab).
  *
  * Draws img/3d/<board>.glb, written by tools/export_3d.py: the board as
  * kicad-cli exports it, merged and quantized, each part's node carrying its
@@ -63,7 +63,7 @@ function init(root) {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;    // bare copper glares without
     stage.prepend(renderer.domElement);
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0b0d11);
+    scene.background = new THREE.Color(getComputedStyle(stage).backgroundColor);   // style.css's canvas
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
     camera = new THREE.PerspectiveCamera(30, 1, 1e-4, 10);

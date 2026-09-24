@@ -1,6 +1,6 @@
 {
  "board": "servodrive_A.kicad_pcb",
- "generated": "2026-09-22",
+ "generated": "2026-09-23",
  "page_mm": [
   98.0186,
   71.12
@@ -16,7 +16,7 @@
   33.25
  ],
  "dia_mm": 65.0,
- "plate": "#0b0d11",
+ "plate": "#c8c8c8",
  "vias": 278,
  "layers": [
   {

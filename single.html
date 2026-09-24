@@ -5,12 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>servodrive — board S</title>
 <link rel="stylesheet" href="style.css">
+<script src="shell.js"></script>
 <style>
-  /* The drawings want more width than the prose: main is wide on this page,
-     the sections keep the site's 900 px measure, the figures take the rest. */
-  main { max-width: 1400px; grid-template-columns: minmax(0, 1fr); }
-  main > section { width: 100%; max-width: 900px; justify-self: center;
-                   box-sizing: border-box; }
   .wide { width: 100%; margin: .5rem 0; }
   .wide object { display: block; width: 100%; aspect-ratio: 150 / 79; }
   .wide figcaption { max-width: 860px; margin-left: auto; margin-right: auto; }
@@ -66,89 +62,106 @@ python3 tools/route.py --board s --rounds 1 --first EN_12V,USB_VBUS,LIN_A,EXP_GP
 python3 tools/route.py --board s --polish           # twice</code></pre>
   </section>
 
-  <section id="copper" data-dir="img/layers/s/">
-    <h2>Copper, layer by layer</h2>
-    <p>Board S's six copper layers as routed, plotted out of the board file by
-    <code>tools/plot_layers.py</code> and stacked in register &mdash; the same viewer as board A's
-    on the <a href="index.html#copper">project page</a>. Pick a layer to bring it to the front;
-    drag to pan, scroll to zoom. The cursor reads out in millimetres and in radius and angle.</p>
-    <p class="sub" id="cu-stats"></p>
-    <div class="cu">
-      <div class="cu-panel">
-        <div id="cu-layers"></div>
-        <p class="cu-hint" style="margin-top:.3rem">The dot puts a layer on top at full
-        opacity; the box says whether it is drawn at all.</p>
-        <div class="cu-row">
-          <button data-act="all" title="show every layer">all</button>
-          <button data-act="none" title="show only the selected layer">none</button>
-          <button data-act="solo" title="selected layer and the outline only">solo</button>
-          <button data-act="grid" title="the six layers side by side">grid</button>
-        </div>
-        <label class="cu-ctl">opacity of the unselected copper
-          <input type="range" id="cu-dim" min="0" max="60" value="16"></label>
-        <label class="cu-ctl"><input type="checkbox" id="cu-mirror">
-          view from the back (mirrored)</label>
-        <div class="cu-row">
-          <button data-act="out" title="zoom out">&minus;</button>
-          <button data-act="fit" title="fit the board">fit</button>
-          <button data-act="in" title="zoom in">+</button>
-          <span class="sub" id="cu-zoom">1.0&times;</span>
-        </div>
-        <p class="cu-note" id="cu-note"></p>
-        <p class="cu-read" id="cu-read"></p>
-        <p class="cu-hint">Keys: <b>1</b>&ndash;<b>9</b> pick a layer, <b>s</b> solo,
-        <b>a</b> all, <b>m</b> mirror, <b>0</b> fit. Angles are measured from the +x axis, the
-        way the section boundaries at 0/68/136/204/256/308&deg; are.</p>
+  <section class="vw" aria-label="Board S: PCB and 3D">
+    <div class="vw-bar">
+      <div class="vw-left"><button data-vw="layers" data-icon="layers" aria-pressed="true"
+        title="show or hide the layer list"><span>Layers</span></button></div>
+      <div class="vw-tabs" role="tablist" aria-label="view">
+        <button role="tab" data-tab="copper" aria-controls="copper" aria-selected="true">PCB</button>
+        <button role="tab" data-tab="board3d" aria-controls="board3d" aria-selected="false">3D</button>
       </div>
-      <div>
-        <div id="cu-stack">
-          <div class="cu-plate" id="cu-plate">
-            <div class="cu-pan" id="cu-pan"><div class="cu-flip" id="cu-flip"></div></div>
-            <div class="cu-scale"><i id="cu-bar"></i><span id="cu-barlab"></span></div>
-            <div class="cu-back" id="cu-back"></div>
-          </div>
-        </div>
-        <div class="cu-grid" id="cu-gridbox" hidden></div>
-      </div>
+      <div class="vw-tools"><button data-vw="full" data-icon="full" title="full screen"
+        aria-label="full screen"></button></div>
     </div>
-    <p class="cu-files" id="cu-files"></p>
-    <p class="sub" id="cu-fallback"></p>
-    <p class="sub">Rebuild after any routing change with
-    <code>python3 tools/plot_layers.py --board s</code> &mdash; <code>route.py --board s</code> runs it
-    at the end of every run.</p>
-  </section>
 
-  <section id="board3d" data-model="img/3d/s">
-    <h2>The board in 3D</h2>
-    <p>Board S as routed, every part that has a model standing on it, exported through KiCad's
-    own GLB exporter by <code>tools/export_3d.py</code> &mdash; the same viewer as board A's on the
-    <a href="index.html#board3d">project page</a>. Drag to turn it over, right-drag to pan, scroll
-    to zoom. Hover a part for its reference, value and footprint, click to keep it lit,
-    double-click or type a reference to fly to it. The edge view is the one for the motor-facing
-    centre, where everything has to stay under 1.5&nbsp;mm for the standoffs; the bulk cans stand
-    in the outward centre.</p>
-    <div class="b3">
-      <div class="b3-bar">
-        <div class="cu-row" role="group" aria-label="view">
-          <button data-view="front" title="the outward face, as pcbnew draws it">front</button>
-          <button data-view="back" title="the motor-facing face, turned over left to right">back</button>
-          <button data-view="tilt" title="from the front, tilted towards you">tilted</button>
-          <button data-view="edge" title="edge on: how tall each face stands">edge</button>
+    <div class="vw-panel" id="copper" data-dir="img/layers/s/" role="tabpanel">
+      <div class="cu">
+        <div class="cu-panel">
+          <div id="cu-layers"></div>
+          <p class="cu-hint" style="margin-top:.3rem">The dot puts a layer on top at full
+          opacity; the box says whether it is drawn at all.</p>
+          <div class="cu-row">
+            <button data-act="all" title="show every layer">all</button>
+            <button data-act="none" title="show only the selected layer">none</button>
+            <button data-act="solo" title="selected layer and the outline only">solo</button>
+            <button data-act="grid" title="the six layers side by side">grid</button>
+          </div>
+          <label class="cu-ctl">opacity of the unselected copper
+            <input type="range" id="cu-dim" min="0" max="60" value="16"></label>
+          <label class="cu-ctl"><input type="checkbox" id="cu-mirror">
+            view from the back (mirrored)</label>
+          <div class="cu-row">
+            <button data-act="out" title="zoom out">&minus;</button>
+            <button data-act="fit" title="fit the board">fit</button>
+            <button data-act="in" title="zoom in">+</button>
+            <span class="sub" id="cu-zoom">1.0&times;</span>
+          </div>
+          <p class="cu-note" id="cu-note"></p>
+          <p class="cu-read" id="cu-read"></p>
+          <p class="cu-hint">Keys: <b>1</b>&ndash;<b>9</b> pick a layer, <b>s</b> solo,
+          <b>a</b> all, <b>m</b> mirror, <b>0</b> fit. Angles are measured from the +x axis, the
+          way the section boundaries at 0/68/136/204/256/308&deg; are.</p>
         </div>
-        <div class="b3-layers" id="b3-layers"></div>
-        <label class="b3-find">find <input id="b3-find" list="b3-refs" placeholder="U7"
-          disabled spellcheck="false" autocomplete="off" title="a reference, e.g. U7"></label>
-        <datalist id="b3-refs"></datalist>
+        <div class="cu-canvas">
+          <div id="cu-stack">
+            <div class="cu-plate" id="cu-plate">
+              <div class="cu-pan" id="cu-pan"><div class="cu-flip" id="cu-flip"></div></div>
+              <div class="cu-scale"><i id="cu-bar"></i><span id="cu-barlab"></span></div>
+              <div class="cu-back" id="cu-back"></div>
+            </div>
+          </div>
+          <div class="cu-grid" id="cu-gridbox" hidden></div>
+        </div>
       </div>
-      <div class="b3-stage" id="b3-stage">
-        <p class="b3-msg" id="b3-msg">The model loads when this part of the page is on screen.</p>
-        <div class="b3-tag" id="b3-tag" hidden></div>
+      <div class="vw-about">
+        <h2>Copper, layer by layer</h2>
+        <p>Board S's six copper layers as routed, plotted out of the board file by
+        <code>tools/plot_layers.py</code> and stacked in register &mdash; the same viewer as board A's
+        on the <a href="index.html#copper">project page</a>. Pick a layer to bring it to the front;
+        drag to pan, scroll to zoom. The cursor reads out in millimetres and in radius and angle.</p>
+        <p class="sub" id="cu-stats"></p>
+        <p class="cu-files" id="cu-files"></p>
+        <p class="sub" id="cu-fallback"></p>
+        <p class="sub">Rebuild after any routing change with
+        <code>python3 tools/plot_layers.py --board s</code> &mdash; <code>route.py --board s</code> runs it
+        at the end of every run.</p>
       </div>
     </div>
-    <p class="cu-files b3-facts" id="b3-facts"></p>
-    <p class="sub">Rebuild after any change to the board with <code>python3 tools/export_3d.py --board s</code>
-    &mdash; <code>gen_boards.py --board s</code> and <code>route.py --board s</code> run it with the
-    layer plots.</p>
+
+    <div class="vw-panel" id="board3d" data-model="img/3d/s" role="tabpanel" hidden>
+      <div class="b3">
+        <div class="b3-bar">
+          <div class="cu-row" role="group" aria-label="view">
+            <button data-view="front" title="the outward face, as pcbnew draws it">front</button>
+            <button data-view="back" title="the motor-facing face, turned over left to right">back</button>
+            <button data-view="tilt" title="from the front, tilted towards you">tilted</button>
+            <button data-view="edge" title="edge on: how tall each face stands">edge</button>
+          </div>
+          <div class="b3-layers" id="b3-layers"></div>
+          <label class="b3-find">find <input id="b3-find" list="b3-refs" placeholder="U7"
+            disabled spellcheck="false" autocomplete="off" title="a reference, e.g. U7"></label>
+          <datalist id="b3-refs"></datalist>
+        </div>
+        <div class="b3-stage" id="b3-stage">
+          <p class="b3-msg" id="b3-msg">The model loads when this part of the page is on screen.</p>
+          <div class="b3-tag" id="b3-tag" hidden></div>
+        </div>
+      </div>
+      <div class="vw-about">
+        <h2>The board in 3D</h2>
+        <p>Board S as routed, every part that has a model standing on it, exported through KiCad's
+        own GLB exporter by <code>tools/export_3d.py</code> &mdash; the same viewer as board A's on the
+        <a href="index.html#board3d">project page</a>. Drag to turn it over, right-drag to pan, scroll
+        to zoom. Hover a part for its reference, value and footprint, click to keep it lit,
+        double-click or type a reference to fly to it. The edge view is the one for the motor-facing
+        centre, where everything has to stay under 1.5&nbsp;mm for the standoffs; the bulk cans stand
+        in the outward centre.</p>
+        <p class="cu-files b3-facts" id="b3-facts"></p>
+        <p class="sub">Rebuild after any change to the board with <code>python3 tools/export_3d.py --board s</code>
+        &mdash; <code>gen_boards.py --board s</code> and <code>route.py --board s</code> run it with the
+        layer plots.</p>
+      </div>
+    </div>
   </section>
 
   <section>

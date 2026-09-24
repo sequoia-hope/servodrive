@@ -13,8 +13,11 @@ from the same generators, and re-routed the same day with TI's buck parts
 ([below](#board-s-one-board)).**
 
 - **[spec.html](spec.html)** — the specification
-- **[index.html](index.html)** — status, decisions, open questions; board A's copper viewer and 3D viewer
-- **[single.html](single.html)** — board S, the single-board variant: captured, placed and routed, with its copper viewer and 3D viewer
+- **[index.html](index.html)** — status, decisions, open questions; board A in the viewer (PCB and 3D tabs)
+- **[single.html](single.html)** — board S, the single-board variant: captured, placed and routed, with the same viewer
+
+The pages are styled after Altium 365's workspace: a dark frame with the
+project tree on the left, built by `shell.js` from each page's own headings.
 
 Online at <https://sequoia-hope.github.io/servodrive/> (GitHub Pages, from
 the root of `main`: the pages are plain files with relative links, and
@@ -302,11 +305,16 @@ hardware/
 img/                 generated drawings — do not edit by hand
 img/layers/a/        board A layer by layer, plus layers.json: what the copper
                      viewer on index.html stacks (img/layers/s/: board S, on single.html)
-copper.js            that viewer — layer panel, pan and zoom, mirror, grid
+copper.js            that viewer, the PCB tab — layer panel, pan and zoom, mirror, grid
 img/3d/              a.glb and s.glb, each with a .json of what its caption says
-board3d.js           the 3D viewer on index.html and single.html — views, layer
+board3d.js           the 3D tab on index.html and single.html — views, layer
                      toggles, hover or click a part to name it, find by reference
-vendor/              three.js r160 (MIT), the loader, controls and environment it uses
+shell.js             the frame every page shares, after Altium 365: top bar, the
+                     PROJECT tree read off each page's headings, the sheet bar,
+                     the viewer's PCB / 3D tabs
+style.css            the one stylesheet, A365's palette (sim/report uses it too)
+vendor/              three.js r160 (MIT), the loader, controls and environment it
+                     uses; fonts/: Inter, latin and greek (OFL)
 spec.html            the specification
 index.html           project status
 ```

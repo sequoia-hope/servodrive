@@ -64,7 +64,7 @@ def sentence(x):
 def chip(ok, label=None):
     cls, word = VERDICT[ok]
     txt = label or {"ok": "PASS", "bad": "FAIL", "na": "INFO"}[cls]
-    colour = {"ok": "var(--up)", "bad": "#c0392b", "na": "var(--muted)"}[cls]
+    colour = {"ok": "var(--up)", "bad": "var(--bad)", "na": "var(--muted)"}[cls]
     return (f'<span class="state" style="color:{colour};'
             f'border-color:color-mix(in srgb,{colour} 35%,var(--line))">'
             f'<span class="dot" style="background:{colour}"></span>{e(txt)}</span>')
@@ -298,7 +298,8 @@ def build(R):
     return ("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">"
             "<meta name=\"viewport\" content=\"width=device-width,"
             "initial-scale=1\"><title>servodrive &mdash; EM simulation</title>"
-            "<link rel=\"stylesheet\" href=\"../../style.css\"></head><body>"
+            "<link rel=\"stylesheet\" href=\"../../style.css\">"
+            "<script src=\"../../shell.js\"></script></head><body>"
             + "".join(parts) + "</body></html>")
 
 

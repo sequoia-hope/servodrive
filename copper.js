@@ -1,4 +1,4 @@
-/* copper.js — the copper viewer on index.html.
+/* copper.js — the copper viewer on index.html and single.html (the PCB tab).
  *
  * Everything it draws comes from img/layers/<board>/layers.json, written by
  * tools/plot_layers.py: one SVG per layer, all cropped to the same rectangle
@@ -43,6 +43,8 @@
     // ---- the plate, and one img per layer ------------------------------
     const plate = $('#cu-plate'), pan = $('#cu-pan'), flip = $('#cu-flip');
     plate.style.aspectRatio = vw + ' / ' + vh;
+    plate.style.setProperty('--ar', vw / vh);                // style.css caps the height by it
+    if (meta.plate) $('.cu').style.setProperty('--plate', meta.plate);   // the holes' colour
     const body = el('div', 'cu-body');
     Object.assign(body.style, {
       left: pct(bx - meta.dia_mm / 2, vw), top: pct(by - meta.dia_mm / 2, vh),
@@ -140,7 +142,7 @@
     document.addEventListener('keydown', e => {
       if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.metaKey || e.ctrlKey) return;
       const r = root.getBoundingClientRect();                 // only when on screen
-      if (r.bottom < 0 || r.top > innerHeight) return;
+      if (!r.height || r.bottom < 0 || r.top > innerHeight) return;   // (or its tab is shut)
       const n = parseInt(e.key, 10);
       if (n >= 1 && n <= rows.length) {
         state.sel = rows[n - 1].slug; state.vis[state.sel] = true;

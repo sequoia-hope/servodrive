@@ -47,9 +47,11 @@ EXTRA = [("Edge.Cuts", "edge", "outline", "Board outline"),
          ("F.Fab", "fab_f", "fab", "Parts, front"),
          ("B.Fab", "fab_b", "fab", "Parts, back")]
 
-# The plate the viewer draws the board on. Drill holes are painted this
-# colour so they punch through the board body to the background.
-PLATE = "#0b0d11"
+# The plate the viewer draws the board on -- the grey canvas of Altium 365's
+# viewer, which the pages are styled after. Drill holes are painted this
+# colour so they punch through the board body to the background; copper.js
+# reads it back out of layers.json for the canvas itself.
+PLATE = "#c8c8c8"
 
 # A layer keeps the colour pcbnew draws it in, so the page and the editor
 # agree -- except the fab layers, which are annotation drawn over whatever
