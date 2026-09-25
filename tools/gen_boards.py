@@ -801,6 +801,88 @@ def zone(net, name, layers, poly, tag, priority=0, solid=False,
             f'\t\t(polygon (pts {poly}))\n'
             f'\t)')
 
+# The four motor screws (asked 2026-09-24: "a screw keepout top and bottom
+# around the center four screws"). An M3 head and washer sit on the outward
+# face and the standoff to the motor on the other, so neither face may carry
+# copper there: a rule area of the head's diameter (geometry.MOUNT_HEAD) on
+# F.Cu and B.Cu that allows no track, via or pour. (Pads it has to allow: the
+# screw's own hole is one. The placer keeps every part's pads clear.) KiCad's DRC holds the
+# router's copper to it, its DSN export hands it to freerouting as a keepout,
+# and fanout, stitch and finish.py honour it.
+def screw_keepouts(tag, n=48):
+    out = []
+    for k, (sx, sy) in enumerate(((G.MOUNT_X, 0), (-G.MOUNT_X, 0),
+                                  (0, G.MOUNT_Y), (0, -G.MOUNT_Y))):
+        pts = []
+        for i in range(n):
+            a = 2 * 3.141592653589793 * i / n
+            from math import cos, sin
+            px, py = P(sx + G.MOUNT_HEAD / 2 * cos(a), sy + G.MOUNT_HEAD / 2 * sin(a))
+            pts.append(f"(xy {px:.4f} {py:.4f})")
+        out.append(f'\t(zone\n'
+                   f'\t\t(net 0)\n'
+                   f'\t\t(net_name "")\n'
+                   f'\t\t(layers "F.Cu" "B.Cu")\n'
+                   f'\t\t(uuid "{uid(f"{tag}-screw-{k}")}")\n'
+                   f'\t\t(name "screw keepout ({sx:+.1f}, {sy:+.1f})")\n'
+                   f'\t\t(hatch edge 0.5)\n'
+                   f'\t\t(connect_pads (clearance 0))\n'
+                   f'\t\t(min_thickness 0.25)\n'
+                   f'\t\t(filled_areas_thickness no)\n'
+                   f'\t\t(keepout (tracks not_allowed) (vias not_allowed) (pads allowed)'
+                   f' (copperpour not_allowed) (footprints allowed))\n'
+                   f'\t\t(placement (enabled no) (sheetname ""))\n'
+                   f'\t\t(fill (thermal_gap 0.5) (thermal_bridge_width 0.5))\n'
+                   f'\t\t(polygon (pts {" ".join(pts)}))\n'
+                   f'\t)')
+    return out
+
+# Board S's centre is where every net from the CPU to the header, the encoder
+# and the RS-485 transceivers crosses, and with keepouts round the four motor
+# screws on both faces (2026-09-24) it was two connections short at 0.15 mm.
+# Asked the same day: finer rules there -- on In3 only, because the outer
+# layers are 2 oz copper and 0.15 is JLCPCB's floor for that (1 oz inner
+# goes to 0.09). A named rule area, "fine centre", marks where; the rules
+# file gives signal nets on In3 inside it 0.12 mm track and clearance, and
+# holds everything else at 0.15 explicitly now that the board minimum is 0.12.
+# finish.py's maze uses the same numbers (FINE_*); freerouting keeps 0.15.
+FINE_R = G.ZONE_R0              # 17 mm: the centre
+FINE_RULES = """(version 1)
+
+# The board minimum is 0.12 mm for the In3 rule below; every other track
+# stays at least 0.15, as it was. (Clearance needs no rule of its own: the
+# netclasses give 0.15, and 0.4 for the 60 V nets -- a blanket custom
+# clearance rule here would override that 0.4.)
+(rule "tracks 0.15 mm"
+  (constraint track_width (min 0.15mm)))
+
+# In3, inside R 17: 0.12 mm, signal nets only (1 oz inner copper; JLCPCB's
+# floor there is 0.09). The 60 V nets keep their own 0.4 mm.
+(rule "In3 in the centre: 0.12 mm tracks"
+  (layer "In3.Cu")
+  (condition "A.Type == 'Track' && A.intersectsArea('fine centre')")
+  (constraint track_width (min 0.12mm)))
+(rule "In3 in the centre: 0.12 mm clearance"
+  (layer "In3.Cu")
+  (condition "A.intersectsArea('fine centre') && B.intersectsArea('fine centre') && A.NetClass != 'Phase' && B.NetClass != 'Phase'")
+  (constraint clearance (min 0.12mm)))
+"""
+
+def fine_area(tag, n=96):
+    """The "fine centre" rule area on In3: restricts nothing, names where the
+    rules file's 0.12 mm applies."""
+    pts = " ".join(f"(xy {P(*G.polar(i * 360.0 / n, FINE_R))[0]:.4f} "
+                   f"{P(*G.polar(i * 360.0 / n, FINE_R))[1]:.4f})" for i in range(n))
+    return (f'\t(zone\n\t\t(net 0)\n\t\t(net_name "")\n\t\t(layer "In3.Cu")\n'
+            f'\t\t(uuid "{uid(f"{tag}-fine-centre")}")\n\t\t(name "fine centre")\n'
+            f'\t\t(hatch edge 0.5)\n\t\t(connect_pads (clearance 0))\n'
+            f'\t\t(min_thickness 0.25)\n\t\t(filled_areas_thickness no)\n'
+            f'\t\t(keepout (tracks allowed) (vias allowed) (pads allowed)'
+            f' (copperpour allowed) (footprints allowed))\n'
+            f'\t\t(placement (enabled no) (sheetname ""))\n'
+            f'\t\t(fill (thermal_gap 0.5) (thermal_bridge_width 0.5))\n'
+            f'\t\t(polygon (pts {pts}))\n\t)')
+
 def keyhole(a0, a1, r_in, r_out, n=96):
     """A disc of r_in with a sector a0..a1 (deg, CCW) reaching out to r_out:
     one simple polygon, so a net can have the centre AND a wedge on one layer
@@ -1306,6 +1388,9 @@ def board(key, cfg):
     o.append(gr_text(cfg["title"], 0, G.R + 3.0, "Cmts.User", 1.6, f"{tag}-ttl"))
     if cfg["motor_mount"]:
         o += zones(tag)
+        if _ACTIVE == "s":
+            o += screw_keepouts(tag)
+            o.append(fine_area(tag))
     o.append(gr_text(cfg["note"], 0, G.R + 5.2, "Cmts.User", 1.0, f"{tag}-note"))
     o.append('\t(embedded_fonts no)')
     o.append(')')
@@ -1373,7 +1458,10 @@ def project(cfg):
                     "allow_blind_buried_vias": False,   # JLCPCB does not offer them (F-48)
                     "allow_microvias": False,
                     "max_error": 0.005,
-                    "min_clearance": 0.15,
+                    # board S: 0.12, for the one place its custom rules
+                    # (FINE_RULES) allow it -- In3 inside R 17 -- and 0.15
+                    # everywhere else by those same rules
+                    "min_clearance": 0.12 if cfg.get("variant") == "s" else 0.15,
                     "min_copper_edge_clearance": 0.3,
                     "min_hole_clearance": 0.25,
                     "min_hole_to_hole": 0.5,           # POFV-compatible, see note above
@@ -1384,11 +1472,12 @@ def project(cfg):
                     # this board uses, in the stitching vias, and 0.25 would
                     # outlaw the annular ring those need.
                     "min_through_hole_diameter": 0.2,
-                    "min_track_width": 0.15,
+                    "min_track_width": 0.12 if cfg.get("variant") == "s" else 0.15,
                     "min_via_annular_width": 0.13, "min_via_diameter": 0.45,
                     "solder_mask_to_copper_clearance": 0.005,
                 },
-                "track_widths": [0.0, 0.15, 0.2, 0.25, 0.35, 0.5, 1.0, 2.0],
+                "track_widths": [0.0] + ([0.12] if cfg.get("variant") == "s" else [])
+                                + [0.15, 0.2, 0.25, 0.35, 0.5, 1.0, 2.0],
                 "via_dimensions": [{"diameter": 0.0, "drill": 0.0},
                                    {"diameter": 0.5, "drill": 0.2},
                                    {"diameter": 0.6, "drill": 0.3},
@@ -1772,10 +1861,11 @@ def render_svgs(which="ab"):
         i = t.index(">", t.index("<svg")) + 1
         dst.write_text(t[:i] + "\n" + SVG_THEME + t[i:])
         print(f"  wrote  {dst.relative_to(ROOT)}")
-    # ... and the per-layer plots the copper viewer on index.html stacks,
-    # and the GLB its 3D viewer draws.
-    plot_layers.run("s" if which == "s" else "a")
-    export_3d.run("s" if which == "s" else "a")
+    # ... and the per-layer plots the copper viewer on index.html stacks, the
+    # GLB its 3D viewer draws, and board S's page status (tools/regen.py).  No
+    # simulation: a board straight out of the generator is not routed yet.
+    import regen
+    regen.run("s" if which == "s" else "a", sim="no")
 
 # ------------------------------------------------------------------ main ----
 def write(path, text, force, protect=False):
@@ -1820,6 +1910,7 @@ def emit_s(cfg, force, pcb_too=True):
     write(d / "sym-lib-table", SYM_TABLE, force)
     write(d / "fp-lib-table", FP_TABLE, force)
     write(d / f"{cfg['name']}.kicad_pro", json.dumps(project(cfg), indent=2) + "\n", force)
+    write(d / f"{cfg['name']}.kicad_dru", FINE_RULES, force)
     write(d / f"{cfg['name']}.kicad_sch", sch_notes(cfg, SHEETS_S), force, protect=True)
     glob = SCHS.global_nets()
     for nm, desc in SHEETS_S:

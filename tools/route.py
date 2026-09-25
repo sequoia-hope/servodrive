@@ -82,12 +82,19 @@ def save(board, path):
     os.replace(tmp, path)
 
 def strip_pours(board):
-    """Delete the space-filling ground pours; keep the planes."""
+    """Delete the space-filling ground pours; keep the planes. And the rule
+    areas that restrict nothing -- board S's "fine centre", which only names
+    where its custom rules apply: KiCad's Specctra export writes every rule
+    area as a keepout, and that one would shut the router out of In3's centre."""
     gone = 0
     for z in list(board.Zones()):
         if z.GetZoneName() in POUR_NAMES:
             board.Remove(z)
             gone += 1
+        elif z.GetIsRuleArea() and not (z.GetDoNotAllowTracks() or z.GetDoNotAllowVias()
+                                         or z.GetDoNotAllowPads()
+                                         or z.GetDoNotAllowCopperPour()):
+            board.Remove(z)
     return gone
 
 def complete_nets(path, loose=False):
@@ -404,10 +411,13 @@ def prepare_dsn(dsn, dead=DEAD_NETS):
     # 8c. The four M3 heads on the outward face: no track or via under a
     #     screw head, whatever the mask says.
     import geometry as G
+    #     Board S keeps the standoff side clear too (its rule areas say so;
+    #     this says it to freerouting in so many words).
     heads = []
     for hx, hy in ((G.MOUNT_X, 0), (-G.MOUNT_X, 0), (0, G.MOUNT_Y), (0, -G.MOUNT_Y)):
-        heads.append(f'    (keepout "" (circle F.Cu {G.MOUNT_HEAD * 1000:.0f} '
-                     f'{(CX + hx) * 1000:.1f} {-(CY - hy) * 1000:.1f}))')
+        for lay in (("F.Cu", "B.Cu") if BOARD_KEY == "s" else ("F.Cu",)):
+            heads.append(f'    (keepout "" (circle {lay} {G.MOUNT_HEAD * 1000:.0f} '
+                         f'{(CX + hx) * 1000:.1f} {-(CY - hy) * 1000:.1f}))')
     i = t.rindex("\n", 0, t.index('(via "Via')) + 1
     t = t[:i] + "\n".join(heads) + "\n" + t[i:]
     n["screw-head keepouts"] = len(heads)
@@ -1429,6 +1439,9 @@ def main():
                          "(HARD_NETS for this run)")
     ap.add_argument("--pcb", help="route this copy of the board instead (its project "
                                   "file beside it, work in .route/ beside it; no plots)")
+    ap.add_argument("--sim", choices=("background", "wait", "no"), default="background",
+                    help="board S: after the run, re-run the simulation into the page "
+                         "(tools/regen.py); 'background' by default, about two hours")
     ap.add_argument("--loose", action="store_true",
                     help="rounds after the first leave the router's own earlier "
                          "wires in its hands (only the tools' copper is protected), "
@@ -1516,13 +1529,17 @@ def main():
               + ("" if not left else ": " + ", ".join(left)), flush=True)
         if made:
             settle(BOARD)
-    # The page's copper viewer stacks one plot per layer, and its 3D viewer
-    # draws a GLB; re-make them here so what the pages show is the board that
-    # was just routed.
+    # The hook: the page's copper viewer stacks one plot per layer, its 3D
+    # viewer draws a GLB, board S's page states the board's numbers and its
+    # simulation.  tools/regen.py re-makes all of it, so what the pages show is
+    # the board that was just routed.  The simulation is started only on a
+    # board with nothing left unconnected, and detached: it takes hours.
     if not args.pcb:
-        print("plots:", flush=True)
-        plot_layers.run(BOARD_KEY)
-        export_3d.run(BOARD_KEY)
+        import regen
+        left = stats(pcbnew.LoadBoard(str(BOARD)))["unconnected"]
+        regen.run(BOARD_KEY, sim=args.sim if left == 0 else "no")
+        if left:
+            print(f"  {left} unconnected: simulation not started")
     sys.stdout.flush()
     # pcbnew's SWIG teardown segfaults on a board this size after the work is
     # done and saved, which turns a good run into a non-zero exit. Leave now.

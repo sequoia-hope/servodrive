@@ -45,6 +45,13 @@ CROWD = 0.0                     # what a route pays for taking the last of it.
                                 # rather than twelve. Keeping to the open
                                 # board makes each route longer, and length
                                 # costs more here than crowding does.
+# Board S's "fine centre" (gen_boards.FINE_RULES): on In3 inside R 17, signal
+# tracks may be 0.12 mm at 0.12 mm clearance. Tried last, when a connection
+# will not go at 0.15.
+FINE_R = 17.0
+FINE_W = 0.12
+FINE_CLR = 0.12
+FINE_LAYER = pcbnew.In3_Cu
 STEP = 1.0
 DIAG = math.sqrt(2.0)
 NEIGHBOURS = [(-1, 0, STEP), (1, 0, STEP), (0, -1, STEP), (0, 1, STEP),
@@ -132,7 +139,7 @@ class Grid:
     which is exact to the grid and costs one pass per layer rather than one
     test per candidate."""
 
-    def __init__(self, board, code, width=0.15):
+    def __init__(self, board, code, width=0.15, fine=False):
         bb = board.GetBoardEdgesBoundingBox()
         self.px = int(round(PX * MM))
         self.x0, self.y0 = bb.GetX(), bb.GetY()
@@ -181,6 +188,9 @@ class Grid:
             if z.GetNetCode() == code:
                 continue
             if z.GetIsRuleArea():
+                if not (z.GetDoNotAllowTracks() or z.GetDoNotAllowVias()
+                        or z.GetDoNotAllowPads()):
+                    continue            # a named area for a rule, not a keepout
                 # a keepout binds every layer it names
                 ls = [l for l in z.GetLayerSet().CuStack() if l in LAYERS]
                 ps = pcbnew.SHAPE_POLY_SET(z.Outline())
@@ -262,10 +272,22 @@ class Grid:
         self.dist = {}
         keep = width / 2 + CLR + MARGIN
         keep_wide = width / 2 + WIDE_CLR + MARGIN
+        self.fine = fine
+        if fine:
+            # the cells whose centres are inside FINE_R of the shaft axis
+            cx, cy = 148.0 * MM, 105.0 * MM
+            ix = np.arange(self.w)[:, None]
+            iy = np.arange(self.h)[None, :]
+            xs = (self.x0 + ix * self.px + self.px / 2 - cx) / MM
+            ys = (self.y0 + iy * self.px + self.px / 2 - cy) / MM
+            self.inside = np.hypot(xs, ys) <= FINE_R - FINE_W
         for l in LAYERS:
             dn = ndimage.distance_transform_edt(~np.array(near[l]).T) * PX
             dw = ndimage.distance_transform_edt(~np.array(far[l]).T) * PX
             ok = (dn >= keep) & (dw >= keep_wide)
+            if fine and l == FINE_LAYER:
+                ok |= (self.inside & (dn >= FINE_W / 2 + FINE_CLR + MARGIN)
+                       & (dw >= FINE_W / 2 + WIDE_CLR + MARGIN))
             ok &= ~np.array(outside).T & ~np.array(drills).T
             if l == pcbnew.F_Cu:
                 ok &= ~np.array(heads).T & ~np.array(land).T
@@ -429,11 +451,11 @@ def route(grid, starts, goals, allow_vias=True):
     return None
 
 # ------------------------------------------------------------ simplify ------
-def _legal(obs, code, layer, pts, w, grid=None):
+def _legal(obs, code, layer, pts, w, grid=None, clr=None):
     segs = list(zip(pts, pts[1:]))
     if grid is not None and not all(grid.on_free(layer, a, b) for a, b in segs):
         return False
-    return fanout.legal(obs, code, layer, segs, w=w)
+    return fanout.legal(obs, code, layer, segs, w=w, clr=clr or fanout.CLR)
 
 def _corners(a, b):
     """The 45 degree ways from a to b: straight, and the two L-shapes made of
@@ -448,7 +470,7 @@ def _corners(a, b):
     out.append([a, (bx - sx * m, by - sy * m), b])          # straight first
     return out
 
-def simplify(obs, code, layer, pts, w, grid=None):
+def simplify(obs, code, layer, pts, w, grid=None, clr=None):
     """As few 45 degree segments as the free space allows: from each point,
     the farthest one it can be joined to by one straight run and one
     diagonal, checked exactly."""
@@ -462,7 +484,7 @@ def simplify(obs, code, layer, pts, w, grid=None):
             mid = (lo + hi) // 2
             cand = None
             for path in _corners(pts[i], pts[mid]):
-                if _legal(obs, code, layer, path, w, grid):
+                if _legal(obs, code, layer, path, w, grid, clr=clr):
                     cand = path
                     break
             if cand:
@@ -497,8 +519,8 @@ def join_net(board, code, verbose=False):
             return True
         a, b = _closest(groups)
         done = False
-        for w in widths:
-            grid = Grid(board, code, width=w)
+        for w, fine in [(w, False) for w in widths] + [(0.15, True)]:
+            grid = Grid(board, code, width=w, fine=fine)
             starts = [(l, *grid.cell(p)) for it in a for p, l in anchors(it)
                       for l in (LAYERS if l is None else [l]) if l in LAYERS]
             goals = [(l, *grid.cell(p)) for it in b for p, l in anchors(it)
@@ -711,13 +733,18 @@ def emit(board, grid, code, path, w, verbose=True):
         pts = [p for n, p in enumerate(pts) if n == 0 or p != pts[n - 1]]
         if len(pts) < 2:
             continue
-        pts = simplify(obs, code, layer, pts, w, grid)
+        rw, rc = w, fanout.CLR
+        if getattr(grid, "fine", False) and layer == FINE_LAYER and all(
+                math.hypot(x / MM - 148.0, y / MM - 105.0) <= FINE_R - FINE_W
+                for x, y in pts):
+            rw, rc = FINE_W, FINE_CLR
+        pts = simplify(obs, code, layer, pts, rw, grid, clr=rc)
         for a, b in zip(pts, pts[1:]):
-            if not _legal(obs, code, layer, [a, b], w, grid):
+            if not _legal(obs, code, layer, [a, b], rw, grid, clr=rc):
                 grid.punch(layer, a, b)
                 _rollback(board, snap)
                 return False
-            laid.append(fanout.add_track(board, obs, a, b, layer, code, w=w))
+            laid.append(fanout.add_track(board, obs, a, b, layer, code, w=rw))
     for p, need in joints:
         if need:
             if not fanout.legal(obs, code, None, [], via=(p.x, p.y)):

@@ -1,0 +1,19 @@
+(version 1)
+
+# The board minimum is 0.12 mm for the In3 rule below; every other track
+# stays at least 0.15, as it was. (Clearance needs no rule of its own: the
+# netclasses give 0.15, and 0.4 for the 60 V nets -- a blanket custom
+# clearance rule here would override that 0.4.)
+(rule "tracks 0.15 mm"
+  (constraint track_width (min 0.15mm)))
+
+# In3, inside R 17: 0.12 mm, signal nets only (1 oz inner copper; JLCPCB's
+# floor there is 0.09). The 60 V nets keep their own 0.4 mm.
+(rule "In3 in the centre: 0.12 mm tracks"
+  (layer "In3.Cu")
+  (condition "A.Type == 'Track' && A.intersectsArea('fine centre')")
+  (constraint track_width (min 0.12mm)))
+(rule "In3 in the centre: 0.12 mm clearance"
+  (layer "In3.Cu")
+  (condition "A.intersectsArea('fine centre') && B.intersectsArea('fine centre') && A.NetClass != 'Phase' && B.NetClass != 'Phase'")
+  (constraint clearance (min 0.12mm)))

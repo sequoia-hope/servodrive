@@ -1,6 +1,6 @@
 {
  "board": "servodrive_S.kicad_pcb",
- "generated": "2026-09-24",
+ "generated": "2026-09-25",
  "page_mm": [
   117.8814,
   71.0946
@@ -17,7 +17,7 @@
  ],
  "dia_mm": 65.0,
  "plate": "#c8c8c8",
- "vias": 411,
+ "vias": 293,
  "layers": [
   {
    "name": "F.Cu",
@@ -26,8 +26,8 @@
    "file": "f.svg",
    "color": "#C83434",
    "note": "Outward face, 2 oz. Three phase cells, three utility wedges, and the three arcs of bare copper the heatsink ring clamps.",
-   "tracks": 884,
-   "length_mm": 876.8,
+   "tracks": 522,
+   "length_mm": 274.7,
    "pads": 448,
    "zones": [
     "GND",
@@ -77,8 +77,8 @@
    "file": "in3.svg",
    "color": "#4FCBCB",
    "note": "The signal layer, and the only one that crosses the whole board, so the long hauls between the RP2350A and the phase cells live here.",
-   "tracks": 473,
-   "length_mm": 1201.4,
+   "tracks": 8,
+   "length_mm": 30.9,
    "pads": 141,
    "zones": [
     "GND"
@@ -105,8 +105,8 @@
    "file": "b.svg",
    "color": "#4D7FC4",
    "note": "Motor-facing face, 2 oz. MT6701 at the centre, the shunts and the sense amplifiers, and the FET drain thermal vias coming through. Motor leads land here, so the outward perimeter stays thermal.",
-   "tracks": 556,
-   "length_mm": 844.2,
+   "tracks": 185,
+   "length_mm": 207.8,
    "pads": 420,
    "zones": [
     "SNUB_A",

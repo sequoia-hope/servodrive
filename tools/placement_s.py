@@ -44,6 +44,14 @@ GONE = {"J7", "J8", "J9", "TP1", "TP2", "TP3"}
 # GH housing is meant to sit at the outline, past R_USABLE. Their pads do not.
 EDGE = {"J12", "J14", "J15"}
 R_EDGE = G.R + 0.05
+# ... and the USB-C goes further (asked 2026-09-24: "bump the USB-C connector
+# tangent to the edge"). The rule above stops a connector's COURTYARD at the
+# outline, which left the HRO's shell face -- its F.Fab line at y = +3.65, the
+# mouth -- 1.1 mm inside the board. edge_tangent() puts that face's midpoint
+# on the circle instead, square to the radius; the shell's corners stand
+# 0.3 mm over, as an edge receptacle's do, and its pads stay well inside.
+TANGENT = {"J12": 3.65}
+
 R_RIM = G.R - 0.9            # ... and they have to reach it: a horizontal
                              # connector 2 mm in from the edge cannot be mated
 
@@ -425,7 +433,7 @@ def legal(c, placed):
     """Everything placement.check() enforces, for one candidate against the
     parts already down -- plus the bus pads, which check() does not know."""
     lo, hi = _radii(c)
-    if hi > (R_EDGE if c.ref in EDGE else G.R_USABLE):
+    if hi > (R_EDGE if c.ref in EDGE else G.R_USABLE) and c.ref not in TANGENT:
         return False
     if c.ref in EDGE and hi < R_RIM:
         return False
@@ -481,6 +489,26 @@ def legal(c, placed):
 
 class Unplaced(Exception):
     pass
+
+def edge_tangent(S, p):
+    """Move a radial edge connector out along its own radius until the face
+    TANGENT[ref] mm in front of its footprint origin touches the outline; the
+    same angle, the same turn. Raises Unplaced if that spot is not legal."""
+    face = TANGENT[p.ref]
+    axis = AX[p.block]
+    phi = axis + degrees(p.s / p.r)
+    r0 = hypot(p.x, p.y)                     # footprint origin
+    d = r0 - p.r                             # origin ahead of the courtyard centre
+    r_new = G.R - face - d
+    s_new = radians(phi - axis) * r_new
+    c = PL.Part(p.ref, p.value, p.fp, r_new, s_new, p.rot, p.block, axis,
+                p.layer, p.note, p.dnp)
+    others = [q for q in S.parts if q is not p]
+    if not legal(c, others):
+        raise Unplaced(f"{p.ref}: no room with its face tangent to the edge")
+    S.parts[S.parts.index(p)] = c
+    S.new[S.new.index(p)] = c
+    return c
 
 # A buck is only a buck if its input cap, bootstrap cap and inductor are
 # beside it -- its hot loop is IC -> input cap -> ground, and every mm of that
@@ -942,8 +970,10 @@ def board_s(**opt):
     # Outward face: USB-C at the rim, mouth out; the 5 V buck where J9 was;
     # the 3V3 LDO row kept on its radius.
     if o["usb"]:
-        S.put("J12", "USB-C", FP["USBC"], SIG, 27.6, -10.0, 90, F,
-              "USB 2.0 data + 5 V logic, no PD; HRO TYPE-C-31-M-12")
+        j12 = S.put("J12", "USB-C", FP["USBC"], SIG, 27.6, -10.0, 90, F,
+                    "USB 2.0 data + 5 V logic, no PD; HRO TYPE-C-31-M-12")
+        if j12:
+            edge_tangent(S, j12)
     S.put("U12", "LMR38010 5V", FP["PPAD"], SIG, 22.0, 5.0, 90, F, "5 V logic rail",
           rots=(90, 0))
     S.put("L1002", "33u", FP["L4018"], SIG, 26.5, 5.5, 0, F, "5 V buck inductor",
@@ -1133,8 +1163,11 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
     else:
         S.put("J14", "RS485", pf, PWR, 29.0, 12.0, 270, B,
               f"full-duplex RS-485, JST-{port[:2]} 6, motor-facing rim; chained in the harness")
-    S.put("J12", "USB-C", FP["USBC"], SIG, 27.6, -10.0, 90, F,
-          "USB 2.0 data + 5 V logic, no PD; HRO TYPE-C-31-M-12")
+    j12 = S.put("J12", "USB-C", FP["USBC"], SIG, 27.6, -10.0, 90, F,
+                "USB 2.0 data + 5 V logic, no PD; HRO TYPE-C-31-M-12; shell face "
+                "tangent to the edge")
+    if j12:
+        edge_tangent(S, j12)
     tv = ("SMDJ54A", FP["SMC"], "3 kW") if tvs == "SMC" else ("SMBJ54A", FP["SMB"], "600 W")
     tvs_note = f"bus TVS, {tv[2]}, 54 V standoff, 60-66 V breakdown"
     if xt30:
@@ -1526,9 +1559,12 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
                     S.missed.append((term, "120R", FP["R0603"], "centre", BK, tnote))
     S.put_xy("D1103", "RGB", FP["LED"], 9.0, 9.0, 45, "status LED, three GPIO",
              angs=(45, 0, 90, -45))
+    # the resistors turned so their cathode ends face the LED (2026-09-24):
+    # the GPIO arrives on In3 and comes up anywhere, and a cathode end facing
+    # away made each LED net cross its own GPIO at the LED
     for k, ref in enumerate(("R1107", "R1108", "R1109")):
-        S.put_xy(ref, "1k", FP["R0402"], 6.5 + 1.2 * k, 11.5, 90, "LED series",
-                 angs=(90, 0, 45))
+        S.put_xy(ref, "1k", FP["R0402"], 6.5 + 1.2 * k, 11.5, 270, "LED series",
+                 angs=(270, 180, 225))
     # BOOTSEL: with the XT30, the one spot left on the outward face, at the
     # top of the centre -- its old one is C1001's now
     sx, sy = (0.0, 15.0) if xt30 else (-9.0, 9.0)
@@ -1696,7 +1732,12 @@ def check_s(parts):
     for p in parts:
         lo, hi = _radii(p)
         lim = R_EDGE if p.ref in EDGE else G.R_USABLE
-        if hi > lim + 1e-9:
+        if p.ref in TANGENT:
+            # its face on the outline, not its courtyard: the face's midpoint
+            face = hypot(p.x, p.y) + TANGENT[p.ref]
+            if abs(face - G.R) > 0.01:
+                bad.append(f"{p.ref}: face at r={face:.2f}, not tangent to the edge")
+        elif hi > lim + 1e-9:
             bad.append(f"{p.ref}: reaches r={hi:.2f}, past {lim}")
         for layer, r0, r1, ang, half, net in bus_pads():
             if p.layer == layer and _in_sector_part(p, r0, r1, ang, half):

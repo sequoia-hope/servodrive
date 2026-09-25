@@ -117,6 +117,17 @@ def foreign_shapes(board, netcode, clear):
     out += [(t, cl(t)) for t in board.GetTracks() if t.GetNetCode() != netcode]
     return out
 
+def via_keepouts(board):
+    """The outlines of every rule area that allows no via (on any layer: a
+    through via is on all of them) -- board S's screw keepouts and its In2
+    fences."""
+    return [pcbnew.SHAPE_POLY_SET(z.Outline()) for z in board.Zones()
+            if z.GetIsRuleArea() and z.GetDoNotAllowVias()]
+
+def in_keepout(keeps, cx, cy, r):
+    v = pcbnew.VECTOR2I(int(cx), int(cy))
+    return any(k.Collide(v, int(r)) for k in keeps)
+
 def fits_in_pad(pad, cx, cy, r, n=16):
     """Is a circle of radius r at (cx, cy) inside the pad?"""
     if not pad.HitTest(pcbnew.VECTOR2I(cx, cy)):
@@ -194,6 +205,7 @@ def stitch(board, verbose=True):
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     zi = zone_index(board)
     hs = holes(board)
+    keeps = via_keepouts(board)
     sizes, clear, floor = rules(board)
     have = already(board)
     made, skipped = Counter(), Counter()
@@ -238,6 +250,8 @@ def stitch(board, verbose=True):
                     if any(math.hypot(hx - cx, hy - cy) < hr + k // 2 + mm(H2H)
                            for hx, hy, hr in hs):
                         why = "h2h"; continue
+                    if in_keepout(keeps, cx, cy, d // 2):
+                        continue
                     if not clear_of(foreign[code], cx, cy, d // 2, mine, k // 2):
                         why = "foreign"; continue
                     spot, dia, drill = (cx, cy), d, k
@@ -290,6 +304,7 @@ def tie_islands(board, verbose=True):
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     sizes, clear, floor = rules(board)
     hs = holes(board)
+    keeps = via_keepouts(board)
     zi = zone_index(board)
     made = 0
     for z in board.Zones():
@@ -367,6 +382,8 @@ def _island_spot(one, board, zi, code, own, hs, far, mine, d, k, step=0.25):
                 continue
             if any(math.hypot(hx - x, hy - y) < hr + k // 2 + mm(H2H)
                    for hx, hy, hr in hs):
+                continue
+            if in_keepout(via_keepouts(board), x, y, r):
                 continue
             if not clear_of(far, x, y, r, mine, k // 2):
                 continue

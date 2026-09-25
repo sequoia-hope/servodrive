@@ -90,6 +90,14 @@ class Obstacles:
                     self.planes.append((poly.BBox(), poly, z.GetNetCode(), l))
                 else:
                     self.zones.append((poly.BBox(), poly, z.GetNetCode(), l))
+        # rule areas: (bbox, outline, copper layers, no tracks, no vias) --
+        # board S's screw keepouts, and anything else a generator draws
+        self.keepouts = []
+        for z in board.Zones():
+            if z.GetIsRuleArea():
+                ol = pcbnew.SHAPE_POLY_SET(z.Outline())
+                self.keepouts.append((ol.BBox(), ol, set(z.GetLayerSet().CuStack()),
+                                      z.GetDoNotAllowTracks(), z.GetDoNotAllowVias()))
 
     def add_pad(self, p):
         code = p.GetNetCode()
@@ -123,6 +131,7 @@ class Obstacles:
         sub.copper = [c for c in self.copper if c[0].Intersects(bb)]
         sub.holes = [h for h in self.holes if abs(h[0] - x) < reach and abs(h[1] - y) < reach]
         sub.zones = [z for z in self.zones if z[0].Intersects(bb)]
+        sub.keepouts = [k for k in self.keepouts if k[0].Intersects(bb)]
         sub.planes = self.planes
         sub.wide = self.wide
         sub.parent = self
@@ -155,6 +164,11 @@ class Obstacles:
             need = wide if (mine or ocode in self.wide) else clr
             if osh.Collide(shape, max(need, own + 500)):
                 return False
+        for kbb, kpoly, kl, no_tracks, no_vias in getattr(self, "keepouts", ()):
+            if not (no_vias if layer is None else (no_tracks and layer in kl)):
+                continue
+            if bb.Intersects(kbb) and kpoly.Collide(shape, 0):
+                return False
         for zbb, poly, zcode, zl in (self.zones if zones else ()):
             if zcode == code or (layer is not None and zl != layer):
                 continue
@@ -186,9 +200,9 @@ def seg(a, b, w=STUB_W):
 def circle(c, d=VIA_D):
     return pcbnew.SHAPE_CIRCLE(V(*c), mm(d) // 2)
 
-def legal(obs, code, layer, segs, via=None, w=STUB_W, zones=True):
+def legal(obs, code, layer, segs, via=None, w=STUB_W, zones=True, clr=CLR):
     for a, b in segs:
-        if not obs.clear(seg(a, b, w), code, layer, zones=zones):
+        if not obs.clear(seg(a, b, w), code, layer, clr=mm(clr), zones=zones):
             return False
     if via is not None:
         if not obs.clear(circle(via), code, None):

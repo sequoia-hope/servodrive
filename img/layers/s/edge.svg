@@ -81,10 +81,10 @@ stroke-linecap:round; stroke-linejoin:round;">
 <circle cx="76.38" cy="21.063" r="0.2" />
 </g>
 <g style="fill:#c8c8c8; fill-opacity:1; stroke:none;">
-<circle cx="78.378" cy="20.342" r="0.2" />
+<circle cx="79.033" cy="19.654" r="0.2" />
 </g>
 <g style="fill:#c8c8c8; fill-opacity:1; stroke:none;">
-<circle cx="79.033" cy="19.654" r="0.2" />
+<circle cx="78.378" cy="20.342" r="0.2" />
 </g>
 <g style="fill:#c8c8c8; fill-opacity:1; stroke:none;">
 <circle cx="77.723" cy="21.03" r="0.2" />
@@ -147,25 +147,25 @@ stroke-linecap:round; stroke-linejoin:round;">
 <circle cx="62.286" cy="60.855" r="0.125" />
 </g>
 <g style="fill:#c8c8c8; fill-opacity:1; stroke:none;">
-<circle cx="77.5" cy="55.762" r="0.325" />
+<circle cx="78.385" cy="56.413" r="0.325" />
 </g>
 <g style="fill:#c8c8c8; fill-opacity:1; stroke:none;">
-<circle cx="80.924" cy="51.105" r="0.325" />
+<circle cx="81.809" cy="51.756" r="0.325" />
 </g>
 <g style="fill:none;
 stroke:#c8c8c8; stroke-width:0.6; stroke-opacity:1;
 stroke-linecap:round; stroke-linejoin:round;">
-<path d="M75.783 56.275
-L76.669 56.926
+<path d="M76.668 56.925
+L77.555 57.577
 " />
-<path d="M79.352 58.899
-L79.836 59.254
+<path d="M80.237 59.55
+L80.721 59.905
 " />
-<path d="M80.901 49.313
-L81.787 49.965
+<path d="M81.786 49.964
+L82.672 50.616
 " />
-<path d="M84.47 51.937
-L84.953 52.293
+<path d="M85.355 52.588
+L85.839 52.944
 " />
 </g>
 <g style="fill:#c8c8c8; fill-opacity:1; stroke:none;">

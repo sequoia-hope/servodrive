@@ -10,7 +10,8 @@ unchanged except where the variant says otherwise:
   - the per-phase clamps drop to the 54 V grade, to sit under a 48 V bus and
     its 54 V bus TVS
   - the GPIO map: 0/1 are UART0 for RS-485 port IN and 2/3 a PIO UART for
-    port OUT (the CPU relays between them); 14 is GATE_OFF; 19-24 go to the
+    port OUT (the CPU relays between them); the encoder's SCK and DO swap to
+    GPIO6 and 4 so SPI0 can read it; 14 is GATE_OFF; 19-24 go to the
     expansion header; USB_VBUS_DET moves to 25
   - J7, J8, J9 and TP1-TP3 go; C603 and C604 become the two bucks' output
     caps; TP4 moves to the centre with three new test pads beside it
@@ -36,6 +37,11 @@ GP_S = {0: "RS485_IN_TX", 1: "RS485_IN_RX", 2: "RS485_OUT_TX", 3: "RS485_OUT_RX"
         # what high does. A reset leaves the pin pulled down, the rail on and
         # the low sides braking, which is what spec sec.3 asks of a reset.
         14: "GATE_OFF",
+        # The encoder on hardware SPI0 (asked 2026-09-24). GPIO4-7 are SPI0's
+        # RX, CSn, SCK and TX, and board A's map had the clock on 4 and the
+        # data on 6 -- SPI0's RX and SCK, the wrong way round for a
+        # peripheral that only talks. Swapped: DO into RX, SCK out of SCK.
+        4: "ENC_DO", 6: "ENC_SCK",
         19: "EXP_GP19", 20: "EXP_GP20", 21: "EXP_GP21", 22: "EXP_GP22",
         23: "EXP_GP23", 24: "EXP_GP24", 25: "USB_VBUS_DET"}
 GPIO_PINS = [2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -45,9 +51,15 @@ GPIO_PINS = [2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19,
 # face. The odd row carries VMOT at the end toward C1001 and the even row the
 # ground beside each of those pins, so a PD board feeding the bus through
 # here passes the encoder as a dipole, not a loop.
+#
+# RUN and GPIO24 are on the odd row, which faces the CPU, and +5V and +3V3 on
+# the even row (2026-09-24): with a keepout round the motor screw at (0, -9.5)
+# on both faces, everything the CPU sends to the header crosses on In3 alone,
+# and two more signals on the far row were more than that corridor holds.
+# +3V3 drops into In2's +3V3 disc beneath the header; +5V comes in on In3.
 EXP_PINS = {1: "VBUS", 2: "GND", 3: "VBUS", 4: "GND", 5: "VBUS", 6: "GND",
-            7: "VBUS", 8: "GND", 9: "+5V", 10: "GND", 11: "+3V3", 12: "RUN",
-            13: "EXP_GP19", 14: "EXP_GP24", 15: "EXP_GP20", 16: "EXP_GP21",
+            7: "VBUS", 8: "GND", 9: "RUN", 10: "GND", 11: "EXP_GP24", 12: "+5V",
+            13: "EXP_GP19", 14: "+3V3", 15: "EXP_GP20", 16: "EXP_GP21",
             17: "EXP_GP22", 18: "EXP_GP23", 19: "SWCLK", 20: "SWDIO"}
 
 def phase_cells():
