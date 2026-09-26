@@ -600,6 +600,13 @@ def q1_crosscheck(quick=False):
             flat and (drift is not None and drift < 0.10)
             and (fin.get("dropped_primitives") or 0) < 20
             and settled is not False)
+        # P1's number is read again here, at the end: this phase takes over an
+        # hour and may have been started while P1 was still solving
+        ref = _fh_reference("A")
+        out["fasthenry"] = ref
+        l1 = ref.get("L_single_port_nH")
+        out["L1_fasthenry_nH"] = l1
+        out["L1_fasthenry_L_eff_nH"] = ref.get("L_eff_all_four_nH")
         if l1:
             out["ratio_L2_over_L1"] = fin["L_nH"] / l1
             out["agreement_raw_pct"] = abs(fin["L_nH"] - l1) / l1 * 100

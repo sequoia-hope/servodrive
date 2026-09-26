@@ -253,7 +253,11 @@ def extract(pcb_path=None, verbose=True):
 
 def main():
     paths.ensure_dirs()
-    if not paths.BOARD.exists():
+    # The copy is refreshed whenever the board is newer than it.  It used to be
+    # made only when missing, so a re-routed board went on being simulated as
+    # it was the first time.
+    if (not paths.BOARD.exists()
+            or paths.BOARD_SRC.stat().st_mtime > paths.BOARD.stat().st_mtime):
         import shutil
         for suffix in (".kicad_pcb", ".kicad_pro", ".kicad_prl"):
             src = paths.BOARD_SRC.with_suffix(suffix)

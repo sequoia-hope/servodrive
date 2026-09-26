@@ -1,0 +1,45 @@
+{
+ "part": "WSLP20102L000FEA, 2 mOhm 2010 metal strip",
+ "maker": "Vishay Dale",
+ "note": "Board S's shunt (LCSC C413487): no 1.6 mOhm 2010 is stocked, so each sensed phase has 2 x 2 mOhm = 1.0 mOhm.",
+ "R": {
+  "unit": "Ohm",
+  "source": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Vishay-Intertech-WSLP20102L000FEA_C413487.pdf (Vishay Dale WSLP, rev. of the LCSC copy)",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "value": 0.002
+ },
+ "tolerance": {
+  "unit": "%",
+  "source": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Vishay-Intertech-WSLP20102L000FEA_C413487.pdf (Vishay Dale WSLP, rev. of the LCSC copy)",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "value": 1.0
+ },
+ "TCR": {
+  "unit": "ppm/K",
+  "source": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Vishay-Intertech-WSLP20102L000FEA_C413487.pdf (Vishay Dale WSLP, rev. of the LCSC copy)",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "min": -275,
+  "max": 275,
+  "note": "component TCR including the copper terminals, 1-2.9 mOhm; the element alloy alone is < 20 ppm/K"
+ },
+ "L_esl": {
+  "unit": "H",
+  "source": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Vishay-Intertech-WSLP20102L000FEA_C413487.pdf (Vishay Dale WSLP, rev. of the LCSC copy): 'very low inductance 0.5 nH to 5 nH' across the family",
+  "read": "2026-09-24",
+  "status": "bracketed",
+  "min": 5e-10,
+  "typ": 8e-10,
+  "max": 1.5e-09,
+  "note": "the family's floor for the smallest parts; a 2010 is among the smallest the series makes"
+ },
+ "P_rated": {
+  "unit": "W",
+  "source": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Vishay-Intertech-WSLP20102L000FEA_C413487.pdf (Vishay Dale WSLP, rev. of the LCSC copy)",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "value": 2.0
+ }
+}

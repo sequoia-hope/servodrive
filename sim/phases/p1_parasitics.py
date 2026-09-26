@@ -23,12 +23,29 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt                              # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib import paths, jsonio                                # noqa: E402
+from lib import paths, jsonio, board                         # noqa: E402
 from extract import copper                                   # noqa: E402
 from fasthenry import runner, mesher, cell as fhcell, gridjs  # noqa: E402
 from fastcap import runner as fcrun                          # noqa: E402
 
 paths.import_tools()
+
+# Every FastHenry solve here is a single-threaded subprocess, independent of
+# the others, and the finest meshes take hours on their own: they are
+# submitted to a pool and collected afterwards, so the phase takes about as
+# long as its slowest solve rather than the sum of them.  Same decks, same
+# answers (runner.run caches a byte-identical deck).  pyplot is not
+# thread-safe, so the figures are drawn under a lock.
+import os
+import threading
+from concurrent.futures import ThreadPoolExecutor
+FH = ThreadPoolExecutor(max_workers=int(os.environ.get("SIM_FH_JOBS", "16")))
+# The two slowest solves -- the finest convergence mesh and the three-filament
+# skin check -- get their own timeout: hours when run for a result, seconds
+# when a run only wants the cached rest (the solve is then left to finish on
+# its own and a later run picks it up from the cache).
+SLOW = int(os.environ.get("SIM_FH_SLOW_TIMEOUT", str(6 * 3600)))
+PLOT = threading.Lock()
 
 
 def _LR(f, Z):
@@ -60,15 +77,52 @@ def commutation(quick=False, cellname="A"):
               [(1.8, 0.6), (1.4, 0.45), (1.1, 0.32), (0.9, 0.261),
                (0.75, 0.218), (0.62, 0.18)])
     ports = None
+    conv_jobs = []
     for target, min_gap in meshes:
         m, ports, win, _ = fhcell.commutation_model(
             cellname, target=target, nhinc=1, min_gap=min_gap)
-        f, Z, order, _ = runner.run(
-            m.model, 1e6, 1e6,
-            workdir=paths.WORK / f"fh/comm_{cellname}_conv_{target}")
+        conv_jobs.append((target, min_gap, m, FH.submit(
+            runner.run, m.model, 1e6, 1e6,
+            timeout=SLOW if target == meshes[-1][0] else 7200,
+            workdir=paths.WORK / f"fh/comm_{cellname}_conv_{target}")))
+
+    # --- the production model's sweep, the skin check and the current map
+    # are submitted now too, and everything is collected below
+    target, min_gap, nh = (1.4, 0.45, 1) if quick else (1.2, 0.36, 1)
+    m, ports, win, _ = fhcell.commutation_model(
+        cellname, target=target, nhinc=nh, min_gap=min_gap)
+    freqs = [1e3, 1e5, 1e6, 1e7, 1e8, 3e8]
+    sweep_jobs = [(fq, FH.submit(runner.run, m.model, fq, fq, ndec=1, timeout=1200,
+                                 workdir=paths.WORK / f"fh/comm_{cellname}_f{fq:.0e}"))
+                  for fq in freqs]
+    skin_jobs = {}
+    if not quick:
+        for tag, nh3 in (("nhinc_1", 1), ("nhinc_3", 3)):
+            mm, _, _, _ = fhcell.commutation_model(
+                cellname, target=1.6, nhinc=nh3, min_gap=0.5)
+            skin_jobs[tag] = (mm, FH.submit(
+                runner.run, mm.model, 2e7, 2e7,
+                workdir=paths.WORK / f"fh/comm_{cellname}_skin_{tag}",
+                timeout=SLOW if nh3 > 1 else 1800))
+    mj, _, winj, _ = fhcell.commutation_model(
+        cellname, target=target, nhinc=nh, min_gap=min_gap)
+    wdj = paths.WORK / f"fh/comm_{cellname}_J"
+    j_job = FH.submit(runner.run, mj.model, 1e7, 1e7, workdir=wdj,
+                      extra_args=("-d", "GRIDS", "-x",
+                                  f"P{fhcell.CELL[cellname]['hf'][0]}"))
+
+    for target_c, min_gap_c, mc, fut in conv_jobs:
+        try:
+            f, Z, order, _ = fut.result()
+        except Exception as ex:
+            # a mesh that did not finish is a row that says so, not a crash
+            conv.append({"target_mm": target_c, "min_gap_mm": min_gap_c,
+                         "segments": mc.n_seg, "nodes": mc.n_node,
+                         "error": f"{ex.__class__.__name__}: {str(ex)[:160]}"})
+            continue
         L, R = _LR(f, Z)
-        conv.append({"target_mm": target, "min_gap_mm": min_gap,
-                     "segments": m.n_seg, "nodes": m.n_node,
+        conv.append({"target_mm": target_c, "min_gap_mm": min_gap_c,
+                     "segments": mc.n_seg, "nodes": mc.n_node,
                      "ports": order, "f_Hz": float(f[0]),
                      "L_nH": (L[0] * 1e9).tolist(),
                      "R_mOhm": (R[0] * 1e3).tolist(),
@@ -80,20 +134,14 @@ def commutation(quick=False, cellname="A"):
     # underestimated because the current is not pushed to the surface within a
     # segment.  A separate nhinc = 3 run at one high frequency prices that
     # rather than leaving it as a caveat.
-    target, min_gap, nh = (1.4, 0.45, 1) if quick else (1.2, 0.36, 1)
-    m, ports, win, _ = fhcell.commutation_model(
-        cellname, target=target, nhinc=nh, min_gap=min_gap)
     # One FastHenry invocation per frequency, each with its own timeout.
     # A single `.freq` sweep is cheaper in principle -- the mesh is built once
     # -- but then one frequency that will not converge takes the whole sweep
     # with it, and on this model the high ones sometimes do.
-    freqs = [1e3, 1e5, 1e6, 1e7, 1e8, 3e8]
     fl, Zl, order, failed = [], [], None, []
-    for fq in freqs:
+    for fq, fut in sweep_jobs:
         try:
-            f1, Z1, o1, _ = runner.run(
-                m.model, fq, fq, ndec=1, timeout=1200,
-                workdir=paths.WORK / f"fh/comm_{cellname}_f{fq:.0e}")
+            f1, Z1, o1, _ = fut.result()
             fl.append(float(f1[0]))
             Zl.append(Z1[0])
             order = order or o1
@@ -116,13 +164,8 @@ def commutation(quick=False, cellname="A"):
     if not quick:
         try:
             got = {}
-            for tag, nh3 in (("nhinc_1", 1), ("nhinc_3", 3)):
-                mm, _, _, _ = fhcell.commutation_model(
-                    cellname, target=1.6, nhinc=nh3, min_gap=0.5)
-                f3, Z3, _, _ = runner.run(
-                    mm.model, 2e7, 2e7,
-                    workdir=paths.WORK / f"fh/comm_{cellname}_skin_{tag}",
-                    timeout=1800)
+            for tag, (mm, fut) in skin_jobs.items():
+                f3, Z3, _, _ = fut.result()
                 L3, R3 = _LR(f3, Z3)
                 got[tag] = {"segments": mm.n_seg,
                             "L_eff_nH": _parallel_L(L3[0]) * 1e9,
@@ -139,12 +182,9 @@ def commutation(quick=False, cellname="A"):
     # --- where the return current goes, for the figure and for H1 -------
     jmaps = None
     try:
-        mj, _, winj, _ = fhcell.commutation_model(
-            cellname, target=target, nhinc=nh, min_gap=min_gap)
-        wd = paths.WORK / f"fh/comm_{cellname}_J"
-        runner.run(mj.model, 1e7, 1e7,
-                   workdir=wd, extra_args=("-d", "GRIDS", "-x", f"P{fhcell.CELL[cellname]['hf'][0]}"))
-        jmaps = _plot_currents(wd, winj, cellname)
+        j_job.result()
+        with PLOT:
+            jmaps = _plot_currents(wdj, winj, cellname)
     except Exception as e:
         jmaps = {"error": f"{e.__class__.__name__}: {e}"}
 
@@ -196,8 +236,8 @@ def commutation(quick=False, cellname="A"):
                            (L_pcb + pkg + esl_lo) * 1e9],
             "overshoot_V": [(L_pcb + pkg + esl_hi) * di_dt,
                             (L_pcb + pkg + esl_lo) * di_dt],
-            "v_peak_V": [60 + (L_pcb + pkg + esl_hi) * di_dt,
-                         60 + (L_pcb + pkg + esl_lo) * di_dt],
+            "v_peak_V": [board.P()["v_bus"] + (L_pcb + pkg + esl_hi) * di_dt,
+                         board.P()["v_bus"] + (L_pcb + pkg + esl_lo) * di_dt],
         },
         "H1": {
             "claim": ("the commutation loop is bigger than 0.39 nH, expected "
@@ -216,11 +256,13 @@ def commutation(quick=False, cellname="A"):
         f"CONFIRMED, and by more than the hypothesis expected: the PCB part is "
         f"{L_pcb * 1e9:.2f} nH, {r:.1f} times geometry.commutation_loop()'s "
         f"0.39 nH, because VBUS reaches the high-side drain from In2 (0.55 mm "
-        f"below F.Cu) through a 16-via field, not from a plane 0.1 mm away."
+        f"below F.Cu) through the drain's via field, not from a plane 0.1 mm "
+        f"away."
         if r > 1.5 else
         f"NOT CONFIRMED: the PCB part is {L_pcb * 1e9:.2f} nH, "
         f"{r:.2f} times the estimate.")
-    _plot_LR(f, Leff, L, R, order, cellname)
+    with PLOT:
+        _plot_LR(f, Leff, L, R, order, cellname)
     return res
 
 
@@ -374,7 +416,7 @@ def sense_loops(quick=False, cellname="A"):
         "is the FastCap question in Q5/H4.")
 
     G_ = copper.load()
-    sh = jsonio.model("shunt_1m6_2010")
+    sh = jsonio.model(board.P()["shunt"])
     di_dt = 28.28 / 32.5e-9        # the design point's turn-off di/dt
 
     L_tt = float(L[i10M, tap_i, shunt_i])       # transfer inductance
@@ -382,7 +424,7 @@ def sense_loops(quick=False, cellname="A"):
     L_tap_self = float(L[i10M, tap_i, tap_i])
     L_shunt_self = float(L[i10M, shunt_i, shunt_i])
 
-    v_signal = 28.28 * 0.8e-3                   # full-scale shunt voltage
+    v_signal = 28.28 * board.P()["shunt_r"]     # full-scale shunt voltage
     v_ldidt_pcb = L_tt * di_dt
     esl = sh["L_esl"]
     v_ldidt_part = [esl["min"] * di_dt, esl["typ"] * di_dt, esl["max"] * di_dt]
@@ -413,7 +455,8 @@ def sense_loops(quick=False, cellname="A"):
                  "current, including the L.di/dt the tap loop picks up: the "
                  "port-2 (tap) voltage with 1 A into port 1 (the shunt path). "
                  "The shunt element's own ESL is a part property and is added "
-                 "from models/shunt_1m6_2010.json; the PCB's share is solved."),
+                 f"from models/{board.P()['shunt']}.json; the PCB's share is "
+                 "solved."),
     }
     out["H3"]["verdict"] = (
         "CONFIRMED" if max(out["H3"]["ratio_to_signal_part"]) > 3 else
@@ -474,17 +517,18 @@ def tap_asymmetry(cellname="A", max_panels=6000):
             out[f"C_snsn_{other}_pF"] = cn
             out[f"asymmetry_{other}_pF"] = cp - cn
     if "asymmetry_sw_pF" in out:
-        dv = 60.0
+        dv = board.P()["v_bus"]
         # a common-mode step of dv on the switch node drives the difference
         # of the two taps' capacitances into the 10 ohm + 10 ohm tap network
         dq = abs(out["asymmetry_sw_pF"]) * 1e-12 * dv
-        out["differential_charge_from_60V_step_pC"] = dq * 1e12
+        out["differential_charge_from_bus_step_pC"] = dq * 1e12
         out["verdict"] = (
             f"the two taps differ by {out['asymmetry_sw_pF']:+.3f} pF to the "
-            f"switch node; a 60 V common-mode step therefore injects "
+            f"switch node; a {dv:.0f} V common-mode step therefore injects "
             f"{dq * 1e12:.1f} pC of differential charge into the tap network, "
             f"which the 1 nF across it turns into "
-            f"{dq / 1e-9 * 1e3:.3f} mV -- against 22.6 mV of full-scale "
+            f"{dq / 1e-9 * 1e3:.3f} mV -- against "
+            f"{28.28 * board.P()['shunt_r'] * 1e3:.1f} mV of full-scale "
             f"signal")
     return out
 
@@ -572,29 +616,111 @@ def interconnect(quick=False):
     }
 
 
+# ============================================================ Q13, board S ==
+def bulk_path(quick=False, cellname="A"):
+    """Board S has no board-to-board link: its bulk is two polymer cans in the
+    middle of the board, and what stands between them and a phase cell is the
+    VBUS plane on In2 over the GND planes.  This is that path's inductance --
+    the number board A's header supplied to the cell model (Llink).
+
+    The port is at the cell's DC link, its four capacitors' VBUS pads tied
+    together and their GND pads tied together; at the far end each can's two
+    leads are shorted where the can stands (F.Cu), so the can's own ESL and
+    ESR are left out here and put back in P2/P4 from the part's model."""
+    B = board.P()
+    refs = B["bulk"]["refs"]
+    c = fhcell.CELL[cellname]
+    pts = [(p["x"], p["y"]) for r in (*refs, *c["hf"], *c["bulk"])
+           for p in copper.pads_of(r)]
+    xs = [q[0] for q in pts]
+    ys = [q[1] for q in pts]
+    margin = 3.0
+    win = (max(min(xs) - margin, -32.5), max(min(ys) - margin, -32.5),
+           min(max(xs) + margin, 32.5), min(max(ys) + margin, 32.5))
+    bar = copper.barrels(("VBUS", "GND"), win)
+    rows, pend = [], []
+    for target in ((2.0,) if quick else (2.0, 1.5, 1.2)):
+        m = mesher.Mesh(f"board S bulk cans to cell {cellname}", win,
+                        target=target, required_x=xs, required_y=ys,
+                        nhinc=1, min_gap=0.45)
+        m.add_conductor("vbF", "VBUS", "F.Cu")
+        m.add_conductor("vb2", "VBUS", "In2.Cu")
+        for tag, layer in (("gF", "F.Cu"), ("g1", "In1.Cu"),
+                           ("g3", "In3.Cu"), ("g4", "In4.Cu")):
+            m.add_conductor(tag, "GND", layer)
+        vt = {"F.Cu": "vbF", "In2.Cu": "vb2"}
+        gt = {"F.Cu": "gF", "In1.Cu": "g1", "In3.Cu": "g3", "In4.Cu": "g4"}
+        lead = {}
+        for b in bar:
+            nm = m.add_barrel(b, vt if b["net"] == "VBUS" else gt)
+            if b["ref"].split(".")[0] in refs:
+                lead[b["ref"]] = f"NB{nm}_{b['i0']}"
+        for r in refs:
+            a, k = lead.get(f"{r}.1"), lead.get(f"{r}.2")
+            if not (a and k):
+                raise RuntimeError(f"bulk path: no barrels for {r}'s leads")
+            m.model.equiv(a, k)                   # the can, as a short
+        vn, gn = [], []
+        for r in (*c["hf"], *c["bulk"]):
+            vn += m.pad_equipotential("vbF", r, 1)
+            gn += m.pad_equipotential("gF", r, 2)
+        if not (vn and gn):
+            raise RuntimeError("bulk path: no DC-link pad nodes in cell "
+                               + cellname)
+        m.model.equiv(*sorted(set(vn)))
+        m.model.equiv(*sorted(set(gn)))
+        m.model.port("Pbulk", vn[0], gn[0])
+        m.pruned = m.model.prune_to_ports()
+        pend.append((target, m, FH.submit(
+            runner.run, m.model, 1e4, 1e8, ndec=1, timeout=7200,
+            workdir=paths.WORK / f"fh/bulk_{cellname}_{target}")))
+    for target, m, fut in pend:
+        f, Z, order, _ = fut.result()
+        L, R = _LR(f, Z)
+        i = int(np.argmin(abs(f - 1e6)))
+        rows.append({"target_mm": target, "segments": m.n_seg,
+                     "f_Hz": f.tolist(),
+                     "L_nH": (L[:, 0, 0] * 1e9).tolist(),
+                     "R_mOhm": (R[:, 0, 0] * 1e3).tolist(),
+                     "L_nH_at_1MHz": float(L[i, 0, 0]) * 1e9,
+                     "R_mOhm_at_1MHz": float(R[i, 0, 0]) * 1e3})
+    best = rows[-1]
+    return {
+        "question": "Q13 (board S: bulk cans to the cell, through the planes)",
+        "cell": cellname, "cans": list(refs), "window_mm": list(win),
+        "mesh_series": rows,
+        "f_Hz": best["f_Hz"], "L_nH": best["L_nH"], "R_mOhm": best["R_mOhm"],
+        "L_nH_at_1MHz": best["L_nH_at_1MHz"],
+        "R_mOhm_at_1MHz": best["R_mOhm_at_1MHz"],
+        "change_last_refinement_pct": (
+            abs(rows[-1]["L_nH_at_1MHz"] / rows[-2]["L_nH_at_1MHz"] - 1) * 100
+            if len(rows) > 1 else None),
+        "note": ("VBUS on F.Cu and In2, GND on F.Cu, In1, In3 and In4, every "
+                 "VBUS and GND barrel in the window; the cans shorted at their "
+                 "leads, the port across the cell's four DC-link capacitors. "
+                 "It replaces board A's header-and-standoffs inductance in "
+                 "the cell and DC-link models."),
+    }
+
+
 def run(quick=False):
-    out = {}
-    out["Q1"] = commutation(quick)
-    try:
-        out["Q1_cells_BC"] = cells_bc(quick)
-    except Exception as e:
-        out["Q1_cells_BC"] = {"error": f"{e.__class__.__name__}: {e}"}
-    try:
-        out["Q4"] = gate_loops(quick)
-    except Exception as e:
-        out["Q4"] = {"error": f"{e.__class__.__name__}: {e}"}
-    try:
-        out["Q5"] = sense_loops(quick)
-    except Exception as e:
-        out["Q5"] = {"error": f"{e.__class__.__name__}: {e}"}
-    try:
-        out["Q5_H4"] = tap_asymmetry()
-    except Exception as e:
-        out["Q5_H4"] = {"error": f"{e.__class__.__name__}: {e}"}
-    try:
-        out["Q13"] = interconnect(quick)
-    except Exception as e:
-        out["Q13"] = {"error": f"{e.__class__.__name__}: {e}"}
+    # the questions are independent of each other: run them side by side
+    top = ThreadPoolExecutor(max_workers=6)
+    q13 = bulk_path if board.P()["bulk"]["kind"] == "cans" else interconnect
+    jobs = {"Q1": top.submit(commutation, quick),
+            "Q1_cells_BC": top.submit(cells_bc, quick),
+            "Q4": top.submit(gate_loops, quick),
+            "Q5": top.submit(sense_loops, quick),
+            "Q5_H4": top.submit(tap_asymmetry),
+            "Q13": top.submit(q13, quick)}
+    out = {"Q1": jobs["Q1"].result()}          # Q1 failing fails the phase
+    for k, fut in jobs.items():
+        if k == "Q1":
+            continue
+        try:
+            out[k] = fut.result()
+        except Exception as e:
+            out[k] = {"error": f"{e.__class__.__name__}: {e}"}
     return out
 
 

@@ -1,5 +1,6 @@
 """Where everything lives.  Every other module imports these; no module
 builds a path out of string concatenation of its own."""
+import os
 from pathlib import Path
 import sys
 
@@ -7,17 +8,39 @@ SIM = Path(__file__).resolve().parent.parent
 PROJECT = SIM.parent
 
 TOOLS = PROJECT / "tools"
-HARDWARE = PROJECT / "hardware" / "motor_board"
-BOARD_SRC = HARDWARE / "servodrive_A.kicad_pcb"
-
-WORK = SIM / "work"
-BOARD = WORK / "servodrive_A.kicad_pcb"          # the copy; never the original
-GEOMETRY = WORK / "geometry.json"
-
 MODELS = SIM / "models"
-RESULTS = SIM / "results"
 REPORT = SIM / "report"
-FIGS = REPORT / "img"
+
+# Which board is simulated.  Board A's paths are the original ones; any other
+# board keeps its copy, geometry, results and figures in a subdirectory of its
+# own, so running one can never overwrite the other's numbers.  Chosen by
+# `run.py --board`, which sets SIM_BOARD so that every module -- and every
+# subprocess -- sees the same board.
+BOARDS = {
+    "a": ("motor_board", "servodrive_A.kicad_pcb"),
+    "s": ("single_board", "servodrive_S.kicad_pcb"),
+}
+
+
+def use_board(key):
+    global BOARD_KEY, HARDWARE, BOARD_SRC, WORK, BOARD, GEOMETRY, RESULTS, FIGS
+    key = key.lower()
+    if key not in BOARDS:
+        raise SystemExit(f"unknown board {key!r}: one of {', '.join(BOARDS)}")
+    BOARD_KEY = key
+    hw, pcb = BOARDS[key]
+    HARDWARE = PROJECT / "hardware" / hw
+    BOARD_SRC = HARDWARE / pcb
+    sub = "" if key == "a" else key
+    WORK = SIM / "work" / sub if sub else SIM / "work"
+    BOARD = WORK / pcb                              # the copy; never the original
+    GEOMETRY = WORK / "geometry.json"
+    RESULTS = SIM / "results" / sub if sub else SIM / "results"
+    FIGS = REPORT / "img" / sub if sub else REPORT / "img"
+    os.environ["SIM_BOARD"] = key
+
+
+use_board(os.environ.get("SIM_BOARD", "a"))
 
 FASTHENRY = SIM / "fasthenry"
 FASTCAP = SIM / "fastcap"
@@ -50,3 +73,5 @@ def import_tools():
     `python3 tools/geometry.py`'s SVG rewrite never happens."""
     if str(TOOLS) not in sys.path:
         sys.path.insert(0, str(TOOLS))
+    from lib import board
+    board.patch_geometry()

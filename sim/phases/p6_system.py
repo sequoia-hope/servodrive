@@ -17,7 +17,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt                              # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib import paths, jsonio                                # noqa: E402
+from lib import paths, jsonio, board                                # noqa: E402
 from loop import control                                     # noqa: E402
 from loop.motor import Motor, BENCH, DESIGN, with_ke_for     # noqa: E402
 from loop.system import Inverter, ADC, Run                   # noqa: E402
@@ -25,9 +25,11 @@ from loop.system import Inverter, ADC, Run                   # noqa: E402
 paths.import_tools()
 I_RMS = 20.0
 I_PEAK = I_RMS * math.sqrt(2)
+VB = board.P()["v_bus"]            # 60 V board A, 48 V board S
+SG = board.P()["sense_gain"]       # V/A at the ADC: 40 mV/A A, 50 mV/A S
 
 
-def design_motor(rated_rpm=2000.0, pp=11, R=0.040, L=60e-6, v_bus=60.0):
+def design_motor(rated_rpm=2000.0, pp=11, R=0.040, L=60e-6, v_bus=VB):
     p = dict(DESIGN, pole_pairs=pp, R=R, L=L)
     return with_ke_for(p, v_bus=v_bus, rated_rpm=rated_rpm)
 
@@ -65,11 +67,11 @@ def q8(quick=False):
     for sync in (False, True):
         for seed in range(n_runs):
             adc = ADC(n_channels=4, synchronised=sync, seed=seed)
-            inv = Inverter(v_bus=60.0, dead_zone=0.02)
+            inv = Inverter(v_bus=VB, dead_zone=0.02)
             # the free-running ADC is not locked to the PWM, so where its
             # conversions land is arbitrary: each run draws a different phase
             ph = (0.0 if sync else (seed / n_runs) * 4 * 2e-6)
-            r = Run(p, inv, adc, g, v_bus=60.0, i_q_target=I_PEAK,
+            r = Run(p, inv, adc, g, v_bus=VB, sense_gain=SG, i_q_target=I_PEAK,
                     omega0=w, mechanical=False, adc_phase=ph)
             rec = r.run(0.02)
             tail = rec["t"] > 0.01
@@ -96,7 +98,7 @@ def q8(quick=False):
                 "iq_mean_true_A": float(np.mean(avg[n // 2:])),
                 "bias_A": float(np.mean(err)),
                 "noise_A_rms": float(np.std(err)),
-                "noise_LSB": float(np.std(err)) / (3.3 / 4096 / 40e-3),
+                "noise_LSB": float(np.std(err)) / (3.3 / 4096 / SG),
                 "i_rms_A": float(np.sqrt(np.mean(rec["i"][tail] ** 2))),
             })
     free = [r for r in rows if not r["synchronised"]]
@@ -107,7 +109,7 @@ def q8(quick=False):
         "question": "Q8",
         "adc": {"n_channels": 4, "t_conv_us": 2.0,
                 "channel_refresh_us": 8.0,
-                "resolution_LSB_mA": 3.3 / 4096 / 40e-3 * 1e3,
+                "resolution_LSB_mA": 3.3 / 4096 / SG * 1e3,
                 "aperture_bracket_ns": [adcm["t_aperture"]["min"] * 1e9,
                                         adcm["t_aperture"]["max"] * 1e9]},
         "runs": rows,
@@ -179,8 +181,8 @@ def q9(quick=False):
     import geometry as G
     out = {"question": "Q9",
            "estimate": {
-               "V_distortion_with_software_dead_zone_V": 60.0 * 1.5e-6 / 50e-6,
-               "V_distortion_hardware_only_V": 60.0 * 560e-9 / 50e-6,
+               "V_distortion_with_software_dead_zone_V": VB * 1.5e-6 / 50e-6,
+               "V_distortion_hardware_only_V": VB * 560e-9 / 50e-6,
                "note": ("V_bus x t_dead / T.  The software dead_zone of 0.02 "
                         "is 1 us per edge and the EG2103 adds 560 ns, so the "
                         "two together are about 1.56 us of the 50 us period")}}
@@ -193,10 +195,10 @@ def q9(quick=False):
     for dz in dz_list:
         for rpm in speeds:
             for iq in currents:
-                inv = Inverter(v_bus=60.0, dead_zone=dz)
+                inv = Inverter(v_bus=VB, dead_zone=dz)
                 adc = ADC(n_channels=4)
                 w = 2 * math.pi * rpm / 60.0
-                r = Run(p, inv, adc, g, v_bus=60.0, i_q_target=iq,
+                r = Run(p, inv, adc, g, v_bus=VB, sense_gain=SG, i_q_target=iq,
                         omega0=w, mechanical=False)
                 # the THD is measured on the second half of the run, so the
                 # run needs eight electrical periods for that half to hold
@@ -230,7 +232,7 @@ def q9(quick=False):
              - np.mean([r["torque_mean_Nm"] for r in worst]))
             / max(np.mean([r["torque_mean_Nm"] for r in base]), 1e-9) * 100)
     # the duty extremes the minimum pulse width makes unreachable
-    inv = Inverter(v_bus=60.0, dead_zone=0.0)
+    inv = Inverter(v_bus=VB, dead_zone=0.0)
     reach = []
     for d in np.linspace(0.0, 0.06, 31):
         w_ = inv.windows([d, d, d])[0]
@@ -305,14 +307,24 @@ def q10_consequence(quick=False):
 # ================================================================== Q14 =====
 def q14(quick=False):
     """Regeneration: a decel event pumping the bus, and what the firmware's
-    63-66 V fold-back can and cannot catch."""
+    fold-back (63-66 V on board A, 52-56 V on board S) can and cannot catch."""
     t0 = time.time()
-    tvs = jsonio.model("smdj64a")
-    r4 = jsonio.read("P4") or {}
+    B = board.P()
+    tvs = jsonio.model(B["tvs_bus"])
+    g0, g1 = B["guard"]
     out = {"question": "Q14",
-           "criterion": "reported; no brake chopper exists on this board"}
+           "criterion": "reported; no brake chopper exists on this board",
+           "V_bus_V": VB, "TVS": tvs["part"],
+           "TVS_V_BR_V": [tvs["V_BR"]["min"], tvs["V_BR"]["max"]]}
+    if B["bulk"]["kind"] == "cans":
+        can = jsonio.model(B["bulk"]["model"])
+        built = len(B["bulk"]["refs"]) * can["C_nominal"]["value"] * 1e6
+        bulks = [built] if quick else [built, 300.0, 470.0, 1000.0]
+        out["C_bulk_as_built_uF"] = built
+    else:
+        bulks = [300.0] if quick else [100.0, 300.0, 400.0, 1000.0]
     rows = []
-    for c_bulk_uF in ([300.0] if quick else [100.0, 300.0, 400.0, 1000.0]):
+    for c_bulk_uF in bulks:
         for J in ([1e-3] if quick else [1e-4, 1e-3, 1e-2]):
             # a decel from rated speed at the design-point current
             p = design_motor()
@@ -323,40 +335,46 @@ def q14(quick=False):
             T = 1.5 * pp * ke * I_PEAK
             # mechanical energy available
             E_mech = 0.5 * J * w0 ** 2
-            # what the bulk can absorb between 60 V and the TVS breakdown
+            # what the bulk can absorb between the bus and the TVS breakdown
             v_br = tvs["V_BR"]["min"]
             C = c_bulk_uF * 1e-6
-            E_cap = 0.5 * C * (v_br ** 2 - 60.0 ** 2)
+            E_cap = 0.5 * C * (v_br ** 2 - VB ** 2)
+            E_guard = 0.5 * C * (g0 ** 2 - VB ** 2)
             # the decel time and the power fed back
             t_dec = J * w0 / T if T else float("inf")
             P_regen = T * w0                       # at the start of the decel
-            dvdt = P_regen / (C * 60.0)            # V/s while the bus rises
-            t_to_tvs = (v_br - 60.0) / dvdt if dvdt else float("inf")
+            dvdt = P_regen / (C * VB)              # V/s while the bus rises
+            t_to_tvs = (v_br - VB) / dvdt if dvdt else float("inf")
+            t_to_guard = (g0 - VB) / dvdt if dvdt else float("inf")
             rows.append({
                 "C_bulk_uF": c_bulk_uF, "J_kgm2": J,
                 "omega0_rad_s": w0, "T_brake_Nm": T,
                 "E_mech_J": E_mech, "E_cap_to_TVS_J": E_cap,
+                "E_cap_to_guard_J": E_guard,
                 "P_regen_start_W": P_regen,
                 "dV_dt_V_per_s": dvdt,
+                "t_to_guard_ms": t_to_guard * 1e3,
                 "t_to_TVS_ms": t_to_tvs * 1e3,
                 "t_decel_ms": t_dec * 1e3,
                 "TVS_energy_J": max(E_mech - E_cap, 0.0),
-                "bus_guard_catches": bool(t_to_tvs > 50e-6),
+                "bus_guard_catches": bool(t_to_tvs - t_to_guard > 50e-6),
                 "guard_reaction_us": 50.0,
             })
     out["sweep"] = rows
     out["bus_guard"] = {
-        "fold_start_V": 63.0, "fold_full_V": 66.0,
+        "fold_start_V": g0, "fold_full_V": g1,
         "runs_at_Hz": 20e3,
         "reaction_time_us": 50.0,
-        "note": ("main.cpp folds current_limit to zero across 63-66 V and "
-                 "runs that check every loop() at about the FOC rate, so it "
-                 "reacts in one 50 us period plus the current loop's own "
-                 "settling")}
+        "note": (f"the firmware folds current_limit to zero across "
+                 f"{g0:.0f}-{g1:.0f} V and runs that check every loop() at "
+                 f"about the FOC rate, so it reacts in one 50 us period plus "
+                 f"the current loop's own settling")}
     out["brake_chopper"] = ("the sibling has a fourth leg with a 15 Ohm / "
                             "100 W resistor and a 300 J budget; servodrive "
                             "has no fourth leg, so the only places for regen "
-                            "energy are board B's bulk and the two TVSs")
+                            "energy are the bulk and the TVSs -- or the "
+                            "battery, when one is connected and accepts "
+                            "charge")
     out["seconds"] = round(time.time() - t0, 1)
     return out
 

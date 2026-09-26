@@ -1,0 +1,45 @@
+{
+ "part": "TPSMF4L54A",
+ "maker": "Littelfuse",
+ "role": "PHASE_x clamp to GND (board S)",
+ "V_RWM": {
+  "unit": "V",
+  "source": "Littelfuse TPSMF4L54A, LCSC C1973452 listing: 54 V V_RWM, 66.3 V V_BR max, 87.1 V V_C at 4.6 A, 400 W; V_BR min = V_BR max / 1.105 per the series' 10 % window",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "value": 54.0
+ },
+ "V_BR": {
+  "unit": "V",
+  "source": "Littelfuse TPSMF4L54A, LCSC C1973452 listing: 54 V V_RWM, 66.3 V V_BR max, 87.1 V V_C at 4.6 A, 400 W; V_BR min = V_BR max / 1.105 per the series' 10 % window",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "min": 60.0,
+  "max": 66.3
+ },
+ "V_C": {
+  "unit": "V",
+  "source": "Littelfuse TPSMF4L54A, LCSC C1973452 listing: 54 V V_RWM, 66.3 V V_BR max, 87.1 V V_C at 4.6 A, 400 W; V_BR min = V_BR max / 1.105 per the series' 10 % window",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "typ": 87.1,
+  "note": "clamping voltage at I_PP = 4.6 A"
+ },
+ "C_j": {
+  "unit": "F",
+  "source": "not in the listing",
+  "read": "2026-09-24",
+  "status": "bracketed",
+  "min": 1.5e-10,
+  "typ": 3e-10,
+  "max": 6e-10,
+  "note": "as the 64 V grade's bracket; a lower-voltage grade of the same die area has somewhat more"
+ },
+ "package": {
+  "unit": "",
+  "source": "board footprint",
+  "read": "2026-09-24",
+  "status": "datasheet",
+  "value": "SOD-123FL"
+ }
+}

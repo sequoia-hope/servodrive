@@ -75,12 +75,24 @@ def ripple():
     z_cer = 1 / (2 * math.pi * G.FSW * 7e-6)
     z_bulk = abs(complex(0.015, -1 / (2 * math.pi * G.FSW * 200e-6)))
     share = z_cer / (z_cer + z_bulk)
-    return {"i_ripple_rms_total": ic["i_ripple"],
-            "share_to_bulk": share,
-            "i_bulk_rms": ic["i_ripple"] * share,
-            "i_bulk_peak": max(I_PEAK - i_avg, i_avg) * share,
-            "i_avg": i_avg,
-            "note": "all of it split equally between the two cans"}
+    out = {"i_ripple_rms_total": ic["i_ripple"],
+           "share_to_bulk": share,
+           "i_bulk_rms": ic["i_ripple"] * share,
+           "i_bulk_peak": max(I_PEAK - i_avg, i_avg) * share,
+           "i_avg": i_avg,
+           "note": "all of it split equally between the two cans"}
+    # When P4 has solved board S's DC link -- ceramics, planes, cans and the
+    # battery lead as a network -- its per-can ripple replaces the divider
+    # above, and the peak is scaled with it.
+    r4 = (jsonio.read("P4") or {}).get("Q13_ripple") or {}
+    nom = r4.get("nominal") or {}
+    if nom.get("I_can_ripple_A_rms_each"):
+        k = 2 * nom["I_can_ripple_A_rms_each"] / out["i_bulk_rms"]
+        out.update({"i_bulk_rms": out["i_bulk_rms"] * k,
+                    "i_bulk_peak": out["i_bulk_peak"] * k,
+                    "share_to_bulk": out["share_to_bulk"] * k,
+                    "source": "P4 Q13_ripple nominal case"})
+    return out
 
 
 R_RING = 20.0          # mm: where the ripple runs round the VBUS annulus on In2

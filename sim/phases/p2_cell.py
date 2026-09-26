@@ -24,14 +24,21 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt                              # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib import paths, jsonio                                # noqa: E402
+from lib import paths, jsonio, board                         # noqa: E402
 from spice import devices, analyse                           # noqa: E402
 from spice.cell import CellNetlist                           # noqa: E402
 from spice.ngspice import NgSpice                            # noqa: E402
 
 V_SILICON = 80.0
-V_CRIT = 68.0                 # SPEC.md Q2's pass criterion
+V_CRIT = board.P()["v_crit"]  # SPEC.md Q2's pass criterion (68 V on board A)
+VB = board.P()["v_bus"]       # the design point's bus: 60 V board A, 48 V S
 RELTOL = "1e-3"               # the cell converges here; see the note in run()
+
+
+def _G():
+    paths.import_tools()
+    import geometry
+    return geometry
 
 
 def simulate(step=1e-10, maxstep=1e-9, **kw):
@@ -178,7 +185,7 @@ def measure(d):
 # =================================================================== Q2 =====
 def q2(quick=False):
     t0 = time.time()
-    base = dict(vbus=60.0, i_phase=28.28, tj=25.0, rg=2.2)
+    base = dict(vbus=VB, i_phase=28.28, tj=25.0, rg=2.2)
     rows = []
     rg_list = [2.2, 4.7, 10.0, 22.0]
     tj_list = [25.0, 125.0]
@@ -186,11 +193,11 @@ def q2(quick=False):
         for tj in tj_list:
             d = simulate(**dict(base, rg=rg, tj=tj))
             m = measure(d)
-            m.update({"R_g": rg, "T_j": tj, "V_bus": 60.0, "I_phase": 28.28})
+            m.update({"R_g": rg, "T_j": tj, "V_bus": VB, "I_phase": 28.28})
             rows.append(m)
     # the operating envelope
     env = []
-    for vb in ([60.0] if quick else [20.0, 48.0, 60.0]):
+    for vb in ([VB] if quick else list(board.P()["v_sweep"])):
         for ip in ([28.28] if quick else [0.0, 7.07, 14.14, 28.28]):
             d = simulate(**dict(base, vbus=vb, i_phase=ip))
             m = measure(d)
@@ -239,11 +246,11 @@ def q2(quick=False):
     _plot_edges(base)
     return {
         "question": "Q2",
-        "estimate_geometry_py": {"overshoot_V": 1.73, "v_peak_V": 61.7,
+        "estimate_geometry_py": {"overshoot_V": _G().commutation_loop()["overshoot"],
+                                 "v_peak_V": _G().commutation_loop()["v_peak"],
                                  "ring_MHz_estimate": 100.0},
         "criterion": {"V_ds_peak_max_V": V_CRIT,
-                      "reason": "the TVS breakdown minimum is 71.1 V and the "
-                                "silicon is 80 V; SPEC.md Q2 asks for 68 V"},
+                      "reason": board.P()["v_crit_reason"]},
         "rg_tj_sweep": rows,
         "envelope_sweep": env,
         "drive_strength": fast,
@@ -295,7 +302,7 @@ def _plot_edges(base):
                   label=f"V_gs(th) min {vth:g} V")
         a.set_xlabel("us"); a.set_ylabel("V")
         a.legend(fontsize=6); a.grid(alpha=.3)
-    fig.suptitle("cell A, 60 V, 28.3 A, Rg 2.2 Ohm, Tj 25 C -- the gate row "
+    fig.suptitle(f"cell A, {VB:.0f} V, 28.3 A, Rg 2.2 Ohm, Tj 25 C -- the gate row "
                  "is the polysilicon gate against the source, with the "
                  "package pin dotted", fontsize=10)
     fig.tight_layout()
@@ -315,7 +322,7 @@ def q3(quick=False, need=None):
         Rs, Cs = [4.7, 10.0], [1e-9, 2.2e-9]
     for r in Rs:
         for c in Cs:
-            d = simulate(vbus=60.0, i_phase=28.28, tj=25.0, rg=2.2,
+            d = simulate(vbus=VB, i_phase=28.28, tj=25.0, rg=2.2,
                          snubber=(r, c))
             m = measure(d)
             # snubber loss: the capacitor is charged and discharged twice per
@@ -324,7 +331,7 @@ def q3(quick=False, need=None):
                   m.get("Vds_high_peak_at_turn_off", float("nan"))]
             pk = [x for x in pk if x == x]
             m.update({"R": r, "C_nF": c * 1e9,
-                      "P_R_W": c * 60.0 ** 2 * 20e3,
+                      "P_R_W": c * VB ** 2 * 20e3,
                       "V_peak_V": max(pk) if pk else float("nan")})
             rows.append(m)
     ok = [r for r in rows if r["V_peak_V"] == r["V_peak_V"]
@@ -339,7 +346,7 @@ def q3(quick=False, need=None):
                   for r in rows],
         "smallest_that_passes": ({k: best[k] for k in ("R", "C_nF", "V_peak_V",
                                                        "P_R_W")} if best else None),
-        "criterion": "V_ds,peak <= 68 V with P_R <= 0.25 W",
+        "criterion": f"V_ds,peak <= {V_CRIT:g} V with P_R <= 0.25 W",
         "seconds": round(time.time() - t0, 1),
         "note": ("P_R = C.V^2.f is the whole snubber loss at 20 kHz and does "
                  "not depend on R; R only sets how hard it damps and how the "
@@ -364,7 +371,7 @@ def q4(quick=False):
               if not quick else [(1.0, 2.2, "typ", 1.0)])
     for scale, rg, fc, drv in combos:
         if True:
-            d = simulate(vbus=60.0, i_phase=28.28, tj=125.0, rg=rg,
+            d = simulate(vbus=VB, i_phase=28.28, tj=125.0, rg=rg,
                          drive_scale=scale, fet_corner=fc, drv_r_scale=drv,
                          step=5e-11, maxstep=5e-10)
             m = measure(d)
@@ -389,7 +396,7 @@ def q4(quick=False):
     remedy = []
     worst_row = max(rows, key=lambda r: r["Vgs_low_induced_at_turn_on"])
     for c_gs in ([0.0] if quick else [0.0, 2.2e-9, 4.7e-9, 10e-9, 22e-9]):
-        d = simulate(vbus=60.0, i_phase=28.28, tj=125.0,
+        d = simulate(vbus=VB, i_phase=28.28, tj=125.0,
                      rg=worst_row["R_g"], drive_scale=worst_row["drive_scale"],
                      fet_corner=worst_row["fet_corner"],
                      drv_r_scale=worst_row["drv_r_scale"],
@@ -421,7 +428,7 @@ def q4(quick=False):
     for tag, shift in (("V_GS(th) min", vth_min - vto_fit),
                        ("V_GS(th) typ", 0.0),
                        ("cannot conduct", 50.0)):
-        d = simulate(vbus=60.0, i_phase=28.28, tj=125.0,
+        d = simulate(vbus=VB, i_phase=28.28, tj=125.0,
                      rg=worst_row["R_g"], drive_scale=worst_row["drive_scale"],
                      fet_corner=worst_row["fet_corner"],
                      drv_r_scale=worst_row["drv_r_scale"],
@@ -444,7 +451,7 @@ def q4(quick=False):
         c["cross_conduction_nC"] = (c["charge_through_high_side_nC"]
                                     - ref["charge_through_high_side_nC"]
                                     if ref else float("nan"))
-        c["cross_conduction_uJ"] = c["cross_conduction_nC"] * 1e-9 * 60.0 * 1e6
+        c["cross_conduction_uJ"] = c["cross_conduction_nC"] * 1e-9 * VB * 1e6
 
     smallest = next((r for r in remedy if r["pass_miller"]), None)
     smallest_below_vth = next((r for r in remedy if r["pass_below_Vth_min"]),
@@ -484,12 +491,12 @@ def q4(quick=False):
 def q5(quick=False):
     t0 = time.time()
     A = jsonio.model("ina241a3")
-    sh = jsonio.model("shunt_1m6_2010")
+    sh = jsonio.model(board.P()["shunt"])
     lsb = 3.3 / 4096.0
     rows = []
     for corner in (["typ"] if quick else ["min", "typ", "max"]):
         for ip in ([28.28] if quick else [-28.28, 0.0, 28.28]):
-            d = simulate(vbus=60.0, i_phase=ip, tj=25.0, rg=2.2,
+            d = simulate(vbus=VB, i_phase=ip, tj=25.0, rg=2.2,
                          shunt_esl_corner=corner, step=5e-11, maxstep=5e-10)
             m = measure(d)
             n = d["_n"]
@@ -603,7 +610,7 @@ def q12(quick=False):
     for c_wf in cwfs:
         for bond in bonds:
           for drv in ([1.0] if quick else [1.0, 0.1]):
-            d = simulate(vbus=60.0, i_phase=28.28, tj=25.0, rg=2.2,
+            d = simulate(vbus=VB, i_phase=28.28, tj=25.0, rg=2.2,
                          c_wf=c_wf, frame_bond=bond, drv_r_scale=drv,
                          step=5e-11, maxstep=5e-10)
             m = measure(d)

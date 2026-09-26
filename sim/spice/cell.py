@@ -33,7 +33,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib import jsonio, paths                                # noqa: E402
+from lib import jsonio, paths, board                         # noqa: E402
 from spice import devices                                    # noqa: E402
 
 # Fallbacks used only when P1 has not been run; every one of them is reported
@@ -83,7 +83,7 @@ def _p1():
 
 
 class CellNetlist:
-    def __init__(self, vbus=60.0, i_phase=28.28, tj=25.0, rg=2.2,
+    def __init__(self, vbus=None, i_phase=28.28, tj=25.0, rg=2.2,
                  snubber=None, cap_corner="typ", drive_scale=1.0,
                  drv_r_scale=1.0, c_gs_ext=0.0,
                  vto_shift_low=0.0,
@@ -92,7 +92,7 @@ class CellNetlist:
                  dead_time_sw=1.0e-6, c_vbus_gnd=82e-12, c_sw_gnd=33e-12,
                  fet_corner="typ", c_wf=0.0, c_frame_stray=30e-12,
                  frame_bond=("open", 0.0), r_frame_contact=5e-3):
-        self.vbus = vbus
+        self.vbus = board.P()["v_bus"] if vbus is None else vbus
         self.i_phase = i_phase
         self.tj = tj
         self.rg = rg
@@ -142,14 +142,27 @@ class CellNetlist:
         S.append(devices.eg2103_cards(r_scale=self.drv_r_scale))
         if self.include_sense:
             S.append(devices.ina241_cards())
-        S.append(devices.tvs_card("TVSPH", "tpsmf4l64a", self.tvs_corner))
+        S.append(devices.tvs_card("TVSPH", board.P()["tvs_phase"],
+                                  self.tvs_corner))
 
-        # ---- the bus: board B behind the link inductance ---------------
         S.append(f"Vsrc vsrc 0 DC {self.vbus:g}")
         S.append("Rsrc vsrc vb_far 0.05")
         S.append("Lsrc vb_far vb_bulk 1u")
-        S.append("Cbulk vb_bulk nbulk 400u")
-        S.append("Rbulk nbulk 0 0.01")
+        bulk = board.P()["bulk"]
+        if bulk["kind"] == "cans":
+            # ---- the bus: board S's own cans, behind the planes ----------
+            # The two polymer cans in parallel, with the part's ESR and ESL
+            # (models/cap_100u_100v_polymer.json); Llink is the In2/In1 plane
+            # pair from the cans' leads to this cell, which P1 solves.
+            can = jsonio.model(bulk["model"])
+            n = len(bulk["refs"])
+            S.append(f"Cbulk vb_bulk nbulk {n * can['C_nominal']['value']:g}")
+            S.append(f"Rbulk nbulk nbulk2 {can['ESR']['max'] / n:g}")
+            S.append(f"Lbulk nbulk2 0 {can['ESL']['typ'] / n:g}")
+        else:
+            # ---- the bus: board B behind the link inductance -------------
+            S.append("Cbulk vb_bulk nbulk 400u")
+            S.append("Rbulk nbulk 0 0.01")
         S.append(f"Llink vb_bulk hb_p {p1['L_link_nH'] * 1e-9:g}")
 
         # The VBUS sector on In2 against the GND planes above and below it.
@@ -222,10 +235,10 @@ class CellNetlist:
             S.append(f"Cgsx2 g2 s2 {self.c_gs_ext:g}")
 
         # ---- the load: a motor winding is a current source over an edge
-        sh = jsonio.model("shunt_1m6_2010")
+        sh = jsonio.model(board.P()["shunt"])
         esl = sh["L_esl"][self.shunt_esl_corner]
         S.append(f"Lshunt sw nsh1 {p1['L_shunt_nH'] * 1e-9:g}")
-        # two 1.6 mOhm in parallel -> 0.8 mOhm (tools/geometry.py SHUNT_R)
+        # two in parallel: 2 x 1.6 -> 0.8 mOhm on board A, 2 x 2 -> 1.0 on S
         S.append(f"Rsh1 nsh1 nsh2 {sh['R']['value']:g}")
         S.append(f"Rsh2 nsh1 nsh2 {sh['R']['value']:g}")
         S.append(f"Lesl nsh2 phase {esl:g}")

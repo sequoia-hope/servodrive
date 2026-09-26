@@ -1,0 +1,179 @@
+{
+ "rows": [
+  {
+   "area": "Commutation loop",
+   "result": "1.94&nbsp;nH of PCB (FastHenry, all four capacitors); 3.1&ndash;3.2&nbsp;nH with the two FET packages and the capacitors' ESL (its mesh series 2.29, 2.13, 1.99, 1.90, 1.91&nbsp;nH, 0.4&nbsp;% on the last step; the 0.62&nbsp;mm mesh had not finished); cells A/B/C within 9&nbsp;%; the full-wave check, one capacitor's loop, reads 1.68, 1.72, 3.33&nbsp;nH as its mesh refines (0.2, 0.14, 0.1&nbsp;mm) against FastHenry's 2.70&nbsp;nH",
+   "criterion": "reported; FastHenry and openEMS agree within 25&nbsp;%, each converged",
+   "verdict": "fail",
+   "evidence": "P1 Q1, P7 Q1_crosscheck",
+   "figure": "p1_current_A.png",
+   "why": "the full-wave mesh series did not settle; its number is not used"
+  },
+  {
+   "area": "Switching overshoot",
+   "result": "52.2&nbsp;V peak at 48&nbsp;V and 28.3&nbsp;A; 69.1&nbsp;V at the worst corner swept (R<sub>g</sub>, T<sub>j</sub>, driver strength, capacitance); 60.2&nbsp;V at 56&nbsp;V, the top of the fold-back",
+   "criterion": "V<sub>ds</sub> &le; 57&nbsp;V everywhere (the TPSMF4L54A's breakdown minimum is 60.0 V; the criterion keeps board A's 3 V margin under it); ringing under 5&nbsp;% in 5 cycles",
+   "verdict": "warn",
+   "evidence": "P2 Q2",
+   "figure": "p2_edges.png",
+   "why": ""
+  },
+  {
+   "area": "Snubber",
+   "result": "at the nominal edge, which passes without one (52.2&nbsp;V), every RC from 2.2&ndash;22&nbsp;&Omega; and 0.47&ndash;4.7&nbsp;nF leaves the peak at 51.8&ndash;52.3&nbsp;V: the overshoot there is too small for a snubber to matter. The sweep is not run at the strong-driver corner that reaches 69.1&nbsp;V",
+   "criterion": "the smallest RC that passes Q2 with P<sub>R</sub> &le; 0.25&nbsp;W",
+   "verdict": "info",
+   "evidence": "P2 Q3",
+   "figure": null,
+   "why": ""
+  },
+  {
+   "area": "Miller turn-on",
+   "result": "3.05&nbsp;V induced on the off FET's gate at the nominal edge, 3.75&nbsp;V at the worst corner, against a V<sub>GS(th)</sub> of 2.2&nbsp;V minimum",
+   "criterion": "induced V<sub>gs</sub> &le; 0.7 &times; V<sub>GS(th),min</sub>",
+   "verdict": "fail",
+   "evidence": "P2 Q4",
+   "figure": null,
+   "why": ""
+  },
+  {
+   "area": "Current sense, transient",
+   "result": "the INA241A3 holds its output 1000&nbsp;ns after each edge (settles in 2318&nbsp;ns, 35 LSB worst); a free-running ADC lands 12&ndash;14&nbsp;% of samples in a hold, PWM-synchronised sampling none",
+   "criterion": "settled to &plusmn;1 LSB in 500&nbsp;ns; &le; 6&nbsp;% of samples disturbed",
+   "verdict": "fail",
+   "evidence": "P2 Q5",
+   "figure": null,
+   "why": ""
+  },
+  {
+   "area": "Current sense, DC",
+   "result": "copper is 2.9&nbsp;% of the 1.030&nbsp;m&Omega; between the taps; TCR -155 to 379&nbsp;ppm/K with the shunt's &plusmn;275&nbsp;ppm/K; the two shunts share 51/49",
+   "criterion": "copper &le; 5&nbsp;%; TCR &le; 500&nbsp;ppm/K; sharing within 10&nbsp;%",
+   "verdict": "pass",
+   "evidence": "P3 Q6, Q6_sharing",
+   "figure": null,
+   "why": ""
+  },
+  {
+   "area": "Vias and copper at 20&nbsp;A",
+   "result": "busiest barrel 2.83&nbsp;A RMS in the 16-via array that takes the phase current from the low-side drain down to the shunts, 2.06&nbsp;A in the high side's 20-via drain array fed from the XT30; phase band 74&nbsp;A/mm&sup2; (p99.9)",
+   "criterion": "&le; 2&nbsp;A RMS per 0.4&nbsp;mm barrel",
+   "verdict": "fail",
+   "evidence": "P3 Q7",
+   "figure": "p3_J_vbus_In2.png",
+   "why": ""
+  },
+  {
+   "area": "Bulk cans",
+   "result": "6.4&nbsp;A RMS in each can at 20&nbsp;A RMS per phase (1.43&nbsp;W each), against 1.5&ndash;2.2&nbsp;A of rating at 20&ndash;40&nbsp;kHz: within rating up to about 4.7&ndash;7.0&nbsp;A RMS per phase, continuous",
+   "criterion": "each can within its ripple rating",
+   "verdict": "fail",
+   "evidence": "P4 Q13_ripple",
+   "figure": "p4_ripple_s.png",
+   "why": ""
+  },
+  {
+   "area": "Bus ripple",
+   "result": "1.74&nbsp;V peak-to-peak at the drains; 2.0&nbsp;A RMS goes back up a 1&nbsp;&micro;H battery lead; the ceramics are 8.2&nbsp;&micro;F at 48&nbsp;V of 13.8 nominal; the cans are about 2.0&nbsp;nH of plane from cell A (FastHenry's series 2.9, 2.6, 2.0&nbsp;nH is still moving; at 20&ndash;40&nbsp;kHz any of them is under 1&nbsp;m&Omega;)",
+   "criterion": "V<sub>bus,pp</sub> &le; 3&nbsp;V; no DC-link resonance with Q &gt; 3 below 1&nbsp;MHz",
+   "verdict": "pass",
+   "evidence": "P4 Q13",
+   "figure": "p4_dclink_z.png",
+   "why": ""
+  },
+  {
+   "area": "Encoder field",
+   "result": "bulk cans 0.006&deg; and the XT30's bus current 0.016&deg; at the weakest field; with the motor leads 0.13&deg; at the nominal gap, 0.16&deg; at the weakest &mdash; the leads are nearly all of it",
+   "criterion": "current-induced angle error &le; 0.05&deg; (about 2 LSB)",
+   "verdict": "warn",
+   "evidence": "P5S Q10S",
+   "figure": "p5s_board_s.png",
+   "why": "the board's own currents pass; the motor leads do not unless twisted"
+  },
+  {
+   "area": "Magnet",
+   "result": "&Oslash;6 &times; 2.5&nbsp;mm: 69&nbsp;mT at the IC at the nominal 1.5&nbsp;mm gap; inside the window for every grade and &plusmn;0.3&nbsp;mm offset from 1.0 to 2.0&nbsp;mm; over 100&nbsp;mT at 0.5&nbsp;mm and closer",
+   "criterion": "20&ndash;100&nbsp;mT (MT6701) over the gap tolerance, 1&ndash;2&nbsp;mm",
+   "verdict": "pass",
+   "evidence": "P5 Q10",
+   "figure": null,
+   "why": ""
+  },
+  {
+   "area": "ADC sampling",
+   "result": "free-running round-robin: 0.63&nbsp;A RMS error and 1.52&nbsp;A bias on i<sub>q</sub>; sampled at the PWM counter's zero: 0.20&nbsp;A and 0.73&nbsp;A",
+   "criterion": "synchronised sampling cuts disturbed samples to zero",
+   "verdict": "info",
+   "evidence": "P6 Q8",
+   "figure": "p6_sampling.png",
+   "why": ""
+  },
+  {
+   "area": "Dead time",
+   "result": "the software dead_zone costs 0.62&nbsp;% of torque on top of the EG2103's own 560&nbsp;ns; pulses under 2.4&nbsp;% duty never reach the FETs",
+   "criterion": "reported, with a firmware setting",
+   "verdict": "info",
+   "evidence": "P6 Q9",
+   "figure": "p6_deadtime.png",
+   "why": ""
+  },
+  {
+   "area": "Regeneration",
+   "result": "a 20&nbsp;A brake from rated speed (J 10<sup>&minus;3</sup>&nbsp;kg&middot;m&sup2;) lifts 200&nbsp;&micro;F from 48&nbsp;V to the 52&nbsp;V fold-back in 47&nbsp;&micro;s and to the TVS in 141&nbsp;&micro;s; the bulk takes 0.13&nbsp;J of the 21.9&nbsp;J stored",
+   "criterion": "reported: no brake chopper; the battery, when it accepts charge, is the sink",
+   "verdict": "info",
+   "evidence": "P6 Q14",
+   "figure": null,
+   "why": ""
+  },
+  {
+   "area": "Motor frame (common mode)",
+   "result": "a floating frame swings 111&nbsp;V peak on each edge through the winding capacitance",
+   "criterion": "&le; 10&nbsp;V peak frame-to-GND",
+   "verdict": "fail",
+   "evidence": "P2 Q12",
+   "figure": null,
+   "why": "the enclosure has to bond the motor frame; the board cannot"
+  },
+  {
+   "area": "Heat",
+   "result": "10.0&nbsp;W on the board at 20&nbsp;A RMS and 48&nbsp;V; the high-side drain's 20-via array is 7.1&nbsp;K/W; for T<sub>j</sub> &le; 125&nbsp;&deg;C the ring needs &le; 7.4&nbsp;K/W to air (about 90&nbsp;cm&sup2;)",
+   "criterion": "reported",
+   "verdict": "info",
+   "evidence": "P8",
+   "figure": null,
+   "why": ""
+  },
+  {
+   "area": "Radiated field",
+   "result": "not quoted: a whole-board FDTD mesh cannot resolve 0.15&nbsp;mm copper at an affordable cell count, so the far-field run does not converge",
+   "criterion": "informational",
+   "verdict": "info",
+   "evidence": "P7 Q11",
+   "figure": null,
+   "why": ""
+  }
+ ],
+ "phases_present": [
+  "P0",
+  "P1",
+  "P2",
+  "P3",
+  "P4",
+  "P5",
+  "P5S",
+  "P6",
+  "P7",
+  "P8"
+ ],
+ "page": "/home/sequoia/pcb/servodrive/single.html",
+ "written_to_page": true,
+ "date": "2026-09-24",
+ "_phase": {
+  "seconds": 0.1
+ },
+ "_meta": {
+  "written": "2026-09-24T15:35:24",
+  "board_mtime": "2026-09-24T12:09:01"
+ }
+}
