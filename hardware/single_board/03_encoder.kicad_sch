@@ -759,7 +759,7 @@
 		(at 21.5900 22.8600 0)
 		(effects (font (size 2.0 2.0) (bold yes)) (justify left bottom))
 		(uuid "18384f8c-9ff5-5160-b079-4606f20ab5b3"))
-	(text "MT6701 on the motor-facing side, centred on the shaft over a\ndiametric magnet. MODE tied to VDD. Read over SSI on SPI0:\nENC_DO on GPIO4 (SPI0 RX), ENC_SCK on GPIO6 (SPI0 SCK),\nENC_CS on GPIO5; ENC_OUT on GPIO7." (exclude_from_sim no)
+	(text "MT6701 on the motor-facing side, centred on the shaft over a\ndiametric magnet. MODE tied to VDD. The CPU reads it over\nSSI (sheet 02)." (exclude_from_sim no)
 		(at 20.3200 80.0100 0)
 		(effects (font (size 1.27 1.27)) (justify left top))
 		(uuid "ad826807-0844-58d9-87ed-5ac408c261a4"))

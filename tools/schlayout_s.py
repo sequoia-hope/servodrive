@@ -100,6 +100,14 @@ def phase(s, X, ox, oy, ntc=False):
         s.label(s["R901"]["2"], stub=1, d=(0, 1), text_dir=(1, 0))
 
 
+def gpio(comps, net):
+    """The RP2350's GPIO number for a net, read off the netlist."""
+    import re
+    u7 = next(c for c in comps if c.ref == "U7")
+    name = next(SCH.pins(u7.lib_id)[n][3] for n, v in u7.nets.items() if v == net)
+    return int(re.match(r"GPIO(\d+)", name).group(1))
+
+
 def notes(*paras, width=74):
     """Paragraphs as one KiCad text: wrapped, a blank line between."""
     import textwrap
@@ -138,10 +146,17 @@ CONTROL_NOTES = notes(
     "One 100n at each IOVDD pin (C701-C706); C714 4u7 at VREG_VIN.",
     "ADC_AVDD is +3V3 filtered by R703 and C716 (+3V3A).",
     "BOOTSEL: SW1 on sheet 05 pulls QSPI_SS low through R701 at reset.",
-    "SPI0 reads the encoder: ENC_DO on GPIO4 (RX), ENC_SCK on GPIO6 (SCK). "
-    "GPIO19-24 go to the expansion header (sheet 05); an Ethernet board drives "
-    "its W5500 from PIO on 20-23.",
+    "{enc}",
+    "GPIO19-24 go to the expansion header (sheet 05).",
     width=62)
+
+
+def encoder_note(comps):
+    do, sck, cs, out = (gpio(comps, n) for n in ("ENC_DO", "ENC_SCK", "ENC_CS", "ENC_OUT"))
+    spi = do == 4 and sck == 6
+    return (f"The encoder: ENC_DO on GPIO{do}, ENC_SCK on GPIO{sck}, ENC_CS on GPIO{cs}, "
+            f"ENC_OUT on GPIO{out}" + (" -- SPI0's RX and SCK, so SPI0 reads it." if spi
+                                      else "; read by PIO."))
 
 
 def control(comps, glob):
@@ -256,7 +271,7 @@ def control(comps, glob):
         s.place(ref, x, 13.5, fields="right")
 
     s.text("Notes", 108, 36, size=2.0, bold=True)
-    s.text(CONTROL_NOTES, 108, 38)
+    s.text(CONTROL_NOTES.replace("{enc}", encoder_note(comps)), 108, 38)
     return s
 
 
@@ -273,8 +288,7 @@ def encoder(comps, glob):
         s.label(u[n], stub=2, shape="output" if n in ("3", "6") else "input")
     s.text(notes(
         "MT6701 on the motor-facing side, centred on the shaft over a diametric "
-        "magnet. MODE tied to VDD. Read over SSI on SPI0: ENC_DO on GPIO4 (SPI0 "
-        "RX), ENC_SCK on GPIO6 (SPI0 SCK), ENC_CS on GPIO5; ENC_OUT on GPIO7.",
+        "magnet. MODE tied to VDD. The CPU reads it over SSI (sheet 02).",
         width=60), 3, 27)
     return s
 
@@ -478,21 +492,29 @@ def io(comps, glob):
     # expansion header
     s.block("Expansion header: PD or Ethernet board", 64, 5, 100, 34)
     h = s.place("J13", 80, 20, fields=(-1, -7, "left"))
-    for n in ("1", "3", "5", "7"):
-        s.wire(h[n], (h[n].x / D.U - 1, h[n].y / D.U))
-    s.wire((77, 16), (77, 13))
-    s.power(s.g(77, 13), "VBUS")
-    s.wire((77, 16), (77, 19))
-    for n in ("2", "4", "6", "8", "10"):
-        s.wire(h[n], (84, h[n].y / D.U))
-    s.wire((84, 20), (84, 14), (87, 14))
-    s.power(s.g(87, 14), "GND")
-    s.wire(h["12"], (86, 21))
-    s.power(s.g(86, 21), "+5V")
-    s.wire(h["14"], (88, 22))
-    s.power(s.g(88, 22), "+3V3")
-    for n in ("9", "11", "13", "15", "17", "19", "16", "18", "20"):
-        s.label(h[n], stub=2)
+    # VBUS down the odd row and ground down the even row, each gathered on
+    # one wire; a supply pin gets its symbol on a stub long enough to clear
+    # its neighbour's; everything else is a label
+    stubs = {(-1, 0): iter((3, 5)), (1, 0): iter((3, 5))}
+    vb, gnd = [], []
+    for n in sorted(h.pins, key=int):
+        p = h[n]
+        if p.net == "VBUS":
+            s.wire(p, p.out(1)); vb.append(p.out(1))
+        elif p.net == "GND":
+            s.wire(p, p.out(1)); gnd.append(p.out(1))
+        elif p.net in D.SUPPLY:
+            k = next(stubs[p.d])
+            s.wire(p, p.out(k))
+            s.power(p.out(k), p.net)
+        else:
+            s.label(p, stub=2)
+    top = min(vb, key=lambda q: q.y)
+    s.wire(top, top.go(0, -3), max(vb, key=lambda q: q.y))
+    s.power(top.go(0, -3), "VBUS")
+    top = min(gnd, key=lambda q: q.y)
+    s.wire(max(gnd, key=lambda q: q.y), top.go(0, -2), top.go(3, -2))
+    s.power(top.go(3, -2), "GND")
 
     # LED, BOOTSEL, test pads, the ADC3 divider and FAULT_n's pull-up
     s.block("Status LED, BOOTSEL, test pads", 103, 5, 146, 34)
