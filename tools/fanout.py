@@ -1294,6 +1294,28 @@ def links(board, obs, nets=("SNSN_A", "SNSN_B", "SNSN_C", "+1V1"), w=0.25, verbo
     return made, left
 
 # ------------------------------------------------------------- plane taps ----
+SLIVER_DEG = (2, 20)   # KiCad's copper sliver is under 20; under 2 they overlap
+
+def sliver_pad(board, code, via, m):
+    """A track arriving at `via` from m would meet a neighbour's tap there --
+    a track of the net from the via to one of the net's pads -- at a
+    sliver's angle: that pad's centre, or None."""
+    a = math.atan2(m[1] - via[1], m[0] - via[0])
+    for t in board.GetTracks():
+        if t.Type() != pcbnew.PCB_TRACE_T or t.GetNetCode() != code:
+            continue
+        s, e = t.GetStart(), t.GetEnd()
+        o = e if (s.x, s.y) == via else s if (e.x, e.y) == via else None
+        if o is None:
+            continue
+        b = math.atan2(o.y - via[1], o.x - via[0])
+        d = math.degrees(abs((a - b + math.pi) % (2 * math.pi) - math.pi))
+        if SLIVER_DEG[0] < d < SLIVER_DEG[1] and any(
+                q.GetNetCode() == code and q.GetPosition() == o
+                for f in board.GetFootprints() for q in f.Pads()):
+            return (o.x, o.y)
+    return None
+
 def dogleg(local, c, code, layer, planes, reach, grid=0.2):
     """The last resort for a two-terminal part's plane pad: a first leg at any
     of the eight 45-degree headings, then straight to the nearest via that
@@ -1424,6 +1446,16 @@ def taps(board, obs, verbose=True, reach=5.0):
                     segs = list(zip(pts, pts[1:]))
                     if all(math.hypot(q[0] - p[0], q[1] - p[1]) > mm(0.05) for p, q in segs) \
                             and legal(local, code, layer, segs, w=0.2):
+                        # Meeting a neighbour's tap at the via at a sliver's
+                        # angle -- the MT6701's VDD pins did, 20 degrees,
+                        # once board S's J13 put EXP_GP24 over the pin that
+                        # carried the via: straight to that pad instead.
+                        o = sliver_pad(board, code, vp, pts[-2])
+                        if o is not None:
+                            alt = [((c.x, c.y), o)]
+                            if not legal(local, code, layer, alt, w=0.2):
+                                continue
+                            segs = alt
                         got = (None, segs)
                         break
                 if got:
