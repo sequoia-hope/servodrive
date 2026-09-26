@@ -11,6 +11,8 @@ re-placement cannot leave a page describing the board before it:
 
   - the copper viewer's layer plots and the 3D viewer's GLB and parts file
     (tools/plot_layers.py, tools/export_3d.py);
+  - board S's schematic as the page shows it, an SVG per sheet and a PDF
+    (img/sch/s/, schematic());
   - board S's page: the build-status numbers between <!-- status:begin --> and
     <!-- status:end -->, counted off the board, its DRC and its ERC;
   - board S's simulation (sim/run.py --board s).  It takes about two hours, so
@@ -141,6 +143,48 @@ def write_status(key, s):
     return True
 
 
+# -------------------------------------------------------------- schematic --
+SCH_OUT = {"s": ROOT / "img" / "sch" / "s"}
+
+
+def schematic(key):
+    """The schematic as the page shows it: KiCad's own plot of every sheet
+    (SVG), the whole of it as one PDF, and sheets.json, the viewer's index."""
+    if key not in SCH_OUT:
+        return
+    import schematic_s
+    _, sch = _files(key)
+    out = SCH_OUT[key]
+    out.mkdir(parents=True, exist_ok=True)
+    for f in out.glob("*"):
+        f.unlink()
+    with tempfile.TemporaryDirectory() as td:
+        subprocess.run(["kicad-cli", "sch", "export", "svg", "-o", td, str(sch)],
+                       capture_output=True, text=True, cwd=str(sch.parent))
+        sheets = [("", "Top level", "the five sheets and what is on each")]
+        names = {"power_stage": "Power stage", "io": "I/O"}
+        sheets += [(nm, names.get(nm.split("_", 1)[1], nm.split("_", 1)[1].capitalize()), desc)
+                   for nm, desc in schematic_s.SHEETS]
+        index = []
+        for nm, title, desc in sheets:
+            src = Path(td) / (f"{sch.stem}-{nm}.svg" if nm else f"{sch.stem}.svg")
+            if not src.exists():
+                continue
+            dst = out / (f"{nm}.svg" if nm else "00_top.svg")
+            dst.write_bytes(src.read_bytes())
+            page = sch.parent / (f"{nm}.kicad_sch" if nm else sch.name)
+            import re
+            m = re.search(r'\(paper "([^"]+)"', page.read_text())
+            index.append({"file": dst.name, "sheet": nm or "top", "title": title,
+                          "desc": desc, "paper": m.group(1) if m else "A4"})
+    pdf = out / f"{sch.stem}.pdf"
+    subprocess.run(["kicad-cli", "sch", "export", "pdf", "-o", str(pdf), str(sch)],
+                   capture_output=True, text=True, cwd=str(sch.parent))
+    (out / "sheets.json").write_text(json.dumps(
+        {"pdf": pdf.name if pdf.exists() else None, "sheets": index}, indent=1) + "\n")
+    print(f"  schematic: {len(index)} sheets plotted to {out.relative_to(ROOT)}")
+
+
 # ------------------------------------------------------------- simulation --
 def sim_running():
     try:
@@ -201,6 +245,7 @@ def run(key, sim="background", plots=True):
         import export_3d
         plot_layers.run(key)
         export_3d.run(key)
+    schematic(key)
     if key in PAGES:
         s = status(key)
         print(f"  status: {s.get('segments')} segments, {s.get('vias')} vias, "
@@ -217,8 +262,12 @@ def main():
     ap.add_argument("--board", choices=sorted(BOARDS), default="s")
     ap.add_argument("--sim", choices=("background", "wait", "no"), default="background")
     ap.add_argument("--no-plots", action="store_true")
+    ap.add_argument("--sch", action="store_true", help="only re-plot the schematic")
     a = ap.parse_args()
-    run(a.board, sim=a.sim, plots=not a.no_plots)
+    if a.sch:
+        schematic(a.board)
+    else:
+        run(a.board, sim=a.sim, plots=not a.no_plots)
 
 
 if __name__ == "__main__":

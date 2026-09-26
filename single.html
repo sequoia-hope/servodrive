@@ -57,7 +57,8 @@
   the power stage and CPU are the same copper.</p>
   <p class="meta">KiCad&nbsp;9 project <code>hardware/single_board/servodrive_S.kicad_pro</code>
   (five sheets, one board). Everything is generated: <code>tools/schematic_s.py</code> is the
-  netlist, <code>tools/placement_s.py</code> the floorplan, <code>tools/gen_boards.py --board s</code>
+  netlist, <code>tools/schlayout_s.py</code> draws the <a href="#schematic">schematic</a>,
+  <code>tools/placement_s.py</code> is the floorplan, <code>tools/gen_boards.py --board s</code>
   the board and <code>tools/route.py --board s</code> the routing.</p>
 </header>
 
@@ -68,11 +69,49 @@
       <div class="vw-left"><button data-vw="layers" data-icon="layers" aria-pressed="true"
         title="show or hide the layer list"><span>Layers</span></button></div>
       <div class="vw-tabs" role="tablist" aria-label="view">
+        <button role="tab" data-tab="schematic" aria-controls="schematic" aria-selected="false">SCH</button>
         <button role="tab" data-tab="copper" aria-controls="copper" aria-selected="true">PCB</button>
         <button role="tab" data-tab="board3d" aria-controls="board3d" aria-selected="false">3D</button>
       </div>
       <div class="vw-tools"><button data-vw="full" data-icon="full" title="full screen"
         aria-label="full screen"></button></div>
+    </div>
+
+    <div class="vw-panel" id="schematic" data-dir="img/sch/s/" role="tabpanel" hidden>
+      <div class="cu sch">
+        <div class="cu-panel">
+          <p class="cu-head">Sheets</p>
+          <div id="sch-sheets"></div>
+          <div class="cu-row">
+            <button data-sch="out" title="zoom out">&minus;</button>
+            <button data-sch="fit" title="the whole sheet">fit</button>
+            <button data-sch="in" title="zoom in">+</button>
+            <span class="sub" id="sch-zoom">1.0&times;</span>
+          </div>
+          <div class="cu-row"><a class="a3-btn" id="sch-pdf" download hidden>PDF, every sheet</a></div>
+          <p class="cu-hint">Keys: <b>1</b>&ndash;<b>6</b> pick a sheet, <b>+</b> and <b>&minus;</b>
+          zoom, <b>0</b> fit. Drag to pan; scroll or double-click to zoom.</p>
+        </div>
+        <div class="cu-canvas">
+          <div class="sch-plate" id="sch-plate">
+            <div class="sch-pan" id="sch-pan"><img id="sch-img" alt="" draggable="false"></div>
+          </div>
+        </div>
+      </div>
+      <div class="vw-about">
+        <h2>Schematic</h2>
+        <p class="sub" id="sch-cap"></p>
+        <p>Board S's five sheets as KiCad plots them from <code>hardware/single_board/</code>.
+        The circuit is data &mdash; every part's pins and the nets on them, in
+        <code>tools/schematic_s.py</code> &mdash; and <code>tools/schlayout_s.py</code> draws it the way
+        a person would: signal left to right, supplies up and ground down, each part's support parts
+        at the pin they serve, wires inside a block and labels only where a signal leaves it.
+        The drawing cannot change the circuit: each sheet is checked against the netlist before it is
+        written, and KiCad's own netlist export is compared with the Python one net by net
+        (<code>python3 tools/schdraw.py --check s</code>). ERC is clean at every severity.</p>
+        <p class="sub">Re-plot after any change with <code>python3 tools/regen.py --board s --sch</code>;
+        <code>gen_boards.py --board s</code> redraws the sheets.</p>
+      </div>
     </div>
 
     <div class="vw-panel" id="copper" data-dir="img/layers/s/" role="tabpanel">
@@ -690,6 +729,7 @@ python3 sim/run.py --board s                        # the simulation, into this 
 </footer>
 
 <script src="copper.js"></script>
+<script src="sch.js"></script>
 <script type="importmap">
 {"imports": {"three": "./vendor/three.module.js"}}
 </script>

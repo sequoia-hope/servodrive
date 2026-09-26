@@ -1,0 +1,47 @@
+{
+ "pdf": "servodrive_S.pdf",
+ "sheets": [
+  {
+   "file": "00_top.svg",
+   "sheet": "top",
+   "title": "Top level",
+   "desc": "the five sheets and what is on each",
+   "paper": "A4"
+  },
+  {
+   "file": "01_power_stage.svg",
+   "sheet": "01_power_stage",
+   "title": "Power stage",
+   "desc": "Three half-bridges, gate drive, DC link, inline sense",
+   "paper": "A3"
+  },
+  {
+   "file": "02_control.svg",
+   "sheet": "02_control",
+   "title": "Control",
+   "desc": "RP2350A, crystal, QSPI flash, 3V3 LDO, ADC supply",
+   "paper": "A2"
+  },
+  {
+   "file": "03_encoder.svg",
+   "sheet": "03_encoder",
+   "title": "Encoder",
+   "desc": "MT6701 on the shaft axis, SSI to SPI0",
+   "paper": "A4"
+  },
+  {
+   "file": "04_power.svg",
+   "sheet": "04_power",
+   "title": "Power",
+   "desc": "XT30 bus input, TVS, bulk, bus divider, the 12 V and 5 V bucks",
+   "paper": "A3"
+  },
+  {
+   "file": "05_io.svg",
+   "sheet": "05_io",
+   "title": "I/O",
+   "desc": "USB-C, RS-485 relay, expansion header, LED, BOOTSEL, test pads",
+   "paper": "A3"
+  }
+ ]
+}
