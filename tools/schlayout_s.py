@@ -156,7 +156,8 @@ def encoder_note(comps):
     spi = do == 4 and sck == 6
     return (f"The encoder: ENC_DO on GPIO{do}, ENC_SCK on GPIO{sck}, ENC_CS on GPIO{cs}, "
             f"ENC_OUT on GPIO{out}" + (" -- SPI0's RX and SCK, so SPI0 reads it." if spi
-                                      else "; read by PIO."))
+                                      else ". SPI0 would want the data on GPIO4 and the "
+                                           "clock on GPIO6."))
 
 
 def control(comps, glob):
