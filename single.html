@@ -56,7 +56,7 @@
   the two-board design with its board-to-board links replaced by the essentials of board B, so
   the power stage and CPU are the same copper.</p>
   <p class="meta">KiCad&nbsp;9 project <code>hardware/single_board/servodrive_S.kicad_pro</code>
-  (five sheets, one board). Everything is generated: <code>tools/schematic_s.py</code> is the
+  (three sheets, one board). Everything is generated: <code>tools/schematic_s.py</code> is the
   netlist, <code>tools/schlayout_s.py</code> draws the <a href="#schematic">schematic</a>,
   <code>tools/placement_s.py</code> is the floorplan, <code>tools/gen_boards.py --board s</code>
   the board and <code>tools/route.py --board s</code> the routing.</p>
@@ -89,7 +89,7 @@
             <span class="sub" id="sch-zoom">1.0&times;</span>
           </div>
           <div class="cu-row"><a class="a3-btn" id="sch-pdf" download hidden>PDF, every sheet</a></div>
-          <p class="cu-hint">Keys: <b>1</b>&ndash;<b>6</b> pick a sheet, <b>+</b> and <b>&minus;</b>
+          <p class="cu-hint">Keys: <b>1</b>&ndash;<b>4</b> pick a sheet, <b>+</b> and <b>&minus;</b>
           zoom, <b>0</b> fit. Drag to pan; scroll or double-click to zoom.</p>
         </div>
         <div class="cu-canvas">
@@ -101,7 +101,8 @@
       <div class="vw-about">
         <h2>Schematic</h2>
         <p class="sub" id="sch-cap"></p>
-        <p>Board S's five sheets as KiCad plots them from <code>hardware/single_board/</code>.
+        <p>Board S's three sheets as KiCad plots them from <code>hardware/single_board/</code>: the
+        power bridge with the CPU that drives it, the supplies, and the encoder with the rest of the IO.
         The circuit is data &mdash; every part's pins and the nets on them, in
         <code>tools/schematic_s.py</code> &mdash; and <code>tools/schlayout_s.py</code> draws it the way
         a person would: signal left to right, supplies up and ground down, each part's support parts

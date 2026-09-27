@@ -1885,14 +1885,12 @@ def write(path, text, force, protect=False):
     return True
 
 SHEETS_S = [
-    ("01_power_stage",  "Three half-bridges: 6x BSC030N08NS5, 3x EG2103, bootstrap,\\n"
-                        "gate networks, 2x inline shunt + INA241A3, DC-link ceramics"),
-    ("02_control",      "RP2350A QFN-60, crystal, QSPI flash, 3V3 LDO, ADC supply"),
-    ("03_encoder",      "MT6701 on the motor-facing side, SSI to SPI0"),
-    ("04_power",        "XT30 bus input, SMDJ54A, 2x 100 uF polymer, bus divider,\\n"
+    ("01_bridge_cpu",   "Three half-bridges: 6x BSC030N08NS5, 3x EG2103, gate networks,\\n"
+                        "inline shunts + INA241A3; the RP2350A, QSPI flash, crystal, 3V3 LDO"),
+    ("02_power",        "XT30 bus input, SMDJ54A, 2x 100 uF polymer, bus divider,\\n"
                         "2x LMR38010: 12 V gate rail (GATE_OFF stops it), 5 V logic"),
-    ("05_io",           "USB-C (data + 5 V), RS-485 relay on two SH 6, expansion header,\\n"
-                        "RGB LED, BOOTSEL, test pads"),
+    ("03_encoder_io",   "MT6701 encoder; USB-C (data + 5 V), RS-485 relay on two SH 6,\\n"
+                        "expansion header, RGB LED, BOOTSEL, test pads"),
 ]
 
 def emit_s(cfg, force, pcb_too=True):

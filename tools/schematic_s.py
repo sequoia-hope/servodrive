@@ -277,20 +277,32 @@ def mechanical():
 
 GEN_PLACED = {c.ref for c in mechanical()}
 
+# Board S's schematic is three sheets (asked 2026-09-26: fewer pages): the
+# power bridge with the CPU that drives it, the supplies, and the encoder
+# with the rest of the IO. The parts keep board A's sheet names where they
+# come from board A's functions; this maps them. The board is linked to the
+# netlist by reference, so the PCB does not see it.
+SHEET_OF = {"01_power_stage": "01_bridge_cpu", "02_control": "01_bridge_cpu",
+            "04_power": "02_power",
+            "03_encoder": "03_encoder_io", "05_io": "03_encoder_io"}
+
 def board_s():
-    return phase_cells() + control() + SCH.encoder() + power() + io() + mechanical()
+    comps = phase_cells() + control() + SCH.encoder() + power() + io() + mechanical()
+    for c in comps:
+        c.sheet = SHEET_OF.get(c.sheet, c.sheet)
+    return comps
 
 SHEETS = [
-    ("01_power_stage", "Three half-bridges, gate drive, DC link, inline sense"),
-    ("02_control", "RP2350A, crystal, QSPI flash, 3V3 LDO, ADC supply"),
-    ("03_encoder", "MT6701 on the shaft axis, SSI to SPI0"),
-    ("04_power", "XT30 bus input, TVS, bulk, bus divider, the 12 V and 5 V bucks"),
-    ("05_io", "USB-C, RS-485 relay, expansion header, LED, BOOTSEL, test pads"),
+    ("01_bridge_cpu", "Three half-bridges with their drivers and current sense; "
+                      "the RP2350A, its flash, crystal and 3V3 LDO"),
+    ("02_power", "XT30 bus input, TVS, bulk, bus divider, the 12 V and 5 V bucks"),
+    ("03_encoder_io", "MT6701 encoder; USB-C, RS-485 relay, expansion header, "
+                      "LED, BOOTSEL, test pads"),
 ]
 
 # Rails that arrive on passive pins, declared by a flag.
-SHEET_FLAGS = {"04_power": ("VBUS", "GND", "+12V", "+5V"),
-               "02_control": ("+1V1", "+3V3A", "VREG_AVDD")}
+SHEET_FLAGS = {"02_power": ("VBUS", "GND", "+12V", "+5V"),
+               "01_bridge_cpu": ("+1V1", "+3V3A", "VREG_AVDD")}
 
 def global_nets(comps=None):
     """Nets on more than one sheet: those get a global label."""

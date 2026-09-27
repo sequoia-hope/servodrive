@@ -161,8 +161,9 @@ def schematic(key):
     with tempfile.TemporaryDirectory() as td:
         subprocess.run(["kicad-cli", "sch", "export", "svg", "-o", td, str(sch)],
                        capture_output=True, text=True, cwd=str(sch.parent))
-        sheets = [("", "Top level", "the five sheets and what is on each")]
-        names = {"power_stage": "Power stage", "io": "I/O"}
+        sheets = [("", "Top level", "the sheets and what is on each")]
+        names = {"bridge_cpu": "Power bridge and CPU", "power": "Power supply",
+                 "encoder_io": "Encoder and I/O"}
         sheets += [(nm, names.get(nm.split("_", 1)[1], nm.split("_", 1)[1].capitalize()), desc)
                    for nm, desc in schematic_s.SHEETS]
         index = []

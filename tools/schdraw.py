@@ -148,6 +148,22 @@ class Sheet:
         self.texts = []            # (text, Pt, size, bold)
         self.boxes = []            # (title, x0, y0, x1, y1) in mm
         self.flags = []            # PWR_FLAG: (net, Pt)
+        self.o = (0.0, 0.0)        # grid origin of the layout being drawn
+
+    def origin(self, ox, oy):
+        """Draw a layout written for its own sheet at (ox, oy) grid units on
+        this one: `with s.origin(80, 0): control_body(s)`."""
+        import contextlib
+
+        @contextlib.contextmanager
+        def moved():
+            was = self.o
+            self.o = (was[0] + ox, was[1] + oy)
+            try:
+                yield self
+            finally:
+                self.o = was
+        return moved()
 
     # -------------------------------------------------------------- parts --
     def place(self, ref, x, y, rot=0, fields=None):
@@ -157,7 +173,7 @@ class Sheet:
         if ref in self.parts:
             raise ValueError(f"{self.name}: {ref} placed twice")
         c = self.comps.pop(ref)
-        p = Part(self, c, Pt(x * U, y * U), rot, fields)
+        p = Part(self, c, Pt((x + self.o[0]) * U, (y + self.o[1]) * U), rot, fields)
         self.parts[ref] = p
         return p
 
@@ -165,11 +181,11 @@ class Sheet:
         return self.parts[ref]
 
     def g(self, x, y):
-        return Pt(x * U, y * U)
+        return Pt((x + self.o[0]) * U, (y + self.o[1]) * U)
 
     # ------------------------------------------------------------- wiring --
     def _pt(self, p):
-        return p if isinstance(p, Pt) else Pt(p[0] * U, p[1] * U)
+        return p if isinstance(p, Pt) else self.g(p[0], p[1])
 
     def wire(self, *pts):
         """A polyline through the points (Pins, Pts or grid tuples); a pair
@@ -237,7 +253,8 @@ class Sheet:
 
     def block(self, title, x0, y0, x1, y1):
         """A dashed frame round a group of parts, its title at the top left."""
-        self.boxes.append((title, x0 * U, y0 * U, x1 * U, y1 * U))
+        ox, oy = self.o
+        self.boxes.append((title, (x0 + ox) * U, (y0 + oy) * U, (x1 + ox) * U, (y1 + oy) * U))
 
     def flag(self, p, net=None, d=(0, -1), stub=1):
         """PWR_FLAG on a rail that reaches the board through a passive pin."""

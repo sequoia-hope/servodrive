@@ -129,25 +129,22 @@ POWER_NOTES = notes(
     "R901: NTC beside the FETs, read on ADC3 as FET_TEMP.")
 
 
-def power_stage(comps, glob):
-    s = D.Sheet("01_power_stage", comps, glob)
+def power_stage_body(s):
     for i, X in enumerate("ABC"):
         phase(s, X, 18, 14 + 31 * i, ntc=(X == "A"))
-    s.text("Notes", 80, 0, size=2.0, bold=True)
-    s.text(POWER_NOTES, 80, 2)
-    return s
 
 
 # ---------------------------------------------------------------- control ---
-CONTROL_NOTES = notes(
+def control_notes(comps):
+    return notes(
     "RP2350A as Raspberry Pi's minimal design (RP-006440): the core supply is "
     "the chip's own switching regulator, VREG_LX through L701 to +1V1, which "
     "VREG_FB senses and DVDD takes. VREG_AVDD is +3V3 through R706 and C718.",
     "One 100n at each IOVDD pin (C701-C706); C714 4u7 at VREG_VIN.",
     "ADC_AVDD is +3V3 filtered by R703 and C716 (+3V3A).",
-    "BOOTSEL: SW1 on sheet 05 pulls QSPI_SS low through R701 at reset.",
-    "{enc}",
-    "GPIO19-24 go to the expansion header (sheet 05).",
+    "BOOTSEL: SW1 on sheet 03 pulls QSPI_SS low through R701 at reset.",
+    encoder_note(comps),
+    "GPIO19-24 go to the expansion header (sheet 03).",
     width=62)
 
 
@@ -160,19 +157,18 @@ def encoder_note(comps):
                                            "clock on GPIO6."))
 
 
-def control(comps, glob):
-    s = D.Sheet("02_control", comps, glob)
+def control_body(s):
     s.block("RP2350A", 32, 20, 104, 73)
     u = s.place("U7", 75, 50, fields=(-12, -20.5))
 
     # supplies along the top: DVDD on +1V1, the IO supplies on +3V3, the
     # ADC's own filtered +3V3A
     for n in ("39", "23", "6"):
-        s.wire(u[n], (u[n].x / D.U, 28))
+        s.wire(u[n], u[n].go(0, -2))
     s.wire((66, 28), (68, 28))
     s.power(s.g(67, 28), "+1V1")
     for n in ("54", "45", "38", "30", "20", "11", "1", "53"):
-        s.wire(u[n], (u[n].x / D.U, 28))
+        s.wire(u[n], u[n].go(0, -2))
     s.wire((71, 28), (80, 28))
     s.power(s.g(75.5, 28), "+3V3")
     s.wire(u["44"], (81.5, 24), (87, 24))
@@ -271,15 +267,10 @@ def control(comps, glob):
                       (65, 70, 75, 80, 85, 90, 95)):
         s.place(ref, x, 13.5, fields="right")
 
-    s.text("Notes", 108, 36, size=2.0, bold=True)
-    s.text(CONTROL_NOTES.replace("{enc}", encoder_note(comps)), 108, 38)
-    return s
-
 
 # ---------------------------------------------------------------- encoder ---
-def encoder(comps, glob):
-    s = D.Sheet("03_encoder", comps, glob)
-    s.block("Encoder", 3, 5, 40, 24)
+def encoder_body(s):
+    s.block("Encoder: MT6701 on the shaft axis", 3, 5, 46, 24)
     u = s.place("U10", 20, 15, fields=(-1, -4.5, "left"))
     s.wire(u["1"], (11, 13))
     s.wire(u["2"], (14, 14), (14, 13))
@@ -287,11 +278,6 @@ def encoder(comps, glob):
     s.power(s.g(11, 13), "+3V3")
     for n in ("3", "6", "7", "8"):
         s.label(u[n], stub=2, shape="output" if n in ("3", "6") else "input")
-    s.text(notes(
-        "MT6701 on the motor-facing side, centred on the shaft over a diametric "
-        "magnet. MODE tied to VDD. The CPU reads it over SSI (sheet 02).",
-        width=60), 3, 27)
-    return s
 
 
 # ------------------------------------------------------------------ power ---
@@ -352,13 +338,13 @@ POWER_SUPPLY_NOTES = notes(
     "GATE_OFF (GPIO14) high turns Q1001 on and stops the rail, taking the "
     "gate drivers' supply away. R1005 holds it low through reset, so the rail "
     "comes up and the drivers brake the motor.",
-    "5 V logic rail: LMR38010, diode-ORed with USB (D1002, sheet 05) through "
-    "D1003. The 3V3 LDO on sheet 02 runs from +5V.",
+    "5 V logic rail: LMR38010, diode-ORed with USB (D1002, sheet 03) through "
+    "D1003. The 3V3 LDO on sheet 01 runs from +5V.",
     width=60)
 
 
 def power(comps, glob):
-    s = D.Sheet("04_power", comps, glob)
+    s = D.Sheet("02_power", comps, glob)
     # bus input: XT30, TVS, bulk, the bus divider
     s.block("Bus input", 3, 4, 62, 27)
     j = s.place("J4", 8, 12, rot=180, fields=(-1, -3, "left"))
@@ -451,8 +437,7 @@ def port(s, ox, oy, upper, lower, conn):
     return J
 
 
-def io(comps, glob):
-    s = D.Sheet("05_io", comps, glob)
+def io_body(s):
 
     # USB-C: data through the ESD array, CC pull-downs, VBUS into +5V
     s.block("USB-C: data and 5 V logic, no PD", 1, 5, 60, 34)
@@ -540,17 +525,41 @@ def io(comps, glob):
     s.label(s.g(108, 45), "FET_TEMP", stub=0, d=(-1, 0))
     s.place("R705", 132, 46.5, rot=180, fields="right")
     s.label(s["R705"]["1"], stub=1, d=(0, 1), text_dir=(-1, 0))
+
+
+# ----------------------------------------------------------------- sheets ---
+# Three sheets (asked 2026-09-26: fewer pages): the power bridge with the
+# CPU that drives it, the supplies, and the encoder with the rest of the IO.
+# Each layout above is written in its own coordinates; a sheet places them.
+def bridge_cpu(comps, glob):
+    s = D.Sheet("01_bridge_cpu", comps, glob)
+    power_stage_body(s)
+    with s.origin(80, 0):
+        control_body(s)
+    s.text("Notes: the power bridge", 83, 78, size=2.0, bold=True)
+    s.text(POWER_NOTES, 83, 80)
+    s.text("Notes: the CPU", 122, 78, size=2.0, bold=True)
+    s.text(control_notes(comps), 122, 80)
+    return s
+
+
+def encoder_io(comps, glob):
+    s = D.Sheet("03_encoder_io", comps, glob)
+    io_body(s)
+    with s.origin(100, 55):
+        encoder_body(s)
     s.text(notes(
         "RS-485 is a CPU relay: each port is two point-to-point pairs, one in "
         "and one out, so a drive passes the chain on in software. Drivers are "
         "always enabled; each receiver has its 120R termination (R1105, R1106).",
+        "The MT6701 sits on the motor-facing side, centred on the shaft over a "
+        "diametric magnet, MODE tied to VDD; the CPU reads it over SSI (sheet 01).",
         "R803 with the NTC (R901, sheet 01) makes FET_TEMP.",
-        width=48), 104, 60)
+        width=96), 1, 84)
     return s
 
 
-SHEETS = {"01_power_stage": power_stage, "02_control": control,
-          "03_encoder": encoder, "04_power": power, "05_io": io}
+SHEETS = {"01_bridge_cpu": bridge_cpu, "02_power": power, "03_encoder_io": encoder_io}
 
 
 def draw(name, comps, glob):
