@@ -2,8 +2,8 @@
  "board": "servodrive_S.kicad_pcb",
  "generated": "2026-09-26",
  "glb": "s.glb",
- "bytes": 6061796,
- "kicad_bytes": 26155536,
+ "bytes": 6970024,
+ "kicad_bytes": 31217740,
  "parts": 194,
  "modelled": 174,
  "no_model": [
@@ -41,6 +41,6 @@
   "U17",
   "U18"
  ],
- "triangles": 509899,
+ "triangles": 601073,
  "primitives": 466
 }

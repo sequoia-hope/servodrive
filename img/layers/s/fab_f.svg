@@ -2901,9 +2901,11 @@ L69.436 27.006
 <g style="fill:none;
 stroke:#DDE1E8; stroke-width:0.15; stroke-opacity:1;
 stroke-linecap:round; stroke-linejoin:round;">
+<g transform="rotate(-0 60.664 67.271)">
 <text x="60.664" y="67.771"
 textLength="4.107" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">C710</text>
+</g>
 <g class="stroked-text">
 <path d="M59.545 67.63
 L59.497 67.678
@@ -3031,9 +3033,11 @@ L61.974 66.773
 <path d="M61.974 66.773
 L62.069 66.726
 " />
-</g><text x="60.62" y="70.09"
+</g><g transform="rotate(-0 60.62 69.59)">
+<text x="60.62" y="70.09"
 textLength="3.059" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">27p</text>
+</g>
 <g class="stroked-text">
 <path d="M59.406 69.14
 L59.453 69.093
@@ -3111,9 +3115,11 @@ L61.358 69.998
 <g style="fill:none;
 stroke:#DDE1E8; stroke-width:0.04; stroke-opacity:1;
 stroke-linecap:round; stroke-linejoin:round;">
+<g transform="rotate(-0 60.642 68.431)">
 <text x="60.642" y="68.556"
 textLength="1.034" font-size="0.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">C710</text>
+</g>
 <g class="stroked-text">
 <path d="M60.362 68.52
 L60.35 68.532
@@ -5817,9 +5823,11 @@ L74.397 64.953
 <g style="fill:none;
 stroke:#DDE1E8; stroke-width:0.15; stroke-opacity:1;
 stroke-linecap:round; stroke-linejoin:round;">
+<g transform="rotate(-0 45.057 29.054)">
 <text x="45.057" y="29.554"
 textLength="4.107" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">R312</text>
+</g>
 <g class="stroked-text">
 <path d="M43.938 29.509
 L43.605 29.033
@@ -5938,9 +5946,11 @@ L46.176 29.509
 <path d="M46.176 29.509
 L46.795 29.509
 " />
-</g><text x="43.039" y="28.37"
+</g><g transform="rotate(-0 43.039 27.87)">
+<text x="43.039" y="28.37"
 textLength="2.964" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">4k7</text>
+</g>
 <g class="stroked-text">
 <path d="M42.349 27.658
 L42.349 28.324
@@ -5970,9 +5980,11 @@ L43.825 28.324
 <g style="fill:none;
 stroke:#DDE1E8; stroke-width:0.04; stroke-opacity:1;
 stroke-linecap:round; stroke-linejoin:round;">
+<g transform="rotate(-0 44.048 28.462)">
 <text x="44.048" y="28.592"
 textLength="1.071" font-size="0.347" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">R312</text>
+</g>
 <g class="stroked-text">
 <path d="M43.757 28.58
 L43.67 28.456
@@ -27302,9 +27314,11 @@ L52.729 20.612
 <g style="fill:none;
 stroke:#DDE1E8; stroke-width:0.15; stroke-opacity:1;
 stroke-linecap:round; stroke-linejoin:round;">
+<g transform="rotate(-0 44.125 30.86)">
 <text x="44.125" y="31.36"
 textLength="4.107" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">R311</text>
+</g>
 <g class="stroked-text">
 <path d="M43.006 31.315
 L42.673 30.838
@@ -27408,9 +27422,11 @@ L45.387 30.553
 <path d="M45.387 30.553
 L45.292 30.6
 " />
-</g><text x="41.99" y="30.401"
+</g><g transform="rotate(-0 41.99 29.901)">
+<text x="41.99" y="30.401"
 textLength="2.964" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">4k7</text>
+</g>
 <g class="stroked-text">
 <path d="M41.3 29.689
 L41.3 30.356
@@ -27440,9 +27456,11 @@ L42.776 30.356
 <g style="fill:none;
 stroke:#DDE1E8; stroke-width:0.04; stroke-opacity:1;
 stroke-linecap:round; stroke-linejoin:round;">
+<g transform="rotate(-0 43.058 30.38)">
 <text x="43.058" y="30.51"
 textLength="1.071" font-size="0.347" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">R311</text>
+</g>
 <g class="stroked-text">
 <path d="M42.767 30.498
 L42.68 30.375
@@ -30876,9 +30894,11 @@ L57.921 64.343
 <g style="fill:none;
 stroke:#DDE1E8; stroke-width:0.15; stroke-opacity:1;
 stroke-linecap:round; stroke-linejoin:round;">
+<g transform="rotate(-0 61.418 8.937)">
 <text x="61.418" y="9.437"
 textLength="2.25" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">Q3</text>
+</g>
 <g class="stroked-text">
 <path d="M61.323 9.487
 L61.227 9.439
@@ -30982,9 +31002,11 @@ L61.656 9.344
 <path d="M61.656 9.344
 L61.608 9.296
 " />
-</g><text x="61.369" y="16.436"
+</g><g transform="rotate(-0 61.369 15.937)">
+<text x="61.369" y="16.436"
 textLength="11.964" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">BSC030N08NS5</text>
+</g>
 <g class="stroked-text">
 <path d="M56.083 15.867
 L56.226 15.915
@@ -31574,9 +31596,11 @@ L66.512 16.344
 <path d="M66.512 16.344
 L66.464 16.296
 " />
-</g><text x="61.393" y="12.937"
+</g><g transform="rotate(-0 61.393 12.437)">
+<text x="61.393" y="12.937"
 textLength="2.25" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">Q3</text>
+</g>
 <g class="stroked-text">
 <path d="M61.298 12.987
 L61.203 12.939
@@ -42910,9 +42934,11 @@ L71.609 21.436
 <g style="fill:none;
 stroke:#DDE1E8; stroke-width:0.15; stroke-opacity:1;
 stroke-linecap:round; stroke-linejoin:round;">
+<g transform="rotate(-0 88.732 27.641)">
 <text x="88.732" y="28.141"
 textLength="2.25" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">Q1</text>
+</g>
 <g class="stroked-text">
 <path d="M88.636 28.191
 L88.541 28.143
@@ -42992,9 +43018,11 @@ L89.065 27.334
 <path d="M89.065 27.334
 L88.97 27.381
 " />
-</g><text x="82.223" y="30.718"
+</g><g transform="rotate(-0 82.223 30.218)">
+<text x="82.223" y="30.718"
 textLength="11.964" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">BSC030N08NS5</text>
+</g>
 <g class="stroked-text">
 <path d="M76.937 30.148
 L77.08 30.196
@@ -43584,9 +43612,11 @@ L87.366 30.625
 <path d="M87.366 30.625
 L87.318 30.577
 " />
-</g><text x="85.477" y="29.429"
+</g><g transform="rotate(-0 85.477 28.929)">
+<text x="85.477" y="29.429"
 textLength="2.25" font-size="1.333" lengthAdjust="spacingAndGlyphs"
 text-anchor="middle" opacity="0" stroke-opacity="0">Q1</text>
+</g>
 <g class="stroked-text">
 <path d="M85.382 29.479
 L85.287 29.432
@@ -47483,10 +47513,10 @@ Z" />
 <circle cx="78.641" cy="21.063" r="0.2" />
 </g>
 <g style="fill:#c8c8c8; fill-opacity:1; stroke:none;">
-<circle cx="81.295" cy="19.654" r="0.2" />
+<circle cx="80.64" cy="20.342" r="0.2" />
 </g>
 <g style="fill:#c8c8c8; fill-opacity:1; stroke:none;">
-<circle cx="80.64" cy="20.342" r="0.2" />
+<circle cx="81.295" cy="19.654" r="0.2" />
 </g>
 <g style="fill:#c8c8c8; fill-opacity:1; stroke:none;">
 <circle cx="79.985" cy="21.03" r="0.2" />
