@@ -123,7 +123,8 @@ def complete_nets(path, loose=False):
 def export_dsn(src, dsn, loose=False, dead=()):
     board = pcbnew.LoadBoard(str(src))
     global HALOS
-    HALOS = pad_halos(board)      # before the export: touching the pads
+    HALOS = pad_halos(board) + track_halos(board, dead)
+                                  # before the export: touching the pads
                                   # after ExportSpecctraDSN segfaults pcbnew
     n = strip_pours(board)
     fill(board)
@@ -164,6 +165,32 @@ def pad_halos(board, grow=0.25):
                     o = poly.Outline(i)
                     pts = [(o.CPoint(k).x / 1e3, o.CPoint(k).y / 1e3) for k in range(o.PointCount())]
                     out.append((board.GetLayerName(l), pts))
+    return out
+
+def track_halos(board, dead, grow=0.25):
+    """The same halo round the tracks of a 60 V-class net the round demotes.
+
+    A demoted net's tracks stay in the DSN as protected wiring on a net
+    that no longer exists, so freerouting keeps only its default from
+    them. The buck switch nodes are the case: the fan-out lays U12's SW to
+    L1002 as copper, SW_5V is complete before the router starts, and the
+    router put a +5V via 0.24 mm from that link, twice, against the Phase
+    class's 0.4. Only demoted nets: a halo round a net still being routed
+    would keep the router off its own copper."""
+    out = []
+    for t in board.GetTracks():
+        if t.Type() != pcbnew.PCB_TRACE_T or t.GetNetname() not in HALO_NETS \
+                or t.GetNetname() not in dead:
+            continue
+        l = t.GetLayer()
+        if l not in (pcbnew.F_Cu, pcbnew.In3_Cu, pcbnew.B_Cu):
+            continue
+        poly = pcbnew.SHAPE_POLY_SET()
+        t.TransformShapeToPolygon(poly, l, int(grow * 1e6), int(0.01e6), pcbnew.ERROR_OUTSIDE)
+        for i in range(poly.OutlineCount()):
+            o = poly.Outline(i)
+            pts = [(o.CPoint(k).x / 1e3, o.CPoint(k).y / 1e3) for k in range(o.PointCount())]
+            out.append((board.GetLayerName(l), pts))
     return out
 
 def protect_wiring(dsn, loose=False, dead=()):
@@ -399,14 +426,15 @@ def prepare_dsn(dsn, dead=DEAD_NETS):
         t, k = demote_net(t, name)
         n[f"{name} pins"] = k
 
-    # 8b'. The halos round the demoted 60 V pads (see pad_halos).
+    # 8b'. The halos round the demoted 60 V pads and tracks (pad_halos,
+    #      track_halos).
     halos = ['    (keepout "" (polygon %s 0 %s))'
              % (lay, "  ".join(f"{x:.1f} {-y:.1f}" for x, y in pts))
              for lay, pts in HALOS]
     if halos:
         i = t.rindex("\n", 0, t.index('(via "Via')) + 1
         t = t[:i] + "\n".join(halos) + "\n" + t[i:]
-    n["pad halos"] = len(halos)
+    n["pad and track halos"] = len(halos)
 
     # 8c. The four M3 heads on the outward face: no track or via under a
     #     screw head, whatever the mask says.
