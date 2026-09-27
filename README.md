@@ -978,7 +978,7 @@ were not to be had.
 
 **GATE_EN is GATE_OFF on board S.** The 12 V buck's EN sits on a divider from
 the bus, up to 8 V, which no GPIO may see, so the 2N7002 the sketch proposed
-does the pulling -- and that inverts the GPIO's sense: GPIO14 *high* kills the
+does the pulling -- and that inverts the GPIO's sense: GPIO2 *high* kills the
 gate rail. The net is named for what high does. Through a reset the pin is
 pulled down (4k7, against RP2350-E9, like the drivers' pulls), the FET is off,
 the rail is on and the low sides brake -- which is what spec §3 asks of a
@@ -1234,7 +1234,7 @@ board before this one, with the bus pads, is in git (8f9342f).
 - **The cans' ripple rating.** At a 20 A RMS burst the bulk carries about 12 A RMS, 6 A per can; C2887236's rating is not read yet.
 - **RS-485 fail-safe.** Every receiver has a permanent 120 Ω and no bias network; an idle or open link relies on the SIT3088's own fail-safe, which the datasheet has to be shown to give with the termination present (the sister project's F-01).
 - **The RGB LED's pinout.** `LED_RGB_1210` with a common anode on pad 4 is an assumption: 1210 RGB parts differ. Check against the part bought.
-- **Firmware.** GPIO14 is `GATE_OFF`, active high; UART0 on GPIO0/1 is port IN and a PIO UART on 2/3 port OUT; USB_VBUS_DET is GPIO25; 19–24 go to the expansion header.
+- **Firmware.** GPIO2 is `GATE_OFF`, active high, and GPIO3 `FAULT_n`; UART0 on GPIO0/1 is port IN and a PIO UART on 14/15 port OUT; the encoder is on SPI0 (ENC_DO GPIO4, ENC_SCK GPIO6); USB_VBUS_DET is GPIO25; 19–24 go to the expansion header.
 - **Stock.** The XT30, C431092, had 68,987 at JLCPCB (2026-09-24). The bucks' parts are checked at JLCPCB (2026-09-23): LMR38010SDDAR C5219310, SWPA4030S680MT C83473, SWPA4030S330MT C83470, 4.7 µF/100 V 1206 C237304, 100 nF/100 V 0805 C28233, 22 µF/25 V 1206 C12891, 1210 C21397, 0805 C45783; C2887236 is stocked. SMDJ54A, TPSMF4L54A, SIT3088 and SM712 are not checked yet.
 
 ## Licence
