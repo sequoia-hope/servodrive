@@ -9,10 +9,10 @@ unchanged except where the variant says otherwise:
 
   - the per-phase clamps drop to the 54 V grade, to sit under a 48 V bus and
     its 54 V bus TVS
-  - the GPIO map: 0/1 are UART0 for RS-485 port IN and 2/3 a PIO UART for
-    port OUT (the CPU relays between them); the encoder's SCK and DO swap to
-    GPIO6 and 4 so SPI0 can read it; 14 is GATE_OFF; 19-24 go to the
-    expansion header; USB_VBUS_DET moves to 25
+  - the GPIO map: 0/1 are UART0 for RS-485 port IN and 14/15 a PIO UART
+    for port OUT (the CPU relays between them); 2 is GATE_OFF and 3 FAULT_n;
+    the encoder's SCK and DO swap to GPIO6 and 4 so SPI0 can read it; 19-24
+    go to the expansion header; USB_VBUS_DET moves to 25
   - J7, J8, J9 and TP1-TP3 go; C603 and C604 become the two bucks' output
     caps; TP4 moves to the centre with three new test pads beside it
 
@@ -30,13 +30,22 @@ SCHOTTKY = "Device:D_Schottky"
 # 20..23 are both I2C0 SDA/SCL (20/21) and SPI0 RX/CSn/SCK/TX, which covers
 # a FUSB302 or a W5500 on a stacked board; 19 and 24 are its interrupt and
 # reset. The header's nets carry the GPIO number, not one of the functions.
-GP_S = {0: "RS485_IN_TX", 1: "RS485_IN_RX", 2: "RS485_OUT_TX", 3: "RS485_OUT_RX",
+GP_S = {0: "RS485_IN_TX", 1: "RS485_IN_RX",
         # The 12 V buck's EN sits on a divider from VMOT -- up to 8 V at a
         # 60 V bus, which no GPIO may see -- so a 2N7002 does the pulling, and
         # the GPIO's sense is inverted: HIGH kills the gate rail. Named for
         # what high does. A reset leaves the pin pulled down, the rail on and
         # the low sides braking, which is what spec sec.3 asks of a reset.
-        14: "GATE_OFF",
+        #
+        # GATE_OFF and FAULT_n on GPIO2/3, port OUT's PIO UART on 14/15
+        # (asked 2026-09-26). On 14/15 the first two left the RP2350 on the
+        # side facing away from Q1001 and R705, and with keepouts round the
+        # motor screws that side's corridor was one track short: the router
+        # always left one of GATE_OFF, FAULT_n, RUN, LED_R open. GPIO0-3 are
+        # the pads nearest Q1001; port OUT's transceivers sit on 14/15's side.
+        # A PIO UART takes any pins, and GPIO2 is pulled down through reset
+        # just as 14 was.
+        2: "GATE_OFF", 3: "FAULT_n", 14: "RS485_OUT_TX", 15: "RS485_OUT_RX",
         # The encoder on hardware SPI0 (asked 2026-09-24). GPIO4-7 are SPI0's
         # RX, CSn, SCK and TX, and board A's map had the clock on 4 and the
         # data on 6 -- SPI0's RX and SCK, the wrong way round for a

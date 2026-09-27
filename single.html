@@ -586,12 +586,12 @@
       <tbody>
         <tr><td>Parts on the board</td><td>194 footprints (95 outward, 99 motor-facing): 186 placed parts, 10 of them DNP (the snubbers, and cell C's unused amplifier and sense taps), plus test pads and holes</td></tr>
         <tr><td>Netlist</td><td>190 components, 111 nets, 577 connections</td></tr>
-        <tr><td>Routing</td><td>1913 track segments, 411 vias; 0 unconnected</td></tr>
-        <tr><td>Checks</td><td>DRC 0, ERC 0 (every severity)</td></tr>
+        <tr><td>Routing</td><td>714 track segments, 293 vias; 140 unconnected</td></tr>
+        <tr><td>Checks</td><td>DRC 92, ERC 0 (every severity) &mdash; <strong>not clean</strong></td></tr>
         <tr><td>Sourcing</td><td>every placed part has an LCSC number (<code>hardware/parts/lcsc.csv</code>), shown in the 3D viewer's part pane</td></tr>
       </tbody>
     </table>
-    <p class="sub">Counted off <code>servodrive_S.kicad_pcb</code> as saved 2026-09-24 12:09 by <code>tools/regen.py</code>, which <code>route.py</code> runs after every routing run.</p>
+    <p class="sub">Counted off <code>servodrive_S.kicad_pcb</code> as saved 2026-09-26 13:38 by <code>tools/regen.py</code>, which <code>route.py</code> runs after every routing run.</p>
     <!-- status:end -->
     <pre><code>python3 tools/schematic_s.py                       # netlist and its checks
 python3 tools/gen_boards.py --board s --force       # emit, stitch, fan out (discards routing)

@@ -4884,14 +4884,14 @@
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 240.0300 128.2700 0)
 			(effects (font (size 1.27 1.27)) (hide yes))))
-	(global_label "GATE_OFF" (shape bidirectional)
+	(global_label "RS485_OUT_TX" (shape bidirectional)
 		(at 240.0300 130.8100 0)
 		(effects (font (size 1.27 1.27)) (justify left))
 		(uuid "100f64fb-90aa-52c4-9dab-9cdc7503a351")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 240.0300 130.8100 0)
 			(effects (font (size 1.27 1.27)) (hide yes))))
-	(global_label "FAULT_n" (shape bidirectional)
+	(global_label "RS485_OUT_RX" (shape bidirectional)
 		(at 240.0300 133.3500 0)
 		(effects (font (size 1.27 1.27)) (justify left))
 		(uuid "aaa41fbc-4ea3-5891-9f7f-8ebfefe4b975")
@@ -4982,7 +4982,7 @@
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 240.0300 158.7500 0)
 			(effects (font (size 1.27 1.27)) (hide yes))))
-	(global_label "RS485_OUT_TX" (shape bidirectional)
+	(global_label "GATE_OFF" (shape bidirectional)
 		(at 240.0300 100.3300 0)
 		(effects (font (size 1.27 1.27)) (justify left))
 		(uuid "8996744d-d2f1-5658-830b-8ded8b5879aa")
@@ -5017,7 +5017,7 @@
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 240.0300 171.4500 0)
 			(effects (font (size 1.27 1.27)) (hide yes))))
-	(global_label "RS485_OUT_RX" (shape bidirectional)
+	(global_label "FAULT_n" (shape bidirectional)
 		(at 240.0300 102.8700 0)
 		(effects (font (size 1.27 1.27)) (justify left))
 		(uuid "c9ecdf5b-5d22-536c-982e-9afbbd47686f")

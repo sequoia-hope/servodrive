@@ -1,12 +1,12 @@
 {
  "board": "servodrive_S.kicad_pcb",
- "generated": "2026-09-25",
+ "generated": "2026-09-26",
  "page_mm": [
-  117.8814,
+  122.4026,
   71.0946
  ],
  "view_mm": [
-  25.6978,
+  27.9597,
   5.286,
   66.5,
   66.5
@@ -105,8 +105,8 @@
    "file": "b.svg",
    "color": "#4D7FC4",
    "note": "Motor-facing face, 2 oz. MT6701 at the centre, the shunts and the sense amplifiers, and the FET drain thermal vias coming through. Motor leads land here, so the outward perimeter stays thermal.",
-   "tracks": 185,
-   "length_mm": 207.8,
+   "tracks": 184,
+   "length_mm": 202.8,
    "pads": 420,
    "zones": [
     "SNUB_A",

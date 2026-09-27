@@ -1420,8 +1420,8 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
         # Each port is a point-to-point full-duplex link: one receiver and one
         # driver per port, every driver alone on its pair so its enable is
         # tied on, and a 120 R across every receiver, always -- no jumpers.
-        # Port IN on UART0 (GPIO0/1), port OUT on a PIO UART on GPIO2/3,
-        # which were RS485_DE and RS485_TERM_EN and are not needed now.
+        # Port IN on UART0 (GPIO0/1), port OUT on a PIO UART on GPIO14/15
+        # (schematic_s.GP_S says why not 2/3, where it started).
         rs = None
         relay_chips = [
             ("U14", "port IN: receiver, DOWN pair -> UART0 RX", "C1102", "R1105",
