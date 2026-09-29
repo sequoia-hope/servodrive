@@ -76,7 +76,7 @@ say what changes if it matters. Appendix A lists the estimates and their arithme
 | Every part position, polar, and the floorplan checks | `tools/placement.py` — `board_a()` returns `Part` objects with `.ref .value .fp .layer .x .y .r .ang .rot .note .dnp .block` |
 | The netlist as intended | `tools/schematic.py` — `nets()` |
 | A copper rasteriser at 0.05 mm (PIL + distance transform) | `tools/finish.py` — reuse it |
-| Layer SVGs in register and `layers.json` | `img/layers/a/`, made by `tools/plot_layers.py` |
+| Layer SVGs in register and `layers.json` | `viewer/a/layers/`, made by pcbview (`pcbview.toml`; `tools/regen.py --board a`) |
 | KiCad Python | `import pcbnew` works on the system `python3` (3.14.4, pcbnew 9.0.8); `kicad-cli` 9.0.8 |
 | The specification, draft 0.5 | `spec.html`; the README carries the routing story |
 | Sibling firmware | `~/pcb/rp2350-motor-controller/firmware/src/main.cpp`, `tune.py`, `tuned_gains.txt`, `patches/simplefoc_rp2040_current_sense.{h,cpp}`, `CLAUDE.md`, `platformio.ini` |

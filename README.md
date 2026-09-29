@@ -15,10 +15,15 @@ re-placed and re-routed 2026-09-24 with an XT30 for the bus
 
 - **[spec.html](spec.html)** — the specification
 - **[index.html](index.html)** — status, decisions, open questions; board A in the viewer (PCB and 3D tabs)
-- **[single.html](single.html)** — board S, the single-board variant: captured, placed and routed, with the same viewer
+- **[single.html](single.html)** — board S, the single-board variant: captured, placed and routed, with the same viewer (SCH, PCB and 3D)
 
 The pages are styled after Altium 365's workspace: a dark frame with the
 project tree on the left, built by `shell.js` from each page's own headings.
+The board viewer on the two board pages is pcbview's (`~/Software/pcbview`,
+which began as this project's own): `pcbview.toml` says what it shows, and
+`python3 tools/regen.py --board a|s` builds it into `viewer/` and writes it
+into the page between `<!-- pcbview:begin -->` and `<!-- pcbview:end -->`.
+`viewer/a.html` and `viewer/s.html` are the same viewers filling the window.
 
 Online at <https://sequoia-hope.github.io/servodrive/> (GitHub Pages, from
 the root of `main`: the pages are plain files with relative links, and
@@ -290,18 +295,16 @@ tools/padpos.py      pad centres of a placed Part, polar, without a board
 tools/finish.py      a maze router over the board's free space, for whatever
                      freerouting gives back still in pieces
 tools/route.py       hands the rest to freerouting, headless, and brings it back
-tools/plot_layers.py one SVG per copper layer, in register, for the copper
-                     viewer on index.html; gen_boards.py and route.py run it
-tools/export_3d.py   the board as a GLB for the 3D viewer: kicad-cli's export,
-                     merged and quantized 30 MB -> 7, stand-ins for the three
-                     models this machine lacks and the one it cannot mesh;
-                     gen_boards.py and route.py run it
-tools/flatten_step.py a STEP assembly as one flat part, which kicad-cli 9's GLB
-                     export needs (it meshes a nested assembly as nothing)
+tools/regen.py       remakes what the pages show after gen_boards.py or
+                     route.py (both run it): the board viewer (pcbview build),
+                     board S's build status, board S's simulation
+pcbview.toml         the board viewer: which boards and pages, the sheet names,
+                     the layer notes, the stand-in 3D models, the LCSC table
 hardware/
   parts/3dmodels/    two STEP models the footprints name and KiCad's library
                      lacks, and one it has but kicad-cli cannot mesh, flattened;
-                     for export_3d.py (sources in its README)
+                     stand-ins for the 3D viewer, mapped in pcbview.toml
+                     (sources in its README)
   parts/lcsc.csv     the LCSC numbers chosen so far, by value and footprint, for
                      the 3D viewer's part pane; a part not in it has none yet
   parts/             two symbols copied in, three DERIVED (EG2103, INA241A3,
@@ -313,21 +316,14 @@ hardware/
   power_board/       servodrive_B — 4 layer, 2 oz outer, outline only
   single_board/      servodrive_S — board S, 6 layer, board A plus board B's minimum
 img/                 generated drawings — do not edit by hand
-img/layers/a/        board A layer by layer, plus layers.json: what the copper
-                     viewer on index.html stacks (img/layers/s/: board S, on single.html)
-copper.js            that viewer, the PCB tab — layer panel, pan and zoom, mirror, grid
-img/3d/              a.glb and s.glb, each with a .json of what its caption says
-                     and a .parts.json of what the part pane says (role, place,
-                     pins and nets; `export_3d.py --parts-only` rewrites it alone)
-board3d.js           the 3D tab on index.html and single.html — views, layer
-                     toggles, hover a part to name it, click it for the part
-                     pane on the right, find by reference
+viewer/              built by pcbview — do not edit by hand: a/ and s/ (sch/,
+                     layers/, 3d/ with board.glb and parts.json), assets/ (its
+                     scripts, viewer.css, three.js), a.html and s.html
 shell.js             the frame every page shares, after Altium 365: top bar, the
-                     PROJECT tree read off each page's headings, the sheet bar,
-                     the viewer's PCB / 3D tabs
-style.css            the one stylesheet, A365's palette (sim/report uses it too)
-vendor/              three.js r160 (MIT), the loader, controls and environment it
-                     uses; fonts/: Inter, latin and greek (OFL)
+                     PROJECT tree read off each page's headings, the sheet bar
+style.css            the one stylesheet, A365's palette (sim/report uses it too);
+                     the viewer's own is viewer/assets/viewer.css
+vendor/fonts/        Inter, latin and greek (OFL)
 spec.html            the specification
 index.html           project status
 ```
@@ -913,7 +909,7 @@ link wedges and the middle of the board carry the bus input, the bulk, the
 TVS, both rails, USB-C, the RS-485 relay and an expansion header for a
 stacked PD or Ethernet board. 48 V operational max. It lives in
 `hardware/single_board/`; [single.html](single.html) is its page, with the
-copper viewer and the 3D viewer.
+board viewer: schematic, copper and 3D.
 
 ```sh
 python3 tools/placement_s.py            # the floorplan, img/board_s_*.svg, single.html's tables
@@ -1285,7 +1281,7 @@ in stock.
 **Every placed part has an LCSC number since 2026-09-24**, in
 `hardware/parts/lcsc.csv`: one row per value and footprint, each checked against
 JLCPCB's library that day (model, package, rating, stock), with a note where the
-choice was not obvious; `export_3d.py` warns about any placed part without one,
+choice was not obvious; the viewer's build lists any placed part without one,
 and the 3D viewer's part pane links each to LCSC and JLCPCB. Two values changed
 to reach a stocked part: the shunts (2 × 2 mΩ, see Current sensing) and the
 flash (**W25Q16JVUXIQ**, 16 Mbit, the RP2350 reference design's part — no 128

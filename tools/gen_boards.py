@@ -23,8 +23,6 @@ import schematic as SCH
 import schlayout_s as SCHL
 import stitch
 import fanout
-import plot_layers
-import export_3d
 
 ROOT = Path(__file__).resolve().parent.parent
 HW   = ROOT / "hardware"
@@ -1868,8 +1866,8 @@ def render_svgs(which="ab"):
         i = t.index(">", t.index("<svg")) + 1
         dst.write_text(t[:i] + "\n" + SVG_THEME + t[i:])
         print(f"  wrote  {dst.relative_to(ROOT)}")
-    # ... and the per-layer plots the copper viewer on index.html stacks, the
-    # GLB its 3D viewer draws, and board S's page status (tools/regen.py).  No
+    # ... and the board viewer on the board's page (pcbview: sheets, layer
+    # plots, GLB) and board S's page status (tools/regen.py).  No
     # simulation: a board straight out of the generator is not routed yet.
     import regen
     regen.run("s" if which == "s" else "a", sim="no")

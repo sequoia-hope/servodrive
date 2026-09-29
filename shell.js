@@ -5,8 +5,9 @@
  * lists the pages; the one on screen is open to its sections, read off its own
  * headings, and follows the scroll. The others open to theirs on demand,
  * fetched and read the same way, so no list here can drift from a page.
- * Also runs the viewer's PCB / 3D tabs, and opens whatever a #hash points
- * into: a closed disclosure, a hidden tab.
+ * Also opens whatever a #hash points into: a closed disclosure, or a tab of
+ * the board viewer (pcbview's, written into the page by `pcbview build`; its
+ * viewer.js runs the tabs, and PV.view opens one).
  *
  * Loaded from <head>: it marks the document at once, so the layout does not
  * jump when the chrome arrives, and builds on DOMContentLoaded.
@@ -89,8 +90,9 @@
       } else if (n.matches('section.vw')) {
         for (const p of n.querySelectorAll('.vw-panel')) {
           const tab = n.querySelector(`[data-tab="${p.id}"]`);
-          items.push({ id: p.id, label: tab ? text(tab) : p.id,
-                       icon: p.id === 'board3d' ? 'cube' : 'pcb', el: p, at: n });
+          if (!tab) continue;                 // the overview: its (i) button, not a tab
+          items.push({ id: p.id, label: text(tab), el: p, at: n,
+                       icon: { board3d: 'cube', schematic: 'sheet' }[p.id] || 'pcb' });
         }
       } else if (n.matches('section')) {
         const h = n.querySelector('h2');
@@ -196,43 +198,12 @@
     return root;
   }
 
-  // ---- the viewer's tabs --------------------------------------------------------
-  function tab(vw, id) {
-    vw.querySelectorAll('.vw-panel').forEach(p => { p.hidden = p.id !== id; });
-    vw.querySelectorAll('.vw-tabs [data-tab]').forEach(b =>
-      b.setAttribute('aria-selected', b.dataset.tab === id));
-    const lay = vw.querySelector('[data-vw=layers]');
-    if (lay) lay.hidden = !vw.querySelector('#' + id + ' .cu');
-    dispatchEvent(new Event('resize'));        // copper.js re-fits to the new width
-    track();
-  }
-
-  function viewers() {
-    for (const vw of document.querySelectorAll('section.vw')) {
-      vw.querySelectorAll('.vw-tabs [data-tab]').forEach(b =>
-        b.addEventListener('click', () => tab(vw, b.dataset.tab)));
-      const lay = vw.querySelector('[data-vw=layers]');
-      if (lay) lay.addEventListener('click', () => {
-        const off = vw.classList.toggle('nolayers');
-        lay.setAttribute('aria-pressed', !off);
-        dispatchEvent(new Event('resize'));
-      });
-      const full = vw.querySelector('[data-vw=full]');
-      if (full) {
-        if (!vw.requestFullscreen) full.hidden = true;
-        full.addEventListener('click', () => document.fullscreenElement
-          ? document.exitFullscreen() : vw.requestFullscreen());
-      }
-    }
-    document.addEventListener('fullscreenchange', () => dispatchEvent(new Event('resize')));
-  }
-
   // open what a hash points into, then bring it on screen
   function reveal(id) {
     const el = id && document.getElementById(decodeURIComponent(id));
     if (!el) return;
     const panel = el.closest('.vw-panel');
-    if (panel) tab(panel.closest('.vw'), panel.id);
+    if (panel && window.PV && PV.view) PV.view(panel.id);
     for (let d = el.closest('details'); d; d = d.parentElement.closest('details')) d.open = true;
     el.scrollIntoView();
     track();
@@ -304,7 +275,6 @@
 
     document.querySelectorAll('[data-icon]').forEach(b =>
       b.insertAdjacentHTML('afterbegin', I[b.dataset.icon] || ''));
-    viewers();
     addEventListener('scroll', track, { passive: true });
     addEventListener('resize', track);
     addEventListener('hashchange', () => reveal(location.hash.slice(1)));

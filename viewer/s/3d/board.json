@@ -1,0 +1,60 @@
+{
+ "board": "servodrive_S.kicad_pcb",
+ "generated": "2026-09-28",
+ "glb": "board.glb",
+ "bytes": 6970016,
+ "kicad_bytes": 31217720,
+ "parts": 194,
+ "modelled": 174,
+ "no_model": [
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H10",
+  "H11",
+  "H12",
+  "H13",
+  "H14",
+  "H15",
+  "J1",
+  "J2",
+  "J3",
+  "TL1",
+  "TL2",
+  "TL3",
+  "TP4",
+  "TP5",
+  "TP6",
+  "TP7"
+ ],
+ "missing": [],
+ "empty": [],
+ "substituted": [
+  "J4",
+  "J12",
+  "L701",
+  "L1001",
+  "L1002",
+  "U14",
+  "U15",
+  "U17",
+  "U18"
+ ],
+ "resolved": [
+  "C714",
+  "C715",
+  "U7"
+ ],
+ "flattened": [],
+ "boxed": [],
+ "why": {},
+ "missing_models": [],
+ "boxes": [],
+ "resolved_how": {
+  "legacy": 3,
+  "found": 0
+ },
+ "triangles": 601073,
+ "primitives": 466
+}

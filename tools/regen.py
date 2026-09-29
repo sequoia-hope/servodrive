@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """regen.py -- remake what the pages show, from the board as it now stands.
 
-    python3 tools/regen.py --board s               # plots, 3D, page status; sim in the background
+    python3 tools/regen.py --board s               # viewer, page status; sim in the background
     python3 tools/regen.py --board s --sim wait    # ... and wait for the simulation
     python3 tools/regen.py --board s --sim no      # everything but the simulation
+    python3 tools/regen.py --board s --sch         # only the schematic tab
 
 This is the hook.  route.py calls it at the end of every run on the real board
 (not on a --pcb copy), and gen_boards.py after it emits one, so a re-route or a
 re-placement cannot leave a page describing the board before it:
 
-  - the copper viewer's layer plots and the 3D viewer's GLB and parts file
-    (tools/plot_layers.py, tools/export_3d.py);
-  - board S's schematic as the page shows it, an SVG per sheet and a PDF
-    (img/sch/s/, schematic());
+  - the board viewer on the board's page, SCH / PCB / 3D: pcbview
+    (~/Software/pcbview) builds it as pcbview.toml says -- the sheets and the
+    layers as kicad-cli plots them, the GLB and the part pane's facts -- into
+    viewer/<board>/, and writes the viewer into index.html (A) or single.html
+    (S) between <!-- pcbview:begin --> and <!-- pcbview:end -->;
   - board S's page: the build-status numbers between <!-- status:begin --> and
     <!-- status:end -->, counted off the board, its DRC and its ERC;
   - board S's simulation (sim/run.py --board s).  It takes about two hours, so
@@ -26,6 +28,7 @@ import argparse
 import datetime
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -34,6 +37,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 TOOLS = ROOT / "tools"
 sys.path.insert(0, str(TOOLS))
+VIEWER = ROOT / "pcbview.toml"
 
 BOARDS = {"a": ("motor_board", "servodrive_A"), "s": ("single_board", "servodrive_S")}
 PAGES = {"s": ROOT / "single.html"}
@@ -143,47 +147,27 @@ def write_status(key, s):
     return True
 
 
-# -------------------------------------------------------------- schematic --
-SCH_OUT = {"s": ROOT / "img" / "sch" / "s"}
+# ----------------------------------------------------------------- viewer --
+def pcbview():
+    """The pcbview command: $PCBVIEW, else on the PATH, else where it lives on
+    this machine. Not finding it is an error, not a page left stale."""
+    for c in (os.environ.get("PCBVIEW"), shutil.which("pcbview"),
+              str(Path.home() / "Software" / "pcbview" / "bin" / "pcbview")):
+        if c and Path(c).is_file():
+            return c
+    sys.exit("regen: pcbview not found -- set $PCBVIEW to its bin/pcbview "
+             "(the project is ~/Software/pcbview)")
 
 
-def schematic(key):
-    """The schematic as the page shows it: KiCad's own plot of every sheet
-    (SVG), the whole of it as one PDF, and sheets.json, the viewer's index."""
-    if key not in SCH_OUT:
-        return
-    import schematic_s
-    _, sch = _files(key)
-    out = SCH_OUT[key]
-    out.mkdir(parents=True, exist_ok=True)
-    for f in out.glob("*"):
-        f.unlink()
-    with tempfile.TemporaryDirectory() as td:
-        subprocess.run(["kicad-cli", "sch", "export", "svg", "-o", td, str(sch)],
-                       capture_output=True, text=True, cwd=str(sch.parent))
-        sheets = [("", "Top level", "the sheets and what is on each")]
-        names = {"bridge_cpu": "Power bridge and CPU", "power": "Power supply",
-                 "encoder_io": "Encoder and I/O"}
-        sheets += [(nm, names.get(nm.split("_", 1)[1], nm.split("_", 1)[1].capitalize()), desc)
-                   for nm, desc in schematic_s.SHEETS]
-        index = []
-        for nm, title, desc in sheets:
-            src = Path(td) / (f"{sch.stem}-{nm}.svg" if nm else f"{sch.stem}.svg")
-            if not src.exists():
-                continue
-            dst = out / (f"{nm}.svg" if nm else "00_top.svg")
-            dst.write_bytes(src.read_bytes())
-            page = sch.parent / (f"{nm}.kicad_sch" if nm else sch.name)
-            import re
-            m = re.search(r'\(paper "([^"]+)"', page.read_text())
-            index.append({"file": dst.name, "sheet": nm or "top", "title": title,
-                          "desc": desc, "paper": m.group(1) if m else "A4"})
-    pdf = out / f"{sch.stem}.pdf"
-    subprocess.run(["kicad-cli", "sch", "export", "pdf", "-o", str(pdf), str(sch)],
-                   capture_output=True, text=True, cwd=str(sch.parent))
-    (out / "sheets.json").write_text(json.dumps(
-        {"pdf": pdf.name if pdf.exists() else None, "sheets": index}, indent=1) + "\n")
-    print(f"  schematic: {len(index)} sheets plotted to {out.relative_to(ROOT)}")
+def viewer(key, only=None):
+    """Rebuild the board's viewer (every tab, or the stages in `only`) and
+    write it into the board's page."""
+    cmd = [pcbview(), "build", str(VIEWER), "--board", key]
+    if only:
+        cmd += ["--only", only]
+    r = subprocess.run(cmd, cwd=str(ROOT))
+    if r.returncode:
+        sys.exit(f"regen: pcbview build failed ({r.returncode}): {' '.join(cmd)}")
 
 
 # ------------------------------------------------------------- simulation --
@@ -242,11 +226,7 @@ def start_sim(wait=False):
 def run(key, sim="background", plots=True):
     print(f"regen: board {key.upper()}", flush=True)
     if plots:
-        import plot_layers
-        import export_3d
-        plot_layers.run(key)
-        export_3d.run(key)
-    schematic(key)
+        viewer(key)
     if key in PAGES:
         s = status(key)
         print(f"  status: {s.get('segments')} segments, {s.get('vias')} vias, "
@@ -262,11 +242,11 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--board", choices=sorted(BOARDS), default="s")
     ap.add_argument("--sim", choices=("background", "wait", "no"), default="background")
-    ap.add_argument("--no-plots", action="store_true")
+    ap.add_argument("--no-plots", action="store_true", help="leave the viewer as it is")
     ap.add_argument("--sch", action="store_true", help="only re-plot the schematic")
     a = ap.parse_args()
     if a.sch:
-        schematic(a.board)
+        viewer(a.board, only="sch")
     else:
         run(a.board, sim=a.sim, plots=not a.no_plots)
 

@@ -40,8 +40,6 @@ import stitch
 import fanout
 import finish
 import placement as PL
-import plot_layers
-import export_3d
 
 ROOT = Path(__file__).resolve().parent.parent
 BOARD = ROOT / "hardware/motor_board/servodrive_A.kicad_pcb"
@@ -1557,8 +1555,8 @@ def main():
               + ("" if not left else ": " + ", ".join(left)), flush=True)
         if made:
             settle(BOARD)
-    # The hook: the page's copper viewer stacks one plot per layer, its 3D
-    # viewer draws a GLB, board S's page states the board's numbers and its
+    # The hook: the page's board viewer (pcbview: its sheets, layer plots and
+    # GLB), board S's page states the board's numbers and its
     # simulation.  tools/regen.py re-makes all of it, so what the pages show is
     # the board that was just routed.  The simulation is started only on a
     # board with nothing left unconnected, and detached: it takes hours.

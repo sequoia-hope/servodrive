@@ -1,0 +1,29 @@
+{
+ "title": "servodrive",
+ "built": "2026-09-28T17:45:04",
+ "config": "pcbview.toml",
+ "boards": [
+  {
+   "id": "a",
+   "name": "Board A",
+   "page": "a.html",
+   "embed": "index.html",
+   "source": {
+    "kind": "file",
+    "pcb": "hardware/motor_board/servodrive_A.kicad_pcb",
+    "sch": null
+   }
+  },
+  {
+   "id": "s",
+   "name": "Board S",
+   "page": "s.html",
+   "embed": "single.html",
+   "source": {
+    "kind": "file",
+    "pcb": "hardware/single_board/servodrive_S.kicad_pcb",
+    "sch": "hardware/single_board/servodrive_S.kicad_sch"
+   }
+  }
+ ]
+}

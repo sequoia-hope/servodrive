@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Draw the extracted geometry, layer by layer, so that what the solvers see
-can be checked by eye against img/layers/a/ (the P0 gate in SPEC.md sec.6).
+can be checked by eye against viewer/a/layers/ (the P0 gate in SPEC.md sec.6).
 
     python3 sim/extract/plot.py             # all six layers, whole board
     python3 sim/extract/plot.py --cell A    # the cell-A crop

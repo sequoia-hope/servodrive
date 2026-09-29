@@ -1,0 +1,62 @@
+{
+ "schematic": "servodrive_S.kicad_sch",
+ "pdf": "servodrive_S.pdf",
+ "sheets": [
+  {
+   "sheet": "root",
+   "title": "Top level",
+   "desc": "the sheets and what is on each \u00b7 0 symbols",
+   "file": "servodrive_S.svg",
+   "source": "servodrive_S.kicad_sch",
+   "paper": "A4",
+   "page": "1",
+   "symbols": 0,
+   "size_mm": [
+    297.0022,
+    210.0072
+   ]
+  },
+  {
+   "sheet": "01_bridge_cpu",
+   "title": "Power bridge and CPU",
+   "desc": "Three half-bridges with their drivers and current sense; the RP2350A, its flash, crystal and 3V3 LDO \u00b7 106 symbols",
+   "file": "servodrive_S-01_bridge_cpu.svg",
+   "source": "01_bridge_cpu.kicad_sch",
+   "paper": "A2",
+   "page": "2",
+   "symbols": 106,
+   "size_mm": [
+    594.0044,
+    419.989
+   ]
+  },
+  {
+   "sheet": "02_power",
+   "title": "Power supply",
+   "desc": "XT30 bus input, TVS, bulk, bus divider, the 12 V and 5 V bucks \u00b7 46 symbols",
+   "file": "servodrive_S-02_power.svg",
+   "source": "02_power.kicad_sch",
+   "paper": "A3",
+   "page": "3",
+   "symbols": 46,
+   "size_mm": [
+    419.989,
+    297.0022
+   ]
+  },
+  {
+   "sheet": "03_encoder_io",
+   "title": "Encoder and I/O",
+   "desc": "MT6701 encoder; USB-C, RS-485 relay, expansion header, LED, BOOTSEL, test pads \u00b7 38 symbols",
+   "file": "servodrive_S-03_encoder_io.svg",
+   "source": "03_encoder_io.kicad_sch",
+   "paper": "A3",
+   "page": "4",
+   "symbols": 38,
+   "size_mm": [
+    419.989,
+    297.0022
+   ]
+  }
+ ]
+}

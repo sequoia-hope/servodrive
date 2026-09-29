@@ -1,0 +1,96 @@
+# pcbview.toml -- the SCH / PCB / 3D viewer on index.html (board A) and
+# single.html (board S), built by pcbview (~/Software/pcbview):
+#
+#     python3 tools/regen.py --board s          # what route.py and gen_boards.py run
+#     ~/Software/pcbview/bin/pcbview build pcbview.toml [--board s] [--only sch,layers,3d]
+#     ~/Software/pcbview/bin/pcbview models pcbview.toml    (where each 3D model resolves)
+#
+# pcbview plots the schematic and every layer with kicad-cli, exports the board
+# as a GLB and reads the part pane's facts out of the board file, all into
+# viewer/. Each board's viewer is written into its page between
+# <!-- pcbview:begin --> and <!-- pcbview:end -->; the page's words about each
+# tab (data-pv-note) are the page's own. viewer/a.html and viewer/s.html are
+# the same viewers on pages of their own, filling the window.
+
+title = "servodrive"
+subtitle = "sequoia-hope"
+out = "viewer"
+back = { href = "../index.html", label = "servodrive" }
+repo = "https://github.com/sequoia-hope/servodrive"
+
+[[boards]]
+id = "a"
+name = "Board A"
+pcb = "hardware/motor_board/servodrive_A.kicad_pcb"
+embed = "index.html"
+front_note = "the outward face"
+back_note = "the motor-facing face"
+note = "The power board of the two-board servodrive: three phase cells, the RP2350A and the MT6701 encoder on a Ø65 mm six-layer board that bolts to the back of the motor."
+
+[[boards]]
+id = "s"
+name = "Board S"
+pcb = "hardware/single_board/servodrive_S.kicad_pcb"
+sch = "hardware/single_board/servodrive_S.kicad_sch"
+embed = "single.html"
+front_note = "the outward face"
+back_note = "the motor-facing face"
+note = "The one-board servodrive: board A with its board-to-board links replaced by the essentials of board B, on a Ø65 mm six-layer board that bolts to the back of the motor."
+
+# the sheets' names as the page gives them (tools/schematic_s.py SHEETS says
+# what is on each)
+[boards.sheets.root]
+title = "Top level"
+desc = "the sheets and what is on each"
+[boards.sheets.01_bridge_cpu]
+title = "Power bridge and CPU"
+desc = "Three half-bridges with their drivers and current sense; the RP2350A, its flash, crystal and 3V3 LDO"
+[boards.sheets.02_power]
+title = "Power supply"
+desc = "XT30 bus input, TVS, bulk, bus divider, the 12 V and 5 V bucks"
+[boards.sheets.03_encoder_io]
+title = "Encoder and I/O"
+desc = "MT6701 encoder; USB-C, RS-485 relay, expansion header, LED, BOOTSEL, test pads"
+
+[parts]
+role_field = "servodrive_role"
+lcsc_csv = "hardware/parts/lcsc.csv"
+
+[layers.notes]
+"F.Cu" = "Outward face, 2 oz. Three phase cells, three utility wedges, and the three arcs of bare copper the heatsink ring clamps."
+"In1.Cu" = "Solid ground, directly under F.Cu — the return for everything switching above it, and the other plate of the plane capacitor In2 forms."
+"In2.Cu" = "The power plane. VBUS over the phase block and the link that feeds it, +3V3 over the CPU wedge."
+"In3.Cu" = "The signal layer, and the only one that crosses the whole board, so the long hauls between the RP2350A and the phase cells live here."
+"In4.Cu" = "Solid ground again, under the signal layer and over the motor-facing copper."
+"B.Cu" = "Motor-facing face, 2 oz. MT6701 at the centre, the shunts and the sense amplifiers, and the FET drain thermal vias coming through. Motor leads land here, so the outward perimeter stays thermal."
+"Edge.Cuts" = "The outline and every hole in it."
+
+# Stand-ins for the models the footprints name that KiCad 9's library does not
+# ship, or ships as something its GLB exporter cannot mesh; the board files are
+# not touched. Files and sources: hardware/parts/3dmodels/README.md. Offsets
+# and rotations are KiCad's (rotation clockwise-positive), each checked against
+# the footprint's pads in the exported model.
+[models."Connector_USB.3dshapes/USB_C_Receptacle_HRO_TYPE-C-31-M-12.step"]
+path = "hardware/parts/3dmodels/HRO_TYPE-C-31-M-12.step"
+offset = [-4.45, -3.65, 0]
+rotate = [-90, 0, 0]
+
+[models."Inductor_SMD.3dshapes/AOTA-B201610SR47MT.STEP"]
+path = "hardware/parts/3dmodels/AOTA-B201610SR47MT.STEP"
+offset = [0, 0, 0]
+rotate = [0, 0, 0]
+
+[models."Connector_AMASS.3dshapes/AMASS_XT30PW-M_1x02_P2.50mm_Horizontal.step"]
+path = "hardware/parts/3dmodels/XT30PW-M.STEP"
+offset = [-2.5, 10.0, 0]
+rotate = [-90, 0, 0]
+
+# KiCad's own, flattened (a nested assembly meshes as nothing); the footprint's
+# own offset and rotation still apply
+[models."Inductor_SMD.3dshapes/L_Sunlord_SWPA4030S.step"]
+path = "hardware/parts/3dmodels/L_Sunlord_SWPA4030S.step"
+
+[models."test.3dshapes/DFN-8_L3.0-W3.0-P0.65-BL-EP.wrl"]
+path = "${KICAD9_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/DFN-8-1EP_3x3mm_P0.65mm_EP1.55x2.4mm.step"
+offset = [0, 0, 0]
+rotate = [0, 0, -90]
