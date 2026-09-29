@@ -2,7 +2,7 @@
  "rows": [
   {
    "area": "Commutation loop",
-   "result": "1.95&nbsp;nH of PCB (FastHenry, all four capacitors); 3.1&ndash;3.2&nbsp;nH with the two FET packages and the capacitors' ESL (its mesh series 2.36, 2.17, 2.00, 1.92, 1.93, 1.79&nbsp;nH, 7.3&nbsp;% on the last step); cells A/B/C within 10&nbsp;%; the full-wave check, one capacitor's loop, reads 1.74, 1.73, 1.70&nbsp;nH as its mesh refines (0.2, 0.14, 0.1&nbsp;mm) against FastHenry's 2.53&nbsp;nH",
+   "result": "2.08&nbsp;nH of PCB (FastHenry, all four capacitors); 3.2&ndash;3.4&nbsp;nH with the two FET packages and the capacitors' ESL (its mesh series 2.56, 2.38, 2.14, 2.05, 2.08, 1.86&nbsp;nH, 10.4&nbsp;% on the last step); cells A/B/C within 18&nbsp;%; the full-wave check, one capacitor's loop, reads 1.88, 1.81, 1.76&nbsp;nH as its mesh refines (0.2, 0.14, 0.1&nbsp;mm) against FastHenry's 2.78&nbsp;nH",
    "criterion": "reported; FastHenry and openEMS agree within 25&nbsp;%, each converged",
    "verdict": "fail",
    "evidence": "P1 Q1, P7 Q1_crosscheck",
@@ -11,7 +11,7 @@
   },
   {
    "area": "Switching overshoot",
-   "result": "52.4&nbsp;V peak at 48&nbsp;V and 28.3&nbsp;A; 69.8&nbsp;V at the worst corner swept (R<sub>g</sub>, T<sub>j</sub>, driver strength, capacitance); 60.4&nbsp;V at 56&nbsp;V, the top of the fold-back",
+   "result": "51.3&nbsp;V peak at 48&nbsp;V and 28.3&nbsp;A; 70.6&nbsp;V at the worst corner swept (R<sub>g</sub>, T<sub>j</sub>, driver strength, capacitance); 59.2&nbsp;V at 56&nbsp;V, the top of the fold-back",
    "criterion": "V<sub>ds</sub> &le; 57&nbsp;V everywhere (the TPSMF4L54A's breakdown minimum is 60.0 V; the criterion keeps board A's 3 V margin under it); ringing under 5&nbsp;% in 5 cycles",
    "verdict": "warn",
    "evidence": "P2 Q2",
@@ -20,7 +20,7 @@
   },
   {
    "area": "Snubber",
-   "result": "at the nominal edge, which passes without one (52.4&nbsp;V), every RC from 2.2&ndash;22&nbsp;&Omega; and 0.47&ndash;4.7&nbsp;nF leaves the peak at 51.9&ndash;52.5&nbsp;V: the overshoot there is too small for a snubber to matter. The sweep is not run at the strong-driver corner that reaches 69.8&nbsp;V",
+   "result": "at the nominal edge, which passes without one (51.3&nbsp;V), every RC from 2.2&ndash;22&nbsp;&Omega; and 0.47&ndash;4.7&nbsp;nF leaves the peak at 51.0&ndash;51.4&nbsp;V: the overshoot there is too small for a snubber to matter. The sweep is not run at the strong-driver corner that reaches 70.6&nbsp;V",
    "criterion": "the smallest RC that passes Q2 with P<sub>R</sub> &le; 0.25&nbsp;W",
    "verdict": "info",
    "evidence": "P2 Q3",
@@ -29,7 +29,7 @@
   },
   {
    "area": "Miller turn-on",
-   "result": "3.06&nbsp;V induced on the off FET's gate at the nominal edge, 3.97&nbsp;V at the worst corner, against a V<sub>GS(th)</sub> of 2.2&nbsp;V minimum",
+   "result": "3.04&nbsp;V induced on the off FET's gate at the nominal edge, 3.63&nbsp;V at the worst corner, against a V<sub>GS(th)</sub> of 2.2&nbsp;V minimum",
    "criterion": "induced V<sub>gs</sub> &le; 0.7 &times; V<sub>GS(th),min</sub>",
    "verdict": "fail",
    "evidence": "P2 Q4",
@@ -56,7 +56,7 @@
   },
   {
    "area": "Vias and copper at 20&nbsp;A",
-   "result": "busiest barrel 2.83&nbsp;A RMS in the 16-via array that takes the phase current from the low-side drain down to the shunts, 2.08&nbsp;A in the high side's 20-via drain array fed from the XT30; phase band 74&nbsp;A/mm&sup2; (p99.9)",
+   "result": "busiest barrel 2.83&nbsp;A RMS in the 16-via array that takes the phase current from the low-side drain down to the shunts, 2.09&nbsp;A in the high side's 20-via drain array fed from the XT30; phase band 74&nbsp;A/mm&sup2; (p99.9)",
    "criterion": "&le; 2&nbsp;A RMS per 0.4&nbsp;mm barrel",
    "verdict": "fail",
    "evidence": "P3 Q7",
@@ -65,7 +65,7 @@
   },
   {
    "area": "Bulk cans",
-   "result": "6.4&nbsp;A RMS in each can at 20&nbsp;A RMS per phase (1.44&nbsp;W each), against 1.5&ndash;2.2&nbsp;A of rating at 20&ndash;40&nbsp;kHz: within rating up to about 4.7&ndash;7.0&nbsp;A RMS per phase, continuous",
+   "result": "2.3&nbsp;A RMS in each can at 20&nbsp;A RMS per phase (0.15&nbsp;W each), against 1.8&nbsp;A of rating at 20&ndash;40&nbsp;kHz: within rating up to about 16.1&nbsp;A RMS per phase, continuous",
    "criterion": "each can within its ripple rating",
    "verdict": "fail",
    "evidence": "P4 Q13_ripple",
@@ -74,7 +74,7 @@
   },
   {
    "area": "Bus ripple",
-   "result": "1.75&nbsp;V peak-to-peak at the drains; 2.0&nbsp;A RMS goes back up a 1&nbsp;&micro;H battery lead; the ceramics are 8.2&nbsp;&micro;F at 48&nbsp;V of 13.8 nominal; the cans are about 2.9&nbsp;nH of plane from cell A (FastHenry's series 3.5, 2.4, 2.9&nbsp;nH is still moving; at 20&ndash;40&nbsp;kHz any of them is under 1&nbsp;m&Omega;)",
+   "result": "2.43&nbsp;V peak-to-peak at the drains; 3.2&nbsp;A RMS goes back up a 1&nbsp;&micro;H battery lead; the ceramics are 8.2&nbsp;&micro;F at 48&nbsp;V of 13.8 nominal; the cans are about 1.1&nbsp;nH of plane from cell A",
    "criterion": "V<sub>bus,pp</sub> &le; 3&nbsp;V; no DC-link resonance with Q &gt; 3 below 1&nbsp;MHz",
    "verdict": "pass",
    "evidence": "P4 Q13",
@@ -83,7 +83,7 @@
   },
   {
    "area": "Encoder field",
-   "result": "bulk cans 0.006&deg; and the XT30's bus current 0.016&deg; at the weakest field; with the motor leads 0.13&deg; at the nominal gap, 0.16&deg; at the weakest &mdash; the leads are nearly all of it",
+   "result": "bulk cans 0.009&deg; and the XT30's bus current 0.016&deg; at the weakest field; with the motor leads 0.13&deg; at the nominal gap, 0.17&deg; at the weakest &mdash; the leads are nearly all of it",
    "criterion": "current-induced angle error &le; 0.05&deg; (about 2 LSB)",
    "verdict": "warn",
    "evidence": "P5S Q10S",
@@ -119,7 +119,7 @@
   },
   {
    "area": "Regeneration",
-   "result": "a 20&nbsp;A brake from rated speed (J 10<sup>&minus;3</sup>&nbsp;kg&middot;m&sup2;) lifts 200&nbsp;&micro;F from 48&nbsp;V to the 52&nbsp;V fold-back in 47&nbsp;&micro;s and to the TVS in 141&nbsp;&micro;s; the bulk takes 0.13&nbsp;J of the 21.9&nbsp;J stored",
+   "result": "a 20&nbsp;A brake from rated speed (J 10<sup>&minus;3</sup>&nbsp;kg&middot;m&sup2;) lifts 132&nbsp;&micro;F from 48&nbsp;V to the 52&nbsp;V fold-back in 31&nbsp;&micro;s and to the TVS in 93&nbsp;&micro;s; the bulk takes 0.09&nbsp;J of the 21.9&nbsp;J stored",
    "criterion": "reported: no brake chopper; the battery, when it accepts charge, is the sink",
    "verdict": "info",
    "evidence": "P6 Q14",
@@ -128,7 +128,7 @@
   },
   {
    "area": "Motor frame (common mode)",
-   "result": "a floating frame swings 81&nbsp;V peak on each edge through the winding capacitance",
+   "result": "a floating frame swings 70&nbsp;V peak on each edge through the winding capacitance",
    "criterion": "&le; 10&nbsp;V peak frame-to-GND",
    "verdict": "fail",
    "evidence": "P2 Q12",
@@ -166,14 +166,14 @@
   "P7",
   "P8"
  ],
- "page": "/home/sequoia/pcb/servodrive/single.html",
+ "page": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/single.html",
  "written_to_page": true,
- "date": "2026-09-27",
+ "date": "2026-09-29",
  "_phase": {
   "seconds": 0.0
  },
  "_meta": {
-  "written": "2026-09-27T00:09:03",
-  "board_mtime": "2026-09-26T18:52:53"
+  "written": "2026-09-29T10:09:11",
+  "board_mtime": "2026-09-29T07:50:46"
  }
 }

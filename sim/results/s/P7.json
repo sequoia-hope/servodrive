@@ -2,62 +2,62 @@
  "Q1_crosscheck": {
   "question": "Q1 (L2 cross-check)",
   "fasthenry": {
-   "L_eff_all_four_nH": 1.9482021052611658,
+   "L_eff_all_four_nH": 2.080522258307598,
    "port_ref": "C103",
    "port_index": 3,
    "f_Hz": 1000000.0,
-   "L_single_port_nH": 2.5292585246277826,
+   "L_single_port_nH": 2.7756781230169643,
    "fasthenry_convergence": [
     {
      "target_mm": 1.8,
-     "segments": 3422,
+     "segments": 3373,
      "f_Hz": 1000000.0,
-     "L_single_port_nH": 3.2561668962113965,
-     "L_eff_nH": 2.362273870073165
+     "L_single_port_nH": 4.666407015960062,
+     "L_eff_nH": 2.555738961667553
     },
     {
      "target_mm": 1.4,
-     "segments": 4689,
+     "segments": 4578,
      "f_Hz": 1000000.0,
-     "L_single_port_nH": 3.097887305306506,
-     "L_eff_nH": 2.1716839390315754
+     "L_single_port_nH": 4.53841461072556,
+     "L_eff_nH": 2.376023869753871
     },
     {
      "target_mm": 1.1,
-     "segments": 8288,
+     "segments": 7562,
      "f_Hz": 1000000.0,
-     "L_single_port_nH": 2.806044886158898,
-     "L_eff_nH": 2.003965867383781
+     "L_single_port_nH": 3.177226044437816,
+     "L_eff_nH": 2.1441052117083004
     },
     {
      "target_mm": 0.9,
-     "segments": 9976,
+     "segments": 9615,
      "f_Hz": 1000000.0,
-     "L_single_port_nH": 2.7197033295315447,
-     "L_eff_nH": 1.9183586756036035
+     "L_single_port_nH": 3.0612020909238242,
+     "L_eff_nH": 2.0452942806341765
     },
     {
      "target_mm": 0.75,
-     "segments": 12588,
+     "segments": 12612,
      "f_Hz": 1000000.0,
-     "L_single_port_nH": 2.755178966346728,
-     "L_eff_nH": 1.9314545332018933
+     "L_single_port_nH": 3.3153247885586534,
+     "L_eff_nH": 2.0784701388561517
     },
     {
      "target_mm": 0.62,
-     "segments": 19977,
+     "segments": 18330,
      "f_Hz": 1000000.0,
-     "L_single_port_nH": 2.5292585246277826,
-     "L_eff_nH": 1.7912238157346108
+     "L_single_port_nH": 2.7756781230169643,
+     "L_eff_nH": 1.8624500733159846
     }
    ],
-   "L_single_port_production_nH": 2.7305895276390304,
+   "L_single_port_production_nH": 3.1005770238447594,
    "L_single_port_production_f_Hz": 100000000.0,
    "grid_target_mm": 0.62,
-   "last_refinement_change": 0.08932279540391895
+   "last_refinement_change": 0.19441975676744958
   },
-  "L1_fasthenry_nH": 2.5292585246277826,
-  "L1_fasthenry_L_eff_nH": 1.9482021052611658,
+  "L1_fasthenry_nH": 2.7756781230169643,
+  "L1_fasthenry_L_eff_nH": 2.080522258307598,
   "uniform_mesh_series": [
    {
     "snapped": false,
@@ -98,28 +98,28 @@
     "fixed_lines_x": 0,
     "fixed_lines_y": 0,
     "res_mm": 0.55,
-    "polys": 215,
+    "polys": 266,
     "barrels": 61,
-    "barrel_shadowed_polys": 158,
-    "L_nH": 0.5943266266821892,
-    "L_band_mean_nH": 0.5946352453968102,
+    "barrel_shadowed_polys": 154,
+    "L_nH": 0.6694233131850409,
+    "L_band_mean_nH": 0.6697733705397243,
     "lc_fit": {
-     "L_nH": 0.5943266266821892,
-     "C_pF": 1.1466323343295277,
-     "f_resonance_MHz": 6096.708708186489,
+     "L_nH": 0.6694233131850409,
+     "C_pF": 1.0276494732074701,
+     "f_resonance_MHz": 6068.022929495869,
      "fit_band_Hz": [
       20020716.545070525,
       247260902.2052966
      ],
-     "rel_residual": 5.60529296456794e-05
+     "rel_residual": 5.30759844337264e-05
     },
     "L_nH_from_record_fraction": {
-     "0.50": 0.45990400593197345,
-     "0.75": 0.5160967993463115,
-     "1.00": 0.5946352753775186
+     "0.50": 0.5175388051691713,
+     "0.75": 0.580933082731392,
+     "1.00": 0.669773404289179
     },
-    "L_nH_spread": 0.00024388160691946026,
-    "R_mOhm_at_100MHz": -0.3934620408748806,
+    "L_nH_spread": 0.0002779152458239435,
+    "R_mOhm_at_100MHz": -0.4307423281739821,
     "min_cell_mm": {
      "x": 0.2006017455300153,
      "y": 0.13053200000000054,
@@ -127,9 +127,9 @@
     },
     "cells": 331002,
     "mesh": "63x74x71",
-    "final_energy_dB": "-65.41",
-    "dropped_primitives": 8,
-    "workdir": "/home/sequoia/pcb/servodrive/sim/work/s/openems/p7_cellA_loop_u0.55"
+    "final_energy_dB": "-65.12",
+    "dropped_primitives": 16,
+    "workdir": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/openems/p7_cellA_loop_u0.55"
    },
    {
     "snapped": false,
@@ -170,28 +170,28 @@
     "fixed_lines_x": 0,
     "fixed_lines_y": 0,
     "res_mm": 0.35,
-    "polys": 215,
+    "polys": 266,
     "barrels": 61,
-    "barrel_shadowed_polys": 158,
-    "L_nH": 1.8128266618124549,
-    "L_band_mean_nH": 1.8986612396763527,
+    "barrel_shadowed_polys": 154,
+    "L_nH": 1.9002280826235485,
+    "L_band_mean_nH": 1.9716342106267069,
     "lc_fit": {
-     "L_nH": 1.8128266618124549,
-     "C_pF": 31.08966398612024,
-     "f_resonance_MHz": 670.399956707282,
+     "L_nH": 1.9002280826235485,
+     "C_pF": 24.610691158292788,
+     "f_resonance_MHz": 735.9619482227844,
      "fit_band_Hz": [
       20020716.545070525,
       247260902.2052966
      ],
-     "rel_residual": 0.012708597984217479
+     "rel_residual": 0.0047547635070611565
     },
     "L_nH_from_record_fraction": {
-     "0.50": 1.933428382179175,
-     "0.75": 1.8754070247756258,
-     "1.00": 1.898661268977655
+     "0.50": 1.959165055350014,
+     "0.75": 1.9727127746998971,
+     "1.00": 1.9716342994288163
     },
-    "L_nH_spread": 0.06765344831099238,
-    "R_mOhm_at_100MHz": -9.363013344785772,
+    "L_nH_spread": 0.06011535974153732,
+    "R_mOhm_at_100MHz": -2.6403499709161347,
     "min_cell_mm": {
      "x": 0.28107681072796353,
      "y": 0.13053200000000054,
@@ -199,9 +199,9 @@
     },
     "cells": 596400,
     "mesh": "84x100x71",
-    "final_energy_dB": "-43.03",
-    "dropped_primitives": 5,
-    "workdir": "/home/sequoia/pcb/servodrive/sim/work/s/openems/p7_cellA_loop_u0.35"
+    "final_energy_dB": "-47.69",
+    "dropped_primitives": 8,
+    "workdir": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/openems/p7_cellA_loop_u0.35"
    },
    {
     "snapped": false,
@@ -242,28 +242,28 @@
     "fixed_lines_x": 0,
     "fixed_lines_y": 0,
     "res_mm": 0.2,
-    "polys": 215,
+    "polys": 266,
     "barrels": 61,
-    "barrel_shadowed_polys": 158,
-    "L_nH": 1.7430078768317168,
-    "L_band_mean_nH": 1.8076902834925377,
+    "barrel_shadowed_polys": 154,
+    "L_nH": 1.823157717906894,
+    "L_band_mean_nH": 1.8689483925107209,
     "lc_fit": {
-     "L_nH": 1.7430078768317168,
-     "C_pF": 27.58225994065675,
-     "f_resonance_MHz": 725.8644606613858,
+     "L_nH": 1.823157717906894,
+     "C_pF": 20.508139081870326,
+     "f_resonance_MHz": 823.0853740135044,
      "fit_band_Hz": [
       20020716.545070525,
       247260902.2052966
      ],
-     "rel_residual": 0.005017252255649782
+     "rel_residual": 0.013554289277933935
     },
     "L_nH_from_record_fraction": {
-     "0.50": 1.8060800288550904,
-     "0.75": 1.8067886507508006,
-     "1.00": 1.8076904420833924
+     "0.50": 1.8899756869758348,
+     "0.75": 1.8830345000512625,
+     "1.00": 1.86894863576393
     },
-    "L_nH_spread": 0.05989940169651975,
-    "R_mOhm_at_100MHz": 0.8663743987553311,
+    "L_nH_spread": 0.05659584237217312,
+    "R_mOhm_at_100MHz": 5.448090860067239,
     "min_cell_mm": {
      "x": 0.14053840536398,
      "y": 0.13053200000000054,
@@ -271,9 +271,9 @@
     },
     "cells": 1473110,
     "mesh": "133x156x71",
-    "final_energy_dB": "-36.70",
+    "final_energy_dB": "-41.34",
     "dropped_primitives": 4,
-    "workdir": "/home/sequoia/pcb/servodrive/sim/work/s/openems/p7_cellA_loop_u0.2"
+    "workdir": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/openems/p7_cellA_loop_u0.2"
    }
   ],
   "mesh_convergence": [
@@ -313,41 +313,41 @@
     "min_step_mm": 0.2,
     "step_used_x_mm": 0.2,
     "step_used_y_mm": 0.2,
-    "fixed_lines_x": 97,
-    "fixed_lines_y": 120,
+    "fixed_lines_x": 100,
+    "fixed_lines_y": 121,
     "res_mm": 0.3,
-    "polys": 215,
+    "polys": 266,
     "barrels": 61,
-    "barrel_shadowed_polys": 158,
-    "L_nH": 1.7363349173405989,
-    "L_band_mean_nH": 1.8017563092696507,
+    "barrel_shadowed_polys": 154,
+    "L_nH": 1.8839982558660866,
+    "L_band_mean_nH": 1.9650954630023547,
     "lc_fit": {
-     "L_nH": 1.7363349173405989,
-     "C_pF": 28.08729284531202,
-     "f_resonance_MHz": 720.689908739354,
+     "L_nH": 1.8839982558660866,
+     "C_pF": 26.143173018376203,
+     "f_resonance_MHz": 717.1346961361781,
      "fit_band_Hz": [
       20020716.545070525,
       247260902.2052966
      ],
-     "rel_residual": 0.0018262134748615786
+     "rel_residual": 0.015150453449304309
     },
     "L_nH_from_record_fraction": {
-     "0.50": 1.8019130353877526,
-     "0.75": 1.8023810503015019,
-     "1.00": 1.8017564212596626
+     "0.50": 1.9832992241216965,
+     "0.75": 1.9480469118456205,
+     "1.00": 1.9650955205335077
     },
-    "L_nH_spread": 0.060317128692314724,
-    "R_mOhm_at_100MHz": -0.711848328313532,
+    "L_nH_spread": 0.056830367898750095,
+    "R_mOhm_at_100MHz": -6.088424781165351,
     "min_cell_mm": {
-     "x": 0.170372094636015,
-     "y": 0.13053200000000054,
+     "x": 0.12836624999999913,
+     "y": 0.12577124999999967,
      "z": 0.03325553426198491
     },
-    "cells": 1252440,
-    "mesh": "120x147x71",
-    "final_energy_dB": "-30.46",
-    "dropped_primitives": 4,
-    "workdir": "/home/sequoia/pcb/servodrive/sim/work/s/openems/p7_cellA_loop_s0.2"
+    "cells": 1271470,
+    "mesh": "121x148x71",
+    "final_energy_dB": "-42.10",
+    "dropped_primitives": 5,
+    "workdir": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/openems/p7_cellA_loop_s0.2"
    },
    {
     "snapped": true,
@@ -385,41 +385,41 @@
     "min_step_mm": 0.14,
     "step_used_x_mm": 0.14,
     "step_used_y_mm": 0.14,
-    "fixed_lines_x": 136,
-    "fixed_lines_y": 166,
+    "fixed_lines_x": 140,
+    "fixed_lines_y": 169,
     "res_mm": 0.3,
-    "polys": 215,
+    "polys": 266,
     "barrels": 61,
-    "barrel_shadowed_polys": 158,
-    "L_nH": 1.7281811447908526,
-    "L_band_mean_nH": 1.791748257838249,
+    "barrel_shadowed_polys": 154,
+    "L_nH": 1.8070548803492834,
+    "L_band_mean_nH": 1.8564814785439945,
     "lc_fit": {
-     "L_nH": 1.7281811447908526,
-     "C_pF": 27.225679199421045,
-     "f_resonance_MHz": 733.7297677277053,
+     "L_nH": 1.8070548803492834,
+     "C_pF": 21.11039034300382,
+     "f_resonance_MHz": 814.8662462203791,
      "fit_band_Hz": [
       20020716.545070525,
       247260902.2052966
      ],
-     "rel_residual": 0.004870618969141079
+     "rel_residual": 0.007650679193912446
     },
     "L_nH_from_record_fraction": {
-     "0.50": 1.7890588370866876,
-     "0.75": 1.7918255586470049,
-     "1.00": 1.7917483779512489
+     "0.50": 1.8890116392568086,
+     "0.75": 1.8656046943182847,
+     "1.00": 1.85648165719462
     },
-    "L_nH_spread": 0.05683799325509717,
-    "R_mOhm_at_100MHz": -4.78670338907223,
+    "L_nH_spread": 0.052443119491922825,
+    "R_mOhm_at_100MHz": 3.022380111914912,
     "min_cell_mm": {
-     "x": 0.12557458333333216,
+     "x": 0.1402000000000001,
      "y": 0.13053200000000054,
      "z": 0.03325553426198491
     },
-    "cells": 2144910,
-    "mesh": "159x190x71",
-    "final_energy_dB": "-31.66",
-    "dropped_primitives": 2,
-    "workdir": "/home/sequoia/pcb/servodrive/sim/work/s/openems/p7_cellA_loop_s0.14"
+    "cells": 2167490,
+    "mesh": "159x192x71",
+    "final_energy_dB": "-40.09",
+    "dropped_primitives": 5,
+    "workdir": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/openems/p7_cellA_loop_s0.14"
    },
    {
     "snapped": true,
@@ -457,41 +457,41 @@
     "min_step_mm": 0.1,
     "step_used_x_mm": 0.1,
     "step_used_y_mm": 0.1,
-    "fixed_lines_x": 180,
-    "fixed_lines_y": 226,
+    "fixed_lines_x": 191,
+    "fixed_lines_y": 229,
     "res_mm": 0.3,
-    "polys": 215,
+    "polys": 266,
     "barrels": 61,
-    "barrel_shadowed_polys": 158,
-    "L_nH": 1.6997645655854814,
-    "L_band_mean_nH": 1.7605246954320983,
+    "barrel_shadowed_polys": 154,
+    "L_nH": 1.7603468121617332,
+    "L_band_mean_nH": 1.8013136967721244,
     "lc_fit": {
-     "L_nH": 1.6997645655854814,
-     "C_pF": 27.182526805912268,
-     "f_resonance_MHz": 740.4245898528803,
+     "L_nH": 1.7603468121617332,
+     "C_pF": 19.573578400109692,
+     "f_resonance_MHz": 857.4047747865307,
      "fit_band_Hz": [
       20020716.545070525,
       247260902.2052966
      ],
-     "rel_residual": 0.0012693907357101816
+     "rel_residual": 0.010443089712280248
     },
     "L_nH_from_record_fraction": {
-     "0.50": 1.7607930797088418,
-     "0.75": 1.7609874709994875,
-     "1.00": 1.7605248079573543
+     "0.50": 1.8255216306666644,
+     "0.75": 1.8145747143148372,
+     "1.00": 1.8013138754333846
     },
-    "L_nH_spread": 0.055229094948719866,
-    "R_mOhm_at_100MHz": -2.3489722147295815,
+    "L_nH_spread": 0.04899201173542587,
+    "R_mOhm_at_100MHz": 2.372239070115726,
     "min_cell_mm": {
-     "x": 0.10009999999999941,
-     "y": 0.08628472222222072,
+     "x": 0.10000000000000142,
+     "y": 0.10000000000000009,
      "z": 0.03325553426198491
     },
-    "cells": 3596290,
-    "mesh": "201x252x71",
-    "final_energy_dB": "-29.55",
-    "dropped_primitives": 2,
-    "workdir": "/home/sequoia/pcb/servodrive/sim/work/s/openems/p7_cellA_loop_s0.1"
+    "cells": 3757320,
+    "mesh": "210x252x71",
+    "final_energy_dB": "-40.76",
+    "dropped_primitives": 1,
+    "workdir": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/openems/p7_cellA_loop_s0.1"
    }
   ],
   "barrel_model_sensitivity": {
@@ -533,28 +533,28 @@
    "fixed_lines_x": 0,
    "fixed_lines_y": 0,
    "res_mm": 0.35,
-   "polys": 373,
+   "polys": 420,
    "barrels": 61,
    "barrel_shadowed_polys": 0,
-   "L_nH": 2.039100585477459,
-   "L_band_mean_nH": 2.1180499167337183,
+   "L_nH": 2.124589846959044,
+   "L_band_mean_nH": 2.185233937563543,
    "lc_fit": {
-    "L_nH": 2.039100585477459,
-    "C_pF": 24.400685203372376,
-    "f_resonance_MHz": 713.5095592229882,
+    "L_nH": 2.124589846959044,
+    "C_pF": 18.590080986106923,
+    "f_resonance_MHz": 800.832961372784,
     "fit_band_Hz": [
      20020716.545070525,
      247260902.2052966
     ],
-    "rel_residual": 0.00967249990493955
+    "rel_residual": 0.005646290155400691
    },
    "L_nH_from_record_fraction": {
-    "0.50": 2.101443493296043,
-    "0.75": 2.109816645209376,
-    "1.00": 2.118050077312807
+    "0.50": 2.2061356963621046,
+    "0.75": 2.186727509435257,
+    "1.00": 2.1852340738975684
    },
-   "L_nH_spread": 0.07346419287653123,
-   "R_mOhm_at_100MHz": 3.7638389047581504,
+   "L_nH_spread": 0.06290937138581808,
+   "R_mOhm_at_100MHz": -2.6877119650820465,
    "min_cell_mm": {
     "x": 0.28107681072796353,
     "y": 0.13053200000000054,
@@ -562,20 +562,20 @@
    },
    "cells": 596400,
    "mesh": "84x100x71",
-   "final_energy_dB": "-45.24",
-   "dropped_primitives": 5,
-   "workdir": "/home/sequoia/pcb/servodrive/sim/work/s/openems/p7_cellA_loop_v0.35"
+   "final_energy_dB": "-43.74",
+   "dropped_primitives": 7,
+   "workdir": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/openems/p7_cellA_loop_v0.35"
   },
   "shorting_survey": {
    "layer": "In1.Cu",
    "uniform": [
     {
      "res_mm": 0.55,
-     "cells_joining_two_nets": 60
+     "cells_joining_two_nets": 65
     },
     {
      "res_mm": 0.35,
-     "cells_joining_two_nets": 13
+     "cells_joining_two_nets": 14
     },
     {
      "res_mm": 0.2,
@@ -621,41 +621,41 @@
     "min_step_mm": 0.2,
     "step_used_x_mm": 0.2,
     "step_used_y_mm": 0.2,
-    "fixed_lines_x": 97,
-    "fixed_lines_y": 120,
+    "fixed_lines_x": 100,
+    "fixed_lines_y": 121,
     "res_mm": 0.3,
-    "polys": 215,
+    "polys": 266,
     "barrels": 61,
-    "barrel_shadowed_polys": 158,
-    "L_nH": 1.7363349173405989,
-    "L_band_mean_nH": 1.8017563092696507,
+    "barrel_shadowed_polys": 154,
+    "L_nH": 1.8839982558660866,
+    "L_band_mean_nH": 1.9650954630023547,
     "lc_fit": {
-     "L_nH": 1.7363349173405989,
-     "C_pF": 28.08729284531202,
-     "f_resonance_MHz": 720.689908739354,
+     "L_nH": 1.8839982558660866,
+     "C_pF": 26.143173018376203,
+     "f_resonance_MHz": 717.1346961361781,
      "fit_band_Hz": [
       20020716.545070525,
       247260902.2052966
      ],
-     "rel_residual": 0.0018262134748615786
+     "rel_residual": 0.015150453449304309
     },
     "L_nH_from_record_fraction": {
-     "0.50": 1.8019130353877526,
-     "0.75": 1.8023810503015019,
-     "1.00": 1.8017564212596626
+     "0.50": 1.9832992241216965,
+     "0.75": 1.9480469118456205,
+     "1.00": 1.9650955205335077
     },
-    "L_nH_spread": 0.060317128692314724,
-    "R_mOhm_at_100MHz": -0.711848328313532,
+    "L_nH_spread": 0.056830367898750095,
+    "R_mOhm_at_100MHz": -6.088424781165351,
     "min_cell_mm": {
-     "x": 0.170372094636015,
-     "y": 0.13053200000000054,
+     "x": 0.12836624999999913,
+     "y": 0.12577124999999967,
      "z": 0.03325553426198491
     },
-    "cells": 1252440,
-    "mesh": "120x147x71",
-    "final_energy_dB": "-30.46",
-    "dropped_primitives": 4,
-    "workdir": "/home/sequoia/pcb/servodrive/sim/work/s/openems/p7_cellA_loop_s0.2"
+    "cells": 1271470,
+    "mesh": "121x148x71",
+    "final_energy_dB": "-42.10",
+    "dropped_primitives": 5,
+    "workdir": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/openems/p7_cellA_loop_s0.2"
    },
    "half_width": {
     "snapped": true,
@@ -693,119 +693,117 @@
     "min_step_mm": 0.2,
     "step_used_x_mm": 0.2,
     "step_used_y_mm": 0.2,
-    "fixed_lines_x": 97,
-    "fixed_lines_y": 120,
+    "fixed_lines_x": 100,
+    "fixed_lines_y": 121,
     "res_mm": 0.3,
-    "polys": 215,
+    "polys": 266,
     "barrels": 61,
-    "barrel_shadowed_polys": 158,
-    "L_nH": 4.17256025613569,
-    "L_band_mean_nH": 5.3230540196337,
+    "barrel_shadowed_polys": 154,
+    "L_nH": 4.003201591687149,
+    "L_band_mean_nH": 4.784478450518737,
     "lc_fit": {
-     "L_nH": 4.17256025613569,
-     "C_pF": 58.439476183404324,
-     "f_resonance_MHz": 322.3039780543941,
+     "L_nH": 4.003201591687149,
+     "C_pF": 48.45812257721573,
+     "f_resonance_MHz": 361.3542019536016,
      "fit_band_Hz": [
       20020716.545070525,
       247260902.2052966
      ],
-     "rel_residual": 0.008380940374587746
+     "rel_residual": 0.024539415410600916
     },
     "L_nH_from_record_fraction": {
-     "0.50": 5.318593443342243,
-     "0.75": 5.3505423994116565,
-     "1.00": 5.323053382090421
+     "0.50": 4.904938914364995,
+     "0.75": 4.7813318450869815,
+     "1.00": 4.784478324454435
     },
-    "L_nH_spread": 1.4019270823569434,
-    "R_mOhm_at_100MHz": 0.49717642233275144,
+    "L_nH_spread": 0.8515176388751271,
+    "R_mOhm_at_100MHz": -43.205487263828104,
     "min_cell_mm": {
-     "x": 0.170372094636015,
-     "y": 0.13053200000000054,
+     "x": 0.12836624999999913,
+     "y": 0.12577124999999967,
      "z": 0.03325553426198491
     },
-    "cells": 1252440,
-    "mesh": "120x147x71",
-    "final_energy_dB": "-42.33",
-    "dropped_primitives": 4,
-    "workdir": "/home/sequoia/pcb/servodrive/sim/work/s/openems/p7_cellA_loop_h0.2"
+    "cells": 1271470,
+    "mesh": "121x148x71",
+    "final_energy_dB": "-40.82",
+    "dropped_primitives": 5,
+    "workdir": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/openems/p7_cellA_loop_h0.2"
    },
-   "L_ideal_short_nH": -0.6998904214544925,
-   "bridge_term_nH": 2.4362253387950914,
+   "L_ideal_short_nH": -0.23520507995497564,
+   "bridge_term_nH": 2.1192033358210622,
    "note": "L(w) = L0 + k/w: halving the bridge width doubles the strip's own term and leaves the loop unchanged, so L0 = 2*L1 - L2 is the loop with the ideal short the PEEC model assumes."
   },
-  "L2_openems_nH": 1.6997645655854814,
-  "L2_spread_nH": 0.055229094948719866,
+  "L2_openems_nH": 1.7603468121617332,
+  "L2_spread_nH": 0.04899201173542587,
   "L2_lc_fit": {
-   "L_nH": 1.6997645655854814,
-   "C_pF": 27.182526805912268,
-   "f_resonance_MHz": 740.4245898528803,
+   "L_nH": 1.7603468121617332,
+   "C_pF": 19.573578400109692,
+   "f_resonance_MHz": 857.4047747865307,
    "fit_band_Hz": [
     20020716.545070525,
     247260902.2052966
    ],
-   "rel_residual": 0.0012693907357101816
+   "rel_residual": 0.010443089712280248
   },
-  "R_mOhm_at_100MHz": -2.3489722147295815,
-  "workdir": "/home/sequoia/pcb/servodrive/sim/work/s/openems/p7_cellA_loop_s0.1",
+  "R_mOhm_at_100MHz": 2.372239070115726,
+  "workdir": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/openems/p7_cellA_loop_s0.1",
   "diagnostics": {
-   "cells": 3596290,
-   "mesh": "201x252x71",
-   "final_energy_dB": "-29.55",
-   "dropped_primitives": 2
+   "cells": 3757320,
+   "mesh": "210x252x71",
+   "final_energy_dB": "-40.76",
+   "dropped_primitives": 1
   },
-  "last_refinement_change": 0.01671795010951012,
+  "last_refinement_change": 0.02653344662816301,
   "convergence_tests": {
    "one_L_and_one_C_describe_the_port": true,
-   "lc_fit_residual": 0.0012693907357101816,
+   "lc_fit_residual": 0.010443089712280248,
    "last_refinement_under_10pct": true,
    "no_dropped_primitives": true,
    "record_long_enough": true,
-   "residual_energy_dB": -29.55
+   "residual_energy_dB": -40.76
   },
   "converged": true,
-  "ratio_L2_over_L1": 0.6720406589657049,
-  "agreement_raw_pct": 32.795934103429516,
+  "ratio_L2_over_L1": 0.6342042319548067,
+  "agreement_raw_pct": 36.579576804519334,
   "compared_on": "the FDTD value with the device strip de-embedded",
-  "L2_for_comparison_nH": -0.6998904214544925,
-  "agreement_pct": 127.67176287593975,
+  "L2_for_comparison_nH": -0.23520507995497564,
+  "agreement_pct": 108.47378800893976,
   "pass_25pct": false,
-  "note": "The two solvers approach this loop from opposite sides, and the mechanism is different at each end.  A uniform FDTD mesh reads low until its cells are inside the board's 0.40 mm clearances -- there are no nets in FDTD, only metal, so a cell that spans a clearance joins VBUS to GND -- and it climbs from 0.59 nH at 0.55 mm to 1.74 nH at 0.20 mm as that stops happening.  Snapping the mesh to the copper reaches the same place without the uniform cost: 1.70 nH, moving 1.7 % on the last refinement.  FastHenry falls down its own series, 3.26 nH at 1.8 mm to 2.53 nH at 0.62 mm, because a filament grid that coarse cannot let the return current concentrate under a leg running 0.4 mm above it, which is most of what sets this loop, and it is still falling 8 % per refinement.  The figure quoted for FastHenry here is the converged end of that sweep, 0.62 mm at 1 MHz, not the production run's 1.2 mm grid; the production model's own frequency sweep falls about 3 % between 1 MHz and 100 MHz, which is the band the FDTD extraction sits in, so the comparison is fair to within a few per cent either way.  Neither solver had been run to its own convergence before this.",
-  "seconds": 11080.6
+  "note": "The two solvers approach this loop from opposite sides, and the mechanism is different at each end.  A uniform FDTD mesh reads low until its cells are inside the board's 0.40 mm clearances -- there are no nets in FDTD, only metal, so a cell that spans a clearance joins VBUS to GND -- and it climbs from 0.67 nH at 0.55 mm to 1.82 nH at 0.20 mm as that stops happening.  Snapping the mesh to the copper reaches the same place without the uniform cost: 1.76 nH, moving 2.7 % on the last refinement.  FastHenry falls down its own series, 4.67 nH at 1.8 mm to 2.78 nH at 0.62 mm, because a filament grid that coarse cannot let the return current concentrate under a leg running 0.4 mm above it, which is most of what sets this loop, and it is still falling 16 % per refinement.  The figure quoted for FastHenry here is the converged end of that sweep, 0.62 mm at 1 MHz, not the production run's 1.2 mm grid; the production model's own frequency sweep falls about 3 % between 1 MHz and 100 MHz, which is the band the FDTD extraction sits in, so the comparison is fair to within a few per cent either way.  Neither solver had been run to its own convergence before this.",
+  "seconds": 4292.4
  },
  "Q11": {
   "question": "Q11",
   "far_field": {
    "1e+05": {
-    "E_at_3m_V_per_m": 3.527156862604303e-18,
+    "E_at_3m_V_per_m": 3.741784246656802e-18,
     "dBuV_per_m": -120.0,
-    "Dmax": -3.4769680185442925e-09
+    "Dmax": -3.5552138880025796e-09
    },
    "1e+06": {
-    "E_at_3m_V_per_m": 3.527805281819309e-17,
+    "E_at_3m_V_per_m": 3.742455785226311e-17,
     "dBuV_per_m": -120.0,
-    "Dmax": -3.4782657265145586e-07
+    "Dmax": -3.556449337293278e-07
    },
    "2e+07": {
-    "E_at_3m_V_per_m": 7.598338149149869e-16,
+    "E_at_3m_V_per_m": 8.049104818256686e-16,
     "dBuV_per_m": -120.0,
-    "Dmax": -0.00016236965184926913
+    "Dmax": -0.0001643214631289378
    },
    "1.18e+08": {
-    "E_at_3m_V_per_m": 1.6689668545170692e-14,
+    "E_at_3m_V_per_m": 1.7686448853630523e-14,
     "dBuV_per_m": -120.0,
-    "Dmax": 0.02814126697720835
+    "Dmax": 0.04169540486091483
    },
    "3e+08": {
-    "E_at_3m_V_per_m": 6.647452515565473e-14,
+    "E_at_3m_V_per_m": 7.334732788661571e-14,
     "dBuV_per_m": -120.0,
-    "Dmax": 0.11720305490930491
+    "Dmax": 0.2691592501767257
    }
   },
-  "workdir": "/home/sequoia/pcb/servodrive/sim/work/s/openems/p7_board_nf",
+  "workdir": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/openems/p7_board_nf",
   "diagnostics": {
-   "dropped_primitives": 381,
-   "final_energy": 7.14e-13,
-   "final_energy_dB": "-33.60",
+   "dropped_primitives": 373,
    "mesh": "79x78x67",
    "cells": 412854
   },
@@ -827,13 +825,13 @@
    "230-1000 MHz": 47.0,
    "note": "quasi-peak limits at 3 m.  This simulation drives the switch node with a 1 V port, not with the real 60 V edge, so the absolute level has to be scaled by the real excitation and by the duty cycle of the harmonic in question; what it is good for is the shape of the spectrum and the relative effect of a lead."
   },
-  "seconds": 40.8
+  "seconds": 40.6
  },
  "_phase": {
-  "seconds": 11121.4
+  "seconds": 4333.0
  },
  "_meta": {
-  "written": "2026-09-27T00:09:01",
-  "board_mtime": "2026-09-26T18:52:53"
+  "written": "2026-09-29T10:09:09",
+  "board_mtime": "2026-09-29T07:50:46"
  }
 }

@@ -17,15 +17,15 @@
   "pcbnew": "ok"
  },
  "geometry": {
-  "zones": 228,
-  "pads": 727,
-  "through_pads": 141,
-  "tracks": 1958,
-  "vias": 418,
-  "parts": 194,
+  "zones": 295,
+  "pads": 735,
+  "through_pads": 149,
+  "tracks": 2241,
+  "vias": 444,
+  "parts": 198,
   "nets": 112,
   "stackup_total_mm": 1.580001,
-  "file": "/home/sequoia/pcb/servodrive/sim/work/s/geometry.json"
+  "file": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/sim/work/s/geometry.json"
  },
  "figures": [
   "extract_board.png",
@@ -68,7 +68,7 @@
    "status": "PASS",
    "tolerance": 0.03,
    "description": "straight wire, l = 20 mm, d = 1 mm -- partial self inductance and R_dc",
-   "seconds": 0.0
+   "seconds": 0.21
   },
   "fasthenry_strip_over_plane": {
    "L_nH": 0.4870602807946964,
@@ -101,7 +101,7 @@
    "status": "PASS",
    "tolerance": 0.35,
    "description": "15.4 x 5 mm strip, 70 um, 0.1 mm over a wide plane -- geometry.commutation_loop()'s PCB term",
-   "seconds": 0.0
+   "seconds": 0.89
   },
   "fasthenry_two_wire_loop": {
    "L_loop_nH": 45.55364612164847,
@@ -115,7 +115,7 @@
    "status": "PASS",
    "tolerance": 0.03,
    "description": "two parallel wires, loop inductance vs Grover's partial-inductance forms",
-   "seconds": 0.0
+   "seconds": 0.42
   },
   "fastcap_plates": {
    "C_pF": 40.57,
@@ -143,7 +143,7 @@
    "status": "PASS",
    "tolerance": 0.1,
    "description": "10 x 10 mm plates at 0.1 mm in eps_r 4.5 -- 39.8 pF plus fringing",
-   "seconds": 0.16
+   "seconds": 0.15
   },
   "ngspice_rlc": {
    "f_ring_MHz": 110.76713651617375,
@@ -199,33 +199,33 @@
    "seconds": 0.0
   },
   "conduction_strip": {
-   "R_mOhm": 4.966750439182986,
+   "R_mOhm": 4.966750486570085,
    "R_analytic_mOhm": 5.022906403940887,
-   "err_at_0p05mm": -0.011179974349878734,
+   "err_at_0p05mm": -0.011179964915679559,
    "convergence": [
     {
      "cell_mm": 0.2,
      "n": 1110,
-     "R_mOhm": 4.8513949370984815,
-     "err": -0.03414586158878854
+     "R_mOhm": 4.851394937318059,
+     "err": -0.03414586154507342
     },
     {
      "cell_mm": 0.1,
      "n": 4221,
-     "R_mOhm": 4.911287495573124,
-     "err": -0.02222197655926629
+     "R_mOhm": 4.911287484179155,
+     "err": -0.022221978827667754
     },
     {
      "cell_mm": 0.05,
      "n": 16441,
-     "R_mOhm": 4.966750439182986,
-     "err": -0.011179974349878734
+     "R_mOhm": 4.966750486570085,
+     "err": -0.011179964915679559
     },
     {
      "cell_mm": 0.025,
      "n": 64881,
-     "R_mOhm": 4.9947412998124925,
-     "err": -0.005607332063025612
+     "R_mOhm": 4.994741088079181,
+     "err": -0.005607374216570674
     }
    ],
    "pass": true,
@@ -233,67 +233,67 @@
    "status": "PASS",
    "tolerance": 0.02,
    "description": "rectangular strip -- rho*L/(W*t)",
-   "seconds": 6.22
+   "seconds": 1.09
   },
   "conduction_annulus_radial": {
-   "R_mOhm": 0.12115804871228843,
+   "R_mOhm": 0.12115804587511313,
    "R_analytic_mOhm": 0.12250932472003039,
-   "err": -0.011029984948737677,
+   "err": -0.01103000810758956,
    "convergence": [
     {
      "cell_mm": 0.1,
      "n": 30434,
-     "R_mOhm": 0.11980096413328073,
-     "err": -0.022107383196659128
+     "R_mOhm": 0.11980096510027827,
+     "err": -0.022107375303402448
     },
     {
      "cell_mm": 0.05,
      "n": 121155,
-     "R_mOhm": 0.12115804871228843,
-     "err": -0.011029984948737677
+     "R_mOhm": 0.12115804587511313,
+     "err": -0.01103000810758956
     }
    ],
    "pass": true,
    "status": "PASS",
    "tolerance": 0.02,
    "description": "annular sector, radial flow -- R = rho*ln(r2/r1)/(t*theta)",
-   "seconds": 5.22
+   "seconds": 1.53
   },
   "conduction_annulus_tangential": {
-   "R_mOhm": 1.451424625485015,
+   "R_mOhm": 1.4514246621440385,
    "R_analytic_mOhm": 1.4540638096289062,
-   "err": -0.0018150401147559688,
+   "err": -0.0018150149033289,
    "convergence": [
     {
      "cell_mm": 0.1,
      "n": 21243,
-     "R_mOhm": 1.44894740192179,
-     "err": -0.003518695447362785
+     "R_mOhm": 1.4489473584205643,
+     "err": -0.0035187253643618444
     },
     {
      "cell_mm": 0.05,
      "n": 84347,
-     "R_mOhm": 1.451424625485015,
-     "err": -0.0018150401147559688
+     "R_mOhm": 1.4514246621440385,
+     "err": -0.0018150149033289
     }
    ],
    "pass": true,
    "status": "PASS",
    "tolerance": 0.02,
    "description": "annular sector, tangential flow -- R = rho*theta/(t*ln(r2/r1))",
-   "seconds": 6.71
+   "seconds": 1.14
   },
   "conduction_via_barrel": {
-   "R_total_mOhm": 0.947111790504839,
+   "R_total_mOhm": 0.9471112409553176,
    "R_barrel_analytic_mOhm": 0.09911612116288081,
-   "barrel_current_A": 0.9999832700254585,
+   "barrel_current_A": 0.9999826897979432,
    "n_barrels": 1,
    "pass": true,
    "note": "all the current must go through the single barrel; the test is that it does, and that its conductance is sigma_plated*A/d with A the annulus of the plating",
    "status": "PASS",
    "tolerance": 0.03,
    "description": "one 0.4 mm plated barrel between two planes -- rho_plated*d/A",
-   "seconds": 1.11
+   "seconds": 0.24
   },
   "openems_microstrip": {
    "Z0_ohm": 46.9722827407346,
@@ -320,19 +320,19 @@
    "status": "PASS",
    "tolerance": 0.05,
    "description": "0.2 mm microstrip on 0.1 mm eps_r 4.5 -- Hammerstad/Wheeler closed form",
-   "seconds": 1353.54
+   "seconds": 887.83
   },
   "openems_strip_over_plane": {
-   "L_nH": 0.5056211083183082,
-   "L_nH_spread": 0.0049111811887713845,
+   "L_nH": 0.5056202858989619,
+   "L_nH_spread": 0.004912036704623288,
    "L_fasthenry_nH": 0.4870602807946964,
-   "err_vs_fasthenry": 0.03810786519756372,
+   "err_vs_fasthenry": 0.03810617666047966,
    "pass": true,
    "note": "SPEC.md sec.5.4 wants L2 within 10 percent of L1 on this case; it is the only direct comparison of the two solvers on a geometry with a closed form nearby.",
    "status": "PASS",
    "tolerance": 0.1,
    "description": "the FastHenry strip-over-plane, cross-checked full wave",
-   "seconds": 4.5
+   "seconds": 4.46
   }
  },
  "gate": {
@@ -342,10 +342,10 @@
   "failed": []
  },
  "_phase": {
-  "seconds": 1379.5
+  "seconds": 899.9
  },
  "_meta": {
-  "written": "2026-09-26T19:16:18",
-  "board_mtime": "2026-09-26T18:52:53"
+  "written": "2026-09-29T08:07:31",
+  "board_mtime": "2026-09-29T07:50:46"
  }
 }

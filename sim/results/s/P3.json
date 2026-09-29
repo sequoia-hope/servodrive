@@ -11,93 +11,93 @@
   },
   "per_cell": {
    "A": {
-    "R_copper_error_Ohm": 3.0000609198427327e-05,
+    "R_copper_error_Ohm": 3.000060814800131e-05,
     "R_shunt_Ohm": 0.001,
-    "R_tap_to_tap_Ohm": 0.0010300006091984273,
-    "R_tap_to_tap_125C_Ohm": 0.0010690636304064173,
-    "copper_share": 0.02912678781983883,
-    "TCR_pct_per_K": 0.03792524087766301,
+    "R_tap_to_tap_Ohm": 0.0010300006081480012,
+    "R_tap_to_tap_125C_Ohm": 0.001069063640131992,
+    "copper_share": 0.029126786829712734,
+    "TCR_pct_per_K": 0.0379252513784708,
     "TCR_pct_per_K_bracket": [
-     -0.015472785792245997,
-     0.03792524087766301
+     -0.015472775345895142,
+     0.0379252513784708
     ],
     "pass_copper_share": true,
     "pass_TCR": true,
     "per_side": {
      "sw": {
-      "R_error_Ohm": 1.5878492551542863e-08,
-      "R_drain_to_shunt_Ohm": 0.000298818827901992,
+      "R_error_Ohm": 1.5878648317407577e-08,
+      "R_drain_to_shunt_Ohm": 0.00029882173442083107,
       "nodes": 62107
      },
      "phase": {
-      "R_error_Ohm": 2.9984730705875784e-05,
-      "R_shunt_to_lead_Ohm": 2.998847601076116e-05,
-      "nodes": 39500
+      "R_error_Ohm": 2.99847294996839e-05,
+      "R_shunt_to_lead_Ohm": 2.998847480441818e-05,
+      "nodes": 39498
      }
     }
    },
    "B": {
-    "R_copper_error_Ohm": 3.0078526129114975e-05,
+    "R_copper_error_Ohm": 3.0078523003436416e-05,
     "R_shunt_Ohm": 0.001,
-    "R_tap_to_tap_Ohm": 0.001030078526129115,
-    "R_tap_to_tap_125C_Ohm": 0.001069171569985416,
-    "copper_share": 0.02920022635764061,
-    "TCR_pct_per_K": 0.03795151812668784,
+    "R_tap_to_tap_Ohm": 0.0010300785230034364,
+    "R_tap_to_tap_125C_Ohm": 0.001069171568780546,
+    "copper_share": 0.029200223411837967,
+    "TCR_pct_per_K": 0.037951520106568756,
     "TCR_pct_per_K_bracket": [
-     -0.015442469423642071,
-     0.03795151812668784
+     -0.0154424676057803,
+     0.037951520106568756
     ],
     "pass_copper_share": true,
     "pass_TCR": true,
     "per_side": {
      "sw": {
-      "R_error_Ohm": 1.5635658251739646e-08,
-      "R_drain_to_shunt_Ohm": 0.00029812290468012086,
-      "nodes": 61933
+      "R_error_Ohm": 1.56532882127091e-08,
+      "R_drain_to_shunt_Ohm": 0.0002984220012455447,
+      "nodes": 61905
      },
      "phase": {
-      "R_error_Ohm": 3.0062890470863236e-05,
-      "R_shunt_to_lead_Ohm": 3.006932677056865e-05,
+      "R_error_Ohm": 3.0062869715223706e-05,
+      "R_shunt_to_lead_Ohm": 3.006930601048297e-05,
       "nodes": 39591
      }
     }
    },
    "C": {
-    "R_copper_error_Ohm": 3.0200138948660207e-05,
+    "R_copper_error_Ohm": 3.0200160808384965e-05,
     "R_shunt_Ohm": 0.0,
-    "R_tap_to_tap_Ohm": 3.0200138948660207e-05,
-    "R_tap_to_tap_125C_Ohm": 4.1840057240156794e-05,
+    "R_tap_to_tap_Ohm": 3.0200160808384965e-05,
+    "R_tap_to_tap_125C_Ohm": 4.184006305691039e-05,
     "copper_share": 1.0,
-    "TCR_pct_per_K": 0.38542598467127176,
+    "TCR_pct_per_K": 0.3854251744677348,
     "TCR_pct_per_K_bracket": [
-     0.38542598467127176,
-     0.38542598467127176
+     0.3854251744677348,
+     0.3854251744677348
     ],
     "pass_copper_share": null,
     "pass_TCR": null,
     "per_side": {
      "sw": {
-      "R_error_Ohm": 1.638520805923918e-08,
-      "R_drain_to_shunt_Ohm": 0.00029733477053997195,
-      "nodes": 62023
+      "R_error_Ohm": 1.6385999291240147e-08,
+      "R_drain_to_shunt_Ohm": 0.00029734836699353296,
+      "nodes": 62022
      },
      "phase": {
-      "R_error_Ohm": 3.018375374060097e-05,
-      "R_shunt_to_lead_Ohm": 3.0188436190266554e-05,
+      "R_error_Ohm": 3.0183774809093724e-05,
+      "R_shunt_to_lead_Ohm": 3.0188457262027697e-05,
       "nodes": 39640
      }
     },
     "note": "cell C carries 0 Ohm links instead of shunts (SPEC.md sec.1.5), so all of its tap-to-tap resistance is copper.  It is not a current sense at all -- I_c is inferred as -(I_a + I_b) -- so the copper-share and TCR criteria do not apply to it; the number is here only to show what a tap on bare copper would read."
    }
   },
-  "seconds": 20.3
+  "seconds": 19.8
  },
  "Q6_sharing": {
-  "R_path_to_shunt1_Ohm": 0.0002792660057914765,
-  "R_path_to_shunt2_Ohm": 0.0004100689885318744,
-  "share_shunt1": 0.5139468584456794,
-  "share_shunt2": 0.4860531415543205,
-  "imbalance_pct": 5.578743378271783,
+  "R_path_to_shunt1_Ohm": 0.0002792667589554301,
+  "R_path_to_shunt2_Ohm": 0.00041007077876318334,
+  "share_shunt1": 0.5139469614583759,
+  "share_shunt2": 0.4860530385416241,
+  "imbalance_pct": 5.578784583350361,
   "pass": true
  },
  "Q7": {
@@ -120,37 +120,37 @@
       "connected": 20,
       "n": 20,
       "main_area_mm2": 20.07,
-      "pieces": 7
+      "pieces": 8
      },
      "In1.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 0.47,
-      "pieces": 20
+      "main_area_mm2": 2.18,
+      "pieces": 21
      },
      "In2.Cu": {
       "connected": 20,
       "n": 20,
-      "main_area_mm2": 342.96,
-      "pieces": 1
+      "main_area_mm2": 342.66,
+      "pieces": 2
      },
      "In3.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 0.47,
-      "pieces": 20
+      "main_area_mm2": 2.18,
+      "pieces": 21
      },
      "In4.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 0.47,
-      "pieces": 20
+      "main_area_mm2": 2.18,
+      "pieces": 21
      },
      "B.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 0.47,
-      "pieces": 20
+      "main_area_mm2": 2.18,
+      "pieces": 21
      }
     },
     "connected_on_F_Cu": 20,
@@ -212,37 +212,37 @@
       "connected": 20,
       "n": 20,
       "main_area_mm2": 20.07,
-      "pieces": 6
+      "pieces": 7
      },
      "In1.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 0.47,
-      "pieces": 21
+      "main_area_mm2": 2.5,
+      "pieces": 22
      },
      "In2.Cu": {
       "connected": 20,
       "n": 20,
-      "main_area_mm2": 322.37,
+      "main_area_mm2": 330.44,
       "pieces": 2
      },
      "In3.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 0.47,
-      "pieces": 21
+      "main_area_mm2": 2.5,
+      "pieces": 22
      },
      "In4.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 0.47,
-      "pieces": 21
+      "main_area_mm2": 2.5,
+      "pieces": 22
      },
      "B.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 0.47,
-      "pieces": 21
+      "main_area_mm2": 2.5,
+      "pieces": 22
      }
     },
     "connected_on_F_Cu": 20,
@@ -287,7 +287,7 @@
      "B.Cu": {
       "connected": 16,
       "n": 16,
-      "main_area_mm2": 70.95,
+      "main_area_mm2": 70.88,
       "pieces": 1
      }
     },
@@ -304,37 +304,37 @@
       "connected": 20,
       "n": 20,
       "main_area_mm2": 20.07,
-      "pieces": 6
+      "pieces": 7
      },
      "In1.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 3.94,
-      "pieces": 21
+      "main_area_mm2": 2.5,
+      "pieces": 22
      },
      "In2.Cu": {
       "connected": 20,
       "n": 20,
-      "main_area_mm2": 343.85,
-      "pieces": 2
+      "main_area_mm2": 343.62,
+      "pieces": 1
      },
      "In3.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 3.94,
-      "pieces": 21
+      "main_area_mm2": 2.5,
+      "pieces": 22
      },
      "In4.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 3.94,
-      "pieces": 21
+      "main_area_mm2": 2.5,
+      "pieces": 22
      },
      "B.Cu": {
       "connected": 0,
       "n": 20,
-      "main_area_mm2": 3.94,
-      "pieces": 21
+      "main_area_mm2": 2.5,
+      "pieces": 22
      }
     },
     "connected_on_F_Cu": 20,
@@ -379,7 +379,7 @@
      "B.Cu": {
       "connected": 16,
       "n": 16,
-      "main_area_mm2": 72.43,
+      "main_area_mm2": 72.42,
       "pieces": 1
      }
     },
@@ -389,43 +389,43 @@
    }
   },
   "phase_A": {
-   "R_lead_to_shunt_Ohm": 2.9988438371956223e-05,
-   "P_phase_pour_W": 0.023990152158654285,
+   "R_lead_to_shunt_Ohm": 2.9988107209620106e-05,
+   "P_phase_pour_W": 0.023989622308754347,
    "phase_current_density": {
-    "A_per_mm_max": 8.12609963538509,
-    "A_per_mm_p999": 5.200459091727018,
-    "A_per_mm_p99": 4.497961257627571,
-    "A_per_mm2_p999": 74.2922727389574,
+    "A_per_mm_max": 8.1260098884519,
+    "A_per_mm_p999": 5.200441579226533,
+    "A_per_mm_p99": 4.497912711106821,
+    "A_per_mm2_p999": 74.29202256037904,
     "note": "p99.9 is the number to compare with a width rule; the maximum is a single cell at a corner and grows without limit as the grid is refined"
    },
-   "J_max_phase_A_per_mm2": 116.08713764835842,
-   "R_hi_source_to_shunt_Ohm": 0.0007616105718041238,
-   "P_sw_node_W": 0.6092770918778496,
+   "J_max_phase_A_per_mm2": 116.08585554931285,
+   "R_hi_source_to_shunt_Ohm": 0.0007616102918608749,
+   "P_sw_node_W": 0.6092766439770696,
    "low_side_via_array": {
     "n": 16,
-    "I_max_A": 4.007136578314531,
-    "I_min_A": 0.7519356328989266,
-    "I_mean_A": 1.7677513312695152,
-    "spread_pct": 184.14360028103465,
-    "I_rms_per_via_A": 2.8334734476668637,
+    "I_max_A": 4.0071351054214635,
+    "I_min_A": 0.7519353565115361,
+    "I_mean_A": 1.7677506815015347,
+    "spread_pct": 184.14360028106154,
+    "I_rms_per_via_A": 2.8334724061741876,
     "pass_2A_rms": false
    },
    "sw_current_density_F_Cu": {
-    "A_per_mm_max": 21.467849099074378,
-    "A_per_mm_p999": 13.863806009626359,
-    "A_per_mm_p99": 10.215266946444208,
-    "A_per_mm2_p999": 198.05437156609082,
+    "A_per_mm_max": 21.467841208192134,
+    "A_per_mm_p999": 13.863800913742615,
+    "A_per_mm_p99": 10.215263191644755,
+    "A_per_mm2_p999": 198.05429876775162,
     "note": "p99.9 is the number to compare with a width rule; the maximum is a single cell at a corner and grows without limit as the grid is refined"
    },
    "sw_current_density_B_Cu": {
-    "A_per_mm_max": 23.98637281628732,
-    "A_per_mm_p999": 13.682569110235182,
-    "A_per_mm_p99": 9.678326501387103,
-    "A_per_mm2_p999": 195.46527300335973,
+    "A_per_mm_max": 23.98636399967774,
+    "A_per_mm_p999": 13.682564080968696,
+    "A_per_mm_p99": 9.678322943949814,
+    "A_per_mm2_p999": 195.46520115669563,
     "note": "p99.9 is the number to compare with a width rule; the maximum is a single cell at a corner and grows without limit as the grid is refined"
    },
-   "R_gnd_source_to_header_Ohm": 0.0004842722386173781,
-   "P_gnd_W": 0.3874101340219372
+   "R_gnd_source_to_header_Ohm": 0.0005281839471699099,
+   "P_gnd_W": 0.42253880730613674
   },
   "vbus": {
    "current_A": 28.284,
@@ -433,85 +433,85 @@
     "J4"
    ],
    "Q1": {
-    "R_header_to_drain_Ohm": 0.0058966522259571354,
-    "P_at_28A_W": 4.717231302533953,
-    "P_at_20A_rms_W": 2.358660890382854,
+    "R_header_to_drain_Ohm": 0.006227296398008843,
+    "P_at_28A_W": 4.981741566771143,
+    "P_at_20A_rms_W": 2.4909185592035374,
     "via_array": {
      "n": 20,
-     "I_max_A": 2.935970091862585,
-     "I_min_A": 0.6495059023372973,
-     "I_mean_A": 1.32049554619894,
-     "spread_pct": 173.15198041423906,
-     "I_rms_per_via_A": 2.0760443613169244,
+     "I_max_A": 2.9518644845136937,
+     "I_min_A": 0.644862520723787,
+     "I_mean_A": 1.3194887018213035,
+     "spread_pct": 174.84060004496655,
+     "I_rms_per_via_A": 2.0872833941433653,
      "pass_2A_rms": false
     },
     "In2_current_density": {
-     "A_per_mm_max": 26.131574456554556,
-     "A_per_mm_p999": 9.30771590278748,
-     "A_per_mm_p99": 6.469764397632404,
-     "A_per_mm2_p999": 265.93474007964227,
+     "A_per_mm_max": 26.048471589772554,
+     "A_per_mm_p999": 11.650856978464047,
+     "A_per_mm_p99": 7.156080824062113,
+     "A_per_mm2_p999": 332.8816279561156,
      "note": "p99.9 is the number to compare with a width rule; the maximum is a single cell at a corner and grows without limit as the grid is refined"
     }
    },
    "Q3": {
-    "R_header_to_drain_Ohm": 0.004260220936647757,
-    "P_at_28A_W": 3.4081113804881538,
-    "P_at_20A_rms_W": 1.704088374659103,
+    "R_header_to_drain_Ohm": 0.004223305477212691,
+    "P_at_28A_W": 3.3785795793709106,
+    "P_at_20A_rms_W": 1.6893221908850766,
     "via_array": {
      "n": 20,
-     "I_max_A": 2.9320382689844933,
-     "I_min_A": 0.6532188650310036,
-     "I_mean_A": 1.3181384029533623,
-     "spread_pct": 172.8816487591643,
-     "I_rms_per_via_A": 2.0732641426974014,
+     "I_max_A": 2.9696670420359625,
+     "I_min_A": 0.6430290228697159,
+     "I_mean_A": 1.3185984388748513,
+     "spread_pct": 176.4478062898017,
+     "I_rms_per_via_A": 2.099871703289825,
      "pass_2A_rms": false
     }
    },
    "Q5": {
-    "R_header_to_drain_Ohm": 0.002617510227484988,
-    "P_at_28A_W": 2.0939680189110597,
-    "P_at_20A_rms_W": 1.047004090993995,
+    "R_header_to_drain_Ohm": 0.002608032466707936,
+    "P_at_28A_W": 2.0863859557161795,
+    "P_at_20A_rms_W": 1.0432129866831743,
     "via_array": {
      "n": 20,
-     "I_max_A": 2.917473990409687,
-     "I_min_A": 0.6413960647406312,
-     "I_mean_A": 1.3136383316332376,
-     "spread_pct": 173.2651880551646,
-     "I_rms_per_via_A": 2.062965642554066,
+     "I_max_A": 2.9471044395079438,
+     "I_min_A": 0.6451784651091975,
+     "I_mean_A": 1.3144581204158579,
+     "spread_pct": 175.12356906970007,
+     "I_rms_per_via_A": 2.083917534041046,
      "pass_2A_rms": false
     }
    }
   },
-  "seconds": 25.4
+  "seconds": 26.3
  },
  "convergence": [
   {
    "cell_mm": 0.12,
-   "R_lead_to_shunt_Ohm": 3.1870842777381457e-05,
-   "J_max_phase_A_per_mm2": 87.4341189397029,
-   "sheet_p999_A_per_mm": 5.29052829765401,
-   "sheet_p99_A_per_mm": 4.540843316599863
+   "R_lead_to_shunt_Ohm": 3.187084434972737e-05,
+   "J_max_phase_A_per_mm2": 87.43412325325949,
+   "sheet_p999_A_per_mm": 5.290528558661878,
+   "sheet_p99_A_per_mm": 4.540843540622064
   },
   {
    "cell_mm": 0.08,
-   "R_lead_to_shunt_Ohm": 3.092595421475247e-05,
-   "J_max_phase_A_per_mm2": 97.48410670000628,
-   "sheet_p999_A_per_mm": 5.244952596785491,
-   "sheet_p99_A_per_mm": 4.533493040761379
+   "R_lead_to_shunt_Ohm": 3.092597424877001e-05,
+   "J_max_phase_A_per_mm2": 97.48416985107279,
+   "sheet_p999_A_per_mm": 5.244955994497054,
+   "sheet_p99_A_per_mm": 4.533495977585928
   },
   {
    "cell_mm": 0.05,
-   "R_lead_to_shunt_Ohm": 2.998841733392246e-05,
-   "J_max_phase_A_per_mm2": 116.08705620880266,
-   "sheet_p999_A_per_mm": 5.200455443406559,
-   "sheet_p99_A_per_mm": 4.497958102136116
+   "R_lead_to_shunt_Ohm": 2.9988295404213818e-05,
+   "J_max_phase_A_per_mm2": 116.08658406250389,
+   "sheet_p999_A_per_mm": 5.200474215330905,
+   "sheet_p99_A_per_mm": 4.497940938391986
   }
  ],
  "_phase": {
-  "seconds": 84.1
+  "seconds": 84.5
  },
  "_meta": {
-  "written": "2026-09-26T21:00:48",
-  "board_mtime": "2026-09-26T18:52:53"
+  "written": "2026-09-29T08:54:36",
+  "board_mtime": "2026-09-29T07:50:46"
  }
 }
