@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>servodrive — Ethernet board</title>
+<link rel="stylesheet" href="style.css">
+<script src="shell.js"></script>
+<style>
+  table.pins td:first-child { white-space: nowrap; color: var(--head); }
+  table.spec td:first-child { white-space: nowrap; color: var(--head); }
+  table.pins, table.spec, table.parts { font-size: .88rem; }
+  .two { display: grid; gap: .75rem 1.5rem; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .bd-wrap { overflow-x: auto; margin: .6rem 0 .2rem; }
+  svg.st { display: block; width: 100%; min-width: 620px; height: auto; }
+  svg.st rect { stroke-width: 1; }
+  svg.st .pcb { fill: #2f6b3a; stroke: #5fa06b; }
+  svg.st .part { fill: var(--raised); stroke: var(--btn); }
+  svg.st .can { fill: #3a4a66; stroke: #6f86b3; }
+  svg.st .rj { fill: #6b6b6b; stroke: #9a9a9a; }
+  svg.st .hdr { fill: #b58a3a; stroke: #d9ad5a; }
+  svg.st text { fill: var(--muted); font: 12px Inter, system-ui, sans-serif; }
+  svg.st text.t { fill: var(--head); font-weight: 600; }
+  svg.st path { fill: none; stroke: var(--dim); stroke-width: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="crumb"><a href="index.html">servodrive</a> &rsaquo; <a href="single.html">board S</a> &rsaquo; Ethernet board</p>
+  <div class="title">
+    <h1>Board E &mdash; Ethernet expansion</h1>
+    <span class="state draft"><span class="dot"></span>planned &middot; not captured</span>
+  </div>
+  <p class="lede">A &Oslash;65&nbsp;mm daughter board that stacks on board S's expansion header, J13, and gives
+  the drive 10/100 Ethernet: a WIZnet W5500 (hardwired TCP/IP, SPI) behind an RJ45 with its
+  magnetics. Decided 2026-09-24; this page is the plan it will be captured and laid out from.</p>
+</header>
+
+<main>
+
+  <section id="decided">
+    <h2>Decided</h2>
+    <ul>
+      <li><strong>W5500, 10/100BASE-TX, one RJ45.</strong> The common RP2040/RP2350 route (WIZnet's own
+      W5500-EVB-Pico). One port per drive: several axes need a switch. EtherCAT (LAN9252, two ports)
+      and 10BASE-T1S multidrop (LAN8651) were the alternatives.</li>
+      <li><strong>&Oslash;65, stacked on J13</strong>, over board S's outward face.</li>
+      <li><strong>The encoder has SPI0.</strong> Board S's encoder moved to hardware SPI0 on
+      GPIO4/5/6 the same day, and the header's SPI pins, GPIO20&ndash;23, are the same SPI0. SPI1's clock
+      exists only on GPIO10, 14 and 26 &mdash; phase B's PWM, GATE_OFF and a current-sense ADC input. So the W5500 is driven by a <strong>PIO SPI</strong> on
+      GPIO20&ndash;23. The RP2350 has three PIO blocks, and the RS-485 OUT port's UART uses part of one.</li>
+    </ul>
+  </section>
+
+  <section id="interface">
+    <h2>Interface: J13</h2>
+    <div class="two">
+      <div>
+        <table class="pins"><thead><tr><th>J13 pin</th><th>Board S</th><th>Board E</th></tr></thead><tbody>
+          <tr><td>1, 3, 5, 7</td><td>VMOT</td><td>not connected (a PD board's pins)</td></tr>
+          <tr><td>2, 4, 6, 8, 10</td><td>GND</td><td>GND</td></tr>
+          <tr><td>9</td><td>RUN</td><td>reset button</td></tr>
+          <tr><td>11</td><td>GPIO24</td><td>W5500 RSTn (10&nbsp;k pull-up)</td></tr>
+          <tr><td>12</td><td>+5V</td><td>its own 3.3&nbsp;V LDO</td></tr>
+          <tr><td>13</td><td>GPIO19</td><td>W5500 INTn (10&nbsp;k pull-up)</td></tr>
+          <tr><td>14</td><td>+3V3</td><td>not connected: one 3.3&nbsp;V rail per board, none back-fed</td></tr>
+          <tr><td>15</td><td>GPIO20</td><td>MISO</td></tr>
+          <tr><td>16</td><td>GPIO21</td><td>SCSn</td></tr>
+          <tr><td>17</td><td>GPIO22</td><td>SCLK</td></tr>
+          <tr><td>18</td><td>GPIO23</td><td>MOSI</td></tr>
+          <tr><td>19, 20</td><td>SWCLK, SWDIO</td><td>brought up to pads on top</td></tr>
+        </tbody></table>
+      </div>
+      <div>
+        <ul>
+          <li><strong>SPI:</strong> the W5500 takes mode 0 or 3 up to 80&nbsp;MHz; a PIO SPI at a few tens of
+          MHz leaves it far from the edge. GPIO20/21 are also I2C0, so an Ethernet board and an I2C
+          device on the header exclude each other.</li>
+          <li><strong>Power:</strong> the W5500 draws 132&nbsp;mA transmitting at 100&nbsp;Mbit/s (datasheet), the
+          jack's two LEDs a few mA more: about 150&nbsp;mA from +5V into an ME6211 LDO (0.26&nbsp;W). Board
+          S's +5V is its 1&nbsp;A logic buck OR'd with USB, so the Ethernet board works on USB power alone.
+          Its own 3.3&nbsp;V spares board S's SPX3819, which already carries the logic.</li>
+          <li><strong>Reachability:</strong> stacked, board E covers board S's BOOTSEL, test pads and SWD
+          pads. Board E carries SWD and RUN pads and a reset button, and a hole over BOOTSEL.</li>
+          <li><strong>Firmware:</strong> a PIO SPI (the pico-examples' <code>pio/spi</code>), INTn on
+          GPIO19 as an interrupt, and WIZnet's ioLibrary (or lwIP with the W5500 in MACRAW). The FOC
+          loop keeps hardware SPI0 for the encoder, undisturbed by network traffic.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="mechanics">
+    <h2>Mechanics</h2>
+    <div class="bd-wrap">
+    <svg class="st" viewBox="0 0 760 210" role="img" aria-labelledby="st-t">
+      <title id="st-t">Side view of the stack: board S, the J13 header and its socket, board E about
+      6 mm above with holes the two bulk cans pass through, and the RJ45 on top at the rim.</title>
+      <rect class="pcb" x="20" y="160" width="720" height="8"/>
+      <text class="t" x="24" y="190">board S, outward face up</text>
+      <rect class="can" x="120" y="96" width="50" height="64"/>
+      <text x="112" y="88">can, 12&ndash;13 mm</text>
+      <rect class="can" x="560" y="96" width="50" height="64"/>
+      <rect class="hdr" x="345" y="148" width="70" height="12"/>
+      <rect class="hdr" x="345" y="128" width="70" height="20"/>
+      <text x="425" y="146">J13 + 4.3 mm socket</text>
+      <rect class="pcb" x="20" y="120" width="92" height="8"/>
+      <rect class="pcb" x="178" y="120" width="374" height="8"/>
+      <rect class="pcb" x="618" y="120" width="122" height="8"/>
+      <text class="t" x="200" y="113">board E, about 6 mm up; holes for the cans</text>
+      <rect class="rj" x="630" y="54" width="110" height="66"/>
+      <text x="634" y="48">RJ45 13.5 mm</text>
+      <path d="M 744 160 V 54 M 740 160 h 8 M 740 54 h 8"/>
+      <text x="690" y="205">about 21 mm above board S</text>
+      <rect class="part" x="250" y="146" width="40" height="14"/>
+      <text x="228" y="140">XT30 body</text>
+    </svg>
+    </div>
+    <ul>
+      <li><strong>Height.</strong> Board S's J13 is a 1.27&nbsp;mm SMD male header; the only mating
+      2&nbsp;&times;&nbsp;10 sockets stocked are 4.3&nbsp;mm tall (e.g. HC-PM127-4.3H-2x10PS, C27985222), which puts
+      board E about 6&nbsp;mm above board S. The bulk cans stand 12&ndash;13&nbsp;mm, so board E has a hole for
+      each (&Oslash;10, at R&nbsp;13.3/135&deg; and R&nbsp;15.3/323&deg;). Clearing the cans outright would take a
+      stacking height of 14&nbsp;mm or more and a different J13.</li>
+      <li><strong>The XT30.</strong> Its plug goes in over board S's outward face for the first
+      5&nbsp;mm, on the power wedge's axis (230&deg;): board E needs a notch there, from the jack's face to
+      the edge.</li>
+      <li><strong>The RJ45</strong> (HanRun HR911105A, 16&nbsp;&times;&nbsp;21&nbsp;&times;&nbsp;13.5&nbsp;mm, magnetics and
+      LEDs inside) goes radially at the rim over the <strong>CPU wedge, 256&ndash;308&deg;</strong>: the power
+      wedge has the XT30's plug path, the signal wedge the USB-C's mouth, and over the phase cells
+      the heatsink ring clamps on the lands. Even there C1002's can limits how far in a 21&nbsp;mm jack
+      reaches, so the jack may have to overhang the edge a little.</li>
+      <li><strong>Standoffs.</strong> A 1.27&nbsp;mm header cannot take an RJ45's insertion force. Board E
+      bolts to board S's M2.5 bosses on 6&nbsp;mm standoffs, at least those at 256&deg; and 308&deg; either
+      side of the jack.</li>
+      <li><strong>The heatsink ring</strong>, if fitted, sits on the phase cells' lands under board E; its
+      height is not decided and has to stay under board E's 6&nbsp;mm.</li>
+    </ul>
+  </section>
+
+  <section id="parts">
+    <h2>Parts, and whether they are stocked</h2>
+    <table class="parts num">
+      <thead><tr><th>Part</th><th>What</th><th>LCSC</th><th>JLCPCB stock, 2026-09-24</th></tr></thead>
+      <tbody>
+        <tr><td>W5500</td><td>Ethernet controller, LQFP-48 7&nbsp;&times;&nbsp;7</td><td>C32843</td><td>13,561</td></tr>
+        <tr><td>HR911105A</td><td>RJ45, magnetics and LEDs, through-hole</td><td>C12074</td><td>60,528</td></tr>
+        <tr><td>X322525MSB4SI</td><td>25&nbsp;MHz crystal, 20&nbsp;pF, 3225</td><td>C13740</td><td>24,726</td></tr>
+        <tr><td>ME6211C33M5G-N</td><td>3.3&nbsp;V 500&nbsp;mA LDO, SOT-23-5</td><td>C82942</td><td>82,666</td></tr>
+        <tr><td>HC-PM127-4.3H-2x10PS</td><td>1.27&nbsp;mm 2&nbsp;&times;&nbsp;10 SMD socket, 4.3&nbsp;mm, 1&nbsp;A/contact</td><td>C27985222</td><td>927</td></tr>
+        <tr><td>12.4&nbsp;k 1&nbsp;%</td><td>W5500 EXRES1 reference</td><td colspan="2">and the W5500's reference-design passives, from its datasheet</td></tr>
+      </tbody>
+    </table>
+    <p class="sub">The socket's 1&nbsp;A per contact also bounds what a PD board could put through
+    J13's four VMOT pins: 4&nbsp;A, not the 5&nbsp;A board S's page assumed for the male header alone.</p>
+  </section>
+
+  <section id="next">
+    <h2>Next</h2>
+    <ol>
+      <li><strong>A placement sketch</strong>, the way board S's floorplan was argued: board E's outline
+      with the can holes, the XT30 notch and the standoffs, the RJ45 at the CPU wedge, the W5500 and
+      its crystal beside it, the socket on the axis, and a drawing of both boards in register.</li>
+      <li><strong>Capture</strong> from WIZnet's reference circuit (<code>tools/schematic_e.py</code>), and
+      generate and route with the same pipeline as boards A and S.</li>
+      <li><strong>Firmware bring-up:</strong> PIO SPI on GPIO20&ndash;23, the W5500's version register,
+      then a ping.</li>
+    </ol>
+  </section>
+
+</main>
+
+<footer>
+  <p>Planned 2026-09-24. Board S's expansion header is described on <a href="single.html#connectors">its page</a>.</p>
+</footer>
+</body>
+</html>
