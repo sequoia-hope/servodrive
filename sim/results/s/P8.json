@@ -35,9 +35,9 @@
   }
  },
  "spreading": {
-  "R_electrical_Ohm": 7.732288113078681e-05,
-  "R_thermal_K_per_W": 11.424157144794746,
-  "n_nodes": 73307,
+  "R_electrical_Ohm": 7.730561844553313e-05,
+  "R_thermal_K_per_W": 11.421606649699436,
+  "n_nodes": 64820,
   "n_source_nodes": 195,
   "n_sink_nodes": 17633,
   "estimate_K_per_W": 1.0,
@@ -48,18 +48,18 @@
   "area_cm2": 90.11680819190781
  },
  "note": "The board's own thermal model is in tools/geometry.py: via_thermal(), thermal() and sink_needed().  Only the via array and the lateral spreading are re-solved here; the ring and the convection coefficient are enclosure questions.",
- "seconds": 3.7,
+ "seconds": 1.4,
  "joule_from_P3_W": {
-  "phase_pour": 0.0239897210081431,
-  "switch_node": 0.6092767624253518,
-  "gnd_return": 0.3742150383691472,
+  "phase_pour": 0.023990152158654285,
+  "switch_node": 0.6092770918778496,
+  "gnd_return": 0.3874101340219372,
   "note": "solved at the 28.3 A peak; at 20 A rms the same paths dissipate half of it"
  },
  "_phase": {
-  "seconds": 3.7
+  "seconds": 1.4
  },
  "_meta": {
-  "written": "2026-09-24T12:48:28",
-  "board_mtime": "2026-09-24T12:09:01"
+  "written": "2026-09-27T00:09:03",
+  "board_mtime": "2026-09-26T18:52:53"
  }
 }

@@ -9,15 +9,15 @@
   ],
   "ripple": {
    "i_ripple_rms_total": 12.371867960878895,
-   "share_to_bulk": 1.0346967295424125,
-   "i_bulk_rms": 12.801131317451949,
-   "i_bulk_peak": 17.55921737902656,
+   "share_to_bulk": 1.0380777628308242,
+   "i_bulk_rms": 12.842961014867514,
+   "i_bulk_peak": 17.61659486634422,
    "i_avg": 16.9704,
    "note": "all of it split equally between the two cans",
    "source": "P4 Q13_ripple nominal case"
   },
-  "i_can_peak_A": 8.77960868951328,
-  "i_can_rms_A": 6.4005656587259745,
+  "i_can_peak_A": 8.80829743317211,
+  "i_can_rms_A": 6.421480507433757,
   "cans": {
    "centre": [
     {
@@ -398,27 +398,27 @@
     "gap_mm": 1.0,
     "B_magnet_inplane_mT": 88.05056116303594,
     "in_window": true,
-    "err_phase_only_deg": 0.09612164356744302,
-    "centre_caps_only_deg": 0.0028139375541229583,
-    "centre_combined_deg": 0.0985640763574338,
+    "err_phase_only_deg": 0.09612164356607877,
+    "centre_caps_only_deg": 0.0028231325358945014,
+    "centre_combined_deg": 0.09857205719137596,
     "centre_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
-    "wedge_caps_only_deg": 0.0037813905225618782,
-    "wedge_combined_deg": 0.09968944076874209,
+    "wedge_caps_only_deg": 0.003793746812931431,
+    "wedge_combined_deg": 0.09970109884565659,
     "wedge_worst_case": {
      "h_int_mm": 1.0,
      "split": "A"
     },
-    "xt30_caps_only_deg": 0.0036464723802964727,
-    "xt30_combined_deg": 0.09804555354955369,
+    "xt30_caps_only_deg": 0.003658387804165386,
+    "xt30_combined_deg": 0.09805186619337292,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
     "xt30_bus_only_deg": 0.009570911890676825,
-    "xt30_all_deg": 0.10142213173512005,
+    "xt30_all_deg": 0.10142916343616548,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -430,27 +430,27 @@
     "gap_mm": 1.5,
     "B_magnet_inplane_mT": 68.99791748627113,
     "in_window": true,
-    "err_phase_only_deg": 0.1226773740749536,
-    "centre_caps_only_deg": 0.003590960381188779,
-    "centre_combined_deg": 0.12579373273084116,
+    "err_phase_only_deg": 0.12267737407321988,
+    "centre_caps_only_deg": 0.003602694407135232,
+    "centre_combined_deg": 0.12580391559930604,
     "centre_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
-    "wedge_caps_only_deg": 0.004825560140403695,
-    "wedge_combined_deg": 0.12723008077520603,
+    "wedge_caps_only_deg": 0.004841328421804292,
+    "wedge_combined_deg": 0.1272449570355434,
     "wedge_worst_case": {
      "h_int_mm": 1.0,
      "split": "A"
     },
-    "xt30_caps_only_deg": 0.004653386527508019,
-    "xt30_combined_deg": 0.12513282110467117,
+    "xt30_caps_only_deg": 0.00466859220415472,
+    "xt30_combined_deg": 0.12514088295904457,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
     "xt30_bus_only_deg": 0.012213769115305695,
-    "xt30_all_deg": 0.12944404810713195,
+    "xt30_all_deg": 0.12945302761903577,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -462,27 +462,27 @@
     "gap_mm": 2.0,
     "B_magnet_inplane_mT": 54.1610862103152,
     "in_window": true,
-    "err_phase_only_deg": 0.15630493239072507,
-    "centre_caps_only_deg": 0.004574664481253876,
-    "centre_combined_deg": 0.1602741544505193,
+    "err_phase_only_deg": 0.15630493238850818,
+    "centre_caps_only_deg": 0.004589612915083308,
+    "centre_combined_deg": 0.16028712398394873,
     "centre_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
-    "wedge_caps_only_deg": 0.006147470036097502,
-    "wedge_combined_deg": 0.162104348393882,
+    "wedge_caps_only_deg": 0.006167557870526252,
+    "wedge_combined_deg": 0.16212329820928062,
     "wedge_worst_case": {
      "h_int_mm": 1.0,
      "split": "A"
     },
-    "xt30_caps_only_deg": 0.005928131303392092,
-    "xt30_combined_deg": 0.15943347311159073,
+    "xt30_caps_only_deg": 0.005947502413306438,
+    "xt30_combined_deg": 0.1594437532214954,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
     "xt30_bus_only_deg": 0.015559607217824123,
-    "xt30_all_deg": 0.1649293594987853,
+    "xt30_all_deg": 0.16494080871930805,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -494,27 +494,27 @@
     "gap_mm": 1.0,
     "B_magnet_inplane_mT": 95.78722134890938,
     "in_window": true,
-    "err_phase_only_deg": 0.0883551650386778,
-    "centre_caps_only_deg": 0.002586657959909644,
-    "centre_combined_deg": 0.09060043204149792,
+    "err_phase_only_deg": 0.08835516503742724,
+    "centre_caps_only_deg": 0.00259511026993664,
+    "centre_combined_deg": 0.09060776863586284,
     "centre_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
-    "wedge_caps_only_deg": 0.0034759703876829917,
-    "wedge_combined_deg": 0.09163485252534542,
+    "wedge_caps_only_deg": 0.003487328669109502,
+    "wedge_combined_deg": 0.09164556919873235,
     "wedge_worst_case": {
      "h_int_mm": 1.0,
      "split": "A"
     },
-    "xt30_caps_only_deg": 0.00335194948789308,
-    "xt30_combined_deg": 0.09012362298011567,
+    "xt30_caps_only_deg": 0.003362902511383936,
+    "xt30_combined_deg": 0.09012942447589012,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
     "xt30_bus_only_deg": 0.008797875259517696,
-    "xt30_all_deg": 0.09322700078172375,
+    "xt30_all_deg": 0.09323346324762838,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -526,27 +526,27 @@
     "gap_mm": 1.5,
     "B_magnet_inplane_mT": 75.06049601016944,
     "in_window": true,
-    "err_phase_only_deg": 0.11276425000579593,
-    "centre_caps_only_deg": 0.003300921236927934,
-    "centre_combined_deg": 0.11562907859368465,
+    "err_phase_only_deg": 0.11276425000417589,
+    "centre_caps_only_deg": 0.0033117075143707098,
+    "centre_combined_deg": 0.11563843959797282,
     "centre_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
-    "wedge_caps_only_deg": 0.004435803146577655,
-    "wedge_combined_deg": 0.11694933413016884,
+    "wedge_caps_only_deg": 0.00445029783463724,
+    "wedge_combined_deg": 0.11696300919149394,
     "wedge_worst_case": {
      "h_int_mm": 1.0,
      "split": "A"
     },
-    "xt30_caps_only_deg": 0.004277535876866523,
-    "xt30_combined_deg": 0.11502127621136538,
+    "xt30_caps_only_deg": 0.004291513401398106,
+    "xt30_combined_deg": 0.11502868483077577,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
     "xt30_bus_only_deg": 0.011227270039682935,
-    "xt30_all_deg": 0.1189835126617993,
+    "xt30_all_deg": 0.118991764805088,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -558,27 +558,27 @@
     "gap_mm": 2.0,
     "B_magnet_inplane_mT": 58.92001010327177,
     "in_window": true,
-    "err_phase_only_deg": 0.1436729014078253,
-    "centre_caps_only_deg": 0.00420517229105144,
-    "centre_combined_deg": 0.14732181892335916,
+    "err_phase_only_deg": 0.14367290140577893,
+    "centre_caps_only_deg": 0.004218913350996445,
+    "centre_combined_deg": 0.1473337418922256,
     "centre_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
-    "wedge_caps_only_deg": 0.00565094326475446,
-    "wedge_combined_deg": 0.14900406043159364,
+    "wedge_caps_only_deg": 0.005669408618018679,
+    "wedge_combined_deg": 0.1490214802501839,
     "wedge_worst_case": {
      "h_int_mm": 1.0,
      "split": "A"
     },
-    "xt30_caps_only_deg": 0.005449320373628552,
-    "xt30_combined_deg": 0.146548596770117,
+    "xt30_caps_only_deg": 0.005467126891801399,
+    "xt30_combined_deg": 0.14655804318016408,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "C"
     },
     "xt30_bus_only_deg": 0.014302865926879349,
-    "xt30_all_deg": 0.15159932587542357,
+    "xt30_all_deg": 0.1516098469435292,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -589,45 +589,45 @@
   "headline": {
    "nominal_N35_gap1.5": {
     "B_magnet_inplane_mT": 68.99791748627113,
-    "err_phase_only_deg": 0.1226773740749536,
-    "centre_caps_only_deg": 0.003590960381188779,
-    "centre_combined_deg": 0.12579373273084116,
-    "wedge_caps_only_deg": 0.004825560140403695,
-    "wedge_combined_deg": 0.12723008077520603,
-    "xt30_caps_only_deg": 0.004653386527508019,
-    "xt30_combined_deg": 0.12513282110467117,
+    "err_phase_only_deg": 0.12267737407321988,
+    "centre_caps_only_deg": 0.003602694407135232,
+    "centre_combined_deg": 0.12580391559930604,
+    "wedge_caps_only_deg": 0.004841328421804292,
+    "wedge_combined_deg": 0.1272449570355434,
+    "xt30_caps_only_deg": 0.00466859220415472,
+    "xt30_combined_deg": 0.12514088295904457,
     "xt30_bus_only_deg": 0.012213769115305695,
-    "xt30_all_deg": 0.12944404810713195
+    "xt30_all_deg": 0.12945302761903577
    },
    "weakest": {
     "grade": "N35",
     "gap_mm": 2.0,
     "B_magnet_inplane_mT": 54.1610862103152,
-    "err_phase_only_deg": 0.15630493239072507,
-    "centre_caps_only_deg": 0.004574664481253876,
-    "centre_combined_deg": 0.1602741544505193,
-    "wedge_caps_only_deg": 0.006147470036097502,
-    "wedge_combined_deg": 0.162104348393882,
-    "xt30_caps_only_deg": 0.005928131303392092,
-    "xt30_combined_deg": 0.15943347311159073,
+    "err_phase_only_deg": 0.15630493238850818,
+    "centre_caps_only_deg": 0.004589612915083308,
+    "centre_combined_deg": 0.16028712398394873,
+    "wedge_caps_only_deg": 0.006167557870526252,
+    "wedge_combined_deg": 0.16212329820928062,
+    "xt30_caps_only_deg": 0.005947502413306438,
+    "xt30_combined_deg": 0.1594437532214954,
     "xt30_bus_only_deg": 0.015559607217824123,
-    "xt30_all_deg": 0.1649293594987853
+    "xt30_all_deg": 0.16494080871930805
    },
    "centre_caps_pass_everywhere": true,
-   "centre_caps_B_peak_uT": 4.324391268147315,
-   "wedge_caps_B_peak_uT": 5.81128043166033,
-   "xt30_caps_B_peak_uT": 5.603939732864255,
+   "centre_caps_B_peak_uT": 4.338521892524749,
+   "wedge_caps_B_peak_uT": 5.83026969878252,
+   "xt30_caps_B_peak_uT": 5.622251481845472,
    "xt30_bus_B_peak_uT": 14.709382815468564,
    "xt30_all_pass_everywhere": false
   },
   "figure": "p5s_board_s.png",
-  "seconds": 121.8
+  "seconds": 79.4
  },
  "_phase": {
-  "seconds": 121.8
+  "seconds": 79.4
  },
  "_meta": {
-  "written": "2026-09-24T15:31:05",
-  "board_mtime": "2026-09-24T12:09:01"
+  "written": "2026-09-26T21:02:09",
+  "board_mtime": "2026-09-26T18:52:53"
  }
 }
