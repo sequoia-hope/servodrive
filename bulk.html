@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>servodrive — board S bulk</title>
+<link rel="stylesheet" href="style.css">
+<script src="shell.js"></script>
+<style>
+  table.opts, table.parts, table.routes { font-size: .86rem; }
+  table.opts td:first-child, table.parts td:first-child { color: var(--head); }
+  .wrap { overflow-x: auto; margin: .6rem 0 .2rem; }
+  svg.bars { display: block; width: 100%; min-width: 640px; height: auto; }
+  svg.bars .grid { stroke: var(--line); stroke-width: 1; }
+  svg.bars .tick, svg.bars .lab, svg.bars .val, svg.bars .reft { fill: var(--muted); font: 12px Inter, system-ui, sans-serif; }
+  svg.bars .lab { fill: var(--fg); }
+  svg.bars .val { fill: var(--head); font-variant-numeric: tabular-nums; }
+  svg.bars .ref { stroke: var(--fg); stroke-width: 1; }
+  svg.bars .fill { fill: var(--accent-hi); }
+  svg.bars .nom { stroke: var(--accent-hi); stroke-width: 2; }
+  svg.bars .hit { fill: transparent; }
+  svg.bars .bar:hover .hit { fill: var(--raised); }
+  .plans { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+  .plans figure { margin: 0; }
+  .plans img { width: 100%; height: auto; background: var(--canvas); border-radius: 4px; }
+  .plans figcaption { color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="crumb"><a href="index.html">servodrive</a> &rsaquo; <a href="single.html">board S</a> &rsaquo; Bulk options</p>
+  <div class="title">
+    <h1>Board S &mdash; the bulk cans</h1>
+    <span class="state active"><span class="dot"></span>chosen: 6 &times; &Oslash;6.3 &middot; 2026-09-28</span>
+  </div>
+  <p class="lede">The simulation run on board S put 6.4&nbsp;A RMS of ripple through each of its two
+  &Oslash;10 polymer cans at the design point (48&nbsp;V, 20&nbsp;A RMS per phase), 3.7 times what they are
+  rated for at the 20&ndash;40&nbsp;kHz where that ripple lives. The board was good for about 5.5&nbsp;A RMS per
+  phase continuously. This page is what was tried to fix it: the parts that exist, what each bank
+  does in the board&rsquo;s own DC-link network, what fits on the outward face, and what routes.</p>
+  <p class="lede"><strong>Chosen: six &Oslash;6.3 cans</strong>, jieerrui PA100V22M6X9 (22&nbsp;&micro;F/100&nbsp;V,
+  2.6&nbsp;A at 100&nbsp;kHz), two in each of the three pockets between the M3 heads. Within rating to
+  15&ndash;16&nbsp;A RMS per phase continuously, 0.16&nbsp;W a can at 20&nbsp;A, and 9.5&nbsp;mm tall instead of 13; the
+  bus ripple rises to 2.4&nbsp;V<sub>pp</sub>, inside the 3&nbsp;V criterion. 20&nbsp;A stays a burst. Routed
+  2026-09-29 (<a href="#routing">below</a>); the whole simulation re-run on the routed board agrees:
+  2.26&nbsp;A per can at 20&nbsp;A per phase, within rating to 16.1&nbsp;A, 0.15&nbsp;W a can, and the planes
+  from the cans to a cell 1.1&nbsp;nH where they were 2.9 (<a href="single.html#sim">board S&rsquo;s page</a>).</p>
+</header>
+
+<main>
+
+  <section id="why">
+    <h2>Why two cans are not enough, and what helps</h2>
+    <ul>
+      <li><strong>The ripple is fixed by the inverter.</strong> Three legs at m&nbsp;=&nbsp;0.8 and 20&nbsp;A RMS draw
+      12.4&nbsp;A RMS of ripple from the DC link, mostly at 20 and 40&nbsp;kHz. The cells&rsquo; ceramics are
+      about 8&nbsp;&micro;F at 48&nbsp;V &mdash; an ohm at 20&nbsp;kHz &mdash; so the cans take all of it, and a little
+      more, because the battery lead rings against them.</li>
+      <li><strong>Ratings are at 100&nbsp;kHz and 105&nbsp;&deg;C.</strong> Every candidate datasheet that gives a
+      frequency table takes 0.7 of the 100&nbsp;kHz rating for 10&ndash;100&nbsp;kHz. The part on the board,
+      C2887236 (2.5&nbsp;A), is good for about 1.75&nbsp;A there.</li>
+      <li><strong>In parallel, the cans share by capacitance.</strong> At 20&ndash;40&nbsp;kHz a 100&nbsp;&micro;F can is mostly
+      reactance, so what a bank can carry is the ripple rating per microfarad of the part it is made
+      of. A &Oslash;10 100&nbsp;&micro;F part has 0.025&ndash;0.032&nbsp;A/&micro;F; a &Oslash;6.3 22&nbsp;&micro;F part rated 2.6&nbsp;A has 0.12.
+      Six &Oslash;6.3 cans hold 132&nbsp;&micro;F and 15.6&nbsp;A of 100&nbsp;kHz rating; two &Oslash;10 cans hold 200&nbsp;&micro;F and 5.0&nbsp;A.</li>
+      <li><strong>Mixed banks do not work.</strong> A &Oslash;10 among &Oslash;6.3s takes 5&nbsp;A or more on its own:
+      one &Oslash;10 and four &Oslash;6.3 carry 7.7&nbsp;A per phase, less than three &Oslash;8.</li>
+      <li><strong>Ceramics do not either.</strong> Twenty 10&nbsp;&micro;F/100&nbsp;V 1210s are about 70&nbsp;&micro;F at 48&nbsp;V; they
+      take the cans from 6.4 to 4.4&nbsp;A each, and 7.9&nbsp;A per phase is where that stops.</li>
+      <li><strong>Bigger cans do not fit.</strong> A &Oslash;12.5&nbsp;&times;&nbsp;17 220&nbsp;&micro;F part (3.5&nbsp;A) would carry
+      7.8&nbsp;A per phase in pairs, and no pocket on the board takes a &Oslash;12.5.</li>
+    </ul>
+  </section>
+
+  <section id="options">
+    <h2>The options that fit, in the board&rsquo;s DC-link network</h2>
+    <p class="sub">Each bank run through the simulation&rsquo;s own P4 network (<code>sim/phases/p4_dclink.py</code>):
+    the synthesised inverter current, the three cells&rsquo; ceramics at bias, the plane path P1 solved,
+    the bus TVS and a 50&nbsp;m&Omega; battery lead of 0.5, 1 or 2&nbsp;&micro;H, over the ceramic and ESR corners
+    (18 cases). The bar is the phase current the bank carries continuously with every can inside
+    its rating at the worst corner; the tick is the nominal case (typical ceramics, maximum ESR,
+    1&nbsp;&micro;H lead).</p>
+    <div class="wrap">
+<svg class="bars" viewBox="0 0 760 300" role="img" aria-labelledby="bars-t">
+<title id="bars-t">Phase current each bulk option carries continuously with every can inside its ripple rating; the design point is 20 A RMS per phase.</title>
+<line class="grid" x1="300.0" x2="300.0" y1="22" y2="274"/>
+<text class="tick" x="300.0" y="290" text-anchor="middle">0</text>
+<line class="grid" x1="375.0" x2="375.0" y1="22" y2="274"/>
+<text class="tick" x="375.0" y="290" text-anchor="middle">5</text>
+<line class="grid" x1="450.0" x2="450.0" y1="22" y2="274"/>
+<text class="tick" x="450.0" y="290" text-anchor="middle">10</text>
+<line class="grid" x1="525.0" x2="525.0" y1="22" y2="274"/>
+<text class="tick" x="525.0" y="290" text-anchor="middle">15</text>
+<line class="grid" x1="600.0" x2="600.0" y1="22" y2="274"/>
+<text class="tick" x="600.0" y="290" text-anchor="middle">20</text>
+<line class="grid" x1="675.0" x2="675.0" y1="22" y2="274"/>
+<text class="tick" x="675.0" y="290" text-anchor="middle">25</text>
+<line class="ref" x1="600.0" x2="600.0" y1="14" y2="274"/>
+<text class="reft" x="604.0" y="12">design point, 20 A</text>
+<g class="bar"><title>2 × Ø10, C2887236 (today): 5.5 A nominal, 5.3 A at the worst corner; 6.42 A per can against 1.75 A of rating</title><rect class="hit" x="0" y="28" width="760" height="34"/><text class="lab" x="290" y="49" text-anchor="end">2 &times; &Oslash;10, C2887236 (today)</text><path class="fill" d="M300.0,35 H376.2 q4,0 4,4 v12 q0,4 -4,4 H300.0 Z"/><line class="nom" x1="381.8" x2="381.8" y1="33" y2="57"/><text class="val" x="387.8" y="49">5.3&ndash;5.5</text></g>
+<g class="bar"><title>2 × Ø10, Econd PH, same footprint: 7.0 A nominal, 6.9 A at the worst corner; 6.38 A per can against 2.24 A of rating</title><rect class="hit" x="0" y="62" width="760" height="34"/><text class="lab" x="290" y="83" text-anchor="end">2 &times; &Oslash;10, Econd PH, same footprint</text><path class="fill" d="M300.0,69 H399.6 q4,0 4,4 v12 q0,4 -4,4 H300.0 Z"/><line class="nom" x1="405.3" x2="405.3" y1="67" y2="91"/><text class="val" x="411.3" y="83">6.9&ndash;7.0</text></g>
+<g class="bar"><title>today’s cans + 20 × 10 µF/100 V 1210: 7.9 A nominal, 7.1 A at the worst corner; 4.44 A per can against 1.75 A of rating</title><rect class="hit" x="0" y="96" width="760" height="34"/><text class="lab" x="290" y="117" text-anchor="end">today&rsquo;s cans + 20 &times; 10&nbsp;&micro;F/100&nbsp;V 1210</text><path class="fill" d="M300.0,103 H402.6 q4,0 4,4 v12 q0,4 -4,4 H300.0 Z"/><line class="nom" x1="418.3" x2="418.3" y1="101" y2="125"/><text class="val" x="424.3" y="117">7.1&ndash;7.9</text></g>
+<g class="bar"><title>3 × Ø8, jieerrui PA 47 µF: 9.1 A nominal, 8.7 A at the worst corner; 4.48 A per can against 2.03 A of rating</title><rect class="hit" x="0" y="130" width="760" height="34"/><text class="lab" x="290" y="151" text-anchor="end">3 &times; &Oslash;8, jieerrui PA 47&nbsp;&micro;F</text><path class="fill" d="M300.0,137 H426.1 q4,0 4,4 v12 q0,4 -4,4 H300.0 Z"/><line class="nom" x1="436.0" x2="436.0" y1="135" y2="159"/><text class="val" x="442.0" y="151">8.7&ndash;9.1</text></g>
+<g class="bar"><title>3 × Ø8, Shengyang SH 47 µF: 11.9 A nominal, 11.3 A at the worst corner; 4.49 A per can against 2.66 A of rating</title><rect class="hit" x="0" y="164" width="760" height="34"/><text class="lab" x="290" y="185" text-anchor="end">3 &times; &Oslash;8, Shengyang SH 47&nbsp;&micro;F</text><path class="fill" d="M300.0,171 H465.8 q4,0 4,4 v12 q0,4 -4,4 H300.0 Z"/><line class="nom" x1="477.8" x2="477.8" y1="169" y2="193"/><text class="val" x="483.8" y="185">11.3&ndash;11.9</text></g>
+<g class="bar"><title>5 × Ø6.3, jieerrui PA 22 µF: 13.0 A nominal, 12.4 A at the worst corner; 2.81 A per can against 1.82 A of rating</title><rect class="hit" x="0" y="198" width="760" height="34"/><text class="lab" x="290" y="219" text-anchor="end">5 &times; &Oslash;6.3, jieerrui PA 22&nbsp;&micro;F</text><path class="fill" d="M300.0,205 H481.4 q4,0 4,4 v12 q0,4 -4,4 H300.0 Z"/><line class="nom" x1="494.6" x2="494.6" y1="203" y2="227"/><text class="val" x="500.6" y="219">12.4&ndash;13.0</text></g>
+<g class="bar"><title>6 × Ø6.3, jieerrui PA 22 µF: 15.9 A nominal, 15.0 A at the worst corner; 2.30 A per can against 1.82 A of rating</title><rect class="hit" x="0" y="232" width="760" height="34"/><text class="lab" x="290" y="253" text-anchor="end">6 &times; &Oslash;6.3, jieerrui PA 22&nbsp;&micro;F</text><path class="fill" d="M300.0,239 H520.5 q4,0 4,4 v12 q0,4 -4,4 H300.0 Z"/><line class="nom" x1="537.9" x2="537.9" y1="237" y2="261"/><text class="val" x="543.9" y="253">15.0&ndash;15.9</text></g>
+</svg>
+    </div>
+    <div class="wrap">
+    <table class="opts num"><thead><tr><th>Bank</th><th>&micro;F</th><th>Per can, A RMS (its rating)</th><th>Heat per can</th><th>Continuous A/phase</th><th>Bus ripple, V<sub>pp</sub></th><th>Battery lead, A RMS</th><th>Cost</th></tr></thead><tbody><tr><td>2 &times; &Oslash;10, C2887236 (today)</td><td>200</td><td>6.42 (1.75)</td><td>1.44&nbsp;W</td><td><b>5.3&ndash;5.5</b></td><td>1.75 (1.78)</td><td>2.0 (3.3)</td><td>$0.84</td></tr><tr><td>2 &times; &Oslash;10, Econd PH, same footprint</td><td>200</td><td>6.38 (2.24)</td><td>1.63&nbsp;W</td><td><b>6.9&ndash;7.0</b></td><td>1.77 (1.83)</td><td>2.0 (3.3)</td><td>$0.54</td></tr><tr><td>today&rsquo;s cans + 20 &times; 10&nbsp;&micro;F/100&nbsp;V 1210</td><td>200</td><td>4.44 (1.75)</td><td>0.69&nbsp;W</td><td><b>7.1&ndash;7.9</b></td><td>1.57 (1.71)</td><td>1.4 (2.6)</td><td>$0.84</td></tr><tr><td>3 &times; &Oslash;8, jieerrui PA 47&nbsp;&micro;F</td><td>141</td><td>4.48 (2.03)</td><td>0.60&nbsp;W</td><td><b>8.7&ndash;9.1</b></td><td>2.30 (2.31)</td><td>2.8 (4.8)</td><td>$1.23</td></tr><tr><td>3 &times; &Oslash;8, Shengyang SH 47&nbsp;&micro;F</td><td>141</td><td>4.49 (2.66)</td><td>0.56&nbsp;W</td><td><b>11.3&ndash;11.9</b></td><td>2.29 (2.31)</td><td>2.8 (4.8)</td><td>$0.81</td></tr><tr><td>5 &times; &Oslash;6.3, jieerrui PA 22&nbsp;&micro;F</td><td>110</td><td>2.81 (1.82)</td><td>0.24&nbsp;W</td><td><b>12.4&ndash;13.0</b></td><td>2.96 (3.02)</td><td>4.1 (6.4)</td><td>$1.30</td></tr><tr><td>6 &times; &Oslash;6.3, jieerrui PA 22&nbsp;&micro;F</td><td>132</td><td>2.30 (1.82)</td><td>0.16&nbsp;W</td><td><b>15.0&ndash;15.9</b></td><td>2.43 (2.55)</td><td>3.2 (5.4)</td><td>$1.56</td></tr></tbody></table>
+    </div>
+    <p class="sub">Every bank fits on the board except the ceramics, which were not placed: they stop at
+    7.9&nbsp;A. Ripple per can (against its rating at 20&ndash;40&nbsp;kHz), heat and the battery lead are the
+    nominal case, with the worst of the 18 in brackets for the bus and the lead. Heat is I&sup2;&middot;ESR at the datasheet&rsquo;s maximum ESR. Costs are
+    JLCPCB&rsquo;s single-piece prices on 2026-09-28. The criterion for bus ripple is 3&nbsp;V<sub>pp</sub> at the drains.</p>
+  </section>
+
+  <section id="parts">
+    <h2>Parts</h2>
+    <table class="parts num">
+      <thead><tr><th>Part</th><th>Size</th><th>&micro;F</th><th>ESR</th><th>Rating, 100&nbsp;kHz</th><th>LCSC</th><th>Stock</th><th>Datasheet</th></tr></thead>
+      <tbody>
+        <tr><td>NJCON 1011001013R00 (today)</td><td>&Oslash;10&nbsp;&times;&nbsp;12</td><td>100</td><td>35&nbsp;m&Omega;</td><td>2.5&nbsp;A</td><td>C2887236</td><td>39,928</td><td>no frequency table</td></tr>
+        <tr><td>Econd PH101M100G130B000</td><td>&Oslash;10&nbsp;&times;&nbsp;13</td><td>100</td><td>40&nbsp;m&Omega;</td><td>3.2&nbsp;A</td><td>C51953323</td><td>5,581</td><td>0.7 at 10&ndash;100&nbsp;kHz</td></tr>
+        <tr><td>jieerrui PA100V47M8X11</td><td>&Oslash;8&nbsp;&times;&nbsp;11.5</td><td>47</td><td>30&nbsp;m&Omega;</td><td>2.9&nbsp;A</td><td>C49233039</td><td>27,232</td><td>105&nbsp;&deg;C, 100&nbsp;kHz; 0.7 at 10&ndash;100&nbsp;kHz</td></tr>
+        <tr><td>Shengyang SH476M100F1150</td><td>&Oslash;8&nbsp;&times;&nbsp;11.5</td><td>47</td><td>28&nbsp;m&Omega;</td><td>3.8&nbsp;A</td><td>C44606514</td><td>975</td><td>conditions not stated</td></tr>
+        <tr><td><b>jieerrui PA100V22M6X9</b></td><td>&Oslash;6.3&nbsp;&times;&nbsp;9</td><td>22</td><td>30&nbsp;m&Omega;</td><td>2.6&nbsp;A</td><td>C49233038</td><td>8,142</td><td>105&nbsp;&deg;C, 100&nbsp;kHz; 0.7 at 10&ndash;100&nbsp;kHz</td></tr>
+        <tr><td>Shengyang SH226M100E0900</td><td>&Oslash;6.3&nbsp;&times;&nbsp;9</td><td>22</td><td>30&nbsp;m&Omega;</td><td>2.6&nbsp;A</td><td>C44606504</td><td>1,006</td><td>second source for the one above</td></tr>
+        <tr><td>jieerrui PA100V220M12X17</td><td>&Oslash;12.5&nbsp;&times;&nbsp;17</td><td>220</td><td>30&nbsp;m&Omega;</td><td>3.5&nbsp;A</td><td>C54915544</td><td>2,269</td><td>does not fit</td></tr>
+      </tbody>
+    </table>
+    <p class="sub">From a sweep of JLCPCB&rsquo;s catalogue for 80&ndash;100&nbsp;V polymer and hybrid parts up to
+    &Oslash;12.5 (1,761 capacitors); 63&nbsp;V is ruled out by the bus TVS&rsquo;s clamp. No &Oslash;10 at 80&ndash;100&nbsp;V is rated
+    over 3.2&nbsp;A, and the hybrids are rated lower than the polymers.</p>
+  </section>
+
+  <section id="fit">
+    <h2>What fits</h2>
+    <p>Every spot on the outward face was tested with the placer&rsquo;s own rules
+    (<code>placement_s.legal()</code>) against the parts that cannot move: board A&rsquo;s cells and CPU,
+    their locked vias, the XT30, the header, the ports and the bucks. With the centre&rsquo;s small parts
+    free to go elsewhere, the outward centre has three pockets between the M3 heads, at 45, 135 and
+    315&deg;. Each takes one &Oslash;10 or &Oslash;8, or two &Oslash;6.3 side by side. The 45&deg; pocket had no room for
+    a &Oslash;10 (phase A&rsquo;s driver comes into it), which is why the board had two cans. The motor-facing
+    face has 10.75&nbsp;mm to the motor but is under the phase cells outside R&nbsp;17, and inside it takes
+    only parts under 1.5&nbsp;mm.</p>
+    <div class="plans">
+      <figure><img src="img/bulk_6x63.svg" alt="Board S placement with six D6.3 cans, two in each pocket">
+        <figcaption>Six &Oslash;6.3, as built: two per pocket, swapped into the board as it was. The LED moves
+        beside the header; port IN&rsquo;s receiver U14 to the top of the motor-facing centre, port OUT&rsquo;s
+        driver U17 to U14&rsquo;s old spot; 16 parts moved in all.</figcaption></figure>
+      <figure><img src="img/bulk_3x8.svg" alt="Board S placement with three D8 cans, one in each pocket">
+        <figcaption>Three &Oslash;8: one per pocket.</figcaption></figure>
+      <figure><img src="img/bulk_2x10.svg" alt="Board S placement as it is, two D10 cans">
+        <figcaption>As it is: two &Oslash;10 at 135 and 323&deg;.</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="routing">
+    <h2>Routing</h2>
+    <p>Each bank was placed, generated from scratch (<code>gen_boards.py --board s --force</code>) and routed
+    with the board&rsquo;s own pipeline, several recipes side by side in scratch copies, then the targeted
+    rip-ups that closed the last board&rsquo;s last net. What it took for six cans:</p>
+    <ul>
+      <li><strong>Placed first, the cans moved sixty parts</strong> &mdash; the buck modules 0.4&nbsp;mm round
+      C1002&rsquo;s new lead, the bucks&rsquo; overflow caps, the LED 29&nbsp;mm, the relay&rsquo;s transceivers up to
+      24&nbsp;mm &mdash; and the board no longer routed: 7&ndash;17 connections left, 6 after rip-ups. Five
+      cans placed the same way left 10&ndash;11, three &Oslash;8 11&ndash;22.</li>
+      <li><strong>Swapped into the board as built</strong> (<code>placement_s._swap_bulk</code>): the routed
+      board&rsquo;s placement with the two &Oslash;10 cans, the six put in at the spots and turns that displace
+      the fewest parts, and only those 16 placed again, each nearest where it was. Transceivers
+      stay inside R&nbsp;17.5: out in the ring one sat among phase A&rsquo;s sense parts and could not
+      reach the CPU. Three arrangements of the two displaced transceivers were routed; the one on
+      the board puts port IN&rsquo;s receiver at the top of the motor-facing centre and port OUT&rsquo;s driver
+      where port IN&rsquo;s had been.</li>
+      <li><strong>The last net was the RP2350&rsquo;s.</strong> The best routes stopped one or two short, always
+      in the corridor from the CPU into the centre, where C1015&rsquo;s leads and its VBUS finger now
+      stand: EXP_GP24, XIN and RS485_OUT_TX took turns being the one left. What closed it was
+      the maze making the RS-485 IN pair and the encoder&rsquo;s CS and DO before the router
+      (<code>--first EN_12V,USB_VBUS,LIN_A,EXP_GP19,EXP_GP22,RS485_IN_DN_N,RS485_IN_DN_P,ENC_CS,ENC_DO</code>),
+      three left, and three targeted rip-ups: EXP_GP24, HIN_A, SWCLK.</li>
+    </ul>
+    <table class="routes num">
+      <thead><tr><th>Board</th><th>Segments</th><th>Vias (tools&rsquo;)</th><th>Unconnected</th><th>DRC, all severities</th><th>ERC</th><th>Parity items</th></tr></thead>
+      <tbody>
+        <tr><td>two &Oslash;10 (before)</td><td>1958</td><td>418</td><td>0</td><td>0</td><td>0</td><td>219</td></tr>
+        <tr><td><b>six &Oslash;6.3</b></td><td>2241</td><td>444 (359)</td><td><b>0</b></td><td><b>0</b></td><td><b>0</b></td><td>219, the same kinds</td></tr>
+      </tbody>
+    </table>
+    <p class="sub">Also clean: KiCad&rsquo;s netlist export against <code>schematic_s.nets()</code>, the netlist checks,
+    and deadcheck; the board carries exactly the eight pads of the four new cans more than before.</p>
+  </section>
+
+</main>
+
+<footer>
+  <p>Worked 2026-09-28 on the branch <code>board-s-bulk</code>. The simulation&rsquo;s results for board S are on
+  <a href="single.html#sim">its page</a>.</p>
+</footer>
+</body>
+</html>

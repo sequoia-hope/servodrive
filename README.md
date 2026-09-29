@@ -930,7 +930,7 @@ checked by diffing the emitter's text, not by eye.
 `tools/schematic_s.py` builds the netlist out of `schematic.py`'s own
 functions: the phase cells (clamps to the 54 V grade), `control()` with the
 GPIO remapped, `encoder()`, the mechanical parts, and two new sheets,
-`04_power` and `05_io`. 190 components, 111 nets, 577 pin connections; ERC clean, and KiCad's exported netlist matches `schematic_s.nets()` connection for connection.
+`04_power` and `05_io`. 194 components, 111 nets, 585 pin connections (six bulk cans since 2026-09-28); ERC clean, and KiCad's exported netlist matches `schematic_s.nets()` connection for connection.
 The bus comes in on an **XT30** (J4, since 2026-09-24; it was two arc pads, J4
 and J5, for a pigtail): the rp2350-motor-controller's J9 -- the same
 `Connector_Generic:Conn_01x02` symbol, the same KiCad footprint
@@ -1153,6 +1153,60 @@ today 93 of 140 footprints sit up to 0.48° off the generator's angles (the FETs
 now puts every part back, so it straightens the next time it is routed. On
 board S it was a USB-C pad moved 0.024 mm onto the fan-out's stub beside it.
 
+### The bulk: six small cans
+
+Changed 2026-09-28 (asked for as "we should fix the caps, try several
+options", then "go with 6x6.3"); [bulk.html](bulk.html) has the options and
+the numbers. The board's first bulk was two Ø10 cans, 100 µF/100 V polymer
+(C2887236, 2.5 A of ripple at 100 kHz). The simulation's DC-link network put
+6.4 A RMS through each at the design point, and every candidate datasheet that
+gives a frequency table takes 0.7 of the 100 kHz rating at 10–100 kHz, where
+this ripple lives: 3.7 times the rating, 1.4 W in each can, good for about
+5.5 A RMS per phase continuously.
+
+- **At 20–40 kHz cans in parallel share by capacitance**, so a bank carries
+  what the ripple rating per microfarad of its part allows. A Ø10 100 µF part
+  is rated 2.5–3.2 A; a Ø6.3 × 9 22 µF part 2.6 A, four times as much per µF.
+  Mixed banks lose: a Ø10 among small cans takes 5 A on its own. Ceramics
+  cannot take a useful share (twenty 10 µF 1210s are 70 µF at 48 V), and a
+  better Ø10 in the same footprint gets to 7 A.
+- **What fits is three pockets.** Every spot on the outward face was tested with
+  `placement_s.legal()` against the parts that cannot move: the outward centre
+  has a pocket between each pair of M3 heads at 45, 135 and 315°, each taking
+  one Ø10 or Ø8 or two Ø6.3 (phase A's driver keeps a Ø10 out of the 45° one).
+- **Six Ø6.3, jieerrui PA100V22M6X9** (C49233038, 22 µF, 30 mΩ, 2.6 A at
+  105 °C and 100 kHz; Shengyang's SH226M100E0900 is the same part on paper):
+  132 µF, 2.3 A per can against 1.8 A at 20–40 kHz, 0.16 W each, within
+  rating to 15–16 A RMS per phase continuously. They stand 9.5 mm, not 13.
+  The price is the capacitance: bus ripple rises from 1.75 to 2.43 V
+  peak-to-peak (2.55 at the worst corner, against 3 V), and the battery lead
+  carries 3.2 A RMS of ripple on 1 µH instead of 2.0. The whole simulation,
+  re-run on the routed board, agrees: 2.26 A per can, within rating to 16.1 A
+  per phase, and the planes from the cans to a cell 1.1 nH (2.9 with two).
+- `schematic_s.BULK_KIND` picks the bank (`BULK_VARIANTS`: 2 × Ø10, 3 × Ø8,
+  5 or 6 × Ø6.3) and `placement_s.BULK_SITES` where each can goes; the sheet,
+  the In2 fingers (`gen_boards.in2_s`) and the simulation (`sim/lib/board.py`)
+  follow the netlist. With the old bank selected the placement is part for part
+  what it was.
+- **Swapped into the board as built, not placed first.** With the six cans
+  put down first and everything after them, some sixty parts moved -- the
+  buck modules by 0.4 mm round C1002's new lead, and the overflow caps, the
+  LED and the relay after them -- and the board stopped routing: six
+  connections left at best, after targeted rip-ups. So `placement_s._swap_bulk`
+  builds the board with its two Ø10 cans, as it was routed, takes them out,
+  puts the six in at `BULK_SITES` -- the spots and turns that displace fewest
+  parts, found by trying every legal spot in each pocket against the board --
+  and places again only what they land on, each at the nearest legal spot to
+  where it was: 16 parts of 182, most by 0.2–4 mm. Transceivers stay inside
+  R 17.5; out in the ring one sat among phase A's sense parts with its input
+  pin cut off from the CPU.
+- **What moved.** The LED went beside the header, (-8, 5.5), with its
+  resistors. Port IN's receiver U14 lost its spot to C1015 and went to the
+  top of the motor-facing centre (-4.5, 13.5); port OUT's driver U17 took the
+  spot below the header at (6, -5) that U14 had had, near enough. U15, U9 and
+  C713 moved a few millimetres; SW1, the VBUS-detect divider and the LDO row
+  a fraction of one.
+
 ### Routing
 
 The board is routed by the same pipeline as board A: `route.py --board s
@@ -1207,16 +1261,28 @@ It took more than board A did, and what it took is worth keeping:
   offending via is boxed in it moves the other one of the pair, a little off
   straight-apart if it has to (here the header's +5V escape via, 35 µm).
 
-**How the board on disk was made, exactly** (2026-09-24): from scratch, by
-the commands at the top of this section, from the generators as committed --
-`gen_boards.py --board s --force`, `route.py --board s --rounds 1` (routed in
-a scratch copy with `--pcb` and copied back, the way the variants were run),
-then `--polish` twice, which found nothing to do. DRC (all severities) is
-clean; schematic parity reports 219 items, all of the kinds that were there
-before the XT30 (HEAD had 221: the two bus pads' value mismatches went with
-them) -- hierarchical net names against the board's flat ones, and the
-mechanical lands' values; ERC, the netlist diff and deadcheck all pass. The
-board before this one, with the bus pads, is in git (8f9342f).
+- **With six bulk cans (2026-09-28/29) it took the maze first and three
+  rip-ups.** Twelve can leads in the centre, and C1015's VBUS finger with its
+  no-via fence, stand in the corridor from the RP2350 into the centre; the
+  best plain and `--first` routes stopped one to five short, always there
+  (EXP_GP24, XIN and RS485_OUT_TX took turns being the last). What closed it:
+  the maze making the RS-485 IN pair and the encoder's CS and DO before the
+  router as well, three left, and a targeted rip-up each for EXP_GP24, HIN_A
+  and SWCLK -- rip exactly the nets on the cheapest way through, make the open
+  net, make them again, keep it only if nothing opens.
+
+**How the board on disk was made, exactly** (2026-09-29): from the generators
+as committed, `gen_boards.py --board s --force` (with `BULK_KIND = "6x6.3"`),
+then in a scratch copy `route.py --board s --rounds 1 --first
+EN_12V,USB_VBUS,LIN_A,EXP_GP19,EXP_GP22,RS485_IN_DN_N,RS485_IN_DN_P,ENC_CS,ENC_DO
+--pcb COPY`, `--polish` twice, three targeted rip-ups (EXP_GP24, HIN_A,
+SWCLK), copied back, `--polish` twice more, and two escape vias left dangling
+(HIN_A, RUN) and the stub one left removed. 2241 segments, 444 vias, 359 of
+them the tools'. DRC (all severities) is clean; schematic parity reports the
+same 219 items as the board before, of the same kinds -- hierarchical net
+names against the board's flat ones, and the mechanical lands' values; ERC,
+the netlist diff and deadcheck all pass. The boards before this one are in
+git: two Ø10 cans (b348b20), the bus pads (8f9342f).
 
 ### Not checked
 
@@ -1226,10 +1292,10 @@ board before this one, with the bus pads, is in git (8f9342f).
 - **The XT30's rating.** AMASS rates the XT30 for 15 A continuous (the LCSC listing says the same); the design point's DC link is 17 A in a burst. Fine for bursts, not a continuous-duty connector at full power.
 - **The plug over the board.** The XT30's mouth is 5 mm in from the edge, so the mating plug's first 5 mm lie over the outward face. The path is kept clear of parts, not of silkscreen or anything clamped to the board.
 - **The XT30's 3D model** is the SolidWorks STEP the rp2040/rp2350 motor controllers use (`hardware/parts/3dmodels/XT30PW-M.STEP`); its licence is not recorded there, and this repo is public.
-- **Height.** The cans are 12–13 mm tall on the outward face; board B's standoffs were 11 mm. A stacked expansion board needs longer standoffs or a cutout over the cans.
+- **Height.** The cans are 9.5 mm tall on the outward face (six Ø6.3 since 2026-09-28; the two Ø10 were 12–13 mm). A stacked expansion board on the 4.3 mm socket sits about 6 mm up and needs holes over them.
 - **The heatsink ring.** Board A clamps an aluminium ring on the phase cells' lands. The USB-C reaches the edge in the signal wedge, so a continuous ring would need a gap there.
 - **VMOT through the header.** A PD board feeding the bus puts up to 5 A through the header, whose end pins are about 6 mm from the encoder. With VMOT and GND pins paired it passes as a dipole, roughly 0.1 mT against the magnet's 20–100 — estimated, not simulated.
-- **The cans' ripple rating.** At a 20 A RMS burst the bulk carries about 12 A RMS, 6 A per can; C2887236's rating is not read yet.
+- **The cans at temperature.** The six cans are within their ripple rating to 15–16 A RMS per phase (see [The bulk](#the-bulk-six-small-cans)); above that, 20 A is a burst. Their ratings are the datasheet's at 105 °C, and the datasheet gives no multiplier for a cooler board, so how long a 20 A burst may last is for a thermocouple on a can to say.
 - **RS-485 fail-safe.** Every receiver has a permanent 120 Ω and no bias network; an idle or open link relies on the SIT3088's own fail-safe, which the datasheet has to be shown to give with the termination present (the sister project's F-01).
 - **The RGB LED's pinout.** `LED_RGB_1210` with a common anode on pad 4 is an assumption: 1210 RGB parts differ. Check against the part bought.
 - **Firmware.** GPIO2 is `GATE_OFF`, active high, and GPIO3 `FAULT_n`; UART0 on GPIO0/1 is port IN and a PIO UART on 14/15 port OUT; the encoder is on SPI0 (ENC_DO GPIO4, ENC_SCK GPIO6); USB_VBUS_DET is GPIO25; 19–24 go to the expansion header.

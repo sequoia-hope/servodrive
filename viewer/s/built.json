@@ -34,12 +34,12 @@
    {
     "sheet": "02_power",
     "title": "Power supply",
-    "desc": "XT30 bus input, TVS, bulk, bus divider, the 12 V and 5 V bucks \u00b7 46 symbols",
+    "desc": "XT30 bus input, TVS, bulk, bus divider, the 12 V and 5 V bucks \u00b7 50 symbols",
     "file": "servodrive_S-02_power.svg",
     "source": "02_power.kicad_sch",
     "paper": "A3",
     "page": "3",
-    "symbols": 46,
+    "symbols": 50,
     "size_mm": [
      419.989,
      297.0022
@@ -63,7 +63,7 @@
  },
  "layers": {
   "board": "servodrive_S.kicad_pcb",
-  "generated": "2026-09-28",
+  "generated": "2026-09-29",
   "view_mm": [
    114.197,
    71.199,
@@ -88,13 +88,13 @@
   "thickness": 1.6,
   "plate": "#c8c8c8",
   "body": "body.svg",
-  "vias": 418,
+  "vias": 444,
   "nets": 111,
-  "footprints": 194,
-  "front": 95,
+  "footprints": 198,
+  "front": 99,
   "back": 99,
-  "tracks": 1958,
-  "length_mm": 3069.1,
+  "tracks": 2241,
+  "length_mm": 3506.1,
   "layers": [
    {
     "name": "F.Cu",
@@ -103,9 +103,9 @@
     "file": "f.svg",
     "color": "#C83434",
     "note": "Outward face, 2 oz. Three phase cells, three utility wedges, and the three arcs of bare copper the heatsink ring clamps.",
-    "tracks": 874,
-    "length_mm": 933.5,
-    "pads": 448,
+    "tracks": 1017,
+    "length_mm": 1083.4,
+    "pads": 456,
     "zones": [
      "GND",
      "VBUS",
@@ -126,7 +126,7 @@
     "note": "Solid ground, directly under F.Cu \u2014 the return for everything switching above it, and the other plate of the plane capacitor In2 forms.",
     "tracks": 0,
     "length_mm": 0.0,
-    "pads": 141,
+    "pads": 149,
     "zones": [
      "GND"
     ]
@@ -140,7 +140,7 @@
     "note": "The power plane. VBUS over the phase block and the link that feeds it, +3V3 over the CPU wedge.",
     "tracks": 0,
     "length_mm": 0.0,
-    "pads": 141,
+    "pads": 149,
     "zones": [
      "VBUS",
      "GND",
@@ -154,9 +154,9 @@
     "file": "in3.svg",
     "color": "#4FCBCB",
     "note": "The signal layer, and the only one that crosses the whole board, so the long hauls between the RP2350A and the phase cells live here.",
-    "tracks": 504,
-    "length_mm": 1309.4,
-    "pads": 141,
+    "tracks": 629,
+    "length_mm": 1542.4,
+    "pads": 149,
     "zones": [
      "GND"
     ]
@@ -170,7 +170,7 @@
     "note": "Solid ground again, under the signal layer and over the motor-facing copper.",
     "tracks": 0,
     "length_mm": 0.0,
-    "pads": 141,
+    "pads": 149,
     "zones": [
      "GND"
     ]
@@ -182,9 +182,9 @@
     "file": "b.svg",
     "color": "#4D7FC4",
     "note": "Motor-facing face, 2 oz. MT6701 at the centre, the shunts and the sense amplifiers, and the FET drain thermal vias coming through. Motor leads land here, so the outward perimeter stays thermal.",
-    "tracks": 580,
-    "length_mm": 826.2,
-    "pads": 420,
+    "tracks": 595,
+    "length_mm": 880.3,
+    "pads": 428,
     "zones": [
      "SNUB_A",
      "PHASE_B",
@@ -226,12 +226,12 @@
  },
  "3d": {
   "board": "servodrive_S.kicad_pcb",
-  "generated": "2026-09-28",
+  "generated": "2026-09-29",
   "glb": "board.glb",
-  "bytes": 6970016,
-  "kicad_bytes": 31217720,
-  "parts": 194,
-  "modelled": 174,
+  "bytes": 7359616,
+  "kicad_bytes": 32735428,
+  "parts": 198,
+  "modelled": 178,
   "no_model": [
    "H1",
    "H2",
@@ -281,10 +281,10 @@
    "legacy": 3,
    "found": 0
   },
-  "triangles": 601073,
-  "primitives": 466
+  "triangles": 634993,
+  "primitives": 483
  },
- "when": "2026-09-28 17:45",
+ "when": "2026-09-29 07:52",
  "source": {
   "kind": "file",
   "pcb": "hardware/single_board/servodrive_S.kicad_pcb",

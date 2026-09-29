@@ -48,7 +48,7 @@
       <li><strong>&Oslash;65, stacked on J13</strong>, over board S's outward face.</li>
       <li><strong>The encoder has SPI0.</strong> Board S's encoder moved to hardware SPI0 on
       GPIO4/5/6 the same day, and the header's SPI pins, GPIO20&ndash;23, are the same SPI0. SPI1's clock
-      exists only on GPIO10, 14 and 26 &mdash; phase B's PWM, GATE_OFF and a current-sense ADC input. So the W5500 is driven by a <strong>PIO SPI</strong> on
+      exists only on GPIO10, 14 and 26 &mdash; phase B's PWM, port OUT's PIO UART and a current-sense ADC input. So the W5500 is driven by a <strong>PIO SPI</strong> on
       GPIO20&ndash;23. The RP2350 has three PIO blocks, and the RS-485 OUT port's UART uses part of one.</li>
     </ul>
   </section>
@@ -96,11 +96,11 @@
     <div class="bd-wrap">
     <svg class="st" viewBox="0 0 760 210" role="img" aria-labelledby="st-t">
       <title id="st-t">Side view of the stack: board S, the J13 header and its socket, board E about
-      6 mm above with holes the two bulk cans pass through, and the RJ45 on top at the rim.</title>
+      6 mm above with holes the bulk cans pass through, and the RJ45 on top at the rim.</title>
       <rect class="pcb" x="20" y="160" width="720" height="8"/>
       <text class="t" x="24" y="190">board S, outward face up</text>
       <rect class="can" x="120" y="96" width="50" height="64"/>
-      <text x="112" y="88">can, 12&ndash;13 mm</text>
+      <text x="112" y="88">can, 9.5 mm</text>
       <rect class="can" x="560" y="96" width="50" height="64"/>
       <rect class="hdr" x="345" y="148" width="70" height="12"/>
       <rect class="hdr" x="345" y="128" width="70" height="20"/>
@@ -120,17 +120,19 @@
     <ul>
       <li><strong>Height.</strong> Board S's J13 is a 1.27&nbsp;mm SMD male header; the only mating
       2&nbsp;&times;&nbsp;10 sockets stocked are 4.3&nbsp;mm tall (e.g. HC-PM127-4.3H-2x10PS, C27985222), which puts
-      board E about 6&nbsp;mm above board S. The bulk cans stand 12&ndash;13&nbsp;mm, so board E has a hole for
-      each (&Oslash;10, at R&nbsp;13.3/135&deg; and R&nbsp;15.3/323&deg;). Clearing the cans outright would take a
-      stacking height of 14&nbsp;mm or more and a different J13.</li>
+      board E about 6&nbsp;mm above board S. The bulk cans stand 9.5&nbsp;mm (six &Oslash;6.3 since 2026-09-28,
+      two in each pocket between the M3 heads: R&nbsp;13&ndash;17 at 37 and 66&deg;, 123 and 150&deg;, 311 and
+      326&deg;), so board E has a hole for each, or one slot per pair. Clearing them outright would
+      take a stacking height of about 11&nbsp;mm and a different J13.</li>
       <li><strong>The XT30.</strong> Its plug goes in over board S's outward face for the first
       5&nbsp;mm, on the power wedge's axis (230&deg;): board E needs a notch there, from the jack's face to
       the edge.</li>
       <li><strong>The RJ45</strong> (HanRun HR911105A, 16&nbsp;&times;&nbsp;21&nbsp;&times;&nbsp;13.5&nbsp;mm, magnetics and
       LEDs inside) goes radially at the rim over the <strong>CPU wedge, 256&ndash;308&deg;</strong>: the power
       wedge has the XT30's plug path, the signal wedge the USB-C's mouth, and over the phase cells
-      the heatsink ring clamps on the lands. Even there C1002's can limits how far in a 21&nbsp;mm jack
-      reaches, so the jack may have to overhang the edge a little.</li>
+      the heatsink ring clamps on the lands. Even there the 315&deg; pocket's two cans (C1015 at
+      R&nbsp;10.6/311&deg;, C1002 at R&nbsp;16.9/326&deg;) limit how far in a 21&nbsp;mm jack reaches, so the jack may
+      have to overhang the edge a little.</li>
       <li><strong>Standoffs.</strong> A 1.27&nbsp;mm header cannot take an RJ45's insertion force. Board E
       bolts to board S's M2.5 bosses on 6&nbsp;mm standoffs, at least those at 256&deg; and 308&deg; either
       side of the jack.</li>

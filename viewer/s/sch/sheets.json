@@ -33,12 +33,12 @@
   {
    "sheet": "02_power",
    "title": "Power supply",
-   "desc": "XT30 bus input, TVS, bulk, bus divider, the 12 V and 5 V bucks \u00b7 46 symbols",
+   "desc": "XT30 bus input, TVS, bulk, bus divider, the 12 V and 5 V bucks \u00b7 50 symbols",
    "file": "servodrive_S-02_power.svg",
    "source": "02_power.kicad_sch",
    "paper": "A3",
    "page": "3",
-   "symbols": 46,
+   "symbols": 50,
    "size_mm": [
     419.989,
     297.0022

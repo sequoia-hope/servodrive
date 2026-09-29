@@ -182,8 +182,8 @@
     <div class="pv-card">
       <h1>Board S</h1>
       <p class="pv-lede">The one-board servodrive: board A with its board-to-board links replaced by the essentials of board B, on a Ø65 mm six-layer board that bolts to the back of the motor.</p>
-      <dl class="pv-facts"><dt>Source</dt><dd><code>hardware/single_board/servodrive_S.kicad_pcb</code><br><code>hardware/single_board/servodrive_S.kicad_sch</code></dd><dt>Board</dt><dd>&Oslash;65 mm<small>6 copper layers, 1.6 mm thick</small></dd><dt>Parts</dt><dd>194 footprints<small>95 on the front, 99 on the back</small></dd><dt>Copper</dt><dd>111 nets, 1,958 track segments, 418 vias<small>3,069 mm of routed track</small></dd><dt>Schematic</dt><dd>4 sheets<small>A4, A2, A3, A3</small></dd><dt>3D</dt><dd>174 of 194 parts drawn from a model<small>3 through an older KiCad&rsquo;s library variable (<code>${KICAD6_3DMODEL_DIR}</code> and so on), read as KiCad 9&rsquo;s library</small><small>J4, J12, L701, L1001, L1002, U14, U15, U17, U18 with a stand-in from the project file</small><small>20 name no model (H1&ndash;H4, H10&ndash;H15, J1&ndash;J3, TL1&ndash;TL3, TP4&ndash;TP7)</small></dd></dl>
-      <p class="cu-hint">Built 2026-09-28 17:45 by pcbview from the KiCad files above:
+      <dl class="pv-facts"><dt>Source</dt><dd><code>hardware/single_board/servodrive_S.kicad_pcb</code><br><code>hardware/single_board/servodrive_S.kicad_sch</code></dd><dt>Board</dt><dd>&Oslash;65 mm<small>6 copper layers, 1.6 mm thick</small></dd><dt>Parts</dt><dd>198 footprints<small>99 on the front, 99 on the back</small></dd><dt>Copper</dt><dd>111 nets, 2,241 track segments, 444 vias<small>3,506 mm of routed track</small></dd><dt>Schematic</dt><dd>4 sheets<small>A4, A2, A3, A3</small></dd><dt>3D</dt><dd>178 of 198 parts drawn from a model<small>3 through an older KiCad&rsquo;s library variable (<code>${KICAD6_3DMODEL_DIR}</code> and so on), read as KiCad 9&rsquo;s library</small><small>J4, J12, L701, L1001, L1002, U14, U15, U17, U18 with a stand-in from the project file</small><small>20 name no model (H1&ndash;H4, H10&ndash;H15, J1&ndash;J3, TL1&ndash;TL3, TP4&ndash;TP7)</small></dd></dl>
+      <p class="cu-hint">Built 2026-09-29 07:52 by pcbview from the KiCad files above:
       <code>python3 -m pcbview build pcbview.toml</code>. Nothing here is drawn by hand &mdash; the layer plots, the model and the
       sheets are KiCad&rsquo;s own exports.</p>
     </div>
@@ -243,34 +243,34 @@
   <p>The project&rsquo;s electromagnetic simulation, run on this board file: the commutation loop and gate loops in FastHenry, the switching edges and sense chain in ngspice, DC current flow on all six layers, the DC link and bulk as a network, the field at the encoder, the FOC loop with the ADC, and an openEMS cross-check of the loop. Design point: 48&nbsp;V, 20&nbsp;A RMS per phase (28.3&nbsp;A peak), 20&nbsp;kHz centre-aligned sine PWM at m&nbsp;=&nbsp;0.8. Each row grades one question against the criterion the simulation spec (<a href="sim/SPEC.md"><code>sim/SPEC.md</code></a>) set for it.</p>
   <div class="stats">
     <div class="stat"><b>3 of 17 criteria met</b><span>6 not met &middot; 2 partly &middot; the rest reported</span></div>
-    <div class="stat"><b>Bulk cans: 6.4&nbsp;A ripple each</b><span>rated about 1.9&nbsp;A &middot; fine to ~6&nbsp;A RMS per phase</span></div>
-    <div class="stat"><b>Worst V<sub>ds</sub> 69.8&nbsp;V</b><span>silicon 80&nbsp;V &middot; phase clamps break down at 60.0&nbsp;V</span></div>
-    <div class="stat"><b>Commutation loop 1.95&nbsp;nH</b><span>PCB only, FastHenry &middot; openEMS agrees within 128&nbsp;%</span></div>
+    <div class="stat"><b>Bulk cans: 2.3&nbsp;A ripple each</b><span>rated about 1.8&nbsp;A &middot; fine to ~16&nbsp;A RMS per phase</span></div>
+    <div class="stat"><b>Worst V<sub>ds</sub> 70.6&nbsp;V</b><span>silicon 80&nbsp;V &middot; phase clamps break down at 60.0&nbsp;V</span></div>
+    <div class="stat"><b>Commutation loop 2.08&nbsp;nH</b><span>PCB only, FastHenry &middot; openEMS agrees within 108&nbsp;%</span></div>
   </div>
   <div class="tablewrap"><table class="sim">
     <thead><tr><th>Question</th><th>This board</th><th>Criterion</th><th>Verdict</th></tr></thead>
     <tbody>
-      <tr><td>Commutation loop</td><td>1.95&nbsp;nH of PCB (FastHenry, all four capacitors); 3.1&ndash;3.2&nbsp;nH with the two FET packages and the capacitors' ESL (its mesh series 2.36, 2.17, 2.00, 1.92, 1.93, 1.79&nbsp;nH, 7.3&nbsp;% on the last step); cells A/B/C within 10&nbsp;%; the full-wave check, one capacitor's loop, reads 1.74, 1.73, 1.70&nbsp;nH as its mesh refines (0.2, 0.14, 0.1&nbsp;mm) against FastHenry's 2.53&nbsp;nH</td><td>reported; FastHenry and openEMS agree within 25&nbsp;%, each converged</td><td class="bad">does not</td></tr>
-      <tr><td>Switching overshoot</td><td>52.4&nbsp;V peak at 48&nbsp;V and 28.3&nbsp;A; 69.8&nbsp;V at the worst corner swept (R<sub>g</sub>, T<sub>j</sub>, driver strength, capacitance); 60.4&nbsp;V at 56&nbsp;V, the top of the fold-back</td><td>V<sub>ds</sub> &le; 57&nbsp;V everywhere (the TPSMF4L54A's breakdown minimum is 60.0 V; the criterion keeps board A's 3 V margin under it); ringing under 5&nbsp;% in 5 cycles</td><td class="wrn">partly</td></tr>
-      <tr><td>Snubber</td><td>at the nominal edge, which passes without one (52.4&nbsp;V), every RC from 2.2&ndash;22&nbsp;&Omega; and 0.47&ndash;4.7&nbsp;nF leaves the peak at 51.9&ndash;52.5&nbsp;V: the overshoot there is too small for a snubber to matter. The sweep is not run at the strong-driver corner that reaches 69.8&nbsp;V</td><td>the smallest RC that passes Q2 with P<sub>R</sub> &le; 0.25&nbsp;W</td><td class="keep">reported</td></tr>
-      <tr><td>Miller turn-on</td><td>3.06&nbsp;V induced on the off FET's gate at the nominal edge, 3.97&nbsp;V at the worst corner, against a V<sub>GS(th)</sub> of 2.2&nbsp;V minimum</td><td>induced V<sub>gs</sub> &le; 0.7 &times; V<sub>GS(th),min</sub></td><td class="bad">does not</td></tr>
+      <tr><td>Commutation loop</td><td>2.08&nbsp;nH of PCB (FastHenry, all four capacitors); 3.2&ndash;3.4&nbsp;nH with the two FET packages and the capacitors' ESL (its mesh series 2.56, 2.38, 2.14, 2.05, 2.08, 1.86&nbsp;nH, 10.4&nbsp;% on the last step); cells A/B/C within 18&nbsp;%; the full-wave check, one capacitor's loop, reads 1.88, 1.81, 1.76&nbsp;nH as its mesh refines (0.2, 0.14, 0.1&nbsp;mm) against FastHenry's 2.78&nbsp;nH</td><td>reported; FastHenry and openEMS agree within 25&nbsp;%, each converged</td><td class="bad">does not</td></tr>
+      <tr><td>Switching overshoot</td><td>51.3&nbsp;V peak at 48&nbsp;V and 28.3&nbsp;A; 70.6&nbsp;V at the worst corner swept (R<sub>g</sub>, T<sub>j</sub>, driver strength, capacitance); 59.2&nbsp;V at 56&nbsp;V, the top of the fold-back</td><td>V<sub>ds</sub> &le; 57&nbsp;V everywhere (the TPSMF4L54A's breakdown minimum is 60.0 V; the criterion keeps board A's 3 V margin under it); ringing under 5&nbsp;% in 5 cycles</td><td class="wrn">partly</td></tr>
+      <tr><td>Snubber</td><td>at the nominal edge, which passes without one (51.3&nbsp;V), every RC from 2.2&ndash;22&nbsp;&Omega; and 0.47&ndash;4.7&nbsp;nF leaves the peak at 51.0&ndash;51.4&nbsp;V: the overshoot there is too small for a snubber to matter. The sweep is not run at the strong-driver corner that reaches 70.6&nbsp;V</td><td>the smallest RC that passes Q2 with P<sub>R</sub> &le; 0.25&nbsp;W</td><td class="keep">reported</td></tr>
+      <tr><td>Miller turn-on</td><td>3.04&nbsp;V induced on the off FET's gate at the nominal edge, 3.63&nbsp;V at the worst corner, against a V<sub>GS(th)</sub> of 2.2&nbsp;V minimum</td><td>induced V<sub>gs</sub> &le; 0.7 &times; V<sub>GS(th),min</sub></td><td class="bad">does not</td></tr>
       <tr><td>Current sense, transient</td><td>the INA241A3 holds its output 1000&nbsp;ns after each edge (settles in 2318&nbsp;ns, 35 LSB worst); a free-running ADC lands 12&ndash;14&nbsp;% of samples in a hold, PWM-synchronised sampling none</td><td>settled to &plusmn;1 LSB in 500&nbsp;ns; &le; 6&nbsp;% of samples disturbed</td><td class="bad">does not</td></tr>
       <tr><td>Current sense, DC</td><td>copper is 2.9&nbsp;% of the 1.030&nbsp;m&Omega; between the taps; TCR -155 to 379&nbsp;ppm/K with the shunt's &plusmn;275&nbsp;ppm/K; the two shunts share 51/49</td><td>copper &le; 5&nbsp;%; TCR &le; 500&nbsp;ppm/K; sharing within 10&nbsp;%</td><td class="fix">meets it</td></tr>
-      <tr><td>Vias and copper at 20&nbsp;A</td><td>busiest barrel 2.83&nbsp;A RMS in the 16-via array that takes the phase current from the low-side drain down to the shunts, 2.08&nbsp;A in the high side's 20-via drain array fed from the XT30; phase band 74&nbsp;A/mm&sup2; (p99.9)</td><td>&le; 2&nbsp;A RMS per 0.4&nbsp;mm barrel</td><td class="bad">does not</td></tr>
-      <tr><td>Bulk cans</td><td>6.4&nbsp;A RMS in each can at 20&nbsp;A RMS per phase (1.44&nbsp;W each), against 1.5&ndash;2.2&nbsp;A of rating at 20&ndash;40&nbsp;kHz: within rating up to about 4.7&ndash;7.0&nbsp;A RMS per phase, continuous</td><td>each can within its ripple rating</td><td class="bad">does not</td></tr>
-      <tr><td>Bus ripple</td><td>1.75&nbsp;V peak-to-peak at the drains; 2.0&nbsp;A RMS goes back up a 1&nbsp;&micro;H battery lead; the ceramics are 8.2&nbsp;&micro;F at 48&nbsp;V of 13.8 nominal; the cans are about 2.9&nbsp;nH of plane from cell A (FastHenry's series 3.5, 2.4, 2.9&nbsp;nH is still moving; at 20&ndash;40&nbsp;kHz any of them is under 1&nbsp;m&Omega;)</td><td>V<sub>bus,pp</sub> &le; 3&nbsp;V; no DC-link resonance with Q &gt; 3 below 1&nbsp;MHz</td><td class="fix">meets it</td></tr>
-      <tr><td>Encoder field</td><td>bulk cans 0.006&deg; and the XT30's bus current 0.016&deg; at the weakest field; with the motor leads 0.13&deg; at the nominal gap, 0.16&deg; at the weakest &mdash; the leads are nearly all of it</td><td>current-induced angle error &le; 0.05&deg; (about 2 LSB)</td><td class="wrn">partly<br><small>the board's own currents pass; the motor leads do not unless twisted</small></td></tr>
+      <tr><td>Vias and copper at 20&nbsp;A</td><td>busiest barrel 2.83&nbsp;A RMS in the 16-via array that takes the phase current from the low-side drain down to the shunts, 2.09&nbsp;A in the high side's 20-via drain array fed from the XT30; phase band 74&nbsp;A/mm&sup2; (p99.9)</td><td>&le; 2&nbsp;A RMS per 0.4&nbsp;mm barrel</td><td class="bad">does not</td></tr>
+      <tr><td>Bulk cans</td><td>2.3&nbsp;A RMS in each can at 20&nbsp;A RMS per phase (0.15&nbsp;W each), against 1.8&nbsp;A of rating at 20&ndash;40&nbsp;kHz: within rating up to about 16.1&nbsp;A RMS per phase, continuous</td><td>each can within its ripple rating</td><td class="bad">does not</td></tr>
+      <tr><td>Bus ripple</td><td>2.43&nbsp;V peak-to-peak at the drains; 3.2&nbsp;A RMS goes back up a 1&nbsp;&micro;H battery lead; the ceramics are 8.2&nbsp;&micro;F at 48&nbsp;V of 13.8 nominal; the cans are about 1.1&nbsp;nH of plane from cell A</td><td>V<sub>bus,pp</sub> &le; 3&nbsp;V; no DC-link resonance with Q &gt; 3 below 1&nbsp;MHz</td><td class="fix">meets it</td></tr>
+      <tr><td>Encoder field</td><td>bulk cans 0.009&deg; and the XT30's bus current 0.016&deg; at the weakest field; with the motor leads 0.13&deg; at the nominal gap, 0.17&deg; at the weakest &mdash; the leads are nearly all of it</td><td>current-induced angle error &le; 0.05&deg; (about 2 LSB)</td><td class="wrn">partly<br><small>the board's own currents pass; the motor leads do not unless twisted</small></td></tr>
       <tr><td>Magnet</td><td>&Oslash;6 &times; 2.5&nbsp;mm: 69&nbsp;mT at the IC at the nominal 1.5&nbsp;mm gap; inside the window for every grade and &plusmn;0.3&nbsp;mm offset from 1.0 to 2.0&nbsp;mm; over 100&nbsp;mT at 0.5&nbsp;mm and closer</td><td>20&ndash;100&nbsp;mT (MT6701) over the gap tolerance, 1&ndash;2&nbsp;mm</td><td class="fix">meets it</td></tr>
       <tr><td>ADC sampling</td><td>free-running round-robin: 0.63&nbsp;A RMS error and 1.52&nbsp;A bias on i<sub>q</sub>; sampled at the PWM counter's zero: 0.20&nbsp;A and 0.73&nbsp;A</td><td>synchronised sampling cuts disturbed samples to zero</td><td class="keep">reported</td></tr>
       <tr><td>Dead time</td><td>the software dead_zone costs 0.62&nbsp;% of torque on top of the EG2103's own 560&nbsp;ns; pulses under 2.4&nbsp;% duty never reach the FETs</td><td>reported, with a firmware setting</td><td class="keep">reported</td></tr>
-      <tr><td>Regeneration</td><td>a 20&nbsp;A brake from rated speed (J 10<sup>&minus;3</sup>&nbsp;kg&middot;m&sup2;) lifts 200&nbsp;&micro;F from 48&nbsp;V to the 52&nbsp;V fold-back in 47&nbsp;&micro;s and to the TVS in 141&nbsp;&micro;s; the bulk takes 0.13&nbsp;J of the 21.9&nbsp;J stored</td><td>reported: no brake chopper; the battery, when it accepts charge, is the sink</td><td class="keep">reported</td></tr>
-      <tr><td>Motor frame (common mode)</td><td>a floating frame swings 81&nbsp;V peak on each edge through the winding capacitance</td><td>&le; 10&nbsp;V peak frame-to-GND</td><td class="bad">does not<br><small>the enclosure has to bond the motor frame; the board cannot</small></td></tr>
+      <tr><td>Regeneration</td><td>a 20&nbsp;A brake from rated speed (J 10<sup>&minus;3</sup>&nbsp;kg&middot;m&sup2;) lifts 132&nbsp;&micro;F from 48&nbsp;V to the 52&nbsp;V fold-back in 31&nbsp;&micro;s and to the TVS in 93&nbsp;&micro;s; the bulk takes 0.09&nbsp;J of the 21.9&nbsp;J stored</td><td>reported: no brake chopper; the battery, when it accepts charge, is the sink</td><td class="keep">reported</td></tr>
+      <tr><td>Motor frame (common mode)</td><td>a floating frame swings 70&nbsp;V peak on each edge through the winding capacitance</td><td>&le; 10&nbsp;V peak frame-to-GND</td><td class="bad">does not<br><small>the enclosure has to bond the motor frame; the board cannot</small></td></tr>
       <tr><td>Heat</td><td>10.0&nbsp;W on the board at 20&nbsp;A RMS and 48&nbsp;V; the high-side drain's 20-via array is 7.1&nbsp;K/W; for T<sub>j</sub> &le; 125&nbsp;&deg;C the ring needs &le; 7.4&nbsp;K/W to air (about 90&nbsp;cm&sup2;)</td><td>reported</td><td class="keep">reported</td></tr>
       <tr><td>Radiated field</td><td>not quoted: a whole-board FDTD mesh cannot resolve 0.15&nbsp;mm copper at an affordable cell count, so the far-field run does not converge</td><td>informational</td><td class="keep">reported</td></tr>
     </tbody>
   </table></div>
   <div class="figs">
-    <figure><a href="sim/report/img/s/p4_ripple_s.png"><img src="sim/report/img/s/p4_ripple_s.png" loading="lazy" alt="The bulk cans at the design point"></a><figcaption><b>The bulk cans at the design point.</b> Left: the inverter's DC-link current over three PWM periods at the phase-current peak, with what the two cans and the battery lead carry of its ripple. Right: each can's RMS ripple for every ceramic and ESR corner, against the part's 2.5&nbsp;A (100&nbsp;kHz) rating brought down to 20&ndash;40&nbsp;kHz. The ceramics on the cells are too small at 20&nbsp;kHz to take a useful share; the cans take it all, and the battery lead rings against them.</figcaption></figure>
+    <figure><a href="sim/report/img/s/p4_ripple_s.png"><img src="sim/report/img/s/p4_ripple_s.png" loading="lazy" alt="The bulk cans at the design point"></a><figcaption><b>The bulk cans at the design point.</b> Left: the inverter's DC-link current over three PWM periods at the phase-current peak, with what the six cans and the battery lead carry of its ripple. Right: each can's RMS ripple for every ceramic and ESR corner, against the part's 2.6&nbsp;A (100&nbsp;kHz) rating brought down to 20&ndash;40&nbsp;kHz. The ceramics on the cells are too small at 20&nbsp;kHz to take a useful share; the cans take it all, and the battery lead rings against them.</figcaption></figure>
     <figure><a href="sim/report/img/s/p2_edges.png"><img src="sim/report/img/s/p2_edges.png" loading="lazy" alt="Both switching edges of cell A"></a><figcaption><b>Both switching edges of cell A.</b> ngspice, with FastHenry's loop and gate inductances, the fitted BSC030N08NS5 and a behavioural EG2103, at the design point. Top: V<sub>ds</sub> of both FETs; the larger overshoot is the low side's, while its own body diode recovers at turn-on. Bottom: the gates, with the Miller kick on the FET that is meant to stay off.</figcaption></figure>
     <figure><a href="sim/report/img/s/p1_commutation_A.png"><img src="sim/report/img/s/p1_commutation_A.png" loading="lazy" alt="The commutation loop, solved"></a><figcaption><b>The commutation loop, solved.</b> FastHenry on cell A's routed copper: each DC-link capacitor's own loop and all four in parallel (black), 1&nbsp;kHz to 300&nbsp;MHz, against the 0.39&nbsp;nH the design's closed form assumed (dashed). The packages and capacitor ESL come on top of this.</figcaption></figure>
     <figure><a href="sim/report/img/s/p3_J_vbus_In2.png"><img src="sim/report/img/s/p3_J_vbus_In2.png" loading="lazy" alt="The bus current on In2"></a><figcaption><b>The bus current on In2.</b> The DC solution, 28.3&nbsp;A from the XT30's VMOT pin (lower left) to cell A's high-side drain (right) on the In2 VBUS plane. It goes the long way round, past cells C and B: In2 is +3V3 over the CPU wedge and the centre, so the plane is an open ring.</figcaption></figure>
@@ -280,7 +280,7 @@
     <figure><a href="sim/report/img/s/p6_sampling.png"><img src="sim/report/img/s/p6_sampling.png" loading="lazy" alt="What the ADC gives the current loop"></a><figcaption><b>What the ADC gives the current loop.</b> The FOC loop, the motor and the RP2350's ADC together: free-running round-robin sampling against sampling at the PWM counter's zero.</figcaption></figure>
     <figure><a href="sim/report/img/s/p7_crosscheck.png"><img src="sim/report/img/s/p7_crosscheck.png" loading="lazy" alt="Two solvers, one loop"></a><figcaption><b>Two solvers, one loop.</b> The same loop in openEMS (full wave, mesh snapped to the copper) and in FastHenry (quasi-static), each over its own mesh series. On this board the full-wave series has not settled: its finest step reads twice the two before it (table above).</figcaption></figure>
   </div>
-  <p class="sub">Phases run: P0, P1, P2, P3, P4, P5, P5S, P6, P7, P8; solver known-answer tests 13/13 passed. Results written 2026-09-27 00:09 from the board file of 2026-09-26 18:52; numbers and figures come only from <code>sim/results/s/</code> and <code>sim/report/img/s/</code>. Rebuild with <code>python3 sim/run.py --board s</code> (about two hours; the full-wave cross-check is most of it). Board A&rsquo;s own report is <a href="sim/report/index.html">here</a>.</p>
+  <p class="sub">Phases run: P0, P1, P2, P3, P4, P5, P5S, P6, P7, P8; solver known-answer tests 13/13 passed. Results written 2026-09-29 10:09 from the board file of 2026-09-29 07:50; numbers and figures come only from <code>sim/results/s/</code> and <code>sim/report/img/s/</code>. Rebuild with <code>python3 sim/run.py --board s</code> (about two hours; the full-wave cross-check is most of it). Board A&rsquo;s own report is <a href="sim/report/index.html">here</a>.</p>
 </section>
 <!-- sim:end -->
 
@@ -296,16 +296,18 @@
           limit back across 52&rarr;56&nbsp;V. 80&nbsp;V FETs. Clamps are the 54&nbsp;V grade: SMDJ54A (3&nbsp;kW)
           on the bus, TPSMF4L54A on each phase, both breaking down at 60.0&ndash;66.3&nbsp;V.</td></tr>
         <tr><td>Phase current</td><td>20&nbsp;A RMS per phase (28.3&nbsp;A peak) <strong>in bursts</strong>. The
-          continuous rating is set by heat and, on this board, by the bulk cans' ripple rating
-          (simulation, above).</td></tr>
+          continuous rating is set by heat and, on this board, by the bulk cans' ripple rating:
+          about 16&nbsp;A RMS per phase with six small cans (<a href="bulk.html">the bulk options</a>),
+          where the first two large ones allowed 5.5.</td></tr>
         <tr><td>Power stage</td><td>Three half-bridges of BSC030N08NS5 (80&nbsp;V, 3.0&nbsp;m&Omega; max), 20&nbsp;kHz
           centre-aligned PWM. EG2103 driver per phase: bootstrap high side, interlock, 560&nbsp;ns
           internal dead time, 0.3/0.6&nbsp;A; 2.2&nbsp;&Omega; gate resistors, 10&nbsp;k bleeds. DC link at the FETs:
           2&nbsp;&times;&nbsp;2.2&nbsp;&micro;F/100&nbsp;V X7S + 2&nbsp;&times;&nbsp;100&nbsp;nF per cell. RC snubber footprints
           (2.2&nbsp;&Omega; + 470&nbsp;pF) on the board, not populated.</td></tr>
-        <tr><td>Bulk</td><td>2&nbsp;&times;&nbsp;100&nbsp;&micro;F/100&nbsp;V conductive polymer (NJCON 1011001013R00,
-          &Oslash;10&nbsp;&times;&nbsp;12, 35&nbsp;m&Omega;, 2.5&nbsp;A ripple at 100&nbsp;kHz), in the middle of the outward
-          face.</td></tr>
+        <tr><td>Bulk</td><td>6&nbsp;&times;&nbsp;22&nbsp;&micro;F/100&nbsp;V conductive polymer (jieerrui PA100V22M6X9,
+          &Oslash;6.3&nbsp;&times;&nbsp;9, 30&nbsp;m&Omega;, 2.6&nbsp;A ripple at 100&nbsp;kHz), 132&nbsp;&micro;F, two in each of the three
+          pockets between the M3 heads on the outward face (2026-09-28; it was two &Oslash;10 cans,
+          <a href="bulk.html">why</a>).</td></tr>
         <tr><td>Current sense</td><td>Phases A and B inline: 2&nbsp;&times;&nbsp;2&nbsp;m&Omega; (Vishay WSLP2010) =
           1.0&nbsp;m&Omega; into an INA241A3 at 50&nbsp;V/V: 50&nbsp;mV/A about 1.65&nbsp;V, &plusmn;29.0&nbsp;A at the
           amplifier's worst-case swing. Phase C carries a metal-strip 0&nbsp;&Omega; so all three legs match;
@@ -466,9 +468,10 @@
       as far from the switching as the board allows.</li>
       <li><strong>Signal wedge, 308&ndash;360&deg;</strong> &mdash; the USB-C at the rim, the two LMR38010 bucks
       (12&nbsp;V on the motor-facing face, 5&nbsp;V outward) and the USB ESD.</li>
-      <li><strong>Centre, outward face</strong> &mdash; the two bulk cans (12&ndash;13&nbsp;mm tall), the
-      expansion header across the shaft axis, the XT30's back end, LED, BOOTSEL, test pads and
-      the bucks' 4.7&nbsp;&micro;F input caps.</li>
+      <li><strong>Centre, outward face</strong> &mdash; the six bulk cans (9.5&nbsp;mm tall), two in each
+      pocket between the M3 heads at 45, 135 and 315&deg;; the expansion header across the shaft
+      axis, the XT30's back end, BOOTSEL, test pads and the bucks' overflow caps. The LED is beside
+      the XT30's back end.</li>
       <li><strong>Centre, motor-facing face</strong> &mdash; the MT6701 on the axis inside a &Oslash;12 magnet
       keepout; around it only parts under 1.5&nbsp;mm, kept 3.75&nbsp;mm from each M3 standoff: the four
       SIT3088 with their terminations, the 3V3 LDO, the bus and VBUS-detect dividers.</li>
@@ -614,14 +617,14 @@
     <!-- status:begin -->
     <table class="num">
       <tbody>
-        <tr><td>Parts on the board</td><td>194 footprints (95 outward, 99 motor-facing): 186 placed parts, 10 of them DNP (the snubbers, and cell C's unused amplifier and sense taps), plus test pads and holes</td></tr>
-        <tr><td>Netlist</td><td>190 components, 111 nets, 577 connections</td></tr>
-        <tr><td>Routing</td><td>1958 track segments, 418 vias; 0 unconnected</td></tr>
+        <tr><td>Parts on the board</td><td>198 footprints (99 outward, 99 motor-facing): 190 placed parts, 10 of them DNP (the snubbers, and cell C's unused amplifier and sense taps), plus test pads and holes</td></tr>
+        <tr><td>Netlist</td><td>194 components, 111 nets, 585 connections</td></tr>
+        <tr><td>Routing</td><td>2241 track segments, 444 vias; 0 unconnected</td></tr>
         <tr><td>Checks</td><td>DRC 0, ERC 0 (every severity)</td></tr>
         <tr><td>Sourcing</td><td>every placed part has an LCSC number (<code>hardware/parts/lcsc.csv</code>), shown in the 3D viewer's part pane</td></tr>
       </tbody>
     </table>
-    <p class="sub">Counted off <code>servodrive_S.kicad_pcb</code> as saved 2026-09-26 18:52 by <code>tools/regen.py</code>, which <code>route.py</code> runs after every routing run.</p>
+    <p class="sub">Counted off <code>servodrive_S.kicad_pcb</code> as saved 2026-09-29 07:50 by <code>tools/regen.py</code>, which <code>route.py</code> runs after every routing run.</p>
     <!-- status:end -->
     <pre><code>python3 tools/schematic_s.py                       # netlist and its checks
 python3 tools/gen_boards.py --board s --force       # emit, stitch, fan out (discards routing)
@@ -632,9 +635,12 @@ python3 sim/run.py --board s                        # the simulation, into this 
   <section id="open">
     <h2>Open items</h2>
     <ul class="checks">
-      <li><strong>The bulk cans at full current.</strong> The simulation puts about three times the
-      cans' rated ripple through each at 20&nbsp;A RMS per phase. Either the 20&nbsp;A figure stays a short
-      burst, or the bulk changes (more cans, higher-ripple parts, or more ceramic at the cells).</li>
+      <li><strong>The bulk cans at full current.</strong> Six &Oslash;6.3 cans since 2026-09-28
+      (<a href="bulk.html">the options</a>): each carries about 2.3&nbsp;A at 20&nbsp;A RMS per phase against
+      1.8&nbsp;A of rating at 20&ndash;40&nbsp;kHz, so they are within rating to 15&ndash;16&nbsp;A per phase
+      continuous and 20&nbsp;A is still a burst, at 0.16&nbsp;W a can. The ratings are the datasheet's at
+      105&nbsp;&deg;C; a can's temperature on the bench is what would say how long a burst may last. The
+      battery lead carries more of the ripple than it did (about 3&nbsp;A RMS on 1&nbsp;&micro;H).</li>
       <li><strong>Switching overshoot at the corners.</strong> At the fastest corners swept the
       low-side V<sub>ds</sub> reaches into the phase clamps' 60&nbsp;V breakdown; the DNP snubber
       footprints are the fix if the bench shows it.</li>
@@ -648,9 +654,9 @@ python3 sim/run.py --board s                        # the simulation, into this 
       <li><strong>The bucks' control loops</strong> use TI's table values for L and C<sub>OUT</sub>; the
       effective capacitance at bias is estimated, and TI asks for a load-transient test before
       production. Neither inductor is rated to the LMR38010's 1.9&nbsp;A current limit.</li>
-      <li><strong>Heights.</strong> The cans stand 12&ndash;13&nbsp;mm on the outward face: a stacked
-      expansion board needs longer standoffs or a cut-out. Motor-facing centre parts must be bought
-      under 1.5&nbsp;mm.</li>
+      <li><strong>Heights.</strong> The cans stand 9.5&nbsp;mm on the outward face: a stacked
+      expansion board needs longer standoffs or holes over them. Motor-facing centre parts must be
+      bought under 1.5&nbsp;mm.</li>
       <li><strong>Heatsink ring.</strong> The USB-C reaches the edge in the signal wedge, so a
       ring clamped on the lands needs a gap there.</li>
       <li><strong>Stock to watch:</strong> SIT3088ETK (140 at JLCPCB on 2026-09-24, four per board),
