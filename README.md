@@ -19,10 +19,12 @@ re-placed and re-routed 2026-09-24 with an XT30 for the bus
 
 The pages are styled after Altium 365's workspace: a dark frame with the
 project tree on the left, built by `shell.js` from each page's own headings.
-The board viewer on the two board pages is pcbview's (`~/Software/pcbview`,
-which began as this project's own): `pcbview.toml` says what it shows, and
-`python3 tools/regen.py --board a|s` builds it into `viewer/` and writes it
-into the page between `<!-- pcbview:begin -->` and `<!-- pcbview:end -->`.
+The board viewer on the two board pages is
+[pcbview](https://github.com/sequoia-hope/pcbview)'s (which began as this
+project's own; `tools/regen.py` runs it from `~/Software/pcbview`):
+`pcbview.toml` says what it shows, and `python3 tools/regen.py --board a|s`
+builds it into `viewer/` and writes it into the page between
+`<!-- pcbview:begin -->` and `<!-- pcbview:end -->`.
 `viewer/a.html` and `viewer/s.html` are the same viewers filling the window.
 
 Online at <https://sequoia-hope.github.io/servodrive/> (GitHub Pages, from
