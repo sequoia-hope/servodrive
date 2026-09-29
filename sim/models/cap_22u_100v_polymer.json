@@ -1,0 +1,63 @@
+{
+ "part": "PA100V22M6X9, 22 uF 100 V conductive-polymer aluminium, D6.3 x 9",
+ "maker": "jieerrui, LCSC C49233038 (second source Shengyang SH226M100E0900, C44606504, rated the same 2.6 A and 30 mOhm)",
+ "C_nominal": {
+  "unit": "F",
+  "source": "https://datasheet.lcsc.com/datasheet/pdf/9352f825fb63bcb6153eaa10a3e4530b.pdf -- jieerrui PA series (aluminium solid capacitors, 105 C 2000 h), row PA100V22M6X9",
+  "read": "2026-09-28",
+  "status": "datasheet",
+  "value": 2.2e-05,
+  "note": "+-20 % at 120 Hz, 20 C"
+ },
+ "V_rated": {
+  "unit": "V",
+  "source": "https://datasheet.lcsc.com/datasheet/pdf/9352f825fb63bcb6153eaa10a3e4530b.pdf -- jieerrui PA series (aluminium solid capacitors, 105 C 2000 h)",
+  "read": "2026-09-28",
+  "status": "datasheet",
+  "value": 100.0
+ },
+ "ESR": {
+  "unit": "Ohm",
+  "source": "https://datasheet.lcsc.com/datasheet/pdf/9352f825fb63bcb6153eaa10a3e4530b.pdf -- jieerrui PA series (aluminium solid capacitors, 105 C 2000 h), row PA100V22M6X9",
+  "read": "2026-09-28",
+  "status": "bracketed",
+  "min": 0.017142857142857144,
+  "typ": 0.02571428571428571,
+  "max": 0.03,
+  "note": "30 mOhm at 100 kHz is the design number, as C2887236's 35; min and typ in the same proportion as that model's"
+ },
+ "ripple_rated_A_rms": {
+  "unit": "A",
+  "source": "https://datasheet.lcsc.com/datasheet/pdf/9352f825fb63bcb6153eaa10a3e4530b.pdf -- jieerrui PA series (aluminium solid capacitors, 105 C 2000 h), row PA100V22M6X9",
+  "read": "2026-09-28",
+  "status": "datasheet",
+  "value": 2.6,
+  "note": "at 105 C and 100 kHz"
+ },
+ "ripple_freq_factor_20kHz": {
+  "unit": "-",
+  "source": "https://datasheet.lcsc.com/datasheet/pdf/9352f825fb63bcb6153eaa10a3e4530b.pdf -- jieerrui PA series (aluminium solid capacitors, 105 C 2000 h): ripple current quick reference table, 10 kHz <= f < 100 kHz",
+  "read": "2026-09-28",
+  "status": "datasheet",
+  "min": 0.7,
+  "typ": 0.7,
+  "max": 0.7
+ },
+ "ESL": {
+  "unit": "H",
+  "source": "not in the datasheet",
+  "read": "2026-09-28",
+  "status": "bracketed",
+  "min": 3e-09,
+  "typ": 4e-09,
+  "max": 6e-09,
+  "note": "a D6.3 radial on 2.5 mm lead spacing, leads trimmed flush"
+ },
+ "leakage_A": {
+  "unit": "A",
+  "source": "https://datasheet.lcsc.com/datasheet/pdf/9352f825fb63bcb6153eaa10a3e4530b.pdf -- jieerrui PA series (aluminium solid capacitors, 105 C 2000 h)",
+  "read": "2026-09-28",
+  "status": "datasheet",
+  "max": 0.0005
+ }
+}

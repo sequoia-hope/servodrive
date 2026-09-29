@@ -56,6 +56,38 @@ GP_S = {0: "RS485_IN_TX", 1: "RS485_IN_RX",
 GPIO_PINS = [2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19,
              27, 28, 29, 31, 32, 33, 34, 35, 36, 37]
 
+# The bus bulk. Two D10 cans (C2887236, 100 uF, 2.5 A at 100 kHz) carried
+# about 6.4 A of ripple each at 20 A RMS per phase, 3.7 times their rating
+# at 20-40 kHz, where every candidate's datasheet takes 0.7 of the 100 kHz
+# figure. In parallel at those frequencies the ripple divides by capacitance,
+# so what counts is rating per microfarad across a bank of one part, and the
+# small cans have the most of it. The outward centre has three pockets
+# between the M3 heads (45, 135, 315 deg); each takes one D10 or D8, or two
+# D6.3. (2026-09-28: tools/placement_s.BULK_SITES has where.) Chosen the same
+# day: six D6.3, PA100V22M6X9 (C49233038: 22 uF, 30 mOhm, 2.6 A at 100 kHz),
+# good for 15-16 A RMS per phase continuously where the two D10 were good
+# for 5.5 -- bulk.html has the options and the numbers.
+FP_CAN = {"10": "Capacitor_THT:CP_Radial_D10.0mm_P5.00mm",
+          "8": "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm",
+          "6.3": "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"}
+CAN_VALUE = {"10": "100u/100V polymer", "8": "47u/100V polymer", "6.3": "22u/100V polymer"}
+BULK_VARIANTS = {
+    "2x10": [("C1001", "10"), ("C1002", "10")],
+    "3x8": [("C1001", "8"), ("C1002", "8"), ("C1012", "8")],
+    "5x6.3": [("C1001", "6.3"), ("C1012", "6.3"), ("C1002", "6.3"), ("C1013", "6.3"),
+              ("C1014", "6.3")],
+    "6x6.3": [("C1001", "6.3"), ("C1012", "6.3"), ("C1002", "6.3"), ("C1015", "6.3"),
+              ("C1013", "6.3"), ("C1014", "6.3")],
+}
+BULK_KIND = "6x6.3"
+
+def bulk(kind=None):
+    """[(ref, value, footprint)] of the bulk cans."""
+    return [(ref, CAN_VALUE[d], FP_CAN[d]) for ref, d in BULK_VARIANTS[kind or BULK_KIND]]
+
+def bulk_refs(kind=None):
+    return tuple(ref for ref, _, _ in bulk(kind))
+
 # Expansion header, 2 x 10 at 1.27 mm, across the shaft axis on the outward
 # face. The odd row carries VMOT at the end toward C1001 and the even row the
 # ground beside each of those pins, so a PD board feeding the bus through
@@ -103,10 +135,9 @@ def power():
 
     add("D1001", DZ, "SMDJ54A", "Diode_SMD:D_SMC", {"1": "VBUS", "2": "GND"},
         "bus: TVS and bulk")
-    # Two solid-polymer cans, C2887236, in the centre of the outward face.
-    for ref in ("C1001", "C1002"):
-        add(ref, "Device:C_Polarized", "100u/100V polymer",
-            "Capacitor_THT:CP_Radial_D10.0mm_P5.00mm", {"1": "VBUS", "2": "GND"},
+    # The bulk: solid-polymer cans in the centre of the outward face, bulk().
+    for ref, value, fp in bulk():
+        add(ref, "Device:C_Polarized", value, fp, {"1": "VBUS", "2": "GND"},
             "bus: TVS and bulk")
     # The bus divider, board A's: 24:1, two resistors in the high leg for the
     # working voltage.

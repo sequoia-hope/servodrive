@@ -1,0 +1,62 @@
+{
+ "part": "SH476M100F1150, 47 uF 100 V conductive-polymer aluminium, D8 x 11.5",
+ "maker": "Shengyang, LCSC C44606514 (975 in stock 2026-09-28; jieerrui PA100V47M8X11, C49233039, is rated 2.9 A)",
+ "C_nominal": {
+  "unit": "F",
+  "source": "https://www.lcsc.com/datasheet/lcsc_datasheet_2504101957_SHENGYANG-SH476M100F1150_C44606514.pdf -- Shengyang SH series table",
+  "read": "2026-09-28",
+  "status": "datasheet",
+  "value": 4.7e-05
+ },
+ "V_rated": {
+  "unit": "V",
+  "source": "https://www.lcsc.com/datasheet/lcsc_datasheet_2504101957_SHENGYANG-SH476M100F1150_C44606514.pdf -- Shengyang SH series table",
+  "read": "2026-09-28",
+  "status": "datasheet",
+  "value": 100.0
+ },
+ "ESR": {
+  "unit": "Ohm",
+  "source": "https://www.lcsc.com/datasheet/lcsc_datasheet_2504101957_SHENGYANG-SH476M100F1150_C44606514.pdf -- Shengyang SH series table",
+  "read": "2026-09-28",
+  "status": "bracketed",
+  "min": 0.016,
+  "typ": 0.024,
+  "max": 0.028,
+  "note": "28 mOhm in the table, its conditions not stated"
+ },
+ "ripple_rated_A_rms": {
+  "unit": "A",
+  "source": "https://www.lcsc.com/datasheet/lcsc_datasheet_2504101957_SHENGYANG-SH476M100F1150_C44606514.pdf -- Shengyang SH series table",
+  "read": "2026-09-28",
+  "status": "assumed",
+  "value": 3.8,
+  "note": "the table gives 3.8 A to every D8 x 11.5 part in the series, whatever its voltage, and states no conditions; read as 105 C and 100 kHz"
+ },
+ "ripple_freq_factor_20kHz": {
+  "unit": "-",
+  "source": "not in the datasheet; every other candidate's gives 0.7 for 10-100 kHz",
+  "read": "2026-09-28",
+  "status": "bracketed",
+  "min": 0.7,
+  "typ": 0.7,
+  "max": 0.7
+ },
+ "ESL": {
+  "unit": "H",
+  "source": "not in the datasheet",
+  "read": "2026-09-28",
+  "status": "bracketed",
+  "min": 3.5e-09,
+  "typ": 5e-09,
+  "max": 8e-09,
+  "note": "a D8 radial on 3.5 mm lead spacing, leads trimmed flush"
+ },
+ "leakage_A": {
+  "unit": "A",
+  "source": "https://www.lcsc.com/datasheet/lcsc_datasheet_2504101957_SHENGYANG-SH476M100F1150_C44606514.pdf -- Shengyang SH series table",
+  "read": "2026-09-28",
+  "status": "datasheet",
+  "max": 0.00094
+ }
+}

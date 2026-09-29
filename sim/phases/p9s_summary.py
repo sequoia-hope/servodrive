@@ -48,6 +48,14 @@ def f(x, nd=1, unit=""):
     return f"{s}&nbsp;{unit}" if unit else s
 
 
+def span(r, nd=1, unit=""):
+    """A min-max bracket as a range, or as one number when it is one."""
+    lo, hi = (r or {}).get("min"), (r or {}).get("max")
+    if lo is not None and hi is not None and abs(lo - hi) < 0.5 * 10 ** -nd:
+        return f(lo, nd, unit)
+    return f"{f(lo, nd)}&ndash;{f(hi, nd, unit)}"
+
+
 def esc(s):
     return html.escape(str(s), quote=False)
 
@@ -209,8 +217,8 @@ def rows(R):
     row("Bulk cans",
         f"{f(nom4.get('I_can_ripple_A_rms_each'), 1, 'A')} RMS in each can at 20&nbsp;A "
         f"RMS per phase ({f(nom4.get('can_heating_W_each'), 2, 'W')} each), against "
-        f"{f(rt.get('min'), 1)}&ndash;{f(rt.get('max'), 1, 'A')} of rating at 20&ndash;40&nbsp;kHz: "
-        f"within rating up to about {f(iok.get('min'), 1)}&ndash;{f(iok.get('max'), 1, 'A')} "
+        f"{span(rt, 1, 'A')} of rating at 20&ndash;40&nbsp;kHz: "
+        f"within rating up to about {span(iok, 1, 'A')} "
         f"RMS per phase, continuous",
         "each can within its ripple rating",
         "pass" if nom4.get("pass_can_rating_typ") else "fail",
@@ -326,11 +334,22 @@ def rows(R):
 
 
 # ----------------------------------------------------------------- figures -
+def _cans():
+    """How many cans the bulk is, in words, and the part's 100 kHz rating."""
+    B = board.P()["bulk"]
+    if B.get("kind") != "cans":
+        return "", ""
+    n = len(B["refs"])
+    words = {2: "two", 3: "three", 4: "four", 5: "five", 6: "six"}.get(n, str(n))
+    return words, f'{jsonio.model(B["model"])["ripple_rated_A_rms"]["value"]:g}'
+
+
+_CANS = _cans()
 FIGS = [
     ("p4_ripple_s.png", "The bulk cans at the design point",
      "Left: the inverter's DC-link current over three PWM periods at the phase-current "
-     "peak, with what the two cans and the battery lead carry of its ripple. Right: each "
-     "can's RMS ripple for every ceramic and ESR corner, against the part's 2.5&nbsp;A "
+     f"peak, with what the {_CANS[0]} cans and the battery lead carry of its ripple. Right: each "
+     f"can's RMS ripple for every ceramic and ESR corner, against the part's {_CANS[1]}&nbsp;A "
      "(100&nbsp;kHz) rating brought down to 20&ndash;40&nbsp;kHz. The ceramics on the cells are "
      "too small at 20&nbsp;kHz to take a useful share; the cans take it all, and the battery "
      "lead rings against them."),

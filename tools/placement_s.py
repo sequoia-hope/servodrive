@@ -222,7 +222,7 @@ def encoder_vias(moved):
 # bounding square wastes 21 % of the area, at the corners where the room is
 # tightest. So round parts are tested as the circles they are.
 def round_r(p):
-    return PL.courtyard(p.fp)[0] / 2 if p.fp == FP["CAN"] else None
+    return PL.courtyard(p.fp)[0] / 2 if p.fp.startswith("Capacitor_THT:CP_Radial") else None
 
 def _centre(p):
     return p.rect[0]
@@ -257,7 +257,7 @@ PL._CY["parts_motor:DFN-8_L3.0-W3.0-P0.65-BL-EP"] = (3.2, 3.95, 0.0, 0.0)
 # Parts with a pad on the 60 V bus beside low-voltage copper keep the Phase
 # class's 0.4 mm from their neighbours' pads, which courtyards touching does
 # not give: the EN divider's top resistor sat 0.36 mm from the pull-downs.
-HV = {"R1003", "R801", "D1001", "C1001", "C1002"}
+HV = {"R1003", "R801", "D1001", "C1001", "C1002", "C1012", "C1013", "C1014", "C1015"}
 HV_MARGIN = 0.25
 
 def _overlap_m(a, b, m):
@@ -605,7 +605,51 @@ RELAY_AT = {"U14": (-5.5, -12.5), "U15": (-10.0, -8.5), "U17": (-12.0, -6.0), "U
 # ... and with the XT30 (bus="xt30"), whose pins land in that quadrant: two
 # identical pairs, the receiver first along the row
 RELAY_PAIRS = [("U18", "U17"), ("U14", "U15")]
+# (chip, what it does, its 100 n, its 120 R or None, what the 120 R does)
+RELAY_CHIPS = [
+    ("U14", "port IN: receiver, DOWN pair -> UART0 RX", "C1102", "R1105",
+     "port IN DOWN pair termination, always on"),
+    ("U15", "port IN: driver, UP pair <- UART0 TX, DE on", "C1103", None, None),
+    ("U17", "port OUT: driver, DOWN pair <- PIO TX, DE on", "C1104", None, None),
+    ("U18", "port OUT: receiver, UP pair -> PIO RX", "C1105", "R1106",
+     "port OUT UP pair termination, always on")]
 RELAY_PAIRS_AT = [(8.0, 8.5), (-6.5, -6.0)]
+
+# Where each bulk variant's cans go (schematic_s.BULK_VARIANTS): courtyard
+# centres in the three pockets of the outward centre, found by scanning every
+# spot legal against the parts that cannot move (board A's, the XT30, the
+# header, the ports, the bucks). A pocket takes one D10 or D8, or two D6.3
+# side by side, as far out as they go. None: board S's first two D10 cans.
+BULK_SITES = {
+    "2x10": None,
+    "3x8": [("C1001", -10.5, 9.5), ("C1002", 13.0, -10.5), ("C1012", 8.0, 11.5)],
+    "5x6.3": [("C1001", -13.0, 7.5), ("C1012", -8.0, 12.5), ("C1002", 13.0, -9.5),
+              ("C1013", 6.0, 13.5), ("C1014", 10.5, 8.0)],
+    # Six: placed into the board as built with two D10 (BULK_KEEP), at the
+    # spots and turns that displace the fewest of its parts -- fourteen in
+    # the way, sixteen moved with their groups, where placing the cans first
+    # re-flowed some sixty and the board no longer routed. (x, y, turn); the
+    # turn puts the + lead toward VBUS where it can.
+    "6x6.3": [("C1001", -13.0, 7.75, 329), ("C1012", -8.0, 12.75, 302),
+              ("C1013", 5.75, 14.0, 248), ("C1014", 10.25, 8.75, 130),
+              ("C1015", 7.25, -8.25, 41), ("C1002", 14.0, -9.75, 145)],
+}
+# Bulk kinds built by swapping the cans into the two-D10 board rather than
+# placing them first; see _swap_bulk().
+BULK_KEEP = {"6x6.3"}
+# Where a displaced part goes when there is no room within 14 mm of where it
+# was: (x, y, turn), tried in order. C1015 takes the spot port IN's receiver
+# had, and no spot near its port holds it with its 100 n and 120 R; the LED's
+# pocket is the cans' now.
+SWAP_FALLBACK = {"U14": [(-4.5, 13.5, 45), (-2.5, -15.0, 45)],
+                 "U17": [(6.0, -5.0, 135)],
+                 "D1103": [(-8.0, 5.5, 45), (-15.25, -6.5, 45)]}
+# ... and spots tried before the nearest-to-where-it-was search, for a part
+# whose nearest spot routes worse than one a little further off. (Tried: the
+# 5 V buck's 4.7 uF input out on the VBUS annulus by phase A, clear of the
+# RP2350's corridor and needing no In2 finger -- phase A's gate and ground
+# then routed worse than the corridor had.)
+SWAP_FIRST = {}
 
 class Sketch:
     """The board as it fills up: board A's kept parts, then each new one."""
@@ -1053,7 +1097,8 @@ CENTRE_OK = {"J13", "D1103", "R1107", "R1108", "R1109", "SW1",
              "TP4", "TP5", "TP6", "TP7",
              "U14", "U15", "U17", "U18", "C1102", "C1103", "C1104", "C1105",
              "R1105", "R1106", "JP1", "JP2",
-             "R1103", "R1104", "U16", "R1005", "C1001", "C1002",
+             "R1103", "R1104", "U16", "R1005", "C1001", "C1002", "C1012", "C1013", "C1014",
+             "C1015",
              # the bucks' overflow, 2026-09-23: 4.7 uF inputs, the 12 V's second 22 uF
              "C1004", "C1007", "C1009", "C1010", "C1011"}
 
@@ -1091,6 +1136,117 @@ def place_xt30(S):
     CENTRE.discard("J4")
     S.missed.append(("J4", "XT30", FP["XT30"], PWR, "F.Cu", "bus input"))
     return None
+
+def _swap_bulk(S, kind):
+    """Put `kind`'s cans into the board as built with the two D10 cans, at
+    BULK_SITES, and place again only the parts they land on -- each at the
+    nearest legal spot to where it was, a transceiver with its 100 n and
+    120 R as the group the pair builder makes, the LED with its resistors.
+    Everything else stays where the routed board had it."""
+    import schematic_s as SS
+    for p in [p for p in S.parts if p.ref in SS.bulk_refs("2x10")]:
+        S.parts.remove(p)
+        if p in S.new:
+            S.new.remove(p)
+    cans_ = {ref: (value, fp) for ref, value, fp in SS.bulk(kind)}
+    new, hit = [], []
+    for ref, x, y, ang in BULK_SITES[kind]:
+        value, fp = cans_[ref]
+        size = fp.split("_D")[1].split("mm")[0]
+        CENTRE.add(ref)
+        c = Part.at_xy(ref, value, fp, x, y, ang, "centre", "F.Cu",
+                       f"bulk, Dia {size} polymer, in the centre")
+        assert legal(c, new), f"{ref} at its site clashes with the board or another can"
+        hit += [q for q in S.parts if q not in hit and not legal(c, [q])]
+        new.append(c)
+    # a displaced transceiver takes its 100 n and 120 R with it, the LED its
+    # resistors: they are placed again as the groups they were built as
+    chips = {c[0]: c for c in RELAY_CHIPS}
+    moved_chips = [c for c in RELAY_CHIPS if any(q.ref == c[0] for q in hit)]
+    group = {r for c in moved_chips for r in (c[0], c[2], c[3]) if r}
+    if any(q.ref == "D1103" for q in hit):
+        group |= {"D1103", "R1107", "R1108", "R1109"}
+    old = {q.ref: q for q in S.parts}
+    hit = [q for q in S.parts if q in hit or q.ref in group]
+    for q in hit:
+        S.parts.remove(q)
+        if q in S.new:
+            S.new.remove(q)
+        if q.fp == FP["DFN8"]:
+            gone = {(round(e.rect[0][0], 3), round(e.rect[0][1], 3)) for e in _escape_strips(q)}
+            ESC_KEEP[:] = [e for e in ESC_KEEP
+                           if (round(e.rect[0][0], 3), round(e.rect[0][1], 3)) not in gone]
+    S.parts += new
+    S.new += new
+    S.displaced = [q.ref for q in hit]
+    # the transceivers first, as groups, nearest to where each was
+    for ref, note, cap, term, tnote in moved_chips:
+        u = old[ref]
+        x, y = _centre(u)
+        gs = [u.ang + k for k in (0, 90, 180, 270)]
+        # inside R 17.5: out in the ring a transceiver sits among a phase
+        # cell's sense parts, and its pins had no way back to the CPU
+        def alone(spots):
+            # the chip by itself at one of `spots`, then its 100 n and 120 R
+            # wherever they fit beside it
+            for fx, fy, fg in spots:
+                c = S.put_xy(ref, "SIT3088", FP["DFN8"], fx, fy, fg, note,
+                             angs=(fg, fg + 90, fg + 180, fg + 270), layer=u.layer,
+                             reach=1.0, r_max=24.0)
+                if c is None:
+                    S.missed.pop()
+                    continue
+                (ux, uy) = c.rect[0]
+                S.put_xy(cap, "100n", FP["C0402"], ux, uy, 0, f"{ref} decoupling, at VCC",
+                         angs=(0, 90, 45, 135), layer=u.layer, reach=5.0, r_max=24.0)
+                if term:
+                    S.put_xy(term, "120R", FP["R0603"], ux, uy, 0, tnote,
+                             angs=(0, 90, 45, 135), layer=u.layer, reach=6.0, r_max=24.0)
+                return [c]
+            return None
+        got = alone(SWAP_FIRST.get(ref, ()))
+        if got is None:
+            got = S.put_rigid(S.pair([chips[ref]]), x, y, gs, reach=14.0, r_max=17.5)
+        if got is None:
+            got = alone(SWAP_FALLBACK.get(ref, ()))
+        if got is None:
+            S.missed.append((ref, "SIT3088", FP["DFN8"], "centre", u.layer, note))
+            continue
+        ESC_KEEP.extend(s for g in got if g.fp == FP["DFN8"] for s in _escape_strips(g))
+    # then everything else, biggest first, the LED before its resistors
+    rest = [q for q in hit if q.ref not in {r for c in moved_chips for r in (c[0], c[2], c[3]) if r}]
+    rest.sort(key=lambda q: (q.ref.startswith("R110"), -q.rect[1] * q.rect[2]))
+    led = None
+    for q in rest:
+        x, y = _centre(q)
+        angs = [q.ang + k for k in (0, 90, 180, 270)]
+        if q.ref in ("R1107", "R1108", "R1109") and led is not None:
+            # cathode end (pad 2) toward the LED, beside it
+            lx, ly = _centre(led)
+            x, y = lx + (x - _centre(old["D1103"])[0]), ly + (y - _centre(old["D1103"])[1])
+        got = None
+        for fx, fy, fg in SWAP_FIRST.get(q.ref, ()):
+            got = S.put_xy(q.ref, q.value, q.fp, fx, fy, fg, q.note,
+                           angs=(fg, fg + 90, fg + 180, fg + 270), layer=q.layer,
+                           reach=1.0, r_max=31.0)
+            if got is not None:
+                break
+            S.missed.pop()
+        if got is None:
+            got = S.put_xy(q.ref, q.value, q.fp, x, y, q.ang, q.note, angs=angs, layer=q.layer,
+                           reach=14.0, r_max=max(_radii(q)[1], G.ZONE_R0) + 3.0)
+        for fx, fy, fg in (SWAP_FALLBACK.get(q.ref, ()) if got is None else ()):
+            S.missed.pop()
+            got = S.put_xy(q.ref, q.value, q.fp, fx, fy, fg, q.note,
+                           angs=(fg, fg + 90, fg + 180, fg + 270), layer=q.layer,
+                           reach=1.0, r_max=24.0)
+            if got is not None:
+                break
+        if got is None:
+            continue
+        if q.ref == "D1103":
+            led = got
+    return S
 
 def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC",
                  tvs_first=False, tvs_centre=False, ports=2, cans="wedge", relay=False,
@@ -1132,14 +1288,28 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
         # wedges' empty fronts. VBUS has to reach them on In2. With the XT30
         # the power wedge's quadrant is its back end, so C1001 goes to the
         # other side of the M3 head at 180 deg, in front of phases B and C.
-        for ref, ang in (("C1001", 135.0 if xt30 else 230.0), ("C1002", 320.0)):
-            x, y = PL.polar_xy(ang, 14.5)
+        import schematic_s as SS
+        keep = xt30 and SS.BULK_KIND in BULK_KEEP
+        sites = BULK_SITES.get(SS.BULK_KIND) if xt30 and not keep else None
+        if sites is None:
+            sites = [(ref, *PL.polar_xy(ang, 14.5), ang) for ref, ang in
+                     (("C1001", 135.0 if xt30 else 230.0), ("C1002", 320.0))]
+        else:
+            sites = [(ref, x, y, degrees(atan2(y, x))) for ref, x, y in sites]
+        cans_ = {ref: (value, fp) for ref, value, fp in SS.bulk("2x10" if keep else None)}
+        for ref, x, y, ang in sites:
+            value, fp = cans_[ref]
+            size = fp.split("_D")[1].split("mm")[0]
             # + lead outward (the footprint's pad 1 is its origin, pad 2 is
-            # 5 mm along +x): it lands on In2's VBUS at R 17, the short way
-            # to the bridges, and the - lead inboard on the ground planes.
-            S.put_xy(ref, "100u/100V polymer", FP["CAN"], x, y, ang + 180,
-                     "bulk, C2887236, Dia 10 x 12, in the centre, + lead outward",
-                     angs=(ang + 180, ang + 270, ang + 225, ang + 135), reach=4.0, r_max=21.0)
+            # along +x): it lands on In2's VBUS at R 17, the short way to the
+            # bridges, and the - lead inboard on the ground planes.
+            note = (f"bulk, Dia {size} polymer, in the centre, + lead outward"
+                    if len(sites) > 2 else
+                    "bulk, C2887236, Dia 10 x 12, in the centre, + lead outward")
+            more = (ang + 90, ang) if len(sites) > 2 else ()
+            S.put_xy(ref, value, fp, x, y, ang + 180, note,
+                     angs=(ang + 180, ang + 270, ang + 225, ang + 135) + more,
+                     reach=4.0 if len(sites) == 2 else 2.0, r_max=21.0)
     else:
         S.put("C1001", "100u/100V polymer", FP["CAN"], PWR, 22.4, -5.6, can_rot, F,
               "bulk, C2887236, Dia 10 x 12")
@@ -1423,13 +1593,7 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
         # Port IN on UART0 (GPIO0/1), port OUT on a PIO UART on GPIO14/15
         # (schematic_s.GP_S says why not 2/3, where it started).
         rs = None
-        relay_chips = [
-            ("U14", "port IN: receiver, DOWN pair -> UART0 RX", "C1102", "R1105",
-             "port IN DOWN pair termination, always on"),
-            ("U15", "port IN: driver, UP pair <- UART0 TX, DE on", "C1103", None, None),
-            ("U17", "port OUT: driver, DOWN pair <- PIO TX, DE on", "C1104", None, None),
-            ("U18", "port OUT: receiver, UP pair -> PIO RX", "C1105", "R1106",
-             "port OUT UP pair termination, always on")]
+        relay_chips = RELAY_CHIPS
     else:
         rs = [("U14", "SIT3088", FP["DFN8"], -5.5, -12.5, "RS-485 receiver, DOWN pair", BK),
               ("U15", "SIT3088", FP["DFN8"], -9.5, -10.0, "RS-485 driver, UP pair", BK),
@@ -1557,14 +1721,29 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
                     S.missed.pop()
                 else:
                     S.missed.append((term, "120R", FP["R0603"], "centre", BK, tnote))
-    S.put_xy("D1103", "RGB", FP["LED"], 9.0, 9.0, 45, "status LED, three GPIO",
-             angs=(45, 0, 90, -45))
+    led = S.put_xy("D1103", "RGB", FP["LED"], 9.0, 9.0, 45, "status LED, three GPIO",
+                   angs=(45, 0, 90, -45))
     # the resistors turned so their cathode ends face the LED (2026-09-24):
     # the GPIO arrives on In3 and comes up anywhere, and a cathode end facing
     # away made each LED net cross its own GPIO at the LED
-    for k, ref in enumerate(("R1107", "R1108", "R1109")):
-        S.put_xy(ref, "1k", FP["R0402"], 6.5 + 1.2 * k, 11.5, 270, "LED series",
-                 angs=(270, 180, 225))
+    if led is not None:
+        for k, ref in enumerate(("R1107", "R1108", "R1109")):
+            S.put_xy(ref, "1k", FP["R0402"], 6.5 + 1.2 * k, 11.5, 270, "LED series",
+                     angs=(270, 180, 225))
+    else:
+        # A bank placed first that takes the 45 deg pocket (5 x D6.3): the
+        # one spot left for the LED is by the XT30's back end, R 17, 204 deg
+        S.missed.pop()
+        led = S.put_xy("D1103", "RGB", FP["LED"], -15.5, -6.75, 45,
+                       "status LED, three GPIO; by the XT30's back end",
+                       angs=(45, 0, 90, -45), reach=3.0, r_max=21.0)
+        if led is not None:
+            lx, ly = _centre(led)
+            for k, ref in enumerate(("R1107", "R1108", "R1109")):
+                tx, ty = lx + 3.0, ly - 1.5 + 1.2 * k
+                a = degrees(atan2(ly - ty, lx - tx))       # pad 2, the cathode end, to the LED
+                S.put_xy(ref, "1k", FP["R0402"], tx, ty, a, "LED series",
+                         angs=(a, a + 45, a - 45, a + 90, a - 90), reach=5.0, r_max=21.0)
     # BOOTSEL: with the XT30, the one spot left on the outward face, at the
     # top of the centre -- its old one is C1001's now
     sx, sy = (0.0, 15.0) if xt30 else (-9.0, 9.0)
@@ -1673,6 +1852,10 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
             S.put_first(part[0], part[1], fp, [(PWR, F, 24.5, -9.0), (PWR, F, 24.5, 9.0),
                                                (CPU, B, 22.0, -3.0)], 0,
                         part[2] + "; beside the XT30", rots=(0, 45, 90, 135), reach=6.0)
+    if cans == "centre" and xt30:
+        import schematic_s as SS
+        if SS.BULK_KIND in BULK_KEEP:
+            _swap_bulk(S, SS.BULK_KIND)
     return S
 
 # The arrangement board S is built from (decided 2026-09-22): the centre open

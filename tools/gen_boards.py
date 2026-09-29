@@ -1074,7 +1074,9 @@ def in2_s(tag, edge):
     # it lands at R 14.5, inside the +3V3 disc, and the whole bus comes in
     # through it
     xt30 = [("J4", "2", XT30_TAB)] if any(p.ref == "J4" for p in placed()) else []
-    for ref, num, (dr, da) in [("C1001", "1", CAN_TAB), ("C1002", "1", CAN_TAB)] + xt30:
+    import schematic_s
+    cans = [(ref, "1", CAN_TAB) for ref in schematic_s.bulk_refs()]
+    for ref, num, (dr, da) in cans + xt30:
         x, y = _pad(ref, num)
         r, th = hypot(x, y), degrees(atan2(y, x))
         tab = [G.polar(th - da + 2 * da * i / 12, r - dr) for i in range(13)]
@@ -1085,7 +1087,7 @@ def in2_s(tag, edge):
     # centre): VBUS is plane-only, never routed, so this is its way in.
     # Capacitors only -- the header's VMOT pins have the spine on F.Cu.
     for p in placed():
-        if p.block != "centre" or p.ref in ("C1001", "C1002"):
+        if p.block != "centre" or p.ref in schematic_s.bulk_refs():
             continue
         # (and, with the XT30, the bus divider's top, which went in the
         # motor-facing centre for want of anywhere else)

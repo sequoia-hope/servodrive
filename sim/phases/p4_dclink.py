@@ -535,9 +535,11 @@ def bus_ripple_s(quick=False):
                     "transformed, multiplied by ngspice's complex transfer "
                     "functions for the real network and transformed back, so "
                     "every number is a waveform's RMS or peak-to-peak. The "
-                    "cans' ripple rating is 2.5 A at 100 kHz and 105 C; the "
-                    "datasheet gives no frequency multiplier, so the rating "
-                    "at the 20-40 kHz where this ripple lives is bracketed.")}
+                    f"cans' ripple rating is {rated:g} A at 100 kHz and 105 C; "
+                    + ("the datasheet takes 0.7 of it for 10-100 kHz, where this "
+                       "ripple lives." if ff.get("status") == "datasheet" else
+                       "the datasheet gives no frequency multiplier, so the rating "
+                       "at the 20-40 kHz where this ripple lives is bracketed."))}
     if wave is not None:
         _plot_ripple_s(wave, out, n_can)
         out["figure"] = "p4_ripple_s.png"
@@ -552,7 +554,8 @@ def _plot_ripple_s(wave, out, n_can):
     fig, ax = plt.subplots(1, 2, figsize=(11, 3.8), dpi=150,
                            gridspec_kw={"width_ratios": [1.5, 1]})
     ax[0].plot(tt, i_dc[sel], color="0.6", lw=.8, label="inverter DC-link current")
-    ax[0].plot(tt, ican[sel] * n_can, lw=1.1, label=f"both cans (ripple)")
+    ax[0].plot(tt, ican[sel] * n_can, lw=1.1,
+               label="both cans (ripple)" if n_can == 2 else f"all {n_can} cans (ripple)")
     ax[0].plot(tt, ibat[sel], lw=1.1, label="battery lead (ripple)")
     ax[0].set_xlabel("us"); ax[0].set_ylabel("A")
     ax[0].set_title("three PWM periods at the phase-current peak, 20 A RMS",

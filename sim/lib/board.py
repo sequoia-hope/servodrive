@@ -52,8 +52,8 @@ PROFILES = {
         "shunt_r": 1.0e-3,                    # 2 x 2 mOhm, geometry.SHUNT_R
         "sense_gain": 50e-3,                  # 1.0 mOhm x 50 V/V
         "bus_entry": {"ref": "J4", "VBUS": "2", "GND": "1"},   # the XT30
-        "bulk": {"kind": "cans", "refs": ("C1001", "C1002"),
-                 "model": "cap_100u_100v_polymer"},
+        # the cans the netlist has (tools/schematic_s.bulk()), filled in by P()
+        "bulk": {"kind": "cans", "refs": None, "model": None},
         # The fold-back the board-S decision set: "firmware fold-back then
         # ~52-56 V" (the SMDJ54A breaks down at 60.0 V minimum)
         "guard": (52.0, 56.0),
@@ -64,7 +64,33 @@ PROFILES = {
 
 
 def P():
-    return PROFILES[paths.BOARD_KEY]
+    prof = PROFILES[paths.BOARD_KEY]
+    if prof["bulk"]["kind"] == "cans" and prof["bulk"]["refs"] is None:
+        prof["bulk"] = bulk_s()
+    return prof
+
+
+# One model per can the bulk may be built from, by footprint.
+CAN_MODEL = {"CP_Radial_D10.0mm": "cap_100u_100v_polymer",
+             "CP_Radial_D8.0mm": "cap_47u_100v_polymer",
+             "CP_Radial_D6.3mm": "cap_22u_100v_polymer"}
+
+
+def bulk_s():
+    """Board S's bulk as its netlist has it (tools/schematic_s.bulk()): the
+    phases model it as n cans of one part, so a bank has to be one part."""
+    import sys
+    if str(paths.TOOLS) not in sys.path:
+        sys.path.insert(0, str(paths.TOOLS))
+    import schematic_s
+    cans = schematic_s.bulk()
+    fps = {fp for _, _, fp in cans}
+    if len(fps) != 1:
+        raise ValueError(f"board S's bulk mixes parts ({sorted(fps)}); the "
+                         "simulation models a bank of one")
+    fp = fps.pop()
+    model = next(m for k, m in CAN_MODEL.items() if k in fp)
+    return {"kind": "cans", "refs": tuple(r for r, _, _ in cans), "model": model}
 
 
 def is_s():

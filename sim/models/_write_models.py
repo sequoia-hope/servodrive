@@ -435,6 +435,57 @@ MODELS["cap_100u_100v_polymer"] = {
     "leakage_A": D(unit="A", source=DS_CAN, read=READ_S, max=1000e-6),
 }
 
+# The bulk options of 2026-09-28 (tools/schematic_s.BULK_VARIANTS): the small
+# cans, which carry the most ripple rating per microfarad.
+READ_B = "2026-09-28"
+DS_PA = ("https://datasheet.lcsc.com/datasheet/pdf/9352f825fb63bcb6153eaa10a3e4530b.pdf"
+         " -- jieerrui PA series (aluminium solid capacitors, 105 C 2000 h)")
+MODELS["cap_22u_100v_polymer"] = {
+    "part": "PA100V22M6X9, 22 uF 100 V conductive-polymer aluminium, D6.3 x 9",
+    "maker": ("jieerrui, LCSC C49233038 (second source Shengyang SH226M100E0900, "
+              "C44606504, rated the same 2.6 A and 30 mOhm)"),
+    "C_nominal": D(22e-6, "F", DS_PA + ", row PA100V22M6X9", read=READ_B,
+                   note="+-20 % at 120 Hz, 20 C"),
+    "V_rated": D(100.0, "V", DS_PA, read=READ_B),
+    "ESR": D(unit="Ohm", source=DS_PA + ", row PA100V22M6X9", read=READ_B,
+             status="bracketed", min=0.030 * 20 / 35, typ=0.030 * 30 / 35, max=0.030,
+             note="30 mOhm at 100 kHz is the design number, as C2887236's 35; "
+                  "min and typ in the same proportion as that model's"),
+    "ripple_rated_A_rms": D(2.6, "A", DS_PA + ", row PA100V22M6X9", read=READ_B,
+                            note="at 105 C and 100 kHz"),
+    "ripple_freq_factor_20kHz": D(unit="-", source=DS_PA + ": ripple current quick "
+                                  "reference table, 10 kHz <= f < 100 kHz",
+                                  read=READ_B, min=0.7, typ=0.7, max=0.7),
+    "ESL": D(unit="H", source="not in the datasheet", status="bracketed",
+             read=READ_B, min=3e-9, typ=4e-9, max=6e-9,
+             note="a D6.3 radial on 2.5 mm lead spacing, leads trimmed flush"),
+    "leakage_A": D(unit="A", source=DS_PA, read=READ_B, max=500e-6),
+}
+DS_SH = ("https://www.lcsc.com/datasheet/lcsc_datasheet_2504101957_SHENGYANG-"
+         "SH476M100F1150_C44606514.pdf -- Shengyang SH series table")
+MODELS["cap_47u_100v_polymer"] = {
+    "part": "SH476M100F1150, 47 uF 100 V conductive-polymer aluminium, D8 x 11.5",
+    "maker": ("Shengyang, LCSC C44606514 (975 in stock 2026-09-28; jieerrui "
+              "PA100V47M8X11, C49233039, is rated 2.9 A)"),
+    "C_nominal": D(47e-6, "F", DS_SH, read=READ_B),
+    "V_rated": D(100.0, "V", DS_SH, read=READ_B),
+    "ESR": D(unit="Ohm", source=DS_SH, read=READ_B, status="bracketed",
+             min=0.028 * 20 / 35, typ=0.028 * 30 / 35, max=0.028,
+             note="28 mOhm in the table, its conditions not stated"),
+    "ripple_rated_A_rms": D(3.8, "A", DS_SH, read=READ_B, status="assumed",
+                            note="the table gives 3.8 A to every D8 x 11.5 part in "
+                                 "the series, whatever its voltage, and states no "
+                                 "conditions; read as 105 C and 100 kHz"),
+    "ripple_freq_factor_20kHz": D(unit="-", source="not in the datasheet; every "
+                                  "other candidate's gives 0.7 for 10-100 kHz",
+                                  status="bracketed", read=READ_B, min=0.7, typ=0.7,
+                                  max=0.7),
+    "ESL": D(unit="H", source="not in the datasheet", status="bracketed",
+             read=READ_B, min=3.5e-9, typ=5e-9, max=8e-9,
+             note="a D8 radial on 3.5 mm lead spacing, leads trimmed flush"),
+    "leakage_A": D(unit="A", source=DS_SH, read=READ_B, max=940e-6),
+}
+
 
 def main():
     for name, data in MODELS.items():

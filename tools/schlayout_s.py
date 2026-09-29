@@ -330,43 +330,55 @@ def buck(s, ox, oy, u_ref, cin, cboot, ind, cout, rfb, rrt, en=None):
     return (ox + end - 2, oy - 1)
 
 
-POWER_SUPPLY_NOTES = notes(
-    "Bus: 48 V operating on 80 V FETs. D1001 (SMDJ54A, 54 V standoff) clamps "
-    "it; C1001 and C1002 are the bulk. VBUS_SENSE = VBUS x 4k7 / 116k7 "
-    "(0.1 %), on ADC2.",
-    "12 V gate rail: LMR38010, starting at 9.9 V on the R1003/R1004 divider. "
-    "GATE_OFF (GPIO14) high turns Q1001 on and stops the rail, taking the "
-    "gate drivers' supply away. R1005 holds it low through reset, so the rail "
-    "comes up and the drivers brake the motor.",
-    "5 V logic rail: LMR38010, diode-ORed with USB (D1002, sheet 03) through "
-    "D1003. The 3V3 LDO on sheet 01 runs from +5V.",
-    width=60)
+def power_supply_notes():
+    """The sheet's notes, from the netlist's own choices: which cans are the
+    bulk, and which GPIO GATE_OFF is on (it moved from 14 to 2)."""
+    refs = S.bulk_refs()
+    bulk = (" and ".join(refs) if len(refs) == 2 else
+            ", ".join(refs[:-1]) + " and " + refs[-1])
+    gate_off = next(g for g, n in S.GP_S.items() if n == "GATE_OFF")
+    return notes(
+        "Bus: 48 V operating on 80 V FETs. D1001 (SMDJ54A, 54 V standoff) clamps "
+        f"it; {bulk} are the bulk. VBUS_SENSE = VBUS x 4k7 / 116k7 "
+        "(0.1 %), on ADC2.",
+        "12 V gate rail: LMR38010, starting at 9.9 V on the R1003/R1004 divider. "
+        f"GATE_OFF (GPIO{gate_off}) high turns Q1001 on and stops the rail, taking the "
+        "gate drivers' supply away. R1005 holds it low through reset, so the rail "
+        "comes up and the drivers brake the motor.",
+        "5 V logic rail: LMR38010, diode-ORed with USB (D1002, sheet 03) through "
+        "D1003. The 3V3 LDO on sheet 01 runs from +5V.",
+        width=60)
 
 
 def power(comps, glob):
     s = D.Sheet("02_power", comps, glob)
-    # bus input: XT30, TVS, bulk, the bus divider
-    s.block("Bus input", 3, 4, 62, 27)
+    # bus input: XT30, TVS, bulk, the bus divider. The cans stand 10 apart,
+    # room for a value beside each; with more than two, the divider and the
+    # notes move over
+    refs = S.bulk_refs()
+    pitch = 10
+    dx = pitch * (len(refs) - 2)
+    s.block("Bus input", 3, 4, 62 + dx, 27)
     j = s.place("J4", 8, 12, rot=180, fields=(-1, -3, "left"))
-    s.wire(j["2"], (54, 11))
-    s.power(s.g(54, 11), "VBUS")
+    s.wire(j["2"], (54 + dx, 11))
+    s.power(s.g(54 + dx, 11), "VBUS")
     s.flag(s.g(13, 11), "VBUS", stub=1)
     s.wire(j["1"], (12, 12), (12, 17))
     s.power(s.g(12, 17), "GND")
     s.wire((12, 15), (14, 15))
     s.flag(s.g(14, 15), "GND", stub=0)
     s.place("D1001", 18, 12.5, rot=270, fields="right")
-    for ref, x in (("C1001", 24), ("C1002", 34)):
-        s.place(ref, x, 12.5, fields="right")
-    s.place("R801", 45, 12.5, fields="right")
-    s.place("R806", 45, 16.5, fields="right")
+    for k, ref in enumerate(refs):
+        s.place(ref, 24 + pitch * k, 12.5, fields="right")
+    s.place("R801", 45 + dx, 12.5, fields="right")
+    s.place("R806", 45 + dx, 16.5, fields="right")
     s.wire(s["R801"]["2"], s["R806"]["1"])
-    s.place("R802", 45, 21.5, fields="right")
+    s.place("R802", 45 + dx, 21.5, fields="right")
     s.wire(s["R806"]["2"], s["R802"]["1"])
-    s.place("C801", 51, 21.5, fields="right")
-    s.wire((45, 19), (51, 19), (51, 20))
-    s.wire((51, 19), (56, 19))
-    s.label(s.g(56, 19), "VBUS_SENSE", stub=0, d=(1, 0), shape="output")
+    s.place("C801", 51 + dx, 21.5, fields="right")
+    s.wire((45 + dx, 19), (51 + dx, 19), (51 + dx, 20))
+    s.wire((51 + dx, 19), (56 + dx, 19))
+    s.label(s.g(56 + dx, 19), "VBUS_SENSE", stub=0, d=(1, 0), shape="output")
 
     s.block("12 V gate rail", 3, 31, 73, 53)
     x, y = buck(s, 36, 43, "U11", ("C1003", "C1004"), "C1005", "L1001", ("C603", "C1009"),
@@ -391,8 +403,8 @@ def power(comps, glob):
     for i, ref in enumerate(("TL1", "TL2", "TL3", "H10", "H11", "H12", "H13", "H14", "H15")):
         s.place(ref, 22 + 8 * i, 62, fields=(1.2, 0, "left"))
 
-    s.text("Notes", 70, 4, size=2.0, bold=True)
-    s.text(POWER_SUPPLY_NOTES, 70, 6)
+    s.text("Notes", 70 + dx, 4, size=2.0, bold=True)
+    s.text(power_supply_notes(), 70 + dx, 6)
     return s
 
 

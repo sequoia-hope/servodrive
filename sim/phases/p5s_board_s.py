@@ -47,7 +47,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt                              # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib import paths, jsonio                                # noqa: E402
+from lib import paths, jsonio, board                         # noqa: E402
 from extract import copper                                   # noqa: E402
 from encoder.field import (sensor_point, magnet_field,       # noqa: E402
                            current_paths, biot_savart, lead_field)
@@ -63,8 +63,8 @@ def ripple():
 
     The RMS is geometry.interconnect()'s three-phase VSI expression (m 0.8,
     unity power factor). Where it goes: at 20 kHz the board's ceramics are
-    ~7 uF at bias (P4) -- 1.1 ohm -- and two polymer cans are ~0.05 ohm, so
-    essentially all of it is the cans'. The instantaneous peak is the larger
+    ~7 uF at bias (P4) -- 1.1 ohm -- and the polymer cans a few tens of
+    milliohms, so essentially all of it is the cans'. The instantaneous peak is the larger
     of (I_pk - I_avg) during an active vector and I_avg during a zero vector,
     with I_avg = 3/4 m I_pk.
     """
@@ -72,22 +72,27 @@ def ripple():
     ic = G.interconnect(10)
     m = 0.8
     i_avg = 0.75 * m * I_PEAK
+    bulk = board.P()["bulk"]
+    n = len(bulk["refs"])
+    can = jsonio.model(bulk["model"])
     z_cer = 1 / (2 * math.pi * G.FSW * 7e-6)
-    z_bulk = abs(complex(0.015, -1 / (2 * math.pi * G.FSW * 200e-6)))
+    z_bulk = abs(complex(can["ESR"]["typ"] / n,
+                         -1 / (2 * math.pi * G.FSW * n * can["C_nominal"]["value"])))
     share = z_cer / (z_cer + z_bulk)
     out = {"i_ripple_rms_total": ic["i_ripple"],
            "share_to_bulk": share,
            "i_bulk_rms": ic["i_ripple"] * share,
            "i_bulk_peak": max(I_PEAK - i_avg, i_avg) * share,
            "i_avg": i_avg,
-           "note": "all of it split equally between the two cans"}
+           "n_cans": n,
+           "note": f"all of it split equally between the {n} cans"}
     # When P4 has solved board S's DC link -- ceramics, planes, cans and the
     # battery lead as a network -- its per-can ripple replaces the divider
     # above, and the peak is scaled with it.
     r4 = (jsonio.read("P4") or {}).get("Q13_ripple") or {}
     nom = r4.get("nominal") or {}
     if nom.get("I_can_ripple_A_rms_each"):
-        k = 2 * nom["I_can_ripple_A_rms_each"] / out["i_bulk_rms"]
+        k = n * nom["I_can_ripple_A_rms_each"] / out["i_bulk_rms"]
         out.update({"i_bulk_rms": out["i_bulk_rms"] * k,
                     "i_bulk_peak": out["i_bulk_peak"] * k,
                     "share_to_bulk": out["share_to_bulk"] * k,
@@ -232,24 +237,28 @@ def q10s(quick=False):
     import placement_s as PS
     p = sensor_point()
     rip = ripple()
-    i_can_pk = rip["i_bulk_peak"] / 2
-    i_can_rms = rip["i_bulk_rms"] / 2
+    refs = board.P()["bulk"]["refs"]
+    i_can_pk = rip["i_bulk_peak"] / len(refs)
+    i_can_rms = rip["i_bulk_rms"] / len(refs)
     out = {"question": "Q10 on board S",
            "criterion": f"current-induced angle error <= {CRITERION_DEG} deg (SPEC.md Q10)",
            "sensor_point_mm": (p * 1e3).tolist(),
            "ripple": rip, "i_can_peak_A": i_can_pk, "i_can_rms_A": i_can_rms}
 
-    arrangements = {
-        "centre": dict(power="two", tvs="SMC", ports=2, port="SH6", cans="centre",
-                       relay=True, exp="2x10", exp_first=True, enc_vias="moved"),
-        "wedge": dict(power="two", tvs="SMB", ports=2, port="SH6", cans="wedge",
-                      relay=True, exp="2x10", exp_first=True, enc_vias="moved"),
-        "xt30": dict(PS.LAYOUT),
-    }
+    # The board as built (xt30); while its bulk was two D10 cans, also the two
+    # sketches it was chosen over, cans in the centre and in the power wedge
+    arrangements = {"xt30": dict(PS.LAYOUT)}
+    if len(refs) == 2:
+        arrangements = {
+            "centre": dict(power="two", tvs="SMC", ports=2, port="SH6", cans="centre",
+                           relay=True, exp="2x10", exp_first=True, enc_vias="moved"),
+            "wedge": dict(power="two", tvs="SMB", ports=2, port="SH6", cans="wedge",
+                          relay=True, exp="2x10", exp_first=True, enc_vias="moved"),
+            **arrangements}
     geo, j4 = {}, None
     for name, opt in arrangements.items():
         S = PS.board_s_open(**opt)
-        cans = [q for q in S.new if q.ref in ("C1001", "C1002")]
+        cans = [q for q in S.new if q.ref in refs]
         geo[name] = cans
         if name == "xt30":
             j4 = next(q for q in S.new if q.ref == "J4")
@@ -345,18 +354,15 @@ def q10s(quick=False):
     weakest = min(rows, key=lambda r: r["B_magnet_inplane_mT"])
     nominal = next(r for r in rows if r["grade"] == "N35" and r["gap_mm"] == 1.5)
     out["headline"] = {
+        **({"centre_caps_pass_everywhere": bool(all(r["centre_caps_only_deg"] <= CRITERION_DEG
+                                                    for r in rows))} if "centre" in geo else {}),
         "nominal_N35_gap1.5": {k: nominal[k] for k in nominal if k.endswith("_deg")
                                or k == "B_magnet_inplane_mT"},
         "weakest": {k: weakest[k] for k in weakest if k.endswith("_deg")
                     or k in ("B_magnet_inplane_mT", "grade", "gap_mm")},
-        "centre_caps_pass_everywhere": bool(all(r["centre_caps_only_deg"] <= CRITERION_DEG
-                                                for r in rows)),
-        "centre_caps_B_peak_uT": float(max(np.hypot(*units[(k[0], k[1], k[2])][:2])
-                                           for k in units if k[0] == "centre") * i_can_pk * 1e6),
-        "wedge_caps_B_peak_uT": float(max(np.hypot(*units[(k[0], k[1], k[2])][:2])
-                                          for k in units if k[0] == "wedge") * i_can_pk * 1e6),
-        "xt30_caps_B_peak_uT": float(max(np.hypot(*units[(k[0], k[1], k[2])][:2])
-                                         for k in units if k[0] == "xt30") * i_can_pk * 1e6),
+        **{f"{name}_caps_B_peak_uT":
+           float(max(np.hypot(*units[k][:2]) for k in units if k[0] == name) * i_can_pk * 1e6)
+           for name in geo},
         "xt30_bus_B_peak_uT": out["xt30"]["B_peak_uT"],
         "xt30_all_pass_everywhere": bool(all(r["xt30_all_deg"] <= CRITERION_DEG for r in rows)),
     }
@@ -366,13 +372,14 @@ def q10s(quick=False):
     return out
 
 
-NAME = {"centre": "cans in the centre", "wedge": "cans in the wedge", "xt30": "cans, XT30 layout (C1001 at 135 deg)"}
+NAME = {"centre": "cans in the centre", "wedge": "cans in the wedge", "xt30": "cans as built, XT30 layout"}
 
 
 def _plot(out, geo, units, h_list, i_can_pk, static):
     fig, ax = plt.subplots(1, 2, figsize=(11, 4), dpi=150)
     rows = out["table"]
-    for name, col in (("centre", "C3"), ("wedge", "C0"), ("xt30", "C2")):
+    for name, col in [(k, c) for k, c in (("centre", "C3"), ("wedge", "C0"), ("xt30", "C2"))
+                      if k in geo]:
         for grade, ls in (("N35", "-"), ("N42", "--")):
             rr = [r for r in rows if r["grade"] == grade]
             ax[0].plot([r["gap_mm"] for r in rr], [r[f"{name}_caps_only_deg"] for r in rr],
@@ -394,7 +401,8 @@ def _plot(out, geo, units, h_list, i_can_pk, static):
     w = min(rows, key=lambda r: r["B_magnet_inplane_mT"])
     Bm_of = lambda th: EF.magnet_field(gap_mm=w["gap_mm"], Br=1.195 if w["grade"] == "N35"
                                        else 1.30, D=6e-3, H=2.5e-3, angle_deg=th)
-    for name, col in (("centre", "C3"), ("wedge", "C0"), ("xt30", "C2")):
+    for name, col in [(k, c) for k, c in (("centre", "C3"), ("wedge", "C0"), ("xt30", "C2"))
+                      if k in geo]:
         wc = w[f"{name}_worst_case"]
         B_rip = units[(name, wc["h_int_mm"], wc["split"])] * i_can_pk
         _, sw = angle_error(Bm_of, static, B_rip, 73)
