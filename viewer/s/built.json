@@ -284,7 +284,7 @@
   "triangles": 634993,
   "primitives": 483
  },
- "when": "2026-09-29 07:52",
+ "when": "2026-10-03 00:11",
  "source": {
   "kind": "file",
   "pcb": "hardware/single_board/servodrive_S.kicad_pcb",

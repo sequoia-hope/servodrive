@@ -141,7 +141,10 @@ code { font-family: var(--mono); font-size: .86em; background: var(--well); bord
   .a3-top { position: sticky; top: 0; }
   .a3-proj small { display: none; }
   .pv-main { padding: .5rem; }
-  .pv-main > section.vw { height: auto; }
+  /* overflow: visible, or the section is the bar's scrollport and "sticky,
+     64px down" lands it 64px into the section, over the canvas, instead of
+     under the top bar (its rounded corners need no clipping at this height) */
+  .pv-main > section.vw { height: auto; overflow: visible; }
   .pv-main .vw-bar { position: sticky; top: var(--top); z-index: 10; }
   .pv-main .vw-panel { scroll-margin-top: calc(var(--top) + 34px); }
 }

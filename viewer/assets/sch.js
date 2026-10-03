@@ -86,29 +86,19 @@
     }
     const wanted = () => sheets.findIndex(s => '#sch-' + s.sheet === decodeURIComponent(location.hash));
 
-    // drag to pan, wheel to zoom about the cursor
-    let drag = null;
-    plate.addEventListener('pointerdown', e => {
-      drag = { px: e.clientX, py: e.clientY, x, y };
-      plate.setPointerCapture(e.pointerId);
-      plate.classList.add('drag');
+    // drag / pinch / double tap: gesture.js; the mouse wheel is the plate's own
+    PV.gestures(plate, {
+      start: () => plate.classList.add('drag'),
+      end: () => plate.classList.remove('drag'),
+      pan: (dx, dy) => { if (z > 1) { x += dx; y += dy; place(); } },
+      zoom: (f, cx, cy) => zoomAt(f, cx, cy),
+      dblclick: (cx, cy) => zoomAt(2, cx, cy),
     });
-    plate.addEventListener('pointermove', e => {
-      if (!drag || z <= 1) return;
-      x = drag.x + e.clientX - drag.px; y = drag.y + e.clientY - drag.py; place();
-    });
-    const end = () => { drag = null; plate.classList.remove('drag'); };
-    plate.addEventListener('pointerup', end);
-    plate.addEventListener('pointercancel', end);
     plate.addEventListener('wheel', e => {
       e.preventDefault();
       const r = plate.getBoundingClientRect();
       zoomAt(Math.exp(-e.deltaY * 0.0015), e.clientX - r.left, e.clientY - r.top);
     }, { passive: false });
-    plate.addEventListener('dblclick', e => {
-      const r = plate.getBoundingClientRect();
-      zoomAt(2, e.clientX - r.left, e.clientY - r.top);
-    });
     panel.querySelectorAll('[data-sch]').forEach(b => b.addEventListener('click', () => {
       if (b.dataset.sch === 'fit') fitAll();
       else zoomAt(b.dataset.sch === 'in' ? 1.5 : 1 / 1.5, plate.clientWidth / 2, plate.clientHeight / 2);
