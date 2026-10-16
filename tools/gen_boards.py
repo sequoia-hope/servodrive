@@ -1753,6 +1753,26 @@ DRAWN_SYMBOLS = {
         "parts_motor:DFN-8_L3.0-W3.0-P0.65-BL-EP", "SIT3088ETK",
         "SIT3088ETK 3.3 V RS-485 transceiver, DFN-8 3x3, MAX3485 pinout: "
         "1 RO, 2 RE#, 3 DE, 4 DI, 5 GND, 6 A, 7 B, 8 VCC."),
+    # Board S since 2026-10-16: the SIT3088ETK went to zero stock. The
+    # SIT65HVD75ETK is the same pinout in the same DFN-8 3x3 (its "C"
+    # variant is the reversed one), and its receiver threshold (V_IT+ max
+    # -10 mV) reads an idle, terminated pair as a 1.
+    "SIT65HVD75": lambda: derive_symbol(
+        "Interface_UART", "MAX3485", "SIT65HVD75",
+        "parts_motor:DFN-8_L3.0-W3.0-P0.65-BL-EP", "SIT65HVD75ETK",
+        "SIT65HVD75ETK 3.0-5.5 V 20 Mbps RS-485 transceiver, DFN-8 3x3, MAX3485 "
+        "pinout: 1 RO, 2 RE#, 3 DE, 4 DI, 5 GND, 6 A, 7 B, 8 VCC. Idle-bus "
+        "fail-safe (V_IT+ <= -10 mV)."),
+    # ... and the W25Q16JVUXIQ did too: board S takes the W25Q80DVUXIE, the
+    # same pins in the same USON 2x3 (E = the 0.2 x 1.6 mm extended pad),
+    # 8 Mbit. It ships with QE = 0; /WP and /HOLD are QSPI lines here, not
+    # tied, so setting QE is safe.
+    "W25Q80DV": lambda: derive_symbol(
+        "Memory_Flash", "W25Q128JVS", "W25Q80DV",
+        "Package_SON:Winbond_USON-8-1EP_3x2mm_P0.5mm_EP0.2x1.6mm",
+        "W25Q80DVUXIE", "Winbond 8 Mbit QSPI flash, USON-8 2x3 mm (UX, extended "
+        "pad). Board S's flash since 2026-10-16: no 16 Mbit or larger 3.3 V part "
+        "in this package was stocked."),
 }
 
 def ensure_symbols():

@@ -2310,7 +2310,7 @@
 				)
 			)
 		)
-		(property "Value" "W25Q16JVUXIQ"
+		(property "Value" "W25Q80DVUXIE"
 			(at 0 1.95 0)
 			(layer "F.Fab")
 			(uuid "42aa838f-2370-480d-a3f5-6b530492c943")
@@ -19671,7 +19671,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "SIT3088ETK"
+		(property "Value" "SIT65HVD75ETK"
 			(at 0 0 0)
 			(layer "B.Fab")
 			(uuid "8a728bf5-2db6-5b4e-82ec-2da638eaed19")
@@ -27769,7 +27769,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "SIT3088ETK"
+		(property "Value" "SIT65HVD75ETK"
 			(at 0 0 0)
 			(layer "B.Fab")
 			(uuid "31fadc80-e98e-570a-aaad-e566d33f15d5")
@@ -31141,7 +31141,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "SIT3088ETK"
+		(property "Value" "SIT65HVD75ETK"
 			(at 0 0 0)
 			(layer "B.Fab")
 			(uuid "1d8670de-2987-5987-8a6f-605a16ce6892")
@@ -33559,7 +33559,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "SIT3088ETK"
+		(property "Value" "SIT65HVD75ETK"
 			(at 0 0 0)
 			(layer "B.Fab")
 			(uuid "e7e7cf18-0a46-56f4-b88a-a5cef72393f7")

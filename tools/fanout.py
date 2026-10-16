@@ -681,7 +681,7 @@ def escape_refs(board):
     amplifiers, and each cell's sense filter and sense tap. On board S also
     the parts in the link wedges whose fine-pitch pads sit off the 45-degree
     grid: the USB-C's 0.3 mm pads at 0.5 mm, the RS-485 ports' 0.6 mm at
-    1.0 mm, the USB ESD part's SOT-23-6 -- and the four SIT3088."""
+    1.0 mm, the USB ESD part's SOT-23-6 -- and the four RS-485 transceivers."""
     out = []
     for f in board.GetFootprints():
         ref, val = f.GetReference(), f.GetValue()
@@ -695,7 +695,7 @@ def escape_refs(board):
             # north row faces away from the CPU, and the header's GPIO were
             # the nets left over when it had no escapes
             out.append(ref)
-        elif val.startswith("SIT3088"):
+        elif val.startswith(("SIT3088", "SIT65HVD75")):
             # 0.28 mm pads at 0.65 mm: the INA241's trap again. On board S's
             # first routes the router never reached pins 1, 4, 6 or 7 of any
             # of the four, on or off the grid.

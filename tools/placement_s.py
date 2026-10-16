@@ -882,7 +882,7 @@ class Sketch:
             ca, sa = cos(radians(g)), sin(radians(g))
             for k, (ref, note, cap, term, tnote) in enumerate(chips):
                 d = (k - (len(chips) - 1) / 2) * pitch
-                u = Part.at_xy(ref, "SIT3088", FP["DFN8"], x0 + d * ca, y0 + d * sa, g, "centre",
+                u = Part.at_xy(ref, "SIT65HVD75", FP["DFN8"], x0 + d * ca, y0 + d * sa, g, "centre",
                                layer, note)
                 out.append(u)
                 pads = {n: (px, py) for n, px, py, w, h in padpos.pad_xy(u)}
@@ -1058,8 +1058,8 @@ def board_s(**opt):
     pb = FP["GH6"] if o["port_b"] == "GH6" else FP["SH6"]
     S.put("J15", "RS485 port B", pb, SIG, 29.0, 0.0 if not o["usb"] else 8.0, 270, B,
           f"full-duplex RS-485, JST-{o['port_b'][:2]} 6, wired pin-for-pin with J14")
-    S.put("U14", "SIT3088", FP["DFN8"], SIG, 23.5, 3.0, 0, B, "RS-485 receiver, DOWN pair")
-    S.put("U15", "SIT3088", FP["DFN8"], SIG, 23.5, 8.0, 0, B, "RS-485 driver, UP pair")
+    S.put("U14", "SIT65HVD75", FP["DFN8"], SIG, 23.5, 3.0, 0, B, "RS-485 receiver, DOWN pair")
+    S.put("U15", "SIT65HVD75", FP["DFN8"], SIG, 23.5, 8.0, 0, B, "RS-485 driver, UP pair")
     if o["usb"]:
         S.put("U13", "USBLC6-2SC6", FP["SOT236"], SIG, 25.0, -6.0, 0, B,
               "USB ESD; pin 5 on VBUS is fine without PD", rots=(0, 90))
@@ -1190,7 +1190,7 @@ def _swap_bulk(S, kind):
             # the chip by itself at one of `spots`, then its 100 n and 120 R
             # wherever they fit beside it
             for fx, fy, fg in spots:
-                c = S.put_xy(ref, "SIT3088", FP["DFN8"], fx, fy, fg, note,
+                c = S.put_xy(ref, "SIT65HVD75", FP["DFN8"], fx, fy, fg, note,
                              angs=(fg, fg + 90, fg + 180, fg + 270), layer=u.layer,
                              reach=1.0, r_max=24.0)
                 if c is None:
@@ -1210,7 +1210,7 @@ def _swap_bulk(S, kind):
         if got is None:
             got = alone(SWAP_FALLBACK.get(ref, ()))
         if got is None:
-            S.missed.append((ref, "SIT3088", FP["DFN8"], "centre", u.layer, note))
+            S.missed.append((ref, "SIT65HVD75", FP["DFN8"], "centre", u.layer, note))
             continue
         ESC_KEEP.extend(s for g in got if g.fp == FP["DFN8"] for s in _escape_strips(g))
     # then everything else, biggest first, the LED before its resistors
@@ -1595,8 +1595,8 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
         rs = None
         relay_chips = RELAY_CHIPS
     else:
-        rs = [("U14", "SIT3088", FP["DFN8"], -5.5, -12.5, "RS-485 receiver, DOWN pair", BK),
-              ("U15", "SIT3088", FP["DFN8"], -9.5, -10.0, "RS-485 driver, UP pair", BK),
+        rs = [("U14", "SIT65HVD75", FP["DFN8"], -5.5, -12.5, "RS-485 receiver, DOWN pair", BK),
+              ("U15", "SIT65HVD75", FP["DFN8"], -9.5, -10.0, "RS-485 driver, UP pair", BK),
               ("C1102", "100n", FP["C0402"], -5.5, -15.0, "U14 decoupling", BK),
               ("C1103", "100n", FP["C0402"], -11.5, -11.5, "U15 decoupling", BK),
               ("R1105", "120R", FP["R0603"], -8.0, -13.5, "DOWN termination, behind JP1", BK),
@@ -1667,7 +1667,7 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
                 else:
                     # the chip, then its parts wherever they fit near it
                     ref, note, cap, term, tnote = c
-                    u = S.put_xy(ref, "SIT3088", FP["DFN8"], x, y, g1, note,
+                    u = S.put_xy(ref, "SIT65HVD75", FP["DFN8"], x, y, g1, note,
                                  angs=(g1, g1 + 90, g1 + 180, g1 + 270, 45, 135, 225, 315),
                                  layer=BK, reach=17.0)
                     if u is None:
@@ -1688,7 +1688,7 @@ def board_s_open(power="two", port="SH6", can_rot=90, back_centre=True, tvs="SMC
         for ref, note, cap, term, tnote in relay_chips:
             x, y = RELAY_AT[ref if in_ccw else swap[ref]]
             angs = facing(ref, FP["DFN8"], x, y, BK)
-            u = S.put_xy(ref, "SIT3088", FP["DFN8"], x, y, angs[0], note, angs=angs, layer=BK)
+            u = S.put_xy(ref, "SIT65HVD75", FP["DFN8"], x, y, angs[0], note, angs=angs, layer=BK)
             if u is None:
                 continue
             pads = {n: (px, py) for n, px, py, w, h in padpos.pad_xy(u)}

@@ -74,12 +74,14 @@ USBLC6-2SC6,SOT-23-6,C7519,USBLC6-2SC6,ST
 68k,R_0402_1005Metric,C36871,0402WGF6802TCE,1%; buck EN divider
 470k,R_0402_1005Metric,C25790,0402WGF4703TCE,1%; buck EN divider
 RP2350A,RP2350-QFN-60-1EP_7x7_P0.4mm_EP3.4x3.4mm_ThermalVias,C42411118,RP2350A,the part simple_earring uses
-W25Q16JVUXIQ,Winbond_USON-8-1EP_3x2mm_P0.5mm_EP0.2x1.6mm,C2843335,W25Q16JVUXIQ,"16 Mbit, the RP2350 reference design's flash; was W25Q128, which no USON 2x3 part offers (2026-09-24)"
+W25Q16JVUXIQ,Winbond_USON-8-1EP_3x2mm_P0.5mm_EP0.2x1.6mm,C2843335,W25Q16JVUXIQ,"16 Mbit, the RP2350 reference design's flash; was W25Q128, which no USON 2x3 part offers (2026-09-24); zero stock 2026-10-16"
+W25Q80DVUXIE,Winbond_USON-8-1EP_3x2mm_P0.5mm_EP0.2x1.6mm,C401667,W25Q80DVUXIE,"board S since 2026-10-16 (W25Q16JVUXIQ out of stock): 8 Mbit, same pins and USON 2x3 extended pad; ships QE = 0; 8,611 in stock"
 SPX3819-3.3,SOT-23-5,C20617301,SPX3819M5-L-3-3,the sister board's part (rp2350-motor-controller)
 SPX3819M5-3.3,SOT-23-5,C20617301,SPX3819M5-L-3-3,the sister board's part (rp2350-motor-controller)
 MT6701,SOIC-8_3.9x4.9mm_P1.27mm,C3003196,MT6701CT-STD-R,the sister board's MT6701CT-STD on reel; its C2856764 had 1 in stock
 INA241A3,TSOT-23-8,C6051860,INA241A3IDDFR,50 V/V
-SIT3088ETK,DFN-8_L3.0-W3.0-P0.65-BL-EP,C601076,SIT3088ETK,the sister board's part (rp2350-motor-controller)
+SIT3088ETK,DFN-8_L3.0-W3.0-P0.65-BL-EP,C601076,SIT3088ETK,the sister board's part (rp2350-motor-controller); zero stock 2026-10-16
+SIT65HVD75ETK,DFN-8_L3.0-W3.0-P0.65-BL-EP,C7433976,SIT65HVD75ETK,"board S since 2026-10-16 (SIT3088ETK out of stock): same pins and DFN-8 3x3, 20 Mbps, V_IT+ <= -10 mV; 20,671 in stock"
 12MHz,Crystal_SMD_2520-4Pin_2.5x2.0mm,C284156,TXM12M0004252LBCEO00T,"CL 20 pF, 10 ppm: the 27 pF caps load it at about 16.5-18.5 pF"
 RGB,LED_RGB_1210,C2827321,S4-3528RGBTA-A,"common anode, 3.5 x 2.8, pads match; PLACE ROTATED 180 deg: its pads 1-4 are B-K, A, G-K, R-K"
 USB-C,USB_C_Receptacle_HRO_TYPE-C-31-M-12,C165948,TYPE-C-31-M-12,HRO

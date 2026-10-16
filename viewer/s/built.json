@@ -63,7 +63,7 @@
  },
  "layers": {
   "board": "servodrive_S.kicad_pcb",
-  "generated": "2026-09-29",
+  "generated": "2026-10-16",
   "view_mm": [
    114.197,
    71.199,
@@ -226,9 +226,9 @@
  },
  "3d": {
   "board": "servodrive_S.kicad_pcb",
-  "generated": "2026-09-29",
+  "generated": "2026-10-16",
   "glb": "board.glb",
-  "bytes": 7359616,
+  "bytes": 7359628,
   "kicad_bytes": 32735428,
   "parts": 198,
   "modelled": 178,
@@ -284,7 +284,7 @@
   "triangles": 634993,
   "primitives": 483
  },
- "when": "2026-10-03 00:11",
+ "when": "2026-10-16 00:30",
  "source": {
   "kind": "file",
   "pcb": "hardware/single_board/servodrive_S.kicad_pcb",

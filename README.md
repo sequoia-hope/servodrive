@@ -312,7 +312,7 @@ hardware/
   parts/lcsc.csv     the LCSC numbers chosen so far, by value and footprint, for
                      the 3D viewer's part pane; a part not in it has none yet
   parts/             two symbols copied in, three DERIVED (EG2103, INA241A3,
-                     W25Q16JV), two copied from the RP2350A reference design
+                     W25Q16JV; board S's SIT3088, SIT65HVD75 and W25Q80DV too), two copied from the RP2350A reference design
                      (the 2016 inductor, a small-pad 0402) and five GENERATED
                      footprints (the FET with 16 thermal vias for the low side
                      and 20 for the high, heatsink boss, heatsink land, phase pad)
@@ -1298,10 +1298,10 @@ git: two Ø10 cans (b348b20), the bus pads (8f9342f).
 - **The heatsink ring.** Board A clamps an aluminium ring on the phase cells' lands. The USB-C reaches the edge in the signal wedge, so a continuous ring would need a gap there.
 - **VMOT through the header.** A PD board feeding the bus puts up to 5 A through the header, whose end pins are about 6 mm from the encoder. With VMOT and GND pins paired it passes as a dipole, roughly 0.1 mT against the magnet's 20–100 — estimated, not simulated.
 - **The cans at temperature.** The six cans are within their ripple rating to 15–16 A RMS per phase (see [The bulk](#the-bulk-six-small-cans)); above that, 20 A is a burst. Their ratings are the datasheet's at 105 °C, and the datasheet gives no multiplier for a cooler board, so how long a 20 A burst may last is for a thermocouple on a can to say.
-- **RS-485 fail-safe.** Every receiver has a permanent 120 Ω and no bias network; an idle or open link relies on the SIT3088's own fail-safe, which the datasheet has to be shown to give with the termination present (the sister project's F-01).
+- **RS-485 fail-safe.** Every receiver has a permanent 120 Ω and no bias network; an idle or open link relies on the transceiver's own fail-safe. The SIT65HVD75 (board S since 2026-10-16) gives it with the termination present: its receiver's positive threshold is −10 mV at most over the whole common-mode range, so a terminated idle pair at 0 V reads as a 1 (the sister project's F-01). Not yet seen on a bench.
 - **The RGB LED's pinout.** `LED_RGB_1210` with a common anode on pad 4 is an assumption: 1210 RGB parts differ. Check against the part bought.
-- **Firmware.** GPIO2 is `GATE_OFF`, active high, and GPIO3 `FAULT_n`; UART0 on GPIO0/1 is port IN and a PIO UART on 14/15 port OUT; the encoder is on SPI0 (ENC_DO GPIO4, ENC_SCK GPIO6); USB_VBUS_DET is GPIO25; 19–24 go to the expansion header.
-- **Stock.** The XT30, C431092, had 68,987 at JLCPCB (2026-09-24). The bucks' parts are checked at JLCPCB (2026-09-23): LMR38010SDDAR C5219310, SWPA4030S680MT C83473, SWPA4030S330MT C83470, 4.7 µF/100 V 1206 C237304, 100 nF/100 V 0805 C28233, 22 µF/25 V 1206 C12891, 1210 C21397, 0805 C45783; C2887236 is stocked. SMDJ54A, TPSMF4L54A, SIT3088 and SM712 are not checked yet.
+- **Firmware.** GPIO2 is `GATE_OFF`, active high, and GPIO3 `FAULT_n`; UART0 on GPIO0/1 is port IN and a PIO UART on 14/15 port OUT; the encoder is on SPI0 (ENC_DO GPIO4, ENC_SCK GPIO6); USB_VBUS_DET is GPIO25; 19–24 go to the expansion header. The flash is 8 Mbit since 2026-10-16 (W25Q80DVUXIE): `PICO_FLASH_SIZE_BYTES` 1 MB, and it ships with its QE bit clear, so the QSPI setup has to set it (`/WP` and `/HOLD` are QSPI lines, so that is safe).
+- **Stock.** The XT30, C431092, had 68,987 at JLCPCB (2026-09-24). The bucks' parts are checked at JLCPCB (2026-09-23): LMR38010SDDAR C5219310, SWPA4030S680MT C83473, SWPA4030S330MT C83470, 4.7 µF/100 V 1206 C237304, 100 nF/100 V 0805 C28233, 22 µF/25 V 1206 C12891, 1210 C21397, 0805 C45783; C2887236 is stocked. **Every placed part re-checked 2026-10-16:** the SIT3088ETK and W25Q16JVUXIQ were at zero, and board S now takes the SIT65HVD75ETK (C7433976, 20,671) and the W25Q80DVUXIE (C401667, 8,611), same pins and land patterns, the routed copper unchanged. Still short: the RP2350's 3.3 µH AOTA-B201610S3R3 (9 in stock, the reference design's part) and TPSMF4L54A (42, three a board, so 14 boards); next, EG2103 at 637 (three a board).
 
 ## Licence
 
@@ -1355,7 +1355,9 @@ choice was not obvious; the viewer's build lists any placed part without one,
 and the 3D viewer's part pane links each to LCSC and JLCPCB. Two values changed
 to reach a stocked part: the shunts (2 × 2 mΩ, see Current sensing) and the
 flash (**W25Q16JVUXIQ**, 16 Mbit, the RP2350 reference design's part — no 128
-Mbit flash comes in the footprint's USON 2×3). Watch before ordering: TPSMF4L64A
+Mbit flash comes in the footprint's USON 2×3). On 2026-10-16 that flash and the
+SIT3088ETK were both out of stock; board S takes the W25Q80DVUXIE (8 Mbit) and
+the SIT65HVD75ETK, each the same pins in the same package. Watch before ordering: TPSMF4L64A
 (60 in stock) and TPSMF4L54A (42), the 2×14 1.27 mm SMD header (50, the only
 one); the RGB LED is a 3528 part placed rotated 180° (its pads 1–4 are B, A, G,
 R); the RS-485 connectors are an SH-compatible part whose land pattern wants a

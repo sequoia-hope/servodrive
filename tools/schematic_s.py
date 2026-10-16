@@ -118,6 +118,11 @@ def control():
     u7 = next(c for c in out if c.ref == "U7")
     for g, net in GP_S.items():
         u7.nets[str(GPIO_PINS[g])] = net
+    # The flash (2026-10-16): no W25Q16JVUXIQ in stock; the W25Q80DVUXIE is
+    # the same pins and land pattern, 8 Mbit. Firmware: PICO_FLASH_SIZE_BYTES
+    # 1 MB.
+    u8 = next(c for c in out if c.ref == "U8")
+    u8.lib_id, u8.value = "servodrive:W25Q80DV", "W25Q80DVUXIE"
     return out
 
 def power():
@@ -241,17 +246,18 @@ def io():
     # Every driver is alone on its pair, so DE is tied on and the receiver
     # half is off (RE high); every receiver has its 120 R always -- there is
     # no mid-bus position for a jumper to serve.
-    # SIT3088ETK: the MAX3485 symbol, pin for pin, as the sister project has
-    # it, derived into the project library (gen_boards.DRAWN_SYMBOLS).
+    # SIT65HVD75ETK (2026-10-16; the SIT3088ETK went to zero stock): the
+    # MAX3485 symbol, pin for pin, derived into the project library
+    # (gen_boards.DRAWN_SYMBOLS).
     gr = "RS-485 relay"
-    SIT, DFN = "servodrive:SIT3088", "parts_motor:DFN-8_L3.0-W3.0-P0.65-BL-EP"
+    SIT, DFN = "servodrive:SIT65HVD75", "parts_motor:DFN-8_L3.0-W3.0-P0.65-BL-EP"
     def rx(ref, ro, a, b, cap):
-        add(ref, SIT, "SIT3088ETK", DFN,
+        add(ref, SIT, "SIT65HVD75ETK", DFN,
             {"1": ro, "2": "GND", "3": "GND", "4": "GND", "5": "GND",
              "6": a, "7": b, "8": "+3V3"}, gr)
         add(cap, C, "100n", FP_C["0402"], {"1": "+3V3", "2": "GND"}, gr)
     def tx(ref, di, a, b, cap):
-        add(ref, SIT, "SIT3088ETK", DFN,
+        add(ref, SIT, "SIT65HVD75ETK", DFN,
             {"1": "", "2": "+3V3", "3": "+3V3", "4": di, "5": "GND",
              "6": a, "7": b, "8": "+3V3"}, gr)
         add(cap, C, "100n", FP_C["0402"], {"1": "+3V3", "2": "GND"}, gr)

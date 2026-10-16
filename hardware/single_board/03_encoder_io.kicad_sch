@@ -4316,11 +4316,11 @@
 				)
 			)
 		)
-		(symbol "servodrive:SIT3088"
+		(symbol "servodrive:SIT65HVD75"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(symbol "SIT3088_0_1"
+			(symbol "SIT65HVD75_0_1"
 				(rectangle
 					(start -7.62 12.7)
 					(end 7.62 -12.7)
@@ -4503,7 +4503,7 @@
 					)
 				)
 			)
-			(symbol "SIT3088_1_1"
+			(symbol "SIT65HVD75_1_1"
 				(circle
 					(center -0.762 2.54)
 					(radius 0.508)
@@ -4707,7 +4707,7 @@
 					)
 				)
 			)
-			(property "Value" "SIT3088ETK"
+			(property "Value" "SIT65HVD75ETK"
 				(at 1.905 13.97 0)
 				(effects
 					(font
@@ -4734,7 +4734,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "SIT3088ETK 3.3 V RS-485 transceiver, DFN-8 3x3, MAX3485 pinout: 1 RO, 2 RE#, 3 DE, 4 DI, 5 GND, 6 A, 7 B, 8 VCC."
+			(property "Description" "SIT65HVD75ETK 3.0-5.5 V 20 Mbps RS-485 transceiver, DFN-8 3x3, MAX3485 pinout: 1 RO, 2 RE#, 3 DE, 4 DI, 5 GND, 6 A, 7 B, 8 VCC. Idle-bus fail-safe (V_IT+ <= -10 mV)."
 				(at 0 0 0)
 				(effects
 					(font
@@ -5020,7 +5020,7 @@
 		)
 	)
 	(symbol
-		(lib_id "servodrive:SIT3088")
+		(lib_id "servodrive:SIT65HVD75")
 		(at 58.4200 138.4300 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -5031,7 +5031,7 @@
 		(property "Reference" "U14"
 			(at 48.2600 118.1100 0)
 			(effects (font (size 1.27 1.27)) (justify right)))
-		(property "Value" "SIT3088ETK"
+		(property "Value" "SIT65HVD75ETK"
 			(at 48.2600 120.6500 0)
 			(effects (font (size 1.27 1.27)) (justify right)))
 		(property "Footprint" "parts_motor:DFN-8_L3.0-W3.0-P0.65-BL-EP" (at 58.4200 138.4300 0)
@@ -5143,7 +5143,7 @@
 		)
 	)
 	(symbol
-		(lib_id "servodrive:SIT3088")
+		(lib_id "servodrive:SIT65HVD75")
 		(at 58.4200 189.2300 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -5154,7 +5154,7 @@
 		(property "Reference" "U15"
 			(at 48.2600 168.9100 0)
 			(effects (font (size 1.27 1.27)) (justify right)))
-		(property "Value" "SIT3088ETK"
+		(property "Value" "SIT65HVD75ETK"
 			(at 48.2600 171.4500 0)
 			(effects (font (size 1.27 1.27)) (justify right)))
 		(property "Footprint" "parts_motor:DFN-8_L3.0-W3.0-P0.65-BL-EP" (at 58.4200 189.2300 0)
@@ -5271,7 +5271,7 @@
 		)
 	)
 	(symbol
-		(lib_id "servodrive:SIT3088")
+		(lib_id "servodrive:SIT65HVD75")
 		(at 187.9600 138.4300 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -5282,7 +5282,7 @@
 		(property "Reference" "U17"
 			(at 177.8000 118.1100 0)
 			(effects (font (size 1.27 1.27)) (justify right)))
-		(property "Value" "SIT3088ETK"
+		(property "Value" "SIT65HVD75ETK"
 			(at 177.8000 120.6500 0)
 			(effects (font (size 1.27 1.27)) (justify right)))
 		(property "Footprint" "parts_motor:DFN-8_L3.0-W3.0-P0.65-BL-EP" (at 187.9600 138.4300 0)
@@ -5365,7 +5365,7 @@
 		)
 	)
 	(symbol
-		(lib_id "servodrive:SIT3088")
+		(lib_id "servodrive:SIT65HVD75")
 		(at 187.9600 189.2300 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -5376,7 +5376,7 @@
 		(property "Reference" "U18"
 			(at 177.8000 168.9100 0)
 			(effects (font (size 1.27 1.27)) (justify right)))
-		(property "Value" "SIT3088ETK"
+		(property "Value" "SIT65HVD75ETK"
 			(at 177.8000 171.4500 0)
 			(effects (font (size 1.27 1.27)) (justify right)))
 		(property "Footprint" "parts_motor:DFN-8_L3.0-W3.0-P0.65-BL-EP" (at 187.9600 189.2300 0)
