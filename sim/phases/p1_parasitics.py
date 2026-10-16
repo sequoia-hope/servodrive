@@ -73,9 +73,12 @@ def commutation(quick=False, cellname="A"):
     # filament grid cannot let the return current concentrate under a leg that
     # runs 0.4 mm above it, and the answer falls with every refinement until
     # it can.  P7 cross-checks the end of this curve against a full-wave run.
+    # 0.5 mm was added on 2026-10-11: on board S the single-port series
+    # still fell 17 % from 0.75 to 0.62 mm, so one more step is what says
+    # whether it is settling
     meshes = ([(1.8, 0.6), (1.4, 0.45)] if quick else
               [(1.8, 0.6), (1.4, 0.45), (1.1, 0.32), (0.9, 0.261),
-               (0.75, 0.218), (0.62, 0.18)])
+               (0.75, 0.218), (0.62, 0.18), (0.5, 0.145)])
     ports = None
     conv_jobs = []
     for target, min_gap in meshes:

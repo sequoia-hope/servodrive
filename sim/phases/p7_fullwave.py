@@ -34,10 +34,14 @@ def _diagnostics(wd):
     try:
         so = (wd / "stdout.txt").read_text()
         import re as _re
-        e = _re.findall(r"Energy: ~\s*([0-9.e+-]+) \(([- ]?[0-9.a-z]+)dB", so)
+        # openEMS pads the figure to five characters, so a change under
+        # 10 dB prints as "(- 0.00dB)"; the first pattern here required the
+        # digits to follow the sign and silently read those as nothing
+        e = _re.findall(r"Energy: ~\s*([0-9.e+-]+) \((-?)\s*([0-9.]+)dB",
+                        so)
         if e:
             out["final_energy"] = float(e[-1][0])
-            out["final_energy_dB"] = e[-1][1].strip()
+            out["final_energy_dB"] = f"{e[-1][1]}{e[-1][2]}"
         # openEMS prints the cell count in scientific notation once it is
         # over a million, so "(\d+)" silently matched nothing on every mesh
         # that mattered and the report said "None"
@@ -182,7 +186,7 @@ def _port_box(ref, bite=0.20, shrink=0.10, layer="F.Cu"):
 
 
 def _fet_bridge(fet, drain_net, source_net, w, z, t, others=(),
-                shrink=1.0):
+                shrink=1.0, layer="F.Cu"):
     """The conducting device, as the shortest piece of copper that joins its
     own drain and source pads.
 
@@ -200,12 +204,12 @@ def _fet_bridge(fet, drain_net, source_net, w, z, t, others=(),
     xs, ys = [q[0] for q in pts], [q[1] for q in pts]
     m = 0.6
     box = (min(xs) - m, min(ys) - m, max(xs) + m, max(ys) + m)
-    A = copper.net_union(drain_net, "F.Cu", box, simplify=0.0)
-    B = copper.net_union(source_net, "F.Cu", box, simplify=0.0)
+    A = copper.net_union(drain_net, layer, box, simplify=0.0)
+    B = copper.net_union(source_net, layer, box, simplify=0.0)
     if A is None or B is None or A.is_empty or B.is_empty:
         raise KeyError(f"{fet}: no copper for {drain_net}/{source_net}")
     a, b = nearest_points(A, B)
-    foreign = [u for u in (copper.net_union(n, "F.Cu", box, simplify=0.0)
+    foreign = [u for u in (copper.net_union(n, layer, box, simplify=0.0)
                            for n in others) if u is not None and not u.is_empty]
 
     # widen it as far as it can go without touching a third net: on this board
@@ -229,9 +233,54 @@ def _fet_bridge(fet, drain_net, source_net, w, z, t, others=(),
             "gap_mm": round(a.distance(b), 4)}
 
 
+PKG_Z = (-0.25, -0.10)     # the package conductor, above the board's top face
+
+
+def _fet_fill(fet, drain_net, source_net, z, t, others=(), keep_off=0.15):
+    """The conducting device the way the PEEC model has it: drain pad and
+    source pads one conductor -- built where the real one is, in the package.
+
+    FastHenry ties every node under those pads into one (an ideal short, the
+    "PCB only" convention).  Here that is a conductor at package height,
+    PKG_Z, over the device's whole footprint, with posts down onto the drain
+    pad and the source pads and nowhere else.  It has to be above the board
+    and not in F.Cu: on board S the GND pour runs a finger under Q1's package,
+    between the drain tab and the source pins, 0.40 mm from both, and copper
+    drawn in F.Cu between them either touches it or squeezes round its end
+    through a 0.3 mm neck that a 0.2 mm mesh cannot hold open.  The real
+    current goes over it, through the die and the clip; so does this.
+
+    The first version joined drain and source with one strip across the gap
+    and tried to take the strip's inductance back out by halving its width
+    and extrapolating L = L0 + k/w.  The halved strip was 0.25 mm wide on a
+    diagonal, about one cell of the 0.2 mm mesh and barely joined up: halving
+    added 1.73 nH where the strip's own parallel-plate inductance says 0.4,
+    and the extrapolation left 0.09 nH of a 1.8 nH loop.
+    """
+    from shapely.ops import unary_union
+    drain = _pad_poly(fet, 5)
+    srcs = [_pad_poly(fet, n) for n in (1, 2, 3)]
+    hull = unary_union([drain, *srcs]).convex_hull
+    lo, hi = PKG_Z
+    out = []
+
+    def add(geom, z0, z1, role):
+        for q in geom_export._simple_pieces(geom):
+            out.append({"pts": [[round(x, 4), round(y, 4)] for x, y in q],
+                        "z": (z0 + z1) / 2, "t": z1 - z0, "role": role,
+                        "from": f"{fet} {drain_net}", "to": f"{fet} {source_net}",
+                        "area_mm2": round(geom.area, 3)})
+
+    add(hull, lo, hi, "package")
+    # posts from the package down into each pad's own copper
+    for pad in (drain, *srcs):
+        add(pad, lo, z, "post")
+    return out
+
+
 def cell_loop(cellname="A", res=0.35, min_step=0.10, nrts=500000,
               timeout=21600, name=None, nets=None, nthreads=12, snap=True,
-              bridge_w=1.0, bridge_shrink=1.0, barrel="pad", plating=0.025):
+              barrel="plated", plating=0.025):
     """Cell A's commutation loop, full wave.
 
     The mesh is snapped to the copper: every polygon vertex and every barrel
@@ -255,13 +304,7 @@ def cell_loop(cellname="A", res=0.35, min_step=0.10, nrts=500000,
     z, t = st["F.Cu"]["z"], st["F.Cu"]["t"]
     bridges = []
     for fet, dn, sn in ((c["hi"], "VBUS", c["sw"]), (c["lo"], c["sw"], "GND")):
-        try:
-            bridges.append(_fet_bridge(fet, dn, sn, bridge_w, z, t,
-                                       others=[n for n in nets
-                                               if n not in (dn, sn)],
-                                       shrink=bridge_shrink))
-        except (KeyError, IndexError, ImportError):
-            pass
+        bridges += _fet_fill(fet, dn, sn, z, t)
 
     d = json.loads(p.read_text())
     if barrel == "plated":
@@ -269,9 +312,13 @@ def cell_loop(cellname="A", res=0.35, min_step=0.10, nrts=500000,
         # the pad's diameter.  The pad diameter is what the extractor carries
         # because that is what the pad is on the layers it lands on; between
         # layers there is only the tube, and the tube is what sets the barrel's
-        # partial inductance.  The two models bracket the truth here -- the
-        # PEEC mesh uses an equal-AREA square bar, right for resistance and
-        # 2.2x too inductive for a 0.4 mm hole -- so this option prices it.
+        # partial inductance.  At these frequencies the current is on the
+        # tube's outside, so a solid rod of its outer diameter is the tube;
+        # the PEEC mesh uses a bar of the tube's geometric mean distance
+        # (fasthenry/mesher.add_barrel), so both solvers see the same via.
+        # It used to be a rod of the pad diameter here and a bar of the
+        # plating's area there, too fat in one and 2.2x too inductive in the
+        # other.
         for b in d["barrels"]:
             b["dia"] = min(b["dia"], b["drill"] + 2 * plating)
     d = geom_export.drop_barrel_shadowed(d)
@@ -295,14 +342,14 @@ def cell_loop(cellname="A", res=0.35, min_step=0.10, nrts=500000,
               "res": res, "nrts": nrts, "fc": 5e8,
               "band_lo": 5e7, "band_hi": 2.5e8,
               "fx": fx, "fy": fy, "min_step": min_step,
-              "keep_x": keep_x, "keep_y": keep_y})
+              "keep_x": keep_x, "keep_y": keep_y, "extra_z": list(PKG_Z)})
     p.write_text(json.dumps(d))
     wd = fr.run(name, cell_scripts.CELL_LOOP, timeout=timeout,
                 nthreads=nthreads, clean=False)
     meta = {"snapped": snap, "barrel": barrel, "port_box": pbox,
-            "bridge_shrink": bridge_shrink,
-            "bridges": [{k: b[k] for k in ("from", "to", "width_mm", "gap_mm")}
-                        for b in bridges],
+            "fet_package_mm2": {b["from"].split()[0]: b["area_mm2"]
+                                for b in bridges if b["role"] == "package"},
+            "package_z_mm": list(PKG_Z),
             "min_step_mm": min_step,
             "step_used_x_mm": round(sx, 4),
             "step_used_y_mm": round(sy, 4), "fixed_lines_x": len(fx),
@@ -321,9 +368,9 @@ def _energy_trace(wd):
     import re as _re
     ts, db = [], []
     for m in _re.finditer(r"Timestep:\s+(\d+).*?Energy: ~\s*[0-9.e+-]+ "
-                          r"\(\s*([-0-9.]+)dB", so):
+                          r"\((-?)\s*([0-9.]+)dB", so):
         ts.append(int(m.group(1)))
-        db.append(float(m.group(2)))
+        db.append(float(m.group(2) + m.group(3)))
     return ts, db
 
 
@@ -392,8 +439,12 @@ def crosscheck_note(out):
                  f"refinement.  "))
     ref = out.get("fasthenry") or {}
     if ref.get("grid_target_mm"):
-        t += (f"The figure quoted for FastHenry here is the converged end of "
-              f"that sweep, {ref['grid_target_mm']} mm at "
+        lc = ref.get("last_refinement_change")
+        t += (f"The figure quoted for FastHenry here is the finest point of "
+              f"that sweep"
+              + (f" (it moved {lc * 100:.0f} % on its last step)"
+                 if lc is not None else "")
+              + f", {ref['grid_target_mm']} mm at "
               f"{(ref.get('f_Hz') or 0) / 1e6:.0f} MHz, not the production "
               f"run's 1.2 mm grid; the production model's own frequency sweep "
               f"falls about 3 % between 1 MHz and 100 MHz, which is the band "
@@ -513,45 +564,9 @@ def q1_crosscheck(quick=False):
 
     rows, runs = _series(series, snap=True, tag="s")
     out["mesh_convergence"] = rows
-    # The one place the two models disagree about the conductor itself: the
-    # PEEC mesh uses an equal-AREA square bar for a plated hole (right for R,
-    # 2.2x too inductive for a 0.4 mm drill) and this one a solid rod of the
-    # pad's diameter (too fat).  Re-solve one point at the real plated
-    # diameter so the size of it is measured rather than argued.
-    if not quick:
-        _b = _series([(0.35, 0.35, 500000)], snap=False, tag="v",
-                     barrel="plated")[0]
-        out["barrel_model_sensitivity"] = _b[0] if _b else {}
     out["shorting_survey"] = shorting_survey(
         "A", "In1.Cu", uniform=[r for r, _ in uni],
         snapped=[m for _, m, _ in series])
-
-    # The device is an ideal short in the PEEC model and a real strip of
-    # copper here, and a strip 0.15 mm above a ground plane carries a partial
-    # inductance the other model does not.  Halving its width at a fixed mesh
-    # doubles that term and leaves the loop alone, so L(w) = L0 + k/w and the
-    # pair extrapolates to the ideal short the PEEC model assumes: L0 = 2*L1 -
-    # L2.  That is the number the two solvers can honestly be compared on.
-    if not quick and rows:
-        # priced at the coarsest snapped mesh: the strip's own term is set by
-        # its own geometry, and that mesh already resolves a 0.35 mm strip,
-        # so paying for the finest one buys nothing here
-        base = max((r for r in rows if r.get("L_nH")),
-                   key=lambda r: r["min_step_mm"], default=None)
-        if base:
-            half = _series([(base["res_mm"], base["min_step_mm"],
-                             base.get("nrts", 500000))],
-                           snap=True, tag="h", bridge_shrink=0.5)[0]
-            out["bridge_deembed"] = {"full_width": base, "half_width": half[0]}
-            if half and half[0].get("L_nH"):
-                L1, L2 = base["L_nH"], half[0]["L_nH"]
-                out["bridge_deembed"]["L_ideal_short_nH"] = 2 * L1 - L2
-                out["bridge_deembed"]["bridge_term_nH"] = L2 - L1
-                out["bridge_deembed"]["note"] = (
-                    "L(w) = L0 + k/w: halving the bridge width doubles the "
-                    "strip's own term and leaves the loop unchanged, so "
-                    "L0 = 2*L1 - L2 is the loop with the ideal short the PEEC "
-                    "model assumes.")
 
     good = [r for r in rows if r.get("L_nH") == r.get("L_nH")
             and "error" not in r]
@@ -585,10 +600,17 @@ def q1_crosscheck(quick=False):
         lcf = fin.get("lc_fit") or {}
         flat = (lcf.get("rel_residual") is not None
                 and lcf["rel_residual"] < 0.05)
+        # Whether the record is long enough is whether stopping it earlier
+        # still moves the answer: the last step, three quarters of it against
+        # all of it, held to 2 %.  The half-record figure is kept beside it but
+        # not graded -- it was, against a 5 % spread over all three, and on
+        # board S's 0.1 mm mesh it failed a record whose last quarter moved
+        # the answer 0.5 % (2.81, 2.64, 2.66 nH).
         tr = fin.get("L_nH_from_record_fraction") or {}
-        vals = [v for k, v in tr.items() if isinstance(v, (int, float))]
-        settled = (max(vals) - min(vals)) / max(abs(v) for v in vals) < 0.05 \
-            if len(vals) > 1 else None
+        a, b = tr.get("0.75"), tr.get("1.00")
+        settled = (abs(b - a) / abs(b) < 0.02
+                   if isinstance(a, (int, float)) and isinstance(b, (int, float))
+                   else None)
         out["convergence_tests"] = {
             "one_L_and_one_C_describe_the_port": flat,
             "lc_fit_residual": lcf.get("rel_residual"),
@@ -610,15 +632,14 @@ def q1_crosscheck(quick=False):
         if l1:
             out["ratio_L2_over_L1"] = fin["L_nH"] / l1
             out["agreement_raw_pct"] = abs(fin["L_nH"] - l1) / l1 * 100
-    # compare like with like: the PEEC model's device is an ideal short, so
-    # the FDTD number to set beside it is the one with its strip taken out
-    de = out.get("bridge_deembed") or {}
-    l2 = de.get("L_ideal_short_nH")
-    if l2 is None:
-        l2 = out.get("L2_openems_nH")
-        out["compared_on"] = "the raw FDTD value; the bridge was not de-embedded"
-    else:
-        out["compared_on"] = "the FDTD value with the device strip de-embedded"
+    # like with like by construction: both models make each FET's drain and
+    # source pads one conductor (_fet_fill) and model each via as the plated
+    # tube, so the FDTD number is compared as it comes
+    l2 = out.get("L2_openems_nH")
+    out["compared_on"] = ("the FDTD value as solved: both models join each "
+                          "FET's drain and source pads into one conductor and "
+                          "see each via as its plated tube, so nothing is "
+                          "taken out")
     out["L2_for_comparison_nH"] = l2
     if l1 and l2:
         out["agreement_pct"] = abs(l2 - l1) / l1 * 100
@@ -655,94 +676,401 @@ def _why_not(out):
             "as a number")
 
 
+# ------------------------------------------------------------------- Q11 ---
+Q11_NETS = ["GND", "VBUS", "SW_A", "SW_B", "SW_C",
+            "PHASE_A", "PHASE_B", "PHASE_C", "+3V3"]
+BOARD_WIN = (-32.5, -32.5, 32.5, 32.5)
+LEAD_MM = 58.0
+
+# Two meshes, so the answer is checked against the mesh rather than assumed:
+# `min_step` is the closest two snapped lines may be, `res_fine` the fill
+# around the switch node, `res_board` the fill over the rest of the board and
+# `cell_max` the largest air cell (lambda/50 at 1 GHz for the finer one).
+Q11_MESHES = (
+    ("coarse", {"min_step": 0.30, "res_fine": 0.45, "res_board": 1.8,
+                "cell_max": 8.0}),
+    ("fine", {"min_step": 0.20, "res_fine": 0.30, "res_board": 1.2,
+              "cell_max": 6.0}),
+)
+
+
+def _sw_port(c, nets, half=0.15, margin=0.10):
+    """The source: a z-directed lumped port from the switch node on F.Cu down
+    to the In1 ground plane, at the spot nearest the low-side FET's channel
+    where F.Cu is the switch node, In1 is ground and no barrel passes through.
+
+    The first version of Q11 drove a box 0.8 mm tall reaching from the
+    high-side drain pad to the low-side source pad, about 8 x 13 mm.  openEMS
+    gives a lumped port metal end caps, and z grows into this board, so the
+    cap on F.Cu shorted VBUS, the switch node and GND together across that
+    whole area, the other cap was a floating plate inside the dielectric at
+    z = 0.84 mm, and at the port's priority the box replaced about 100 mm2 of
+    the In1 and In2 planes with its own resistor.  The switch node was never
+    driven at all.  This port is 0.3 mm square and each cap lands on the
+    conductor it is meant to: the switch node above, ground below.
+    """
+    from shapely.geometry import Point, box as sbox
+    from shapely.ops import nearest_points, unary_union
+    pts = [(q["x"], q["y"]) for q in copper.pads_of(c["lo"])]
+    xs, ys = [q[0] for q in pts], [q[1] for q in pts]
+    fb = (min(xs) - 0.6, min(ys) - 0.6, max(xs) + 0.6, max(ys) + 0.6)
+    a, b = nearest_points(copper.net_union(c["sw"], "F.Cu", fb, simplify=0.0),
+                          copper.net_union("GND", "F.Cu", fb, simplify=0.0))
+    chan = Point((a.x + b.x) / 2, (a.y + b.y) / 2)
+    look = (chan.x - 10, chan.y - 10, chan.x + 10, chan.y + 10)
+    sw = copper.net_union(c["sw"], "F.Cu", look, simplify=0.0)
+    gnd = copper.net_union("GND", "In1.Cu", look, simplify=0.0)
+    holes = unary_union([Point(q["x"], q["y"]).buffer(q["dia"] / 2 + margin,
+                                                       24)
+                         for q in copper.barrels(nets, look)])
+    ok = sw.intersection(gnd).difference(holes).buffer(-(half + margin))
+    if ok.is_empty:
+        raise KeyError(f"no spot where {c['sw']} on F.Cu lies over GND on In1")
+    p = nearest_points(ok, chan)[0]
+    sq = sbox(p.x - half, p.y - half, p.x + half, p.y + half)
+    if not (sq.within(sw) and sq.within(gnd)):
+        raise KeyError("the port's footprint is not wholly on both conductors")
+    st = copper.stackup()
+    return {"p0": [p.x - half, p.y - half, st["F.Cu"]["z"]],
+            "p1": [p.x + half, p.y + half, st["In1.Cu"]["z"]],
+            "from": f"{c['sw']} on F.Cu", "to": "GND on In1.Cu",
+            "fet_channel_xy": [round(chan.x, 3), round(chan.y, 3)],
+            "from_channel_mm": round(p.distance(chan), 3)}
+
+
+def _rf_bridges(nets):
+    """The components that matter at RF, as copper.
+
+    Components are not copper, so without these the motor lead stands on
+    PHASE_A copper that nothing joins to the switch node (the shunts are the
+    only connection), VBUS floats on its plane capacitance, and phases B and C
+    are islands.  Phase A's shunts put the lead on the switch node; the
+    DC-link capacitors tie VBUS to ground; phases B and C sit with their low
+    sides on.  Each is the shortest strip across its own component's
+    clearance, as for the FETs in Q1's model.
+    """
+    st = copper.stackup()
+    out, failed = [], []
+
+    def add(ref, a, b):
+        try:
+            lay = sorted({l for q in copper.pads_of(ref)
+                          for l in q.get("shapes", {})})
+            lay = lay[0] if len(lay) == 1 else "F.Cu"
+            out.append(_fet_bridge(ref, a, b, 1.0, st[lay]["z"], st[lay]["t"],
+                                   others=[n for n in nets if n not in (a, b)],
+                                   layer=lay))
+            out[-1]["layer"] = lay
+        except (KeyError, IndexError, ValueError) as e:
+            failed.append(f"{ref}: {e}")
+
+    for k in ("A", "B", "C"):
+        c = fhcell.CELL[k]
+        for r in c["shunts"]:
+            add(r, c["sw"], c["phase"])
+        if k != "A":
+            add(c["lo"], c["sw"], "GND")
+        for r in list(c["hf"]) + list(c["bulk"]):
+            add(r, "VBUS", "GND")
+    return out, failed
+
+
+def _snap_window(c, lead_xy, pad=1.0):
+    """The switch node's own copper, every layer, with a margin: the only
+    place the mesh has to keep conductors apart."""
+    from shapely.ops import unary_union
+    parts = [u for n in (c["sw"], c["phase"]) for L in copper.CU_LAYERS
+             for u in [copper.net_union(n, L, BOARD_WIN, simplify=0.0)]
+             if u is not None and not u.is_empty]
+    x0, y0, x1, y1 = unary_union(parts).bounds
+    x0, x1 = min(x0, lead_xy[0]), max(x1, lead_xy[0])
+    y0, y1 = min(y0, lead_xy[1]), max(y1, lead_xy[1])
+    return [round(max(BOARD_WIN[0], x0 - pad), 4),
+            round(max(BOARD_WIN[1], y0 - pad), 4),
+            round(min(BOARD_WIN[2], x1 + pad), 4),
+            round(min(BOARD_WIN[3], y1 + pad), 4)]
+
+
+def _snap_lines(d, win, min_step, extra_x=(), extra_y=()):
+    """Mesh lines snapped to every copper edge inside `win`, as Q1's cell
+    model does over its own window (see geom_export.fixed_lines)."""
+    from shapely.geometry import Polygon as _P, box as sbox
+    clip = sbox(*win)
+    polys = []
+    for p in d["polys"]:
+        g = _P(p["pts"])
+        if not g.is_valid:
+            g = g.buffer(0)
+        if not g.intersects(clip):
+            continue
+        h = g.intersection(clip)
+        for q in (h.geoms if hasattr(h, "geoms") else [h]):
+            if isinstance(q, _P) and not q.is_empty:
+                polys.append({"pts": [list(t) for t in q.exterior.coords]})
+    bars = [b for b in d["barrels"]
+            if win[0] <= b["x"] <= win[2] and win[1] <= b["y"] <= win[3]]
+    sub = {"polys": polys, "barrels": bars, "window": list(win)}
+    fx, sx = geom_export.fixed_lines(
+        sub, "x", min_step, extra=[v for v in extra_x if win[0] <= v <= win[2]])
+    fy, sy = geom_export.fixed_lines(
+        sub, "y", min_step, extra=[v for v in extra_y if win[1] <= v <= win[3]])
+    return fx, fy, max(sx, sy)
+
+
+def _ring_hz(default=118e6):
+    """The switch node's own ring, from the circuit model (P2)."""
+    try:
+        r = ((jsonio.read("P2") or {}).get("Q2") or {})["worst_case"]
+        return float(r["ring_turn_on"]["f_MHz"]) * 1e6
+    except (KeyError, TypeError, ValueError):
+        return default
+
+
+def _nf2ff_kat():
+    """The far-field transform on a dipole whose answer is in the textbook
+    (field/cell_scripts.NF2FF_KAT): D = 1.5 and R_rad = 20 pi^2 (L/lambda)^2.
+    R_rad is held to 20 %, because that formula is the thin-wire limit and
+    this dipole is a 1 mm bar with a 1 mm gap."""
+    t0 = time.time()
+    wd = fr.run("p7_nf2ff_kat", cell_scripts.NF2FF_KAT, timeout=3600,
+                nthreads=14)
+    res = fr.result(wd)
+    rows = res.get("rows") or {}
+    ok_d = all(abs(r["D"] - 1.5) <= 0.05 for r in rows.values()
+               if r["f_Hz"] <= 6e8)
+    ok_r = all(abs(r["R_rad_ohm"] / r["R_rad_theory_ohm"] - 1) <= 0.20
+               for r in rows.values())
+    ok_t = all(abs(r["peak_theta_deg"] - 90) <= 10 for r in rows.values())
+    return {"dipole_mm": res.get("dipole_mm"), "rows": rows,
+            "D_within_0.05_of_1.5": ok_d, "R_rad_within_20pct": ok_r,
+            "peak_broadside": ok_t, "pass": bool(rows and ok_d and ok_r
+                                                 and ok_t),
+            "seconds": round(time.time() - t0, 1)}
+
+
+def _q11_run(tag, base, port, bridges, lead, win, spec, f_ff, f_probe,
+             nrts):
+    name = f"p7_board_nf_{tag}"
+    d = json.loads(json.dumps(base))
+    lx, ly, r = lead[0][0], lead[0][1], 0.8
+    keep_x = [port["p0"][0], port["p1"][0], lx - r, lx, lx + r]
+    keep_y = [port["p0"][1], port["p1"][1], ly - r, ly, ly + r]
+    bx = [q[0] for b in bridges for q in b["pts"]]
+    by = [q[1] for b in bridges for q in b["pts"]]
+    fx, fy, step = _snap_lines(d, win, spec["min_step"], keep_x + bx,
+                               keep_y + by)
+    z_end = max(s[5] for s in lead)
+    d.update({"port_box": port, "bridges": bridges, "lead": lead,
+              "lead_r": r, "snap_window": win, "fx": fx, "fy": fy,
+              "keep_x": keep_x, "keep_y": keep_y,
+              "min_step": spec["min_step"], "res_fine": spec["res_fine"],
+              "res_board": spec["res_board"], "cell_max": spec["cell_max"],
+              "air": [60.0, -80.0, z_end + 60.0],
+              "tau": 0.5e-9, "nrts": nrts, "end_criteria": 1e-5,
+              "f_ff": list(f_ff), "f_probe": list(f_probe)})
+    p = paths.WORK / "openems" / name / "geom.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(d))
+    t0 = time.time()
+    wd = fr.run(name, cell_scripts.NEAR_FAR, timeout=6 * 3600, nthreads=14,
+                clean=False)
+    res = fr.result(wd)
+    diag = _diagnostics(wd)
+    return {"tag": tag, **spec, "step_used_mm": round(step, 4),
+            "fixed_lines_x": len(fx), "fixed_lines_y": len(fy),
+            "cells": diag.get("cells"), "mesh": diag.get("mesh"),
+            "final_energy_dB": diag.get("final_energy_dB"),
+            "dropped_primitives": diag.get("dropped_primitives"),
+            "min_cell_mm": res.get("min_cell_mm"),
+            "far_field": res.get("far_field") or {},
+            "workdir": str(wd), "seconds": round(time.time() - t0, 1)}
+
+
 def q11(quick=False):
-    """Near field above the board, and the far field with a motor lead."""
+    """The radiated field of the switch node's edge, with a motor lead.
+
+    The first version reported a directivity below 1 (impossible) at every
+    frequency and a field pinned at its own -120 dBuV/m floor, and blamed the
+    mesh.  None of it was the mesh: the run stopped at 8.8 ns in the middle
+    of its own 14 ns pulse; the port shorted the switch node instead of
+    driving it (_sw_port); the field was a spectral density in V.s/m never
+    divided by the excitation; the far-field angles were radians where
+    openEMS wants degrees, so the "sphere" was a pinhole on the lead's own
+    axis; and the directivity divided by a near-field flux that is noise at
+    this size (_q11_tests).  geom_export was also dropping a third of each
+    inner ground plane (_simple_pieces).  The answer now is a transfer
+    function, dBuV/m at 3 m per volt across the switch node.
+    """
     t0 = time.time()
     out = {"question": "Q11"}
-    nets = ["GND", "VBUS", "SW_A", "SW_B", "SW_C",
-            "PHASE_A", "PHASE_B", "PHASE_C", "+3V3"]
-    name = "p7_board_nf"
-    win = (-32.5, -32.5, 32.5, 32.5)
+    c = fhcell.CELL["A"]
+    nets = Q11_NETS
     try:
         p, data = geom_export.export(
-            win, nets, simplify=0.25, name=name,
-            out=paths.WORK / "openems" / name / "geom.json")
-        v = _pad_xy("Q1", 5)
-        g = _pad_xy("Q2", 1)
-        # One motor lead, leaving the board at cell A's own lead pad.
-        #
-        # It starts in the pad's copper, not near it.  The first version of
-        # this model put the wire's base at z = 1.65, the bottom face of the
-        # board, while J1.1 is on B.Cu at z = 1.545: a 70 um gap, which at the
-        # 0.12 mm z cells this model can afford is closed or not depending on
-        # where a mesh line happens to fall.  A lead that may or may not be
-        # attached is not a model of a lead.
-        st2 = copper.stackup()
-        try:
-            lx, ly = _pad_xy(fhcell.CELL["A"]["lead"], 1, "B.Cu")
-            lz = st2["B.Cu"]["z"]
-        except KeyError:
-            ang = math.radians(34.0)
-            lx, ly = 29.5 * math.cos(ang), 29.5 * math.sin(ang)
-            lz = st2["B.Cu"]["z"]
-        lead = [[lx, ly, lz, lx, ly, lz + 58.0]]
-        d = geom_export.drop_barrel_shadowed(json.loads(p.read_text()))
-        d.update({"port": [list(v), list(g)], "lead": lead,
-                  "res": 2.0 if quick else 1.2,
-                  "nrts": 20000 if quick else 45000,
-                  "fc": 400e6,
-                  "f_probe": [1e5, 1e6, 2e7, 1.18e8, 3e8]})
-        p.write_text(json.dumps(d))
-        wd = fr.run(name, cell_scripts.NEAR_FAR, timeout=12000, nthreads=14,
-                    clean=False)
-        res = fr.result(wd)
-        out["far_field"] = res.get("far_field")
-        out["workdir"] = str(wd)
-        out["diagnostics"] = _diagnostics(wd)
-        ff = res.get("far_field") or {}
-        neg = [k for k, r in ff.items() if (r.get("Dmax") or -1) <= 0]
-        out["negative_directivity_at_Hz"] = neg
-        out["lead_anchored_at"] = {"x": lx, "y": ly, "z": lz,
-                                   "pad": f"{fhcell.CELL['A']['lead']}.1"}
-        out["converged"] = bool(ff and not neg
-                                and out["diagnostics"]
-                                .get("dropped_primitives", 0) < 50)
-        if not out["converged"]:
-            out["not_converged_reason"] = (
-                f"The mesh cannot represent this board.  Its clearances are "
-                f"0.40 mm and its tracks 0.15 mm; a 65 mm six-layer board "
-                f"allows 1.2 mm cells here, and at that size copper the board "
-                f"keeps apart is joined -- there are no nets in FDTD, only "
-                f"metal.  Q1's cell-A model showed what that costs: the same "
-                f"loop came out 0.62 nH at 0.55 mm cells and 3.04 nH once the "
-                f"clearances were resolved, a factor of five.  Snapping the "
-                f"mesh to the copper rescued the cell, which is 21 x 26 mm; "
-                f"pinning a line to every feature on the whole board is a "
-                f"10^8-cell problem.  No radiated level is quoted.  "
-                f"(The directivity also comes out negative at {len(neg)} of "
-                f"the {len(ff)} probe frequencies"
-                + (", all of them below 30 MHz, where a board this size "
-                   "radiates almost nothing and the near-to-far-field "
-                   "transform is differencing numbers at its own floor -- "
-                   "that one is not the mesh's fault"
-                   if neg and not neg_real else
-                   f", including {len(neg_real)} above 30 MHz")
-                + f".  {out['diagnostics'].get('dropped_primitives', 0)} "
-                f"primitives were reported unused; those are mostly via pads "
-                f"their own barrels already provide and are not evidence of "
-                f"anything.)")
+            BOARD_WIN, nets, simplify=0.05, name="p7_board_nf",
+            out=paths.WORK / "openems" / "p7_board_nf" / "geom.json")
+        base = geom_export.drop_barrel_shadowed(json.loads(p.read_text()))
+        st = copper.stackup()
+        # The motor lead leaves the board from cell A's own lead pad, starting
+        # in the pad's copper (J1.1 is on B.Cu), not 70 um below it.
+        lx, ly = _pad_xy(c["lead"], 1, "B.Cu")
+        lz = st["B.Cu"]["z"]
+        lead = [[lx, ly, lz, lx, ly, lz + LEAD_MM]]
+        port = _sw_port(c, nets)
+        bridges, failed = _rf_bridges(nets)
+        win = _snap_window(c, (lx, ly))
+        ring = _ring_hz()
+        f_ff = sorted({30e6, 40e6, 50e6, 65e6, 80e6, 100e6, round(ring, -5),
+                       150e6, 200e6, 230e6, 300e6, 400e6, 500e6, 650e6,
+                       800e6, 1e9})
+        f_probe = [1e5, 1e6, 2e7, round(ring, -5), 3e8]
+        out["model"] = {
+            "source": port, "lead": {"length_mm": LEAD_MM, "radius_mm": 0.8,
+                                     "pad": f"{c['lead']}.1", "x": lx,
+                                     "y": ly, "z": lz},
+            "bridges": [{k: b[k] for k in ("from", "to", "layer", "width_mm")}
+                        for b in bridges],
+            "bridges_failed": failed,
+            "snap_window_mm": win,
+            "copper_mm2": base.get("copper_mm2"),
+            "copper_lost_mm2": base.get("copper_lost_mm2"),
+            "ring_Hz": ring,
+            "excitation": ("derivative of a Gaussian, tau 0.5 ns: no DC, "
+                           "peak at 450 MHz, -19 dB at 30 MHz, -10 dB at "
+                           "1 GHz"),
+            "boundaries": "MUR, 60 mm of air beyond the board and the lead"}
+        out["nf2ff_known_answer"] = _nf2ff_kat()
+        meshes = Q11_MESHES[:1] if quick else Q11_MESHES
+        runs = [_q11_run(tag, base, port, bridges, lead, win, spec, f_ff,
+                         f_probe, 200000 if quick else 1200000)
+                for tag, spec in meshes]
+        out["mesh_series"] = [{k: v for k, v in r.items() if k != "far_field"}
+                              for r in runs]
+        fine = runs[-1]
+        ff = fine["far_field"]
+        out["far_field"] = ff
+        out["workdir"] = fine["workdir"]
+        out["diagnostics"] = _diagnostics(Path(fine["workdir"]))
+        out.update(_q11_tests(runs, out["nf2ff_known_answer"]))
+        _plot_q11(out)
     except Exception as e:
         out["error"] = f"{e.__class__.__name__}: {e}"
     # CISPR 32 class B radiated limits at 3 m, for reference only
     out["cispr32_class_B_3m_dBuV_per_m"] = {
         "30-230 MHz": 40.0, "230-1000 MHz": 47.0,
-        "note": ("quasi-peak limits at 3 m.  This simulation drives the "
-                 "switch node with a 1 V port, not with the real 60 V edge, "
-                 "so the absolute level has to be scaled by the real "
-                 "excitation and by the duty cycle of the harmonic in "
-                 "question; what it is good for is the shape of the spectrum "
-                 "and the relative effect of a lead.")}
+        "note": ("quasi-peak limits at 3 m.  The simulated field is a "
+                 "transfer function, dBuV/m at 3 m per volt across the switch "
+                 "node at that frequency, so a level needs the switch node's "
+                 "own spectrum in the receiver's 120 kHz bandwidth.  It is "
+                 "the far-field term: below about 50 MHz, 3 m is less than "
+                 "half a wavelength and the near-field terms are not small.")}
     out["seconds"] = round(time.time() - t0, 1)
+    return out
+
+
+def _q11_tests(runs, kat):
+    """What makes the far field a number rather than a transform of noise.
+
+    A power balance -- the radiated power from the flux through the transform
+    box against the far field integrated over the sphere -- was tried and is
+    not a test here: on the known-answer dipole the flux comes out negative
+    at 100 and 300 MHz, because at this size it is a small difference of
+    large reactive terms.  The known answer itself is the test of the
+    transform, and the tests of the model are below.
+    """
+    fine = runs[-1]
+    ff = fine["far_field"]
+    t = {}
+    # 1. the transform reproduces a textbook dipole
+    t["nf2ff_known_answer"] = bool(kat.get("pass"))
+    # 2. the record is complete: the pulse has died away
+    try:
+        t["energy_dB"] = float(str(fine.get("final_energy_dB")).strip())
+    except ValueError:
+        t["energy_dB"] = None
+    t["energy_decayed"] = (t["energy_dB"] is not None
+                           and t["energy_dB"] <= -40.0)
+    # 3. the switch node is a conductor of its own: at the bottom of the band
+    #    it is a capacitor to ground.  Joined to ground anywhere -- which is
+    #    what a mesh too coarse for 0.40 mm clearances does -- it would be an
+    #    inductor of a few nH instead.
+    lo = min(ff.values(), key=lambda r: r["f_Hz"]) if ff else None
+    t["switch_node_X_ohm_at_lowest_f"] = lo["Z_port_ohm"][1] if lo else None
+    t["switch_node_pF"] = (round(-1e12 / (2 * math.pi * lo["f_Hz"]
+                                          * lo["Z_port_ohm"][1]), 1)
+                           if lo and lo["Z_port_ohm"][1] < 0 else None)
+    t["switch_node_not_shorted"] = bool(lo and lo["Z_port_ohm"][1] < 0)
+    # Where the answer stops being the board's.  The switch node's 68 pF is
+    # in series, at the port, with the inductance of the port's own loop
+    # (about 0.9 nH), and the two resonate near 660 MHz.  Near there the
+    # transfer function turns on that inductance -- a property of a 0.3 mm
+    # lumped port, not of the FET package that drives the real switch node --
+    # and a small shift of the resonance between meshes reads as dB.  So the
+    # answer is graded, and quoted, below 0.8 of that resonance; above it,
+    # the edge's own spectrum is 60 dB down from 30 MHz anyway.
+    rows = sorted(ff.values(), key=lambda r: r["f_Hz"])
+    f_res = None
+    for a, b in zip(rows[:-1], rows[1:]):
+        xa, xb = a["Z_port_ohm"][1], b["Z_port_ohm"][1]
+        if xa < 0 <= xb:
+            f_res = a["f_Hz"] + (b["f_Hz"] - a["f_Hz"]) * (-xa) / (xb - xa)
+            break
+    t["switch_node_series_resonance_Hz"] = f_res
+    top = 0.8 * f_res if f_res else max((r["f_Hz"] for r in rows), default=0)
+    band = [k for k, r in ff.items() if r["f_Hz"] <= top]
+    t["graded_band_Hz"] = [min((ff[k]["f_Hz"] for k in band), default=None),
+                           max((ff[k]["f_Hz"] for k in band), default=None)]
+    # 4. energy: nothing radiates more than the port puts in, over the band
+    #    the answer is graded on.  At 1 GHz the lead is near its own quarter
+    #    wave, nearly everything the port delivers is radiated, and the ratio
+    #    has come out at 0.94 and at 1.04 on two runs of the same model.
+    eff = [ff[k].get("radiated_over_input") for k in band]
+    t["radiated_over_input_max"] = max((e for e in eff if e is not None),
+                                       default=None)
+    t["radiated_over_input_max_above_band"] = max(
+        (r.get("radiated_over_input") or 0 for k, r in ff.items()
+         if k not in band), default=None)
+    t["energy_conserved"] = bool(eff) and all(e is not None and e <= 1.0
+                                              for e in eff)
+    # 5. the mesh: the same transfer function on a coarser one
+    if len(runs) > 1:
+        a = runs[0]["far_field"]
+        diffs = {k: round(ff[k]["dBuV_per_m_per_V"]
+                          - a[k]["dBuV_per_m_per_V"], 2)
+                 for k in ff if k in a}
+        t["mesh_change_dB"] = diffs
+        inb = [abs(v) for k, v in diffs.items() if k in band]
+        t["mesh_change_max_dB"] = max(inb) if inb else None
+        t["mesh_change_max_dB_above_band"] = max(
+            (abs(v) for k, v in diffs.items() if k not in band), default=None)
+        t["mesh_agrees"] = bool(diffs) and t["mesh_change_max_dB"] <= 1.5
+    else:
+        t["mesh_agrees"] = None
+    checks = ("nf2ff_known_answer", "energy_decayed",
+              "switch_node_not_shorted", "energy_conserved", "mesh_agrees")
+    out = {"tests": t, "converged": all(t[k] is True for k in checks)}
+    if not out["converged"]:
+        why = []
+        if not t["nf2ff_known_answer"]:
+            why.append("the far-field transform fails its known-answer "
+                       "dipole")
+        if not t["energy_decayed"]:
+            why.append(f"the run stopped with its energy at "
+                       f"{t['energy_dB']} dB, not below -40 dB")
+        if not t["switch_node_not_shorted"]:
+            why.append("the switch node is inductive at the bottom of the "
+                       "band, so the mesh has joined it to ground")
+        if not t["energy_conserved"]:
+            why.append(f"the far field carries up to "
+                       f"{t['radiated_over_input_max']} of the power the "
+                       f"port puts in")
+        if t["mesh_agrees"] is False:
+            why.append(f"the coarse and fine meshes differ by up to "
+                       f"{t['mesh_change_max_dB']} dB below the switch "
+                       f"node's own resonance")
+        if t["mesh_agrees"] is None:
+            why.append("only one mesh was run (quick mode)")
+        out["not_converged_reason"] = "; ".join(why) + "."
     return out
 
 
@@ -880,6 +1208,80 @@ def _plot_crosscheck(out, runs):
                  "copper", fontsize=12.5, color=FG, y=1.0)
     fig.tight_layout()
     fig.savefig(paths.FIGS / "p7_crosscheck.png", bbox_inches="tight",
+                facecolor="white")
+    plt.close(fig)
+
+
+def _cispr_b_3m(f):
+    """CISPR 32 class B quasi-peak limit at 3 m, dBuV/m."""
+    return 40.0 if f <= 230e6 else 47.0
+
+
+def _plot_q11(out):
+    """The radiated transfer function, and the switch-node signal it takes
+    to reach the class B limit."""
+    ff = out.get("far_field") or {}
+    if not ff:
+        return
+    rows = sorted(ff.values(), key=lambda r: r["f_Hz"])
+    f = np.array([r["f_Hz"] for r in rows]) / 1e6
+    h = np.array([r["dBuV_per_m_per_V"] for r in rows])
+    ch = (out.get("tests") or {}).get("mesh_change_dB") or {}
+    hc = np.array([r["dBuV_per_m_per_V"] - ch.get(k, np.nan)
+                   for k, r in sorted(ff.items(), key=lambda t: t[1]["f_Hz"])])
+    ser = {m["tag"]: m for m in out.get("mesh_series") or []}
+    lead = ((out.get("model") or {}).get("lead") or {}).get("length_mm")
+    ring = (out.get("model") or {}).get("ring_Hz")
+    fig, ax = plt.subplots(2, 1, figsize=(8.6, 7.4), sharex=True)
+    if np.isfinite(hc).any() and "coarse" in ser:
+        ax[0].plot(f, hc, "o--", color=C_EM, alpha=0.45, lw=1.3, ms=4,
+                   label=f"coarse mesh, {ser['coarse'].get('cells', 0)/1e6:.2f} "
+                         f"Mcells")
+    fine = ser.get("fine") or ser.get("coarse") or {}
+    ax[0].plot(f, h, "o-", color=C_EM, lw=1.8, ms=5,
+               label=f"{fine.get('tag', '')} mesh, "
+                     f"{(fine.get('cells') or 0)/1e6:.2f} Mcells")
+    ax[0].set_ylabel("dB\u00b5V/m at 3 m per volt\nacross the switch node")
+    ax[0].set_title(f"What the board radiates per volt of switch-node signal "
+                    f"({lead:.0f} mm motor lead)" if lead else
+                    "What the board radiates per volt of switch-node signal",
+                    fontsize=10.5, color=FG)
+    ax[0].legend(fontsize=8, frameon=False, loc="upper left")
+    # the switch-node signal in the receiver's band that reaches the limit
+    need = np.array([_cispr_b_3m(r["f_Hz"]) for r in rows]) - h + 120.0
+    ax[1].plot(f, need, "o-", color=C_FH, lw=1.8, ms=5)
+    ax[1].set_ylabel("switch-node signal that\nreaches class B (dB\u00b5V)")
+    ax[1].set_title("Against CISPR 32 class B at 3 m: the switch-node level, "
+                    "in the receiver's 120 kHz band,\nthat puts the field on "
+                    "the limit", fontsize=10, color=FG)
+    top = ((out.get("tests") or {}).get("graded_band_Hz") or [None, None])[1]
+    for a in ax:
+        if ring:
+            a.axvline(ring / 1e6, color=MUTED, lw=0.9, ls=":")
+        if top and top < f[-1] * 1e6:
+            a.axvspan(top / 1e6 * 1.12, f[-1] * 1.05, color=LINE, alpha=0.6,
+                      lw=0)
+        a.set_xscale("log")
+        _axstyle(a)
+    if top and top < f[-1] * 1e6:
+        ax[0].annotate("near the switch node's resonance\nwith the port's "
+                       "own loop: not graded", (top / 1e6 * 1.18,
+                                                 ax[0].get_ylim()[0]),
+                       xytext=(0, 8), textcoords="offset points",
+                       fontsize=7.5, color=MUTED)
+    if ring:
+        ax[1].annotate(f"switch-node ring\n{ring/1e6:.0f} MHz (P2)",
+                       (ring / 1e6, ax[1].get_ylim()[1]),
+                       xytext=(4, -24), textcoords="offset points",
+                       fontsize=8, color=MUTED)
+    ax[1].set_xlabel("frequency (MHz)")
+    from matplotlib.ticker import FixedLocator, NullFormatter
+    ticks = [30, 50, 100, 200, 300, 500, 1000]
+    ax[1].xaxis.set_major_locator(FixedLocator(ticks))
+    ax[1].set_xticklabels([str(t) for t in ticks])
+    ax[1].xaxis.set_minor_formatter(NullFormatter())
+    fig.tight_layout()
+    fig.savefig(paths.FIGS / "p7_radiated.png", bbox_inches="tight",
                 facecolor="white")
     plt.close(fig)
 

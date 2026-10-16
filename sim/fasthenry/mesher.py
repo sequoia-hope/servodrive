@@ -56,6 +56,21 @@ def grid_lines(lo, hi, required=(), target=0.7, min_gap=0.12):
     return np.array(merged)
 
 
+# the geometric mean distance of a square of side a from itself, over a
+SQUARE_GMD = 0.447049
+
+
+def tube_gmd(r_i, r_o):
+    """The geometric mean distance of an annulus from itself (exact; it
+    tends to r_o for a thin wall and to r_o * e^-1/4 for a solid rod)."""
+    a2, b2 = r_o ** 2, r_i ** 2
+    if b2 <= 0:
+        return r_o * math.exp(-0.25)
+    return math.exp(math.log(r_o)
+                    - b2 ** 2 / (a2 - b2) ** 2 * math.log(r_o / r_i)
+                    + (3 * b2 - a2) / (4 * (a2 - b2)))
+
+
 def half_widths(lines):
     """For each grid line, the width of the strip it represents."""
     w = np.zeros(len(lines))
@@ -253,9 +268,20 @@ class Mesh:
     def add_barrel(self, b, tag_for_layer, plating=0.025,
                    sigma=runner.SIGMA_CU_PLATED, name=None):
         """A plated hole.  `tag_for_layer` maps a layer name to the conductor
-        tag the barrel should join there (or None to pass through)."""
+        tag the barrel should join there (or None to pass through).
+
+        It is a square bar with the plated tube's geometric mean distance,
+        and a conductivity scaled down so that its resistance is the tube's.
+        The first version used a bar of the tube's copper AREA: right for R,
+        but its GMD was 0.082 mm against the tube's 0.217 mm for a 0.4 mm
+        hole, which made every barrel 2.2 times too inductive -- and the
+        commutation loop runs through sixteen of them.  Partial self
+        inductance goes as ln(2l/GMD), resistance as 1/(sigma*A); matching
+        both is what a single bar can do.
+        """
         area = copper.barrel_area(b["drill"], plating)
-        side = math.sqrt(area)                    # equal-area square bar
+        side = tube_gmd(b["drill"] / 2, b["drill"] / 2 + plating) / SQUARE_GMD
+        sigma = sigma * area / side ** 2
         nm = name or f"{b['ref']}_{b['x']:.2f}_{b['y']:.2f}".replace(".", "p").replace("-", "m")
         prev = None
         for k in range(b["i0"], b["i1"] + 1):

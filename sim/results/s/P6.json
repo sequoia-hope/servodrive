@@ -357,7 +357,7 @@
    "note": "the current loop's own bandwidth is about 1 kHz, so error below that is what it will try to follow and error above it is what the low-pass takes out"
   },
   "criterion": "synchronised sampling shown to cut corrupted samples to zero and noise by a stated factor",
-  "seconds": 8.7,
+  "seconds": 9.3,
   "figure": "p6_sampling.png"
  },
  "Q9": {
@@ -597,16 +597,16 @@
   "min_duty_reachable": 0.024,
   "min_duty_note": "below 2.40 % duty the commanded pulse is shorter than the EG2103's 560 ns minimum and the high side never turns on; the same applies by symmetry at the top of the range",
   "recommendation": null,
-  "seconds": 82.6,
+  "seconds": 105.0,
   "figure": "p6_deadtime.png"
  },
  "Q10": {
   "question": "Q10 (consequence)",
-  "angle_error_peak_deg": 0.122677374076261,
+  "angle_error_peak_deg": 0.12267737407537993,
   "torque_loss_pct": 0.00022922053201090975,
-  "i_d_error_A": 0.06056008841473768,
-  "torque_ripple_from_angle_pct": 7.057256119449698e-05,
-  "angle_error_rms_deg": 0.08829332670016832,
+  "i_d_error_A": 0.06056008841430274,
+  "torque_ripple_from_angle_pct": 7.057256119179036e-05,
+  "angle_error_rms_deg": 0.08829332670056382,
   "note": "a current-dependent angle error is a torque error that moves with the current, so it shows up as a gain error in the torque loop rather than as noise"
  },
  "Q14": {
@@ -836,10 +836,10 @@
   "seconds": 0.0
  },
  "_phase": {
-  "seconds": 91.4
+  "seconds": 114.4
  },
  "_meta": {
-  "written": "2026-09-29T08:56:56",
-  "board_mtime": "2026-09-29T07:50:46"
+  "written": "2026-10-12T00:39:02",
+  "board_mtime": "2026-09-29T10:50:13"
  }
 }

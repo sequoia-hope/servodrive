@@ -94,6 +94,46 @@ def fasthenry_wire(wd):
     }
 
 
+@test("fasthenry_plated_barrel", 0.03,
+      "one 0.4 mm plated barrel, 1.5 mm long, as fasthenry/mesher builds it "
+      "-- the tube's partial self inductance and its R")
+def fasthenry_plated_barrel(wd):
+    """The barrel the board models use, against a plated tube.
+
+    It is not a round wire: a 25 um wall about a 0.4 mm hole has a geometric
+    mean distance of 0.217 mm, nearly its outer radius.  mesher.add_barrel
+    once used a bar of the plating's AREA (GMD 0.082 mm), which this test
+    would have failed by 51 %; it now uses a bar of the tube's GMD with its
+    conductivity scaled to keep the resistance."""
+    r = _fh()
+    from fasthenry import mesher
+    from extract import copper as C
+    drill, plating, l_mm = 0.40, 0.025, 1.5
+    # a through via, F.Cu to B.Cu, on six evenly spaced layers: the chain of
+    # five bars the board models build, whose partials and mutuals have to
+    # add up to the one tube
+    m = mesher.Mesh("plated barrel", (-1, -1, 1, 1), xs=[-1, 0, 1],
+                    ys=[-1, 0, 1])
+    m.stack = {name: {"z": l_mm * k / 5}
+               for k, name in enumerate(mesher.CU_LAYERS)}
+    nm = m.add_barrel({"ref": "kat", "x": 0.0, "y": 0.0, "drill": drill,
+                       "i0": 0, "i1": 5}, {}, plating=plating)
+    m.model.port("p", f"NB{nm}_0", f"NB{nm}_5")
+    f, Z, _, _ = r.run(m.model, 1e2, 1e2, workdir=wd / "barrel")
+    L, R = r.LR(f, Z)
+    g = mesher.tube_gmd(drill / 2, drill / 2 + plating) * 1e-3
+    l = l_mm * 1e-3
+    L_tube = 2e-7 * l * (math.asinh(l / g) - math.sqrt(1 + (g / l) ** 2)
+                         + g / l)
+    R_tube = l / (r.SIGMA_CU_PLATED * C.barrel_area(drill, plating) * 1e-6)
+    errL, okL = _verdict(float(L[0]), L_tube, 0.03)
+    errR, okR = _verdict(float(R[0]), R_tube, 0.01)
+    return {"L_nH": float(L[0] * 1e9), "L_tube_closed_form_nH": L_tube * 1e9,
+            "R_mOhm": float(R[0] * 1e3), "R_tube_mOhm": R_tube * 1e3,
+            "tube_gmd_mm": g * 1e3, "err_L": errL, "err_R": errR,
+            "pass": bool(okL and okR)}
+
+
 @test("fasthenry_strip_over_plane", 0.35,
       "15.4 x 5 mm strip, 70 um, 0.1 mm over a wide plane -- "
       "geometry.commutation_loop()'s PCB term")

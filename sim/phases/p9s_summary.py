@@ -325,11 +325,36 @@ def rows(R):
         "reported", "info", "P8")
 
     q11 = P7.get("Q11") or {}
-    row("Radiated field",
-        "not quoted: a whole-board FDTD mesh cannot resolve 0.15&nbsp;mm copper at an "
-        "affordable cell count, so the far-field run does not converge"
-        if not q11.get("converged") else "converged; see P7",
-        "informational", "info", "P7 Q11")
+    ff11 = q11.get("far_field") or {}
+    if q11.get("converged") and ff11:
+        m11 = q11.get("model") or {}
+        t11 = q11.get("tests") or {}
+
+        def need(r):
+            """mV of switch-node signal, in a 120 kHz receiver band, that
+            puts the field on the CISPR 32 class B limit at 3 m"""
+            lim = 40.0 if r["f_Hz"] <= 230e6 else 47.0
+            return 10 ** ((lim - r["dBuV_per_m_per_V"]) / 20) * 1e3
+
+        ring = m11.get("ring_Hz") or 1.2e8
+        at = min(ff11.values(), key=lambda r: abs(r["f_Hz"] - ring))
+        low = min((r for r in ff11.values() if r["f_Hz"] <= 3e8), key=need)
+        lead = (m11.get("lead") or {}).get("length_mm")
+        row("Radiated field",
+            f"{at['dBuV_per_m_per_V']:.0f}&nbsp;dB&micro;V/m at 3&nbsp;m per volt across "
+            f"the switch node at its {ring / 1e6:.0f}&nbsp;MHz ring, with a "
+            f"{lead:.0f}&nbsp;mm motor lead: {need(at):.0f}&nbsp;mV of switch-node signal "
+            f"in a CISPR receiver's 120&nbsp;kHz band reaches class&nbsp;B there "
+            f"({need(low):.0f}&nbsp;mV at {low['f_Hz'] / 1e6:.0f}&nbsp;MHz, the least up "
+            f"to 300&nbsp;MHz). Two meshes agree to "
+            f"{f(t11.get('mesh_change_max_dB'), 1, 'dB')}; the transform reproduces "
+            f"a textbook dipole",
+            "informational", "info", "P7 Q11", "p7_radiated.png")
+    else:
+        row("Radiated field",
+            "not quoted: " + (q11.get("not_converged_reason")
+                              or q11.get("error") or "P7 did not run Q11"),
+            "informational", "info", "P7 Q11")
     return out
 
 
@@ -379,10 +404,17 @@ FIGS = [
     ("p6_sampling.png", "What the ADC gives the current loop",
      "The FOC loop, the motor and the RP2350's ADC together: free-running round-robin "
      "sampling against sampling at the PWM counter's zero."),
+    ("p7_radiated.png", "What the board radiates",
+     "openEMS, the whole board: phase A's switch node driven against ground at the "
+     "low-side FET, with the motor lead on J1. Every other net is AC ground at these "
+     "frequencies, so only the switch node's copper needs a mesh fine enough to keep it "
+     "apart. Top: the field at 3&nbsp;m per volt across the switch node, on two meshes. "
+     "Bottom: the switch-node level, in a CISPR receiver's 120&nbsp;kHz band, that puts "
+     "the field on the class&nbsp;B limit."),
     ("p7_crosscheck.png", "Two solvers, one loop",
      "The same loop in openEMS (full wave, mesh snapped to the copper) and in FastHenry "
-     "(quasi-static), each over its own mesh series. On this board the full-wave series "
-     "has not settled: its finest step reads twice the two before it (table above)."),
+     "(quasi-static), each over its own mesh series (the numbers are in the table "
+     "above)."),
 ]
 
 

@@ -19,31 +19,49 @@ from lib import paths                                        # noqa: E402
 from extract import copper                                   # noqa: E402
 
 
-def _simple_pieces(geom, max_pts=400):
-    """Split a polygon with holes into simple polygons openEMS can extrude."""
+def _simple_pieces(geom, max_pts=400, _depth=0):
+    """Split a shape into simple polygons openEMS can extrude, losing none
+    of it.
+
+    The first version cut a shape with holes into 1 mm vertical strips and
+    dropped every strip piece that still had a hole inside it, and every piece
+    over `max_pts` vertices.  A via antipad narrower than the strip lies wholly
+    inside one more often than not, so on board S that threw away 900 of the
+    2735 mm2 of each of the In1 and In4 ground planes -- a third of the plane,
+    in 1 mm slots -- and 42 of the 412 mm2 of In1 under cell A's commutation
+    loop, with nothing reported.  Now a piece that still has a hole is cut
+    again through that hole, and an over-long one is halved across its longer
+    side, until every piece is simple; `export` checks the areas afterwards.
+    """
     out = []
     geoms = list(geom.geoms) if hasattr(geom, "geoms") else [geom]
     for g in geoms:
-        if g.is_empty or g.area < 1e-4:
+        if not isinstance(g, Polygon) or g.is_empty or g.area < 1e-4:
             continue
-        if not g.interiors:
-            out.append(list(g.exterior.coords)[:-1])
+        n = len(g.exterior.coords) - 1
+        if not g.interiors and n <= max_pts:
+            if n >= 3:
+                out.append(list(g.exterior.coords)[:-1])
             continue
-        # cut the shape into vertical strips so each piece is hole-free
+        if _depth > 60:                # cannot happen on real copper; the
+            continue                   # area check in export() would say so
         minx, miny, maxx, maxy = g.bounds
-        n = max(4, int((maxx - minx) / 1.0))
-        xs = np.linspace(minx, maxx, n + 1)
-        for a, b in zip(xs[:-1], xs[1:]):
-            piece = g.intersection(box(a, miny, b, maxy))
-            if piece.is_empty:
-                continue
-            for q in (piece.geoms if hasattr(piece, "geoms") else [piece]):
-                if q.area < 1e-4 or not isinstance(q, Polygon):
-                    continue
-                if q.interiors:
-                    continue
-                out.append(list(q.exterior.coords)[:-1])
-    return [p for p in out if len(p) >= 3 and len(p) <= max_pts]
+        if g.interiors:
+            # a vertical cut through a point inside the hole opens it
+            cx = Polygon(g.interiors[0]).representative_point().x
+            halves = (box(minx - 1, miny - 1, cx, maxy + 1),
+                      box(cx, miny - 1, maxx + 1, maxy + 1))
+        elif maxx - minx >= maxy - miny:
+            cx = (minx + maxx) / 2
+            halves = (box(minx - 1, miny - 1, cx, maxy + 1),
+                      box(cx, miny - 1, maxx + 1, maxy + 1))
+        else:
+            cy = (miny + maxy) / 2
+            halves = (box(minx - 1, miny - 1, maxx + 1, cy),
+                      box(minx - 1, cy, maxx + 1, maxy + 1))
+        for h in halves:
+            out += _simple_pieces(g.intersection(h), max_pts, _depth + 1)
+    return out
 
 
 def export(window, nets, layers=None, simplify=0.05, out=None, name="cell"):
@@ -52,16 +70,23 @@ def export(window, nets, layers=None, simplify=0.05, out=None, name="cell"):
     layers = layers or copper.CU_LAYERS
     data = {"window": list(window), "stack": stack, "polys": [], "barrels": [],
             "nets": list(nets)}
+    area_in = area_out = 0.0
     for net in nets:
         for layer in layers:
             u = copper.net_union(net, layer, window, simplify=simplify)
             if u is None or u.is_empty:
                 continue
-            for pts in _simple_pieces(u):
+            pieces = _simple_pieces(u)
+            area_in += u.area
+            area_out += sum(Polygon(q).area for q in pieces)
+            for pts in pieces:
                 data["polys"].append({
                     "net": net, "layer": layer,
                     "z": stack[layer]["z"], "t": stack[layer]["t"],
                     "pts": [[round(x, 4), round(y, 4)] for x, y in pts]})
+    # what the polygons the solver gets add up to, against the copper itself
+    data["copper_mm2"] = round(area_in, 2)
+    data["copper_lost_mm2"] = round(area_in - area_out, 3)
     for b in copper.barrels(nets, window):
         data["barrels"].append({
             "net": b["net"], "ref": b["ref"], "x": b["x"], "y": b["y"],

@@ -1221,11 +1221,15 @@ def sec_q11(R):
                      f'cent.</p>')
     if q and not q.get("error") and q.get("converged", True):
         ff = q.get("far_field") or {}
-        rows = [[e(k), num(v.get("E_at_3m_V_per_m"), 4),
-                 num(v.get("dBuV_per_m"), 1)] for k, v in ff.items()]
-        body += (f"<h3>Far field with a 250 mm motor lead</h3>"
-                 + table(["frequency (Hz)", "E at 3 m (V/m)",
-                          "dB&micro;V/m"], rows)
+        lead = ((q.get("model") or {}).get("lead") or {}).get("length_mm")
+        rows = [[num(v["f_Hz"] / 1e6, 1), num(v.get("dBuV_per_m_per_V"), 1),
+                 num(v.get("D_max"), 2), num(v.get("R_rad_ohm"), 4)]
+                for v in ff.values()]
+        body += (f"<h3>Far field with a {num(lead, 0)}&nbsp;mm motor lead</h3>"
+                 + table(["frequency (MHz)",
+                          "dB&micro;V/m at 3&nbsp;m per volt at the switch "
+                          "node", "directivity",
+                          "R<sub>rad</sub> (&Omega;)"], rows)
                  + f"<p>{e((q.get('cispr32_class_B_3m_dBuV_per_m') or {}).get('note', ''))}</p>")
     elif q:
         body += (f'<div class="note"><p><strong>The whole-board near- and '

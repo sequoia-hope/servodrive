@@ -9,16 +9,16 @@
   ],
   "ripple": {
    "i_ripple_rms_total": 12.371867960878895,
-   "share_to_bulk": 1.0958986530975163,
-   "i_bulk_rms": 13.558313434627497,
-   "i_bulk_peak": 18.597838502526095,
+   "share_to_bulk": 1.0953975096723731,
+   "i_bulk_rms": 13.552113354342163,
+   "i_bulk_peak": 18.589333898144044,
    "i_avg": 16.9704,
    "n_cans": 6,
    "note": "all of it split equally between the 6 cans",
    "source": "P4 Q13_ripple nominal case"
   },
-  "i_can_peak_A": 3.099639750421016,
-  "i_can_rms_A": 2.2597189057712495,
+  "i_can_peak_A": 3.0982223163573406,
+  "i_can_rms_A": 2.258685559057027,
   "cans": {
    "xt30": [
     {
@@ -275,15 +275,15 @@
     "gap_mm": 1.0,
     "B_magnet_inplane_mT": 88.05056116303594,
     "in_window": true,
-    "err_phase_only_deg": 0.09612164356684616,
-    "xt30_caps_only_deg": 0.005672716828513558,
-    "xt30_combined_deg": 0.0997406464396704,
+    "err_phase_only_deg": 0.09612164356900621,
+    "xt30_caps_only_deg": 0.005670122747204687,
+    "xt30_combined_deg": 0.09973899161445843,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "A"
     },
     "xt30_bus_only_deg": 0.009570911890676825,
-    "xt30_all_deg": 0.10269440584869471,
+    "xt30_all_deg": 0.10269282488496856,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -295,15 +295,15 @@
     "gap_mm": 1.5,
     "B_magnet_inplane_mT": 68.99791748627113,
     "in_window": true,
-    "err_phase_only_deg": 0.12267737407418622,
-    "xt30_caps_only_deg": 0.007239148399349915,
-    "xt30_combined_deg": 0.1272939459296083,
+    "err_phase_only_deg": 0.12267737407694312,
+    "xt30_caps_only_deg": 0.007235838001577122,
+    "xt30_combined_deg": 0.12729183499354235,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "A"
     },
     "xt30_bus_only_deg": 0.012213769115305695,
-    "xt30_all_deg": 0.13106732116847297,
+    "xt30_all_deg": 0.13106530451699427,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -315,15 +315,15 @@
     "gap_mm": 2.0,
     "B_magnet_inplane_mT": 54.1610862103152,
     "in_window": true,
-    "err_phase_only_deg": 0.15630493238975873,
-    "xt30_caps_only_deg": 0.009222239297031365,
-    "xt30_combined_deg": 0.1621833204694667,
+    "err_phase_only_deg": 0.1563049323932546,
+    "xt30_caps_only_deg": 0.009218022046724172,
+    "xt30_combined_deg": 0.16218063262616056,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "A"
     },
     "xt30_bus_only_deg": 0.015559607217824123,
-    "xt30_all_deg": 0.16699679449996552,
+    "xt30_all_deg": 0.16699422681392662,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -335,15 +335,15 @@
     "gap_mm": 1.0,
     "B_magnet_inplane_mT": 95.78722134890938,
     "in_window": true,
-    "err_phase_only_deg": 0.08835516503813778,
-    "xt30_caps_only_deg": 0.0052145350476564545,
-    "xt30_combined_deg": 0.09168223412683574,
+    "err_phase_only_deg": 0.08835516504009888,
+    "xt30_caps_only_deg": 0.005212150489057876,
+    "xt30_combined_deg": 0.09168071278335788,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "A"
     },
     "xt30_bus_only_deg": 0.008797875259517696,
-    "xt30_all_deg": 0.09439658130594353,
+    "xt30_all_deg": 0.09439512785243664,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -355,15 +355,15 @@
     "gap_mm": 1.5,
     "B_magnet_inplane_mT": 75.06049601016944,
     "in_window": true,
-    "err_phase_only_deg": 0.11276425000508539,
-    "xt30_caps_only_deg": 0.00665444663994208,
-    "xt30_combined_deg": 0.11700854887121181,
+    "err_phase_only_deg": 0.11276425000761492,
+    "xt30_caps_only_deg": 0.006651403621646068,
+    "xt30_combined_deg": 0.11700660814477715,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "A"
     },
     "xt30_bus_only_deg": 0.011227270039682935,
-    "xt30_all_deg": 0.12047578466183495,
+    "xt30_all_deg": 0.1204739305952387,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -375,15 +375,15 @@
     "gap_mm": 2.0,
     "B_magnet_inplane_mT": 58.92001010327177,
     "in_window": true,
-    "err_phase_only_deg": 0.1436729014069158,
-    "xt30_caps_only_deg": 0.00847736399657606,
-    "xt30_combined_deg": 0.14907747872251775,
+    "err_phase_only_deg": 0.14367290141015587,
+    "xt30_caps_only_deg": 0.008473487372270938,
+    "xt30_combined_deg": 0.1490750075042513,
     "xt30_worst_case": {
      "h_int_mm": 4.0,
      "split": "A"
     },
     "xt30_bus_only_deg": 0.014302865926879349,
-    "xt30_all_deg": 0.15349995404642414,
+    "xt30_all_deg": 0.15349759326502976,
     "xt30_all_worst_case": {
      "h_contacts_mm": 5.0,
      "split": "C",
@@ -394,34 +394,34 @@
   "headline": {
    "nominal_N35_gap1.5": {
     "B_magnet_inplane_mT": 68.99791748627113,
-    "err_phase_only_deg": 0.12267737407418622,
-    "xt30_caps_only_deg": 0.007239148399349915,
-    "xt30_combined_deg": 0.1272939459296083,
+    "err_phase_only_deg": 0.12267737407694312,
+    "xt30_caps_only_deg": 0.007235838001577122,
+    "xt30_combined_deg": 0.12729183499354235,
     "xt30_bus_only_deg": 0.012213769115305695,
-    "xt30_all_deg": 0.13106732116847297
+    "xt30_all_deg": 0.13106530451699427
    },
    "weakest": {
     "grade": "N35",
     "gap_mm": 2.0,
     "B_magnet_inplane_mT": 54.1610862103152,
-    "err_phase_only_deg": 0.15630493238975873,
-    "xt30_caps_only_deg": 0.009222239297031365,
-    "xt30_combined_deg": 0.1621833204694667,
+    "err_phase_only_deg": 0.1563049323932546,
+    "xt30_caps_only_deg": 0.009218022046724172,
+    "xt30_combined_deg": 0.16218063262616056,
     "xt30_bus_only_deg": 0.015559607217824123,
-    "xt30_all_deg": 0.16699679449996552
+    "xt30_all_deg": 0.16699422681392662
    },
-   "xt30_caps_B_peak_uT": 8.719296749054317,
+   "xt30_caps_B_peak_uT": 8.715309502400341,
    "xt30_bus_B_peak_uT": 14.709382815468564,
    "xt30_all_pass_everywhere": false
   },
   "figure": "p5s_board_s.png",
-  "seconds": 45.6
+  "seconds": 57.1
  },
  "_phase": {
-  "seconds": 45.6
+  "seconds": 57.1
  },
  "_meta": {
-  "written": "2026-09-29T08:55:24",
-  "board_mtime": "2026-09-29T07:50:46"
+  "written": "2026-10-12T00:37:08",
+  "board_mtime": "2026-09-29T10:50:13"
  }
 }

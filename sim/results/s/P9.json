@@ -2,16 +2,16 @@
  "rows": [
   {
    "area": "Commutation loop",
-   "result": "2.08&nbsp;nH of PCB (FastHenry, all four capacitors); 3.2&ndash;3.4&nbsp;nH with the two FET packages and the capacitors' ESL (its mesh series 2.56, 2.38, 2.14, 2.05, 2.08, 1.86&nbsp;nH, 10.4&nbsp;% on the last step); cells A/B/C within 18&nbsp;%; the full-wave check, one capacitor's loop, reads 1.88, 1.81, 1.76&nbsp;nH as its mesh refines (0.2, 0.14, 0.1&nbsp;mm) against FastHenry's 2.78&nbsp;nH",
+   "result": "2.03&nbsp;nH of PCB (FastHenry, all four capacitors); 3.2&ndash;3.3&nbsp;nH with the two FET packages and the capacitors' ESL (its mesh series 2.50, 2.32, 2.10, 2.00, 2.03, 1.82, 1.74&nbsp;nH, 4.2&nbsp;% on the last step); cells A/B/C within 18&nbsp;%; the full-wave check, one capacitor's loop, reads 2.37, 2.32, 2.27&nbsp;nH as its mesh refines (0.2, 0.14, 0.1&nbsp;mm) against FastHenry's 2.49&nbsp;nH",
    "criterion": "reported; FastHenry and openEMS agree within 25&nbsp;%, each converged",
-   "verdict": "fail",
+   "verdict": "pass",
    "evidence": "P1 Q1, P7 Q1_crosscheck",
    "figure": "p1_current_A.png",
    "why": ""
   },
   {
    "area": "Switching overshoot",
-   "result": "51.3&nbsp;V peak at 48&nbsp;V and 28.3&nbsp;A; 70.6&nbsp;V at the worst corner swept (R<sub>g</sub>, T<sub>j</sub>, driver strength, capacitance); 59.2&nbsp;V at 56&nbsp;V, the top of the fold-back",
+   "result": "51.2&nbsp;V peak at 48&nbsp;V and 28.3&nbsp;A; 69.7&nbsp;V at the worst corner swept (R<sub>g</sub>, T<sub>j</sub>, driver strength, capacitance); 59.1&nbsp;V at 56&nbsp;V, the top of the fold-back",
    "criterion": "V<sub>ds</sub> &le; 57&nbsp;V everywhere (the TPSMF4L54A's breakdown minimum is 60.0 V; the criterion keeps board A's 3 V margin under it); ringing under 5&nbsp;% in 5 cycles",
    "verdict": "warn",
    "evidence": "P2 Q2",
@@ -20,7 +20,7 @@
   },
   {
    "area": "Snubber",
-   "result": "at the nominal edge, which passes without one (51.3&nbsp;V), every RC from 2.2&ndash;22&nbsp;&Omega; and 0.47&ndash;4.7&nbsp;nF leaves the peak at 51.0&ndash;51.4&nbsp;V: the overshoot there is too small for a snubber to matter. The sweep is not run at the strong-driver corner that reaches 70.6&nbsp;V",
+   "result": "at the nominal edge, which passes without one (51.2&nbsp;V), every RC from 2.2&ndash;22&nbsp;&Omega; and 0.47&ndash;4.7&nbsp;nF leaves the peak at 50.9&ndash;51.3&nbsp;V: the overshoot there is too small for a snubber to matter. The sweep is not run at the strong-driver corner that reaches 69.7&nbsp;V",
    "criterion": "the smallest RC that passes Q2 with P<sub>R</sub> &le; 0.25&nbsp;W",
    "verdict": "info",
    "evidence": "P2 Q3",
@@ -29,7 +29,7 @@
   },
   {
    "area": "Miller turn-on",
-   "result": "3.04&nbsp;V induced on the off FET's gate at the nominal edge, 3.63&nbsp;V at the worst corner, against a V<sub>GS(th)</sub> of 2.2&nbsp;V minimum",
+   "result": "3.04&nbsp;V induced on the off FET's gate at the nominal edge, 3.62&nbsp;V at the worst corner, against a V<sub>GS(th)</sub> of 2.2&nbsp;V minimum",
    "criterion": "induced V<sub>gs</sub> &le; 0.7 &times; V<sub>GS(th),min</sub>",
    "verdict": "fail",
    "evidence": "P2 Q4",
@@ -38,7 +38,7 @@
   },
   {
    "area": "Current sense, transient",
-   "result": "the INA241A3 holds its output 1000&nbsp;ns after each edge (settles in 2318&nbsp;ns, 35 LSB worst); a free-running ADC lands 12&ndash;14&nbsp;% of samples in a hold, PWM-synchronised sampling none",
+   "result": "the INA241A3 holds its output 1000&nbsp;ns after each edge (settles in 1196&nbsp;ns, 35 LSB worst); a free-running ADC lands 12&ndash;14&nbsp;% of samples in a hold, PWM-synchronised sampling none",
    "criterion": "settled to &plusmn;1 LSB in 500&nbsp;ns; &le; 6&nbsp;% of samples disturbed",
    "verdict": "fail",
    "evidence": "P2 Q5",
@@ -74,7 +74,7 @@
   },
   {
    "area": "Bus ripple",
-   "result": "2.43&nbsp;V peak-to-peak at the drains; 3.2&nbsp;A RMS goes back up a 1&nbsp;&micro;H battery lead; the ceramics are 8.2&nbsp;&micro;F at 48&nbsp;V of 13.8 nominal; the cans are about 1.1&nbsp;nH of plane from cell A",
+   "result": "2.42&nbsp;V peak-to-peak at the drains; 3.2&nbsp;A RMS goes back up a 1&nbsp;&micro;H battery lead; the ceramics are 8.2&nbsp;&micro;F at 48&nbsp;V of 13.8 nominal; the cans are about 1.0&nbsp;nH of plane from cell A",
    "criterion": "V<sub>bus,pp</sub> &le; 3&nbsp;V; no DC-link resonance with Q &gt; 3 below 1&nbsp;MHz",
    "verdict": "pass",
    "evidence": "P4 Q13",
@@ -146,11 +146,11 @@
   },
   {
    "area": "Radiated field",
-   "result": "not quoted: a whole-board FDTD mesh cannot resolve 0.15&nbsp;mm copper at an affordable cell count, so the far-field run does not converge",
+   "result": "56&nbsp;dB&micro;V/m at 3&nbsp;m per volt across the switch node at its 115&nbsp;MHz ring, with a 58&nbsp;mm motor lead: 164&nbsp;mV of switch-node signal in a CISPR receiver's 120&nbsp;kHz band reaches class&nbsp;B there (36&nbsp;mV at 230&nbsp;MHz, the least up to 300&nbsp;MHz). Two meshes agree to 0.5&nbsp;dB; the transform reproduces a textbook dipole",
    "criterion": "informational",
    "verdict": "info",
    "evidence": "P7 Q11",
-   "figure": null,
+   "figure": "p7_radiated.png",
    "why": ""
   }
  ],
@@ -166,14 +166,14 @@
   "P7",
   "P8"
  ],
- "page": "/tmp/claude-1000/-home-sequoia-pcb-servodrive/18b7dc25-1644-4c8d-b6a9-6174c64f5afa/scratchpad/wt/single.html",
+ "page": "/home/sequoia/pcb/servodrive/single.html",
  "written_to_page": true,
- "date": "2026-09-29",
+ "date": "2026-10-12",
  "_phase": {
   "seconds": 0.0
  },
  "_meta": {
-  "written": "2026-09-29T10:09:11",
-  "board_mtime": "2026-09-29T07:50:46"
+  "written": "2026-10-12T03:10:49",
+  "board_mtime": "2026-09-29T10:50:13"
  }
 }
