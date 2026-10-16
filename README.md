@@ -284,6 +284,8 @@ tools/geometry.py    every dimension and every derived number; regenerates img/*
 tools/placement.py   the board-A floorplan, and the checks that keep it legal
 tools/placement_s.py board S, the single-board variant: its floorplan (layout()),
                      drawn to img/board_s_*.svg and single.html's tables
+tools/placement_e.py board E, the Ethernet daughter board: a placement sketch
+                     over board S as routed, drawn to img/board_e_plan.svg
 tools/schematic.py   the board-A netlist, and the sheets it emits
 tools/schematic_s.py board S's netlist, built from schematic.py's own functions
 tools/gen_boards.py  emits the KiCad projects from the three above; --board s

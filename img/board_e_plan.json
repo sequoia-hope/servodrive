@@ -1,0 +1,650 @@
+{
+ "parts": [
+  {
+   "ref": "J1",
+   "value": "HR911105A",
+   "kind": "RJ45",
+   "fp": "Connector_RJ:RJ45_Hanrun_HR911105A_Horizontal",
+   "face": "F",
+   "x": 0.291,
+   "y": -20.231,
+   "rot": 13.5,
+   "note": "RJ45 with magnetics and LEDs; mouth radial, past the rim on a nose",
+   "axis_deg": 283.5,
+   "overhang_mm": 4.5
+  },
+  {
+   "ref": "J2",
+   "value": "HC-PM127-4.3H-2x10PS",
+   "kind": "SOCK",
+   "fp": "Connector_PinSocket_1.27mm:PinSocket_2x10_P1.27mm_Vertical_SMD",
+   "face": "B",
+   "x": 0.0,
+   "y": 0.0,
+   "rot": 90,
+   "note": "mates with board S's J13, contact over contact",
+   "nets": {
+    "1": "VBUS",
+    "2": "GND",
+    "3": "VBUS",
+    "4": "GND",
+    "5": "VBUS",
+    "6": "GND",
+    "7": "VBUS",
+    "8": "GND",
+    "9": "RUN",
+    "10": "GND",
+    "11": "EXP_GP24",
+    "12": "+5V",
+    "13": "EXP_GP19",
+    "14": "+3V3",
+    "15": "EXP_GP20",
+    "16": "EXP_GP21",
+    "17": "EXP_GP22",
+    "18": "EXP_GP23",
+    "19": "SWCLK",
+    "20": "SWDIO"
+   }
+  },
+  {
+   "ref": "U1",
+   "value": "W5500",
+   "kind": "LQFP48",
+   "fp": "Package_QFP:LQFP-48_7x7mm_P0.5mm",
+   "face": "F",
+   "x": -2.439,
+   "y": -4.167,
+   "rot": 103.5,
+   "note": "Ethernet controller, LQFP-48 7x7",
+   "moved": 8.2
+  },
+  {
+   "ref": "Y1",
+   "value": "25MHz",
+   "kind": "X3225",
+   "fp": "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm",
+   "face": "F",
+   "x": -2.128,
+   "y": 3.106,
+   "rot": 193.5,
+   "note": "25 MHz, 20 pF load; at XI/XO",
+   "moved": 0.0
+  },
+  {
+   "ref": "C20",
+   "value": "33p",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": 1.349,
+   "y": 1.473,
+   "rot": 13.5,
+   "note": "crystal load",
+   "moved": 0.0
+  },
+  {
+   "ref": "C21",
+   "value": "33p",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": 1.063,
+   "y": 3.033,
+   "rot": 13.5,
+   "note": "crystal load",
+   "moved": 0.5
+  },
+  {
+   "ref": "R1",
+   "value": "49R9",
+   "kind": "R0402",
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "face": "F",
+   "x": -2.815,
+   "y": -10.285,
+   "rot": 13.5,
+   "note": "TX/RX termination, 1 %",
+   "moved": 1.41
+  },
+  {
+   "ref": "R2",
+   "value": "49R9",
+   "kind": "R0402",
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "face": "F",
+   "x": -1.899,
+   "y": -11.505,
+   "rot": 283.5,
+   "note": "TX/RX termination, 1 %",
+   "moved": 0.9
+  },
+  {
+   "ref": "R3",
+   "value": "49R9",
+   "kind": "R0402",
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "face": "F",
+   "x": 0.852,
+   "y": -10.164,
+   "rot": 13.5,
+   "note": "TX/RX termination, 1 %",
+   "moved": 0.0
+  },
+  {
+   "ref": "R4",
+   "value": "49R9",
+   "kind": "R0402",
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "face": "F",
+   "x": 1.019,
+   "y": -9.134,
+   "rot": 13.5,
+   "note": "TX/RX termination, 1 %",
+   "moved": 1.25
+  },
+  {
+   "ref": "C1",
+   "value": "6n8",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": -0.898,
+   "y": -9.585,
+   "rot": 13.5,
+   "note": "RX termination midpoint",
+   "moved": 1.0
+  },
+  {
+   "ref": "C2",
+   "value": "10n",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": -0.452,
+   "y": -11.642,
+   "rot": 13.5,
+   "note": "transformer centre tap",
+   "moved": 0.79
+  },
+  {
+   "ref": "R5",
+   "value": "12k4",
+   "kind": "R0402",
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "face": "F",
+   "x": 4.173,
+   "y": -4.722,
+   "rot": 13.5,
+   "note": "EXRES1, 1 %",
+   "moved": 3.0
+  },
+  {
+   "ref": "C3",
+   "value": "100n",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": -7.717,
+   "y": -6.336,
+   "rot": 283.5,
+   "note": "AVDD/VDD decoupling",
+   "moved": 4.12
+  },
+  {
+   "ref": "C4",
+   "value": "100n",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": -8.612,
+   "y": -4.966,
+   "rot": 13.5,
+   "note": "AVDD/VDD decoupling",
+   "moved": 2.69
+  },
+  {
+   "ref": "C5",
+   "value": "100n",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": -8.812,
+   "y": -4.049,
+   "rot": 13.5,
+   "note": "AVDD/VDD decoupling",
+   "moved": 0.71
+  },
+  {
+   "ref": "C6",
+   "value": "100n",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": 3.918,
+   "y": -3.758,
+   "rot": 13.5,
+   "note": "AVDD/VDD decoupling",
+   "moved": 1.03
+  },
+  {
+   "ref": "C7",
+   "value": "100n",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": 2.967,
+   "y": -1.841,
+   "rot": 283.5,
+   "note": "AVDD/VDD decoupling",
+   "moved": 0.0
+  },
+  {
+   "ref": "C8",
+   "value": "100n",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": 2.767,
+   "y": 0.826,
+   "rot": 13.5,
+   "note": "AVDD/VDD decoupling",
+   "moved": 0.56
+  },
+  {
+   "ref": "C9",
+   "value": "100n",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": -5.738,
+   "y": 1.006,
+   "rot": 13.5,
+   "note": "AVDD/VDD decoupling",
+   "moved": 0.0
+  },
+  {
+   "ref": "C10",
+   "value": "4u7",
+   "kind": "C0603",
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "face": "F",
+   "x": 4.295,
+   "y": 1.513,
+   "rot": 283.5,
+   "note": "TOCAP",
+   "moved": 1.27
+  },
+  {
+   "ref": "C11",
+   "value": "10n",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": 4.734,
+   "y": -2.519,
+   "rot": 13.5,
+   "note": "1V2O",
+   "moved": 0.56
+  },
+  {
+   "ref": "C12",
+   "value": "10u",
+   "kind": "C0603",
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "face": "F",
+   "x": -9.518,
+   "y": -1.239,
+   "rot": 283.5,
+   "note": "3.3 V bulk",
+   "moved": 0.0
+  },
+  {
+   "ref": "FB1",
+   "value": "600R@100MHz",
+   "kind": "L0603",
+   "fp": "Inductor_SMD:L_0603_1608Metric",
+   "face": "F",
+   "x": -11.584,
+   "y": -3.52,
+   "rot": 13.5,
+   "note": "3.3 V to AVDD",
+   "moved": 7.39
+  },
+  {
+   "ref": "U2",
+   "value": "ME6211C33M5G-N",
+   "kind": "SOT235",
+   "fp": "Package_TO_SOT_SMD:SOT-23-5",
+   "face": "F",
+   "x": 1.385,
+   "y": 5.8,
+   "rot": 90,
+   "note": "3.3 V, 500 mA, from J13's +5V",
+   "moved": 1.25
+  },
+  {
+   "ref": "C13",
+   "value": "1u",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": 3.635,
+   "y": 3.95,
+   "rot": 90,
+   "note": "LDO in",
+   "moved": 2.37
+  },
+  {
+   "ref": "C14",
+   "value": "1u",
+   "kind": "C0402",
+   "fp": "Capacitor_SMD:C_0402_1005Metric",
+   "face": "F",
+   "x": 1.385,
+   "y": 8.4,
+   "rot": 0,
+   "note": "LDO out",
+   "moved": 0.0
+  },
+  {
+   "ref": "C15",
+   "value": "10u",
+   "kind": "C0603",
+   "fp": "Capacitor_SMD:C_0603_1608Metric",
+   "face": "F",
+   "x": -1.815,
+   "y": 6.05,
+   "rot": 0,
+   "note": "3.3 V bulk",
+   "moved": 0.25
+  },
+  {
+   "ref": "R6",
+   "value": "10k",
+   "kind": "R0402",
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "face": "F",
+   "x": 3.675,
+   "y": 5.8,
+   "rot": 90,
+   "note": "SCSn pull-up (J13 pin 16)",
+   "moved": 1.12
+  },
+  {
+   "ref": "R7",
+   "value": "10k",
+   "kind": "R0402",
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "face": "F",
+   "x": 4.155,
+   "y": -1.05,
+   "rot": 90,
+   "note": "INTn pull-up (J13 pin 13)",
+   "moved": 3.18
+  },
+  {
+   "ref": "R8",
+   "value": "10k",
+   "kind": "R0402",
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "face": "F",
+   "x": 4.635,
+   "y": 4.2,
+   "rot": 90,
+   "note": "RSTn pull-up (J13 pin 11)",
+   "moved": 5.0
+  },
+  {
+   "ref": "R9",
+   "value": "330R",
+   "kind": "R0402",
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "face": "F",
+   "x": -2.131,
+   "y": -30.095,
+   "rot": 283.5,
+   "note": "jack LED",
+   "moved": 1.0
+  },
+  {
+   "ref": "R10",
+   "value": "330R",
+   "kind": "R0402",
+   "fp": "Resistor_SMD:R_0402_1005Metric",
+   "face": "F",
+   "x": 15.67,
+   "y": -26.552,
+   "rot": 283.5,
+   "note": "jack LED",
+   "moved": 1.03
+  },
+  {
+   "ref": "C16",
+   "value": "1n/2kV",
+   "kind": "C1206",
+   "fp": "Capacitor_SMD:C_1206_3216Metric",
+   "face": "F",
+   "x": 14.978,
+   "y": -15.966,
+   "rot": 13.5,
+   "note": "shield to GND",
+   "moved": 3.09
+  },
+  {
+   "ref": "R11",
+   "value": "1M",
+   "kind": "R0603",
+   "fp": "Resistor_SMD:R_0603_1608Metric",
+   "face": "F",
+   "x": 15.145,
+   "y": -18.035,
+   "rot": 13.5,
+   "note": "shield to GND, bleed",
+   "moved": 5.3
+  },
+  {
+   "ref": "SW1",
+   "value": "RESET",
+   "kind": "B3U",
+   "fp": "Button_Switch_SMD:SW_SPST_B3U-1000P",
+   "face": "F",
+   "x": -4.158,
+   "y": 19.563,
+   "rot": 12.0,
+   "note": "board S's RUN (J13 pin 9)",
+   "moved": 0.0
+  },
+  {
+   "ref": "TP1",
+   "value": "SWCLK",
+   "kind": "TP",
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "face": "F",
+   "x": 5.134,
+   "y": 10.095,
+   "rot": 0,
+   "note": "J13 pin 19",
+   "moved": 0.71
+  },
+  {
+   "ref": "TP2",
+   "value": "SWDIO",
+   "kind": "TP",
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "face": "F",
+   "x": 5.884,
+   "y": 8.095,
+   "rot": 0,
+   "note": "J13 pin 20",
+   "moved": 3.05
+  },
+  {
+   "ref": "TP3",
+   "value": "RUN",
+   "kind": "TP",
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "face": "F",
+   "x": 11.134,
+   "y": 13.095,
+   "rot": 0,
+   "note": "J13 pin 9",
+   "moved": 2.92
+  },
+  {
+   "ref": "TP4",
+   "value": "GND",
+   "kind": "TP",
+   "fp": "TestPoint:TestPoint_Pad_D1.0mm",
+   "face": "F",
+   "x": 13.134,
+   "y": 12.595,
+   "rot": 0,
+   "note": "J13 pin 10",
+   "moved": 2.5
+  }
+ ],
+ "missed": [],
+ "cutouts": [
+  {
+   "name": "can C1015",
+   "why": "bulk can, 9.5 mm tall, through board E",
+   "bounds": [
+    2.66,
+    -12.72,
+    9.96,
+    -5.42
+   ]
+  },
+  {
+   "name": "can C1002",
+   "why": "bulk can, 9.5 mm tall, through board E",
+   "bounds": [
+    11.37,
+    -14.12,
+    18.67,
+    -6.82
+   ]
+  },
+  {
+   "name": "can C1013",
+   "why": "bulk can, 9.5 mm tall, through board E",
+   "bounds": [
+    2.57,
+    11.51,
+    9.87,
+    18.81
+   ]
+  },
+  {
+   "name": "can C1014",
+   "why": "bulk can, 9.5 mm tall, through board E",
+   "bounds": [
+    7.4,
+    4.14,
+    14.7,
+    11.44
+   ]
+  },
+  {
+   "name": "can C1001+C1012",
+   "why": "bulk can, 9.5 mm tall, through board E",
+   "bounds": [
+    -17.72,
+    4.74,
+    -5.01,
+    17.46
+   ]
+  },
+  {
+   "name": "XT30 notch",
+   "why": "the XT30, its plug's path and the wires",
+   "bounds": [
+    -45.94,
+    -45.09,
+    -2.84,
+    -5.01
+   ]
+  },
+  {
+   "name": "BOOTSEL hole",
+   "why": "press BOOTSEL with a pin",
+   "bounds": [
+    -2.25,
+    13.0,
+    1.75,
+    17.0
+   ]
+  },
+  {
+   "name": "LED window",
+   "why": "see board S's status LED",
+   "bounds": [
+    -9.56,
+    3.94,
+    -6.36,
+    7.14
+   ]
+  },
+  {
+   "name": "M2.5 H10",
+   "why": "standoff screw, optional third point",
+   "bounds": [
+    28.15,
+    -1.35,
+    30.85,
+    1.35
+   ]
+  },
+  {
+   "name": "M2.5 H11",
+   "why": "standoff screw, optional third point",
+   "bounds": [
+    9.7,
+    26.0,
+    12.4,
+    28.7
+   ]
+  },
+  {
+   "name": "M2.5 H12",
+   "why": "standoff screw, optional third point",
+   "bounds": [
+    -22.57,
+    19.14,
+    -19.87,
+    21.84
+   ]
+  },
+  {
+   "name": "M2.5 H13",
+   "why": "standoff screw, optional third point",
+   "bounds": [
+    -28.3,
+    -13.35,
+    -25.6,
+    -10.65
+   ]
+  },
+  {
+   "name": "M2.5 H14",
+   "why": "standoff screw, carries the jack",
+   "bounds": [
+    -8.49,
+    -29.97,
+    -5.79,
+    -27.27
+   ]
+  },
+  {
+   "name": "M2.5 H15",
+   "why": "standoff screw, carries the jack",
+   "bounds": [
+    16.81,
+    -24.6,
+    19.51,
+    -21.9
+   ]
+  }
+ ],
+ "outline_mm2": 2761.0
+}

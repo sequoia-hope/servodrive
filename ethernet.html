@@ -30,7 +30,7 @@
   <p class="crumb"><a href="index.html">servodrive</a> &rsaquo; <a href="single.html">board S</a> &rsaquo; Ethernet board</p>
   <div class="title">
     <h1>Board E &mdash; Ethernet expansion</h1>
-    <span class="state draft"><span class="dot"></span>planned &middot; not captured</span>
+    <span class="state draft"><span class="dot"></span>planned &middot; placement sketched &middot; not captured</span>
   </div>
   <p class="lede">A &Oslash;65&nbsp;mm daughter board that stacks on board S's expansion header, J13, and gives
   the drive 10/100 Ethernet: a WIZnet W5500 (hardwired TCP/IP, SPI) behind an RJ45 with its
@@ -131,8 +131,9 @@
       LEDs inside) goes radially at the rim over the <strong>CPU wedge, 256&ndash;308&deg;</strong>: the power
       wedge has the XT30's plug path, the signal wedge the USB-C's mouth, and over the phase cells
       the heatsink ring clamps on the lands. Even there the 315&deg; pocket's two cans (C1015 at
-      R&nbsp;10.6/311&deg;, C1002 at R&nbsp;16.9/326&deg;) limit how far in a 21&nbsp;mm jack reaches, so the jack may
-      have to overhang the edge a little.</li>
+      R&nbsp;10.6/311&deg;, C1002 at R&nbsp;16.9/326&deg;) limit how far in a 21&nbsp;mm jack reaches. The sketch
+      below measured it: nowhere in 256&ndash;308&deg; does it fit with its mouth on the edge; it clears
+      the cans with the mouth <strong>4.5&nbsp;mm past the edge</strong>, at 283.5&deg;.</li>
       <li><strong>Standoffs.</strong> A 1.27&nbsp;mm header cannot take an RJ45's insertion force. Board E
       bolts to board S's M2.5 bosses on 6&nbsp;mm standoffs, at least those at 256&deg; and 308&deg; either
       side of the jack.</li>
@@ -141,19 +142,80 @@
     </ul>
   </section>
 
+  <section id="sketch">
+    <h2>Placement sketch</h2>
+    <p>Board E over board S <em>as routed</em>: the cans, the XT30, BOOTSEL, the status LED and the
+    six bosses are read from <code>servodrive_S.kicad_pcb</code>, and every courtyard is KiCad's own
+    footprint's. Each part goes to the nearest legal spot to where it is wanted, legal meaning on
+    the board, clear of every cutout and of every part on its face. All 40 parts are placed;
+    nothing is captured or routed yet. <code>python3 tools/placement_e.py</code> redraws it.</p>
+    <figure class="wide">
+      <object type="image/svg+xml" data="img/board_e_plan.svg" aria-label="Board E placement
+        sketch over board S"></object>
+      <figcaption><a href="img/board_e_plan.svg">Board E from above</a>, in board S's frame. Blue:
+      board E's parts on its top face; dashed: the socket underneath, over J13; grey: board S's
+      outward face below; amber: board S's cans, through board E. Hover a part for its note.</figcaption>
+    </figure>
+    <ul>
+      <li><strong>The RJ45 needs a nose.</strong> At 21.3&nbsp;mm deep, the HR911105A reaches back to
+      the cans C1015 and C1002 wherever it stands in the CPU wedge. It clears them with its mouth
+      4.5&nbsp;mm past the &Oslash;65 edge, and then its LED pins are 6&nbsp;mm behind the mouth, too
+      close to the edge for copper. So board E grows a 121&nbsp;mm&sup2; nose under the jack, out to
+      its mouth. <strong>This is a decision, not a result.</strong> The other ways out: a shorter
+      jack (magnetics separate), a vertical jack with the cable leaving along the motor axis, or a
+      notch over only the XT30's plug path once its height is measured (that alone brings the
+      overhang to about 3&nbsp;mm).</li>
+      <li><strong>The W5500</strong> sits right behind the jack, its network pins toward the jack's
+      pins and its SPI and crystal side toward the socket. The terminations and centre-tap caps sit
+      between the two.</li>
+      <li><strong>The socket</strong> is on the underside, contact for contact over J13; the
+      sketch matches every pin by position. Everything else is on the top face, so board E is one
+      SMD side plus the socket and the jack.</li>
+      <li><strong>Cutouts:</strong> a hole or slot for each can (C1001 and C1012 share one); a notch
+      over the XT30, its plug's path and the wires, kept whole because the XT30's and its plug's
+      heights are not known; a 4&nbsp;mm hole over BOOTSEL to press it with a pin; a window over the
+      status LED; an M2.5 clearance hole over each of the six bosses.</li>
+      <li><strong>Standoffs</strong> at H14 (256&deg;) and H15 (308&deg;) take the jack's insertion force;
+      the other four holes give an optional third point. The jack's pins and pegs stand about 3&nbsp;mm
+      under board E, so they are kept clear of the standoffs' hex.</li>
+      <li><strong>Board S's M3 heads</strong> stay under board E (3&nbsp;mm against the 6&nbsp;mm gap), so
+      board E comes off before board S does.</li>
+      <li><strong>Reset button</strong> opposite the jack; <strong>SWD and RUN pads</strong> beside the
+      BOOTSEL hole.</li>
+    </ul>
+  </section>
+
   <section id="parts">
     <h2>Parts, and whether they are stocked</h2>
     <table class="parts num">
-      <thead><tr><th>Part</th><th>What</th><th>LCSC</th><th>JLCPCB stock, 2026-09-24</th></tr></thead>
+      <thead><tr><th>Ref</th><th>Part</th><th>What</th><th>LCSC</th><th>JLCPCB stock, 2026-10-16</th></tr></thead>
       <tbody>
-        <tr><td>W5500</td><td>Ethernet controller, LQFP-48 7&nbsp;&times;&nbsp;7</td><td>C32843</td><td>13,561</td></tr>
-        <tr><td>HR911105A</td><td>RJ45, magnetics and LEDs, through-hole</td><td>C12074</td><td>60,528</td></tr>
-        <tr><td>X322525MSB4SI</td><td>25&nbsp;MHz crystal, 20&nbsp;pF, 3225</td><td>C13740</td><td>24,726</td></tr>
-        <tr><td>ME6211C33M5G-N</td><td>3.3&nbsp;V 500&nbsp;mA LDO, SOT-23-5</td><td>C82942</td><td>82,666</td></tr>
-        <tr><td>HC-PM127-4.3H-2x10PS</td><td>1.27&nbsp;mm 2&nbsp;&times;&nbsp;10 SMD socket, 4.3&nbsp;mm, 1&nbsp;A/contact</td><td>C27985222</td><td>927</td></tr>
-        <tr><td>12.4&nbsp;k 1&nbsp;%</td><td>W5500 EXRES1 reference</td><td colspan="2">and the W5500's reference-design passives, from its datasheet</td></tr>
+        <tr><td>U1</td><td>W5500</td><td>Ethernet controller, LQFP-48 7&nbsp;&times;&nbsp;7</td><td>C32843</td><td>13,101</td></tr>
+        <tr><td>J1</td><td>HR911105A</td><td>RJ45, magnetics and LEDs, through-hole</td><td>C12074</td><td>69,132</td></tr>
+        <tr><td>Y1</td><td>X322525MSB4SI</td><td>25&nbsp;MHz crystal, 20&nbsp;pF, 3225</td><td>C13740</td><td>27,616</td></tr>
+        <tr><td>U2</td><td>ME6211C33M5G-N</td><td>3.3&nbsp;V 500&nbsp;mA LDO, SOT-23-5</td><td>C82942</td><td>162,190</td></tr>
+        <tr><td>J2</td><td>HC-PM127-4.3H-2x10PS</td><td>1.27&nbsp;mm 2&nbsp;&times;&nbsp;10 SMD socket, 4.3&nbsp;mm, 1&nbsp;A/contact</td><td>C27985222</td><td>892 &mdash; the only one</td></tr>
+        <tr><td>SW1</td><td>B3U-1000P</td><td>reset, on board S's RUN (board S's BOOTSEL part)</td><td>C231329</td><td>117,296</td></tr>
+        <tr><td>C3&ndash;C9</td><td>100&nbsp;nF 0402</td><td>AVDD/VDD decoupling, one per pin</td><td>C1525</td><td>22,169,276</td></tr>
+        <tr><td>C2, C11</td><td>10&nbsp;nF 0402</td><td>transformer centre tap; 1V2O</td><td>C15195</td><td>6,286,016</td></tr>
+        <tr><td>C1</td><td>6.8&nbsp;nF 0402</td><td>RX termination midpoint</td><td>C93654</td><td>348,003</td></tr>
+        <tr><td>C20, C21</td><td>33&nbsp;pF 0402 C0G</td><td>crystal load: 2&nbsp;&times;&nbsp;(20&nbsp;pF &minus; stray)</td><td>C1562</td><td>1,303,755</td></tr>
+        <tr><td>C10</td><td>4.7&nbsp;&micro;F 0603</td><td>TOCAP</td><td>C19666</td><td>3,625,992</td></tr>
+        <tr><td>C12, C15</td><td>10&nbsp;&micro;F 0603</td><td>3.3&nbsp;V bulk</td><td>C19702</td><td>10,592,941</td></tr>
+        <tr><td>C13, C14</td><td>1&nbsp;&micro;F 0402</td><td>LDO in and out</td><td>C52923</td><td>9,575,141</td></tr>
+        <tr><td>C16</td><td>1&nbsp;nF 2&nbsp;kV 1206</td><td>jack shield to GND</td><td>C9196</td><td>2,396,824</td></tr>
+        <tr><td>R1&ndash;R4</td><td>49.9&nbsp;&Omega; 1&nbsp;% 0402</td><td>TX/RX terminations</td><td>C25120</td><td>1,264,350</td></tr>
+        <tr><td>R5</td><td>12.4&nbsp;k 1&nbsp;% 0402</td><td>EXRES1 reference</td><td>C11692</td><td>253,157</td></tr>
+        <tr><td>R6&ndash;R8</td><td>10&nbsp;k 0402</td><td>SCSn, INTn, RSTn pull-ups</td><td>C25744</td><td>21,719,695</td></tr>
+        <tr><td>R9, R10</td><td>330&nbsp;&Omega; 0402</td><td>the jack's two LEDs</td><td>C25104</td><td>1,324,526</td></tr>
+        <tr><td>R11</td><td>1&nbsp;M 0603</td><td>shield bleed</td><td>C22935</td><td>5,571,708</td></tr>
+        <tr><td>FB1</td><td>600&nbsp;&Omega; @ 100&nbsp;MHz 0603, 1.3&nbsp;A</td><td>3.3&nbsp;V to AVDD</td><td>C85833</td><td>872,491</td></tr>
       </tbody>
     </table>
+    <p class="sub">The support values follow WIZnet's reference design as remembered, not yet
+    checked against the W5500 datasheet: the terminations' topology and the centre-tap caps are
+    the ones to confirm at capture. Not from JLCPCB: two M2.5&nbsp;&times;&nbsp;6&nbsp;mm standoffs and
+    screws (and a third if wanted).</p>
     <p class="sub">The socket's 1&nbsp;A per contact also bounds what a PD board could put through
     J13's four VMOT pins: 4&nbsp;A, not the 5&nbsp;A board S's page assumed for the male header alone.</p>
   </section>
@@ -161,9 +223,8 @@
   <section id="next">
     <h2>Next</h2>
     <ol>
-      <li><strong>A placement sketch</strong>, the way board S's floorplan was argued: board E's outline
-      with the can holes, the XT30 notch and the standoffs, the RJ45 at the CPU wedge, the W5500 and
-      its crystal beside it, the socket on the axis, and a drawing of both boards in register.</li>
+      <li><strong>The jack:</strong> a nose under the HR911105A as sketched, or another jack (see the
+      sketch). Measure the XT30's and its plug's heights while at it.</li>
       <li><strong>Capture</strong> from WIZnet's reference circuit (<code>tools/schematic_e.py</code>), and
       generate and route with the same pipeline as boards A and S.</li>
       <li><strong>Firmware bring-up:</strong> PIO SPI on GPIO20&ndash;23, the W5500's version register,
